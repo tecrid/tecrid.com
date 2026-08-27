@@ -37,13 +37,13 @@ export default function Home() {
   return (
     <main>
       <nav className="nav" aria-label="Primary navigation">
-        <a className="brand" href="#top" aria-label="TEC Registry home">
+        <a className="brand" href="#top" aria-label="TEC Network home">
           <span className="brand-mark" aria-hidden="true">T</span>
-          <span>TEC Registry</span>
+          <span className="brand-stack"><strong>TEC Network</strong><small>Institute of Contaminant Standards</small></span>
         </a>
         <div className="nav-links">
           <a href="#how-it-works">How it works</a>
-          <a href="#why-tec">Why TEC</a>
+          <a href="/why">Why TEC</a>
           <a href="#record">Sample record</a>
           <button type="button" className="nav-cta" onClick={() => document.querySelector<HTMLInputElement>("#tec-lookup")?.focus()}>
             Verify a TEC
@@ -52,10 +52,10 @@ export default function Home() {
       </nav>
 
       <section className="hero" id="top">
-        <div className="eyebrow"><span /> Independent evidence infrastructure</div>
+        <div className="eyebrow"><span /> An open initiative of the Institute of Contaminant Standards</div>
         <h1>Lab results that<br />speak for themselves.</h1>
         <p className="hero-copy">
-          TEC turns contaminant reports into permanent, lab-issued digital records—so the data a brand shares is the data the laboratory released.
+          TEC turns contaminant reports into persistent, lab-issued digital records—so the data a brand shares is the data the laboratory released.
         </p>
 
         <form className="lookup" onSubmit={lookup}>
@@ -84,11 +84,11 @@ export default function Home() {
       </section>
 
       <section className="definition" aria-labelledby="definition-title">
-        <p className="section-kicker">The working name</p>
+        <p className="section-kicker">The evidence identifier</p>
         <div>
-          <h2 id="definition-title"><span>T</span>raceable <span>E</span>vidence <span>C</span>ertificate</h2>
+          <h2 id="definition-title"><span>T</span>est <span>E</span>vidence <span>C</span>redential</h2>
           <p>
-            A TEC is a persistent identifier and structured certificate for analytical evidence. Like a DOI points to a scholarly work, a TEC resolves to an authoritative lab record.
+            A TEC is a persistent identifier and structured credential for analytical evidence. Like a DOI points to a scholarly work, a TEC resolves to an authoritative lab-issued record.
           </p>
         </div>
       </section>
@@ -233,10 +233,11 @@ export default function Home() {
               <li><span>✓</span> Authenticated issuer identity</li>
               <li><span>✓</span> Tamper-evident data and methods</li>
               <li><span>✓</span> Human- and machine-readable</li>
-              <li><span>✓</span> Permanent versions and corrections</li>
+              <li><span>✓</span> Persistent versions and corrections</li>
             </ul>
           </div>
         </div>
+        <a className="evidence-link" href="/why">Read the documented case for TEC <span aria-hidden="true">↗</span></a>
       </section>
 
       <section className="boundary-section" aria-labelledby="boundary-title">
@@ -260,8 +261,8 @@ export default function Home() {
       </section>
 
       <footer className="site-footer">
-        <a className="brand footer-brand" href="#top"><span className="brand-mark">T</span><span>TEC Registry</span></a>
-        <p>Traceable Evidence Certificate · Concept prototype</p>
+        <a className="brand footer-brand" href="#top"><span className="brand-mark">T</span><span>TEC Network</span></a>
+        <p>Test Evidence Credential · An ICS initiative</p>
         <p>Evidence should travel with its source.</p>
       </footer>
     </main>
