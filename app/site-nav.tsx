@@ -1,15 +1,15 @@
-import Link from "next/link";
+/* eslint-disable @next/next/no-html-link-for-pages */
 
 export function ProductNav({ compact = false }: { compact?: boolean }) {
   return (
     <nav className={`nav ${compact ? "nav-compact" : ""}`} aria-label="Primary navigation">
-      <Link className="brand" href="/" aria-label="TEC Network home">
+      <a className="brand" href="/" aria-label="TEC Network home">
         <span className="brand-mark" aria-hidden="true">T</span>
         <span className="brand-stack">
           <strong>TEC Network</strong>
           <small>Institute of Contaminant Standards</small>
         </span>
-      </Link>
+      </a>
       <div className="nav-links">
         <a href="/why">Why TEC</a>
         <a href="/developers">API</a>
@@ -24,9 +24,9 @@ export function ProductNav({ compact = false }: { compact?: boolean }) {
 export function ProductFooter() {
   return (
     <footer className="site-footer">
-      <Link className="brand footer-brand" href="/">
+      <a className="brand footer-brand" href="/">
         <span className="brand-mark">T</span><span>TEC Network</span>
-      </Link>
+      </a>
       <p>Test Evidence Credential · An ICS initiative</p>
       <div className="footer-actions">
         <a href="/why">Why TEC</a>
