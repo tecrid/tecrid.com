@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ProductFooter, ProductNav } from "../site-nav";
 
 export const metadata: Metadata = {
   title: "Why TEC exists — TEC Network",
@@ -52,17 +53,7 @@ const sources = [
 export default function WhyTec() {
   return (
     <main className="why-page">
-      <nav className="nav why-nav" aria-label="Primary navigation">
-        <a className="brand" href="/" aria-label="TEC Network home">
-          <span className="brand-mark" aria-hidden="true">T</span>
-          <span className="brand-stack"><strong>TEC Network</strong><small>Institute of Contaminant Standards</small></span>
-        </a>
-        <div className="nav-links">
-          <a href="#evidence">The evidence</a>
-          <a href="#free-network">The free model</a>
-          <a className="nav-cta" href="/#record">Verify a TEC</a>
-        </div>
-      </nav>
+      <ProductNav compact />
 
       <header className="why-hero">
         <div className="why-hero-copy">
@@ -228,14 +219,10 @@ export default function WhyTec() {
           <p className="section-kicker light">The opportunity</p>
           <h2>Make evidence portable before making it powerful.</h2>
         </div>
-        <a href="/#record">Open the sample credential <span aria-hidden="true">↗</span></a>
+        <a href="/join">Join the network <span aria-hidden="true">↗</span></a>
       </section>
 
-      <footer className="site-footer why-footer">
-        <a className="brand footer-brand" href="/"><span className="brand-mark">T</span><span>TEC Network</span></a>
-        <p>Test Evidence Credential · An ICS initiative</p>
-        <p>Evidence should travel with its source.</p>
-      </footer>
+      <ProductFooter />
     </main>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ProductFooter, ProductNav } from "./site-nav";
 
 const SAMPLE_TEC = "TEC·GLP-26-7F3A92";
 
@@ -20,12 +21,10 @@ export default function Home() {
   function lookup(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const normalized = query.trim().toUpperCase().replace("TEC:", "TEC·");
-    if (normalized === SAMPLE_TEC || normalized === "GLP-26-7F3A92") {
-      setMessage("Certificate found — opening the verified record.");
-      document.querySelector("#record")?.scrollIntoView({ behavior: "smooth" });
-    } else {
-      setMessage("That identifier is not in this prototype. Try TEC·GLP-26-7F3A92");
-    }
+    if (!normalized) return setMessage("Enter a TEC identifier to resolve a record.");
+    const identifier = normalized.startsWith("TEC·") ? normalized : `TEC·${normalized}`;
+    setMessage("Resolving the canonical registry record…");
+    window.location.href = `/records/${encodeURIComponent(identifier)}`;
   }
 
   async function copyTec() {
@@ -36,20 +35,7 @@ export default function Home() {
 
   return (
     <main>
-      <nav className="nav" aria-label="Primary navigation">
-        <a className="brand" href="#top" aria-label="TEC Network home">
-          <span className="brand-mark" aria-hidden="true">T</span>
-          <span className="brand-stack"><strong>TEC Network</strong><small>Institute of Contaminant Standards</small></span>
-        </a>
-        <div className="nav-links">
-          <a href="#how-it-works">How it works</a>
-          <a href="/why">Why TEC</a>
-          <a href="#record">Sample record</a>
-          <button type="button" className="nav-cta" onClick={() => document.querySelector<HTMLInputElement>("#tec-lookup")?.focus()}>
-            Verify a TEC
-          </button>
-        </div>
-      </nav>
+      <ProductNav />
 
       <section className="hero" id="top">
         <div className="eyebrow"><span /> An open initiative of the Institute of Contaminant Standards</div>
@@ -257,14 +243,10 @@ export default function Home() {
           <p className="section-kicker light">Infrastructure for verifiable disclosure</p>
           <h2>Make every contaminant claim resolvable.</h2>
         </div>
-        <a href="#record">Explore the sample TEC <span aria-hidden="true">↗</span></a>
+        <a href="/join">Join the network <span aria-hidden="true">↗</span></a>
       </section>
 
-      <footer className="site-footer">
-        <a className="brand footer-brand" href="#top"><span className="brand-mark">T</span><span>TEC Network</span></a>
-        <p>Test Evidence Credential · An ICS initiative</p>
-        <p>Evidence should travel with its source.</p>
-      </footer>
+      <ProductFooter />
     </main>
   );
 }
