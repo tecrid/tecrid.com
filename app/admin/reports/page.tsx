@@ -20,7 +20,7 @@ export default async function LegacyReportAdminPage() {
       <ProductNav compact />
       <header className="dashboard-header"><div><p className="section-kicker light">ICS restricted operation</p><h1>Legacy-report intake audit</h1><p>Private source custody, laboratory claims, discrepancies, and signed issuance</p></div><span className="workspace-code">Intakes <strong>{reports.length}</strong></span></header>
       <section className="admin-application-list legacy-admin-list">
-        <div className="admin-switcher"><a href="/admin/issuers">Issuer applications</a><strong>Report intake audit</strong></div>
+        <div className="admin-switcher"><a href="/admin/issuers">Issuer applications</a><strong>Report intake audit</strong><a href="/admin/founding">Founding launches</a></div>
         {reports.length ? reports.map((report) => (
           <article key={report.id}>
             <header><div><span>{report.id}</span><h2>{report.sampleName}</h2><p>{report.laboratoryName} · {report.reportNumber || "No report number"}</p></div><span className={`record-status record-${report.status}`}>{report.status.replaceAll("_", " ")}</span></header>

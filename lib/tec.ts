@@ -8,6 +8,7 @@ import {
   credentialResults,
   credentialVersions,
   credentials,
+  foundingOnboarding,
   issuerApplications,
   organizationMembers,
   organizations,
@@ -21,6 +22,14 @@ const ORGANIZATION_TYPES = new Set([
   "consultant",
   "research",
   "other",
+]);
+
+const FOUNDING_GOALS = new Set([
+  "historical_reports",
+  "supplier_verification",
+  "public_portfolio",
+  "retailer_procurement",
+  "lims_api",
 ]);
 
 export type CredentialResultInput = {
@@ -340,6 +349,116 @@ export async function getOrganizationForUser(userId: string) {
   return membership ?? null;
 }
 
+export async function getFoundingOnboardingForUser(userId: string) {
+  const membership = await getOrganizationForUser(userId);
+  if (!membership) return null;
+  const db = getDb();
+  const [onboarding] = await db
+    .select()
+    .from(foundingOnboarding)
+    .where(eq(foundingOnboarding.organizationId, membership.organization.id))
+    .limit(1);
+  return onboarding ?? null;
+}
+
+export async function submitFoundingOnboarding(
+  user: ChatGPTUser,
+  input: {
+    contactName?: unknown;
+    contactEmail?: unknown;
+    primaryGoal?: unknown;
+    pilotProduct?: unknown;
+    estimatedReportCount?: unknown;
+    primaryLaboratories?: unknown;
+    targetLaunchDate?: unknown;
+    notes?: unknown;
+  },
+) {
+  const membership = await getOrganizationForUser(user.userId);
+  if (!membership) throw new TecAuthorizationError("Create an organization workspace first.");
+  if (membership.organization.plan !== "founding") {
+    throw new TecAuthorizationError("Founding onboarding requires an active Founding Organization membership.");
+  }
+
+  const contactName = normalizeText(input.contactName, 180);
+  const contactEmail = normalizeText(input.contactEmail, 254).toLowerCase();
+  const primaryGoal = normalizeText(input.primaryGoal, 64);
+  const pilotProduct = normalizeText(input.pilotProduct, 180);
+  const reportCount = Number(input.estimatedReportCount);
+  const estimatedReportCount = Number.isFinite(reportCount)
+    ? Math.max(1, Math.min(5000, Math.round(reportCount)))
+    : 0;
+  const primaryLaboratories = normalizeText(input.primaryLaboratories, 800) || null;
+  const targetLaunchDate = normalizeText(input.targetLaunchDate, 10) || null;
+  const notes = normalizeText(input.notes, 2500) || null;
+
+  if (contactName.length < 2) throw new TecInputError("A launch contact is required.");
+  if (!/^\S+@\S+\.\S+$/.test(contactEmail)) throw new TecInputError("Enter a valid launch-contact email.");
+  if (!FOUNDING_GOALS.has(primaryGoal)) throw new TecInputError("Choose a valid first-pilot goal.");
+  if (pilotProduct.length < 2) throw new TecInputError("Name the product, ingredient, or program for the first pilot.");
+  if (!estimatedReportCount) throw new TecInputError("Estimate how many existing reports belong in the first pilot.");
+  if (targetLaunchDate && !/^\d{4}-\d{2}-\d{2}$/.test(targetLaunchDate)) {
+    throw new TecInputError("Target launch date must use YYYY-MM-DD.");
+  }
+
+  const db = getDb();
+  const timestamp = now();
+  const id = `fnd_${crypto.randomUUID().replaceAll("-", "")}`;
+  await db
+    .insert(foundingOnboarding)
+    .values({
+      id,
+      organizationId: membership.organization.id,
+      contactName,
+      contactEmail,
+      primaryGoal,
+      pilotProduct,
+      estimatedReportCount,
+      primaryLaboratories,
+      targetLaunchDate,
+      notes,
+      status: "submitted",
+      submittedAt: timestamp,
+      updatedAt: timestamp,
+    })
+    .onConflictDoUpdate({
+      target: foundingOnboarding.organizationId,
+      set: {
+        contactName,
+        contactEmail,
+        primaryGoal,
+        pilotProduct,
+        estimatedReportCount,
+        primaryLaboratories,
+        targetLaunchDate,
+        notes,
+        status: "submitted",
+        updatedAt: timestamp,
+      },
+    });
+  await db.insert(auditEvents).values({
+    id: `evt_${crypto.randomUUID().replaceAll("-", "")}`,
+    organizationId: membership.organization.id,
+    actorUserId: user.userId,
+    eventType: "billing.founding_launch_submitted",
+    entityType: "founding_onboarding",
+    entityId: membership.organization.id,
+    payload: JSON.stringify({ primaryGoal, pilotProduct, estimatedReportCount }),
+    createdAt: timestamp,
+  });
+  return getFoundingOnboardingForUser(user.userId);
+}
+
+export async function listFoundingOnboardingForAdmin(user: ChatGPTUser) {
+  if (!isIcsAdmin(user)) throw new TecAuthorizationError("ICS administrator access is required.");
+  const db = getDb();
+  return db
+    .select({ onboarding: foundingOnboarding, organization: organizations })
+    .from(foundingOnboarding)
+    .innerJoin(organizations, eq(foundingOnboarding.organizationId, organizations.id))
+    .orderBy(desc(foundingOnboarding.updatedAt));
+}
+
 export async function onboardOrganization(
   user: ChatGPTUser,
   input: { name?: unknown; organizationType?: unknown; website?: unknown },
@@ -462,8 +581,19 @@ export async function getDashboardData(userId: string) {
     .where(eq(issuerApplications.organizationId, membership.organization.id))
     .orderBy(desc(issuerApplications.submittedAt))
     .limit(1);
+  const [foundingLaunch] = await db
+    .select()
+    .from(foundingOnboarding)
+    .where(eq(foundingOnboarding.organizationId, membership.organization.id))
+    .limit(1);
 
-  return { ...membership, records, keys, issuerApplication: issuerApplication ?? null };
+  return {
+    ...membership,
+    records,
+    keys,
+    issuerApplication: issuerApplication ?? null,
+    foundingLaunch: foundingLaunch ?? null,
+  };
 }
 
 export async function submitIssuerApplication(
@@ -1519,19 +1649,39 @@ export async function processStripeEvent(event: {
     .limit(1);
   if (existing.length) return { duplicate: true };
 
-  if (event.type === "checkout.session.completed") {
+  if (
+    event.type === "checkout.session.completed" ||
+    event.type === "checkout.session.async_payment_succeeded"
+  ) {
     const customerDetails = (object.customer_details ?? {}) as Record<string, unknown>;
     const customerEmail = normalizeText(customerDetails.email, 254).toLowerCase() || null;
     const customerId = typeof object.customer === "string" ? object.customer : null;
     const subscriptionId = typeof object.subscription === "string" ? object.subscription : null;
     const paymentLinkId = typeof object.payment_link === "string" ? object.payment_link : null;
-    const [organization] = customerEmail
+    const clientReferenceId = normalizeText(object.client_reference_id, 180) || null;
+    const paymentStatus = normalizeText(object.payment_status, 32).toLowerCase();
+    const paymentConfirmed =
+      paymentStatus === "paid" || event.type === "checkout.session.async_payment_succeeded";
+    const [referencedOrganization] = clientReferenceId && customerEmail
+      ? await db
+          .select()
+          .from(organizations)
+          .where(
+            and(
+              eq(organizations.id, clientReferenceId),
+              eq(organizations.ownerEmail, customerEmail),
+            ),
+          )
+          .limit(1)
+      : [];
+    const [emailOrganization] = !referencedOrganization && customerEmail
       ? await db
           .select()
           .from(organizations)
           .where(eq(organizations.ownerEmail, customerEmail))
           .limit(1)
       : [];
+    const organization = referencedOrganization ?? emailOrganization;
     const processedAt = now();
 
     await db.insert(billingEvents).values({
@@ -1543,13 +1693,17 @@ export async function processStripeEvent(event: {
       subscriptionId,
       amountTotal: typeof object.amount_total === "number" ? object.amount_total : null,
       currency: typeof object.currency === "string" ? object.currency : null,
-      status: organization ? "linked" : "pending",
-      organizationId: organization?.id ?? null,
-      payload: JSON.stringify({ mode: object.mode, payment_status: object.payment_status }),
+      status: paymentConfirmed ? (organization ? "linked" : "pending") : "pending_payment",
+      organizationId: paymentConfirmed ? organization?.id ?? null : null,
+      payload: JSON.stringify({
+        mode: object.mode,
+        payment_status: paymentStatus,
+        client_reference_id: clientReferenceId,
+      }),
       createdAt: event.created ? new Date(event.created * 1000).toISOString() : processedAt,
       processedAt,
     });
-    if (organization) {
+    if (organization && paymentConfirmed) {
       await db
         .update(organizations)
         .set({
@@ -1568,7 +1722,11 @@ export async function processStripeEvent(event: {
         createdAt: processedAt,
       });
     }
-    return { processed: true, linked: Boolean(organization) };
+    return {
+      processed: true,
+      linked: Boolean(organization && paymentConfirmed),
+      paymentConfirmed,
+    };
   }
 
   if (

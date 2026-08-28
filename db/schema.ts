@@ -364,3 +364,28 @@ export const billingEvents = sqliteTable(
     index("idx_billing_events_organization_id").on(table.organizationId),
   ],
 );
+
+export const foundingOnboarding = sqliteTable(
+  "founding_onboarding",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    contactName: text("contact_name").notNull(),
+    contactEmail: text("contact_email").notNull(),
+    primaryGoal: text("primary_goal").notNull(),
+    pilotProduct: text("pilot_product").notNull(),
+    estimatedReportCount: integer("estimated_report_count").notNull(),
+    primaryLaboratories: text("primary_laboratories"),
+    targetLaunchDate: text("target_launch_date"),
+    notes: text("notes"),
+    status: text("status").notNull().default("submitted"),
+    submittedAt: text("submitted_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_founding_onboarding_organization_id").on(table.organizationId),
+    index("idx_founding_onboarding_status").on(table.status),
+  ],
+);

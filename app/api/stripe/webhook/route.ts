@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   try {
     const event = JSON.parse(body);
     if (
-      event.type === "checkout.session.completed" &&
+      ["checkout.session.completed", "checkout.session.async_payment_succeeded"].includes(event.type) &&
       event.data?.object?.payment_link !== foundingPaymentLinkId()
     ) {
       return Response.json({ received: true, ignored: true });

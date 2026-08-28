@@ -90,8 +90,17 @@ export default async function DashboardPage() {
           <ApiKeyPanel keys={data.keys} />
 
           <section className="dashboard-panel billing-panel">
-            <div><p className="section-kicker light">Founding organization</p><h2>Need implementation support?</h2><p>Add structured onboarding, priority draft-protocol support, and integration scoping without changing your issuer-review outcome.</p></div>
-            <a className="button-mint" href="/join">View founding membership ↗</a>
+            {data.organization.plan === "founding" ? (
+              <>
+                <div><p className="section-kicker light">Founding organization · active</p><h2>{data.foundingLaunch ? "Your pilot is in the implementation queue." : "Turn membership into a first outcome."}</h2><p>{data.foundingLaunch ? `${data.foundingLaunch.pilotProduct} · ${data.foundingLaunch.estimatedReportCount} planned reports · ${data.foundingLaunch.status.replaceAll("_", " ")}` : "Define the first product, report set, laboratories, and target date. The brief becomes the operational handoff to ICS."}</p></div>
+                <a className="button-mint" href="/dashboard/founding">{data.foundingLaunch ? "Review launch brief" : "Start launch brief"} →</a>
+              </>
+            ) : (
+              <>
+                <div><p className="section-kicker light">Founding organization</p><h2>Need a defined implementation pilot?</h2><p>Founding membership adds a 30-day launch brief, guided preparation of the first 10 reports, laboratory-confirmation setup, and one integration scope.</p></div>
+                <a className="button-mint" href="/join">See exactly what is included →</a>
+              </>
+            )}
           </section>
         </div>
       )}

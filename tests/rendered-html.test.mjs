@@ -43,14 +43,17 @@ test("renders pricing and API documentation", async () => {
   assert.match(join, /Founding Organization/);
   assert.match(join, /\$2,500/);
   assert.match(join, /buy\.stripe\.com/);
-  assert.match(join, /Membership purchases workflow and implementation/);
+  assert.match(join, /first 10 historical reports/);
+  assert.match(join, /What happens next/);
+  assert.match(join, /locked_prefilled_email/);
+  assert.match(join, /client_reference_id/);
   assert.match(developers, /TEC Registry API/);
   assert.match(developers, /POST \/api\/v1\/credentials/);
   assert.match(developers, /Bearer keys/);
 });
 
 test("keeps durable infrastructure, proof enforcement, and production metadata wired", async () => {
-  const [hosting, schema, service, migration, proofMigration, intakeMigration, releaseMigration, intakeService, layout, packageJson] = await Promise.all([
+  const [hosting, schema, service, migration, proofMigration, intakeMigration, releaseMigration, foundingMigration, intakeService, layout, packageJson] = await Promise.all([
     readFile(new URL("../.openai/hosting.json", import.meta.url), "utf8"),
     readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
     readFile(new URL("../lib/tec.ts", import.meta.url), "utf8"),
@@ -58,6 +61,7 @@ test("keeps durable infrastructure, proof enforcement, and production metadata w
     readFile(new URL("../drizzle/0002_clumsy_princess_powerful.sql", import.meta.url), "utf8"),
     readFile(new URL("../drizzle/0003_dapper_ultimatum.sql", import.meta.url), "utf8"),
     readFile(new URL("../drizzle/0004_polite_corsair.sql", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0005_smiling_exodus.sql", import.meta.url), "utf8"),
     readFile(new URL("../lib/legacy-reports.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
@@ -71,6 +75,7 @@ test("keeps durable infrastructure, proof enforcement, and production metadata w
   assert.match(schema, /issuerSignature/);
   assert.match(schema, /legacyReports/);
   assert.match(schema, /legacyReportEvents/);
+  assert.match(schema, /foundingOnboarding/);
   assert.match(service, /Ed25519/);
   assert.match(service, /crypto\.subtle\.verify/);
   assert.match(service, /TECRID·/);
@@ -80,12 +85,15 @@ test("keeps durable infrastructure, proof enforcement, and production metadata w
   assert.match(intakeMigration, /legacy_report_source_immutable/);
   assert.match(intakeMigration, /legacy_report_events_no_update/);
   assert.match(releaseMigration, /released_at/);
+  assert.match(foundingMigration, /founding_onboarding/);
   assert.match(intakeService, /sourceSha256/);
   assert.match(intakeService, /legacy_report_confirmation/);
   assert.match(intakeService, /ready_for_signature/);
   assert.match(intakeService, /confirmationTokenHash/);
   assert.match(service, /verifyStoredProof/);
   assert.match(service, /signedPayload/);
+  assert.match(service, /checkout\.session\.async_payment_succeeded/);
+  assert.match(service, /paymentConfirmed/);
   assert.match(layout, /TEC Registry/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await assert.doesNotReject(access(new URL("../drizzle/0000_narrow_vengeance.sql", import.meta.url)));
@@ -96,6 +104,9 @@ test("keeps durable infrastructure, proof enforcement, and production metadata w
   await assert.doesNotReject(access(new URL("../app/api/legacy-reports/route.ts", import.meta.url)));
   await assert.doesNotReject(access(new URL("../app/api/legacy-reports/[reportId]/document/route.ts", import.meta.url)));
   await assert.doesNotReject(access(new URL("../app/confirm/[token]/page.tsx", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../app/dashboard/founding/page.tsx", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../app/api/founding-onboarding/route.ts", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../app/admin/founding/page.tsx", import.meta.url)));
   await assert.doesNotReject(access(new URL("../public/og.png", import.meta.url)));
   await assert.doesNotReject(access(new URL("../dist/server/index.js", import.meta.url)));
 });

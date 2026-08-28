@@ -14,15 +14,28 @@ export default async function JoinPage() {
   const user = await getChatGPTUser();
   const membership = user ? await getOrganizationForUser(user.userId) : null;
   const freeHref = membership ? "/dashboard" : user ? "/dashboard" : chatGPTSignInPath("/dashboard");
+  const checkoutHref = user && membership
+    ? `https://buy.stripe.com/14AfZi02HabV0HKfxZ3ZK00?locked_prefilled_email=${encodeURIComponent(user.email)}&client_reference_id=${encodeURIComponent(membership.organization.id)}`
+    : user
+      ? "/dashboard"
+      : chatGPTSignInPath("/dashboard");
+  const checkoutLabel = membership
+    ? membership.organization.plan === "founding"
+      ? "Open founding launch"
+      : "Start founding membership — $2,500/year"
+    : user
+      ? "Create workspace before checkout"
+      : "Sign in and create workspace";
+  const foundingHref = membership?.organization.plan === "founding" ? "/dashboard/founding" : checkoutHref;
 
   return (
     <main className="product-page">
       <ProductNav compact />
       <section className="product-hero join-hero">
         <p className="section-kicker light">Join the evidence registry</p>
-        <h1>Trust stays free.<br />Workflow pays for the network.</h1>
+        <h1>Know what happens<br />before you pay.</h1>
         <p>
-          Laboratories never pay for issuer review or historical-report confirmation. Brands can begin with private intake and a small public evidence portfolio. Paid work starts where implementation, monitoring, integrations, and scale begin.
+          The open registry is a self-serve trust utility. Founding Organization is a one-year implementation membership with a defined 30-day launch—not a fee for laboratory approval.
         </p>
       </section>
 
@@ -31,6 +44,7 @@ export default async function JoinPage() {
           <span className="plan-label">Open network</span>
           <h2>Free</h2>
           <p className="price"><strong>$0</strong><span>forever</span></p>
+          <p className="plan-outcome"><strong>Use the registry yourself.</strong><span>Create a workspace, submit private reports, invite laboratories, and publish only after valid confirmation.</span></p>
           <ul>
             <li>Public TEC resolution and verification</li>
             <li>Free laboratory verification and report confirmation</li>
@@ -48,18 +62,43 @@ export default async function JoinPage() {
           <span className="plan-label">Launch cohort · limited</span>
           <h2>Founding Organization</h2>
           <p className="price"><strong>$2,500</strong><span>per year</span></p>
+          <p className="plan-outcome"><strong>Launch one real evidence program.</strong><span>Your first 30 days convert an existing report set into a defined laboratory-confirmation pilot.</span></p>
           <ul>
-            <li>Everything in the open network</li>
-            <li>Managed evidence-portfolio onboarding</li>
-            <li>QR-label and disclosure implementation pack</li>
-            <li>Supplier confirmation workflow setup</li>
-            <li>Exports, API, and LIMS integration scoping</li>
-            <li>Monitoring and procurement pilot participation</li>
+            <li>Everything in the open network, with founding limits</li>
+            <li>A private implementation brief in the ICS queue</li>
+            <li>Guided preparation of the first 10 historical reports</li>
+            <li>Laboratory-claim and confirmation workflow setup</li>
+            <li>QR/disclosure pack for TECRIDs that are actually issued</li>
+            <li>One exports, API, LIMS, or procurement integration scope</li>
             <li>Founding cohort recognition, with consent</li>
           </ul>
-          <a className="button-mint" href="https://buy.stripe.com/14AfZi02HabV0HKfxZ3ZK00">Become a founding organization <span>↗</span></a>
-          <small>Membership purchases workflow and implementation—not laboratory credibility, a passing decision, or preferred review.</small>
+          <a className="button-mint" href={foundingHref}>{checkoutLabel} <span>{membership?.organization.plan === "founding" ? "→" : "↗"}</span></a>
+          <small>Annual subscription. Checkout uses the workspace owner email so activation can attach to the correct organization. Membership does not guarantee any laboratory will confirm a report.</small>
         </article>
+      </section>
+
+      <section className="purchase-clarity">
+        <div className="purchase-clarity-intro">
+          <p className="section-kicker">What happens next</p>
+          <h2>A purchase should start work immediately.</h2>
+        </div>
+        <div className="purchase-steps">
+          <article><span>01 · Before Stripe</span><h3>Create the organization workspace.</h3><p>This establishes which brand, laboratory, retailer, or advisor owns the membership and prevents an orphaned payment.</p></article>
+          <article><span>02 · Checkout</span><h3>Pay $2,500 for one year.</h3><p>Stripe uses the locked workspace email. The receipt, customer, subscription, and TEC organization can be reconciled automatically.</p></article>
+          <article><span>03 · Immediately after</span><h3>Open the founding launch brief.</h3><p>Choose the first product, report set, laboratories, target date, and desired commercial outcome. ICS receives it in a restricted queue.</p></article>
+          <article><span>04 · First 30 days</span><h3>Move one pilot toward issuance.</h3><p>Prepare up to 10 historical reports, request laboratory confirmation, resolve discrepancies, and publish only legitimately signed TECRIDs.</p></article>
+        </div>
+      </section>
+
+      <section className="founding-boundaries">
+        <div><p className="section-kicker light">A good fit</p><h2>Organizations with real reports and a real trust problem.</h2></div>
+        <ul>
+          <li>Brands trying to prove what their suppliers or laboratories actually reported</li>
+          <li>Laboratories that want customer reports to resolve as authenticated records</li>
+          <li>Retailers building evidence requirements into procurement</li>
+          <li>Organizations ready to name a first product, report set, and laboratory</li>
+        </ul>
+        <div className="not-included"><strong>Not included</strong><p>Purchased verification, guaranteed laboratory participation, a compliance certification, legal conclusions, or automatic publication of an uploaded PDF.</p></div>
       </section>
 
       <section className="independence-callout">
