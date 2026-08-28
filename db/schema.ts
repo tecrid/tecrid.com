@@ -93,6 +93,7 @@ export const credentials = sqliteTable(
     collectedAt: text("collected_at"),
     receivedAt: text("received_at"),
     testedAt: text("tested_at"),
+    releasedAt: text("released_at"),
     issuedAt: text("issued_at"),
     version: integer("version").notNull().default(1),
     fingerprint: text("fingerprint"),
@@ -103,6 +104,12 @@ export const credentials = sqliteTable(
     signatureAlgorithm: text("signature_algorithm"),
     signedPayload: text("signed_payload"),
     signedPayloadHash: text("signed_payload_hash"),
+    legacyReportId: text("legacy_report_id"),
+    sourceDocumentHash: text("source_document_hash"),
+    sourceDocumentName: text("source_document_name"),
+    issuanceBasis: text("issuance_basis"),
+    laboratoryReportNumber: text("laboratory_report_number"),
+    laboratoryOrderNumber: text("laboratory_order_number"),
     publicRecord: integer("public_record", { mode: "boolean" })
       .notNull()
       .default(false),
@@ -114,6 +121,8 @@ export const credentials = sqliteTable(
     index("idx_credentials_organization_id").on(table.organizationId),
     index("idx_credentials_status").on(table.status),
     index("idx_credentials_public_record").on(table.publicRecord),
+    uniqueIndex("idx_credentials_legacy_report_id").on(table.legacyReportId),
+    index("idx_credentials_source_document_hash").on(table.sourceDocumentHash),
   ],
 );
 
@@ -171,6 +180,113 @@ export const credentialResults = sqliteTable(
     index("idx_results_credential_identifier").on(
       table.credentialIdentifier,
     ),
+  ],
+);
+
+export const legacyReports = sqliteTable(
+  "legacy_reports",
+  {
+    id: text("id").primaryKey(),
+    submittingOrganizationId: text("submitting_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    issuerOrganizationId: text("issuer_organization_id").references(
+      () => organizations.id,
+      { onDelete: "restrict" },
+    ),
+    submittedByUserId: text("submitted_by_user_id").notNull(),
+    claimedByUserId: text("claimed_by_user_id"),
+    confirmedByUserId: text("confirmed_by_user_id"),
+    status: text("status").notNull().default("awaiting_lab_claim"),
+    laboratoryName: text("laboratory_name").notNull(),
+    laboratoryWebsite: text("laboratory_website"),
+    confirmationEmail: text("confirmation_email").notNull(),
+    confirmationTokenHash: text("confirmation_token_hash").notNull(),
+    confirmationTokenLastFour: text("confirmation_token_last_four").notNull(),
+    sampleName: text("sample_name").notNull(),
+    lotNumber: text("lot_number"),
+    matrix: text("matrix"),
+    method: text("method"),
+    reportNumber: text("report_number"),
+    orderNumber: text("order_number"),
+    collectedAt: text("collected_at"),
+    receivedAt: text("received_at"),
+    testedAt: text("tested_at"),
+    releasedAt: text("released_at"),
+    sourceObjectKey: text("source_object_key").notNull(),
+    sourceFilename: text("source_filename").notNull(),
+    sourceMimeType: text("source_mime_type").notNull(),
+    sourceSize: integer("source_size").notNull(),
+    sourceSha256: text("source_sha256").notNull(),
+    documentVisibility: text("document_visibility").notNull().default("private"),
+    discrepancyNote: text("discrepancy_note"),
+    issuedCredentialIdentifier: text("issued_credential_identifier").references(
+      () => credentials.identifier,
+      { onDelete: "restrict" },
+    ),
+    claimedAt: text("claimed_at"),
+    confirmedAt: text("confirmed_at"),
+    declinedAt: text("declined_at"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_legacy_reports_confirmation_token_hash").on(
+      table.confirmationTokenHash,
+    ),
+    uniqueIndex("idx_legacy_reports_submitter_hash").on(
+      table.submittingOrganizationId,
+      table.sourceSha256,
+    ),
+    uniqueIndex("idx_legacy_reports_issued_credential").on(
+      table.issuedCredentialIdentifier,
+    ),
+    index("idx_legacy_reports_status").on(table.status),
+    index("idx_legacy_reports_issuer_org").on(table.issuerOrganizationId),
+    index("idx_legacy_reports_confirmation_email").on(table.confirmationEmail),
+    index("idx_legacy_reports_source_sha256").on(table.sourceSha256),
+  ],
+);
+
+export const legacyReportResults = sqliteTable(
+  "legacy_report_results",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    legacyReportId: text("legacy_report_id")
+      .notNull()
+      .references(() => legacyReports.id, { onDelete: "cascade" }),
+    analyte: text("analyte").notNull(),
+    symbol: text("symbol"),
+    resultText: text("result_text").notNull(),
+    numericValue: real("numeric_value"),
+    unit: text("unit").notNull(),
+    loqText: text("loq_text"),
+    method: text("method"),
+    sequence: integer("sequence").notNull().default(0),
+  },
+  (table) => [
+    index("idx_legacy_report_results_report").on(table.legacyReportId),
+  ],
+);
+
+export const legacyReportEvents = sqliteTable(
+  "legacy_report_events",
+  {
+    id: text("id").primaryKey(),
+    legacyReportId: text("legacy_report_id")
+      .notNull()
+      .references(() => legacyReports.id, { onDelete: "cascade" }),
+    organizationId: text("organization_id").references(() => organizations.id, {
+      onDelete: "set null",
+    }),
+    actorUserId: text("actor_user_id"),
+    eventType: text("event_type").notNull(),
+    payload: text("payload"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_legacy_report_events_report").on(table.legacyReportId),
+    index("idx_legacy_report_events_org").on(table.organizationId),
   ],
 );
 

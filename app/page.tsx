@@ -46,7 +46,7 @@ export default function Home() {
         <div className="eyebrow"><span /> An open initiative of the Institute of Contaminant Standards</div>
         <h1>Lab results that<br />speak for themselves.</h1>
         <p className="hero-copy">
-          TEC Registry gives laboratory evidence a permanent record—so anyone can verify who issued it, what it contained, and whether it changed.
+          The neutral trust layer between laboratories, suppliers, brands, retailers, and the public—giving laboratory evidence a permanent record anyone can resolve.
         </p>
 
         <form className="lookup" onSubmit={lookup}>
@@ -81,6 +81,17 @@ export default function Home() {
           <p>
             A TEC is the structured evidence credential. Its permanent TEC Record Identifier—TECRID—resolves to the canonical record, current status, and complete version history.
           </p>
+        </div>
+      </section>
+
+      <section className="legacy-entry-section" aria-labelledby="legacy-entry-title">
+        <div>
+          <p className="section-kicker light">Already have a laboratory PDF?</p>
+          <h2 id="legacy-entry-title">Preserve it privately.<br />Send trust back to the laboratory.</h2>
+        </div>
+        <div>
+          <p>TECRID fingerprints the original file, records the brand’s transcription, and creates a restricted laboratory confirmation gate. Submission alone never creates a public credential.</p>
+          <a className="button-mint" href="/submit-report">Start legacy-report intake <span>→</span></a>
         </div>
       </section>
 

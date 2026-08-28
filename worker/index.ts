@@ -5,6 +5,7 @@ import handler from "vinext/server/app-router-entry";
 interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
+  DOCUMENTS: R2Bucket;
   ICS_ADMIN_EMAILS?: string;
   IMAGES: {
     input(stream: ReadableStream): {

@@ -18,6 +18,87 @@ export function IssuerApplicationPanel({
 }) {
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
+  const [keyId, setKeyId] = useState("");
+  const [publicKeyJwk, setPublicKeyJwk] = useState("");
+  const [keyPassphrase, setKeyPassphrase] = useState("");
+
+  function encodeBase64Url(value: ArrayBuffer) {
+    const bytes = new Uint8Array(value);
+    let binary = "";
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+  }
+
+  async function generateEncryptedIssuerKey() {
+    if (keyPassphrase.length < 12) {
+      return setMessage("Use a key-file passphrase of at least 12 characters.");
+    }
+    setPending(true);
+    setMessage("Generating the issuer key in this browser…");
+    try {
+      const pair = await crypto.subtle.generateKey(
+        { name: "Ed25519" },
+        true,
+        ["sign", "verify"],
+      ) as CryptoKeyPair;
+      const publicJwk = await crypto.subtle.exportKey("jwk", pair.publicKey);
+      const privateJwk = await crypto.subtle.exportKey("jwk", pair.privateKey);
+      const generatedKeyId = `tecrid/issuer/${new Date().toISOString().slice(0, 7)}/${crypto.randomUUID().slice(0, 8)}`;
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const passwordKey = await crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(keyPassphrase),
+        "PBKDF2",
+        false,
+        ["deriveKey"],
+      );
+      const encryptionKey = await crypto.subtle.deriveKey(
+        { name: "PBKDF2", hash: "SHA-256", salt, iterations: 250_000 },
+        passwordKey,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt"],
+      );
+      const ciphertext = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv },
+        encryptionKey,
+        new TextEncoder().encode(JSON.stringify(privateJwk)),
+      );
+      const keystore = {
+        format: "tecrid-encrypted-keystore-v1",
+        keyId: generatedKeyId,
+        publicKeyJwk: { kty: "OKP", crv: "Ed25519", x: publicJwk.x, use: "sig" },
+        kdf: {
+          name: "PBKDF2",
+          hash: "SHA-256",
+          iterations: 250_000,
+          salt: encodeBase64Url(salt.buffer as ArrayBuffer),
+        },
+        cipher: {
+          name: "AES-GCM",
+          iv: encodeBase64Url(iv.buffer as ArrayBuffer),
+          ciphertext: encodeBase64Url(ciphertext),
+        },
+      };
+      const blobUrl = URL.createObjectURL(
+        new Blob([JSON.stringify(keystore, null, 2)], { type: "application/json" }),
+      );
+      const anchor = document.createElement("a");
+      anchor.href = blobUrl;
+      anchor.download = `tecrid-issuer-key-${generatedKeyId.split("/").at(-1)}.json`;
+      anchor.click();
+      URL.revokeObjectURL(blobUrl);
+      setKeyId(generatedKeyId);
+      setPublicKeyJwk(JSON.stringify(keystore.publicKeyJwk));
+      setKeyPassphrase("");
+      setMessage("Encrypted issuer key downloaded. Keep the file and passphrase separately; submit the populated public key below.");
+    } catch {
+      setMessage("This browser could not generate the Ed25519 issuer key. Use your laboratory key-management system and enter its public JWK instead.");
+    } finally {
+      setPending(false);
+    }
+  }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -102,8 +183,14 @@ export function IssuerApplicationPanel({
         <details className="signing-key-details">
           <summary>Issuer signing key <span>required before approval</span></summary>
           <p>Submit only an Ed25519 public JWK. Never paste a private key. The registry verifies key control separately.</p>
-          <label>Key ID<input name="keyId" placeholder="lab.example/key/2026-01" /></label>
-          <label>Public JWK<textarea name="publicKeyJwk" rows={5} placeholder={'{"kty":"OKP","crv":"Ed25519","x":"…"}'} /></label>
+          <div className="browser-key-generator">
+            <strong>Generate an encrypted browser signing key</strong>
+            <p>The private key is encrypted locally and downloaded. TECRID receives only the public key.</p>
+            <label>New key-file passphrase<input type="password" value={keyPassphrase} onChange={(event) => setKeyPassphrase(event.target.value)} minLength={12} autoComplete="new-password" /></label>
+            <button type="button" onClick={generateEncryptedIssuerKey} disabled={pending || keyPassphrase.length < 12}>Generate and download encrypted key</button>
+          </div>
+          <label>Key ID<input name="keyId" value={keyId} onChange={(event) => setKeyId(event.target.value)} placeholder="lab.example/key/2026-01" /></label>
+          <label>Public JWK<textarea name="publicKeyJwk" value={publicKeyJwk} onChange={(event) => setPublicKeyJwk(event.target.value)} rows={5} placeholder={'{"kty":"OKP","crv":"Ed25519","x":"…"}'} /></label>
         </details>
         <label className="attestation-check"><input name="attested" type="checkbox" required /><span>I attest that this application is accurate and that payment has no bearing on the review outcome.</span></label>
         <button className="button-dark" type="submit" disabled={pending}>{pending ? "Submitting…" : "Submit for ICS review →"}</button>

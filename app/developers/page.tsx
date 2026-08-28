@@ -11,18 +11,25 @@ const credentialBody = `{
   "lotNumber": "C-240518",
   "matrix": "Food · Powder",
   "method": "ICP-MS",
+  "submittingParty": "Example Brand",
+  "releasedAt": "2026-08-28",
+  "sourceDocument": {
+    "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "filename": "laboratory-report.pdf",
+    "reportNumber": "LAB-240518"
+  },
   "publish": true,
   "results": [
     { "analyte": "Lead", "symbol": "Pb", "resultText": "42", "unit": "µg/kg", "loqText": "10" }
   ]
 }`;
 
-const canonicalizeExample = `curl https://tec-registry.kmfp.chatgpt.site/api/v1/credentials/canonicalize \\
+const canonicalizeExample = `curl https://tecrid.com/api/v1/credentials/canonicalize \\
   -H "Authorization: Bearer $TEC_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '${credentialBody}'`;
 
-const createExample = `curl https://tec-registry.kmfp.chatgpt.site/api/v1/credentials \\
+const createExample = `curl https://tecrid.com/api/v1/credentials \\
   -H "Authorization: Bearer $TEC_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -30,6 +37,13 @@ const createExample = `curl https://tec-registry.kmfp.chatgpt.site/api/v1/creden
     "lotNumber": "C-240518",
     "matrix": "Food · Powder",
     "method": "ICP-MS",
+    "submittingParty": "Example Brand",
+    "releasedAt": "2026-08-28",
+    "sourceDocument": {
+      "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "filename": "laboratory-report.pdf",
+      "reportNumber": "LAB-240518"
+    },
     "publish": true,
     "proof": {
       "keyId": "lab.example/key/2026-01",
@@ -81,20 +95,21 @@ export default function DevelopersPage() {
             <p className="doc-index">03 / ISSUE</p>
             <h2>POST /api/v1/credentials</h2>
             <p>Creates a private draft when <code>publish</code> is false. Public issuance additionally requires verified laboratory status, a reviewed key, and a valid Ed25519 signature over the canonical payload. Successful issuance returns a permanent TECRID.</p>
+            <p>For a historical PDF, include <code>sourceDocument</code>. Its SHA-256 fingerprint, report reference, submitting party, and release date become part of the signed payload; the private PDF itself is not exposed by the public API.</p>
             <pre><code>{createExample}</code></pre>
           </section>
           <section id="list">
             <p className="doc-index">04 / LIST</p>
             <h2>GET /api/v1/credentials</h2>
             <p>Returns up to 100 credentials for the organization associated with the bearer key, newest first.</p>
-            <pre><code>curl https://tec-registry.kmfp.chatgpt.site/api/v1/credentials \
+            <pre><code>curl https://tecrid.com/api/v1/credentials \
   -H &quot;Authorization: Bearer $TEC_API_KEY&quot;</code></pre>
           </section>
           <section id="resolve">
             <p className="doc-index">05 / RESOLVE</p>
             <h2>GET /api/v1/credentials/:identifier</h2>
             <p>Public, no API key required. Returns issuer status, sample context, results, current status, every recorded version, and an independently verifiable proof bundle: exact signed payload, Ed25519 signature, reviewed public key, key-review timestamp, and live fingerprint/signature checks.</p>
-            <pre><code>curl https://tec-registry.kmfp.chatgpt.site/api/v1/credentials/TECRID%C2%B7YOUR-LAB-26-XXXXXXXX</code></pre>
+            <pre><code>curl https://tecrid.com/api/v1/credentials/TECRID%C2%B7YOUR-LAB-26-XXXXXXXX</code></pre>
           </section>
           <section id="versions">
             <p className="doc-index">06 / CORRECT OR REVOKE</p>

@@ -14,6 +14,7 @@ export function ProductNav({ compact = false }: { compact?: boolean }) {
         <a href="/why">Why TEC</a>
         <a href="/standard">Standard</a>
         <a href="/issuers">Issuers</a>
+        <a href="/submit-report">Submit report</a>
         <a href="/developers">API</a>
         <a href="/dashboard">Dashboard</a>
         <a className="nav-cta nav-cta-link" href="/join">Join the registry</a>
@@ -33,6 +34,7 @@ export function ProductFooter() {
         <a href="/why">Why TEC</a>
         <a href="/standard">Standard</a>
         <a href="/issuers">Issuers</a>
+        <a href="/submit-report">Submit report</a>
         <a href="/developers">API</a>
         <a href="/pricing">Pricing</a>
         <a href="https://contaminantstandards.com" target="_blank" rel="noreferrer">ICS ↗</a>

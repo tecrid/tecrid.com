@@ -7,10 +7,8 @@ import {
 } from "../../../../lib/tec";
 
 function errorResponse(error: unknown) {
-  const status =
-    error instanceof TecAuthorizationError || error instanceof TecInputError
-      ? error.status
-      : 500;
+  const known = error instanceof TecAuthorizationError || error instanceof TecInputError;
+  const status = known ? error.status : 500;
   return Response.json(
     {
       error: {
@@ -20,8 +18,7 @@ function errorResponse(error: unknown) {
             : status === 400
               ? "invalid_request"
               : "internal_error",
-        message:
-          error instanceof Error ? error.message : "Credential operation failed.",
+        message: known ? error.message : "Credential operation failed.",
       },
     },
     { status },

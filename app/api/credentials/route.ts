@@ -4,8 +4,11 @@ import {
   TecAuthorizationError,
   TecInputError,
 } from "../../../lib/tec";
+import { rejectCrossOriginWrite } from "../../../lib/request-security";
 
 export async function POST(request: Request) {
+  const crossOrigin = rejectCrossOriginWrite(request);
+  if (crossOrigin) return crossOrigin;
   const user = await getChatGPTUser();
   if (!user) return Response.json({ error: "Sign in is required." }, { status: 401 });
   try {
@@ -16,8 +19,9 @@ export async function POST(request: Request) {
       error instanceof TecAuthorizationError || error instanceof TecInputError
         ? error.status
         : 500;
+    const known = error instanceof TecAuthorizationError || error instanceof TecInputError;
     return Response.json(
-      { error: error instanceof Error ? error.message : "Credential creation failed." },
+      { error: known ? error.message : "Credential creation failed." },
       { status },
     );
   }

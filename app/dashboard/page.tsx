@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { requireChatGPTUser, chatGPTSignOutPath } from "../chatgpt-auth";
 import { getDashboardData } from "../../lib/tec";
+import { listLegacyReportsForUser } from "../../lib/legacy-reports";
 import { ProductFooter, ProductNav } from "../site-nav";
 import { ApiKeyPanel, OrganizationOnboarding } from "./dashboard-client";
 import { IssuerApplicationPanel } from "./issuer-application";
@@ -15,6 +17,7 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
   const user = await requireChatGPTUser("/dashboard");
   const data = await getDashboardData(user.userId);
+  const legacyReports = data ? await listLegacyReportsForUser(user) : [];
 
   return (
     <main className="product-page dashboard-page">
@@ -36,7 +39,25 @@ export default async function DashboardPage() {
             <article><span>Plan</span><strong>{data.organization.plan === "free" ? "Open network" : data.organization.plan}</strong><small>Verification remains free</small></article>
             <article><span>Issuer status</span><strong className={`status-${data.organization.issuerStatus}`}>{data.organization.issuerStatus.replaceAll("_", " ")}</strong><small>{data.organization.organizationType === "laboratory" ? "ICS review required for public issuance" : "Public issuance belongs to laboratories"}</small></article>
             <article><span>Credentials</span><strong>{data.records.length}</strong><small>{data.records.filter((record) => record.publicRecord).length} public</small></article>
-            <article><span>API</span><strong>v1</strong><small>Bearer access available</small></article>
+            <article><span>Private intake</span><strong>{legacyReports.length}</strong><small>{legacyReports.filter((report) => report.status === "issued").length} issued</small></article>
+          </section>
+
+          <section className="dashboard-panel legacy-report-panel">
+            <div className="panel-heading">
+              <div><p className="section-kicker">Legacy report intake</p><h2>Existing laboratory reports</h2></div>
+              <Link className="button-dark" href="/dashboard/reports/new">Submit private report <span>→</span></Link>
+            </div>
+            <p className="panel-copy">A submitted PDF is private evidence—not a TECRID. The named laboratory must claim, confirm, and sign it before public issuance.</p>
+            <div className="legacy-report-list">
+              {legacyReports.length ? legacyReports.map((report) => (
+                <a href={`/dashboard/reports/${encodeURIComponent(report.id)}`} key={report.id}>
+                  <span className={`record-status record-${report.status}`}>{report.status.replaceAll("_", " ")}</span>
+                  <div><strong>{report.sampleName}</strong><small>{report.laboratoryName} · {report.reportNumber || "No report number"}</small></div>
+                  <code>{report.sourceSha256.slice(0, 12)}…{report.sourceSha256.slice(-8)}</code>
+                  <i aria-hidden="true">→</i>
+                </a>
+              )) : <div className="empty-state"><strong>No existing reports in private intake.</strong><p>Upload the original PDF, preserve its fingerprint, and invite the laboratory to confirm it.</p></div>}
+            </div>
           </section>
 
           <section className="dashboard-panel credential-panel">

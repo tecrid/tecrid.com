@@ -39,6 +39,15 @@ export type CredentialProofInput = {
   signature: string;
 };
 
+export type SourceDocumentInput = {
+  sha256: string;
+  filename: string;
+  reportNumber?: string;
+  orderNumber?: string;
+  intakeId?: string;
+  issuanceBasis?: string;
+};
+
 export type CredentialInput = {
   sampleName: string;
   lotNumber?: string;
@@ -48,9 +57,16 @@ export type CredentialInput = {
   collectedAt?: string;
   receivedAt?: string;
   testedAt?: string;
+  releasedAt?: string;
   publish?: boolean;
   proof?: CredentialProofInput;
+  sourceDocument?: SourceDocumentInput;
   results: CredentialResultInput[];
+};
+
+type CredentialCreationOptions = {
+  legacyReportId?: string | null;
+  issuanceBasis?: string | null;
 };
 
 export type CredentialRevisionInput = Partial<CredentialInput> & {
@@ -146,9 +162,21 @@ function issuerPayload(input: CredentialInput) {
     lotNumber: input.lotNumber ?? null,
     matrix: input.matrix ?? null,
     method: input.method ?? null,
+    submittingParty: input.submittingParty ?? null,
     collectedAt: input.collectedAt ?? null,
     receivedAt: input.receivedAt ?? null,
     testedAt: input.testedAt ?? null,
+    releasedAt: input.releasedAt ?? null,
+    sourceDocument: input.sourceDocument
+      ? {
+          sha256: input.sourceDocument.sha256,
+          filename: input.sourceDocument.filename,
+          reportNumber: input.sourceDocument.reportNumber ?? null,
+          orderNumber: input.sourceDocument.orderNumber ?? null,
+          intakeId: input.sourceDocument.intakeId ?? null,
+          issuanceBasis: input.sourceDocument.issuanceBasis ?? null,
+        }
+      : null,
     results: input.results.map((row) => ({
       analyte: row.analyte,
       symbol: row.symbol ?? null,
@@ -790,6 +818,29 @@ function validateCredentialInput(value: unknown): CredentialInput {
     };
   });
 
+  let sourceDocument: SourceDocumentInput | undefined;
+  if (input.sourceDocument) {
+    if (typeof input.sourceDocument !== "object") {
+      throw new TecInputError("sourceDocument must be an object.");
+    }
+    const sha = normalizeText(input.sourceDocument.sha256, 64).toLowerCase();
+    const filename = normalizeText(input.sourceDocument.filename, 240);
+    if (!/^[a-f0-9]{64}$/.test(sha) || !filename) {
+      throw new TecInputError(
+        "sourceDocument requires a lowercase SHA-256 fingerprint and filename.",
+      );
+    }
+    sourceDocument = {
+      sha256: sha,
+      filename,
+      reportNumber: normalizeText(input.sourceDocument.reportNumber, 120) || undefined,
+      orderNumber: normalizeText(input.sourceDocument.orderNumber, 120) || undefined,
+      intakeId: normalizeText(input.sourceDocument.intakeId, 120) || undefined,
+      issuanceBasis:
+        normalizeText(input.sourceDocument.issuanceBasis, 80) || undefined,
+    };
+  }
+
   return {
     sampleName,
     lotNumber: normalizeText(input.lotNumber, 120) || undefined,
@@ -799,8 +850,10 @@ function validateCredentialInput(value: unknown): CredentialInput {
     collectedAt: normalizeText(input.collectedAt, 40) || undefined,
     receivedAt: normalizeText(input.receivedAt, 40) || undefined,
     testedAt: normalizeText(input.testedAt, 40) || undefined,
+    releasedAt: normalizeText(input.releasedAt, 40) || undefined,
     publish: Boolean(input.publish),
     proof: normalizeProof(input.proof),
+    sourceDocument,
     results,
   };
 }
@@ -817,6 +870,7 @@ export async function createCredential(
   organization: typeof organizations.$inferSelect,
   actorUserId: string | null,
   value: unknown,
+  options: CredentialCreationOptions = {},
 ) {
   const input = validateCredentialInput(value);
   const canPublish =
@@ -859,6 +913,7 @@ export async function createCredential(
     collectedAt: input.collectedAt ?? null,
     receivedAt: input.receivedAt ?? null,
     testedAt: input.testedAt ?? null,
+    releasedAt: input.releasedAt ?? null,
     issuedAt: issued ? createdAt : null,
     version: 1,
     fingerprint,
@@ -869,6 +924,13 @@ export async function createCredential(
     signatureAlgorithm: proofDetails?.signatureAlgorithm ?? null,
     signedPayload: proofDetails?.signedPayload ?? null,
     signedPayloadHash: proofDetails?.signedPayloadHash ?? null,
+    legacyReportId: options.legacyReportId ?? null,
+    sourceDocumentHash: input.sourceDocument?.sha256 ?? null,
+    sourceDocumentName: input.sourceDocument?.filename ?? null,
+    issuanceBasis:
+      options.issuanceBasis ?? input.sourceDocument?.issuanceBasis ?? null,
+    laboratoryReportNumber: input.sourceDocument?.reportNumber ?? null,
+    laboratoryOrderNumber: input.sourceDocument?.orderNumber ?? null,
     publicRecord: issued,
     createdByUserId: actorUserId,
     createdAt,
@@ -1062,7 +1124,19 @@ export function publicCredentialDocument(
       collectedAt: credential.collectedAt,
       receivedAt: credential.receivedAt,
       testedAt: credential.testedAt,
+      releasedAt: credential.releasedAt,
+      submittingParty: credential.submittingParty,
     },
+    sourceDocument: credential.sourceDocumentHash
+      ? {
+          sha256: credential.sourceDocumentHash,
+          filename: credential.sourceDocumentName,
+          reportNumber: credential.laboratoryReportNumber,
+          orderNumber: credential.laboratoryOrderNumber,
+          issuanceBasis: credential.issuanceBasis,
+          publicDocument: false,
+        }
+      : null,
     results: results.map((row) => ({
       analyte: row.analyte,
       symbol: row.symbol,
@@ -1126,6 +1200,17 @@ async function prepareCredentialRevision(
   const reason = normalizeText(revision.reason, 600);
   if (!reason) throw new TecInputError("Every correction or revocation requires a public reason.");
 
+  const preservedSourceDocument = current.credential.sourceDocumentHash
+    ? {
+        sha256: current.credential.sourceDocumentHash,
+        filename: current.credential.sourceDocumentName || "source-report.pdf",
+        reportNumber: current.credential.laboratoryReportNumber ?? undefined,
+        orderNumber: current.credential.laboratoryOrderNumber ?? undefined,
+        intakeId: current.credential.legacyReportId ?? undefined,
+        issuanceBasis: current.credential.issuanceBasis ?? undefined,
+      }
+    : undefined;
+
   const input =
     action === "revoke"
       ? ({
@@ -1137,8 +1222,10 @@ async function prepareCredentialRevision(
           collectedAt: current.credential.collectedAt ?? undefined,
           receivedAt: current.credential.receivedAt ?? undefined,
           testedAt: current.credential.testedAt ?? undefined,
+          releasedAt: current.credential.releasedAt ?? undefined,
           publish: true,
           proof: normalizeProof(revision.proof),
+          sourceDocument: preservedSourceDocument,
           results: current.results.map((row) => ({
             analyte: row.analyte,
             symbol: row.symbol ?? undefined,
@@ -1149,7 +1236,11 @@ async function prepareCredentialRevision(
             method: row.method ?? undefined,
           })),
         } satisfies CredentialInput)
-      : validateCredentialInput({ ...revision, publish: true });
+      : validateCredentialInput({
+          ...revision,
+          publish: true,
+          sourceDocument: preservedSourceDocument ?? revision.sourceDocument,
+        });
   const version = current.credential.version + 1;
   const canonicalPayload = JSON.stringify(
     revisionPayload(
@@ -1250,6 +1341,7 @@ export async function createCredentialRevision(
       collectedAt: prepared.input.collectedAt ?? null,
       receivedAt: prepared.input.receivedAt ?? null,
       testedAt: prepared.input.testedAt ?? null,
+      releasedAt: prepared.input.releasedAt ?? null,
       version: prepared.version,
       fingerprint,
       issuerSignature: proofDetails.issuerSignature,

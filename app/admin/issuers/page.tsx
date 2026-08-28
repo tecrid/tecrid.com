@@ -17,6 +17,7 @@ export default async function IssuerReviewPage() {
       <ProductNav compact />
       <header className="dashboard-header"><div><p className="section-kicker light">ICS restricted operation</p><h1>Issuer applications</h1><p>Identity, scope, accreditation evidence, and signing-key review</p></div><span className="workspace-code">Applications <strong>{applications.length}</strong></span></header>
       <section className="admin-application-list">
+        <div className="admin-switcher"><strong>Issuer applications</strong><a href="/admin/reports">Report intake audit</a></div>
         {applications.length ? applications.map(({ application, organizationName, organizationWebsite, issuerCode, issuerStatus }) => (
           <article key={application.id}>
             <header><div><span>{issuerCode}</span><h2>{organizationName}</h2><p>{application.legalName}</p></div><span className={`record-status record-${application.status}`}>{application.status.replaceAll("_", " ")}</span></header>

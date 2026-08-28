@@ -74,6 +74,13 @@ export default async function RecordPage({ params }: PageProps) {
           <div><span>Issuer proof</span><strong>{integrity.issuerSignatureVerified ? `${credential.signatureAlgorithm} verified` : "Not present"}</strong><small>{integrity.issuerSignatureVerified ? `Key ${credential.issuerKeyId}` : "A fingerprint alone does not prove laboratory key control"}</small></div>
           <div><span>Machine access</span><a href={`/api/v1/credentials/${encodeURIComponent(credential.identifier)}`}>Open JSON endpoint ↗</a><small>Includes exact signed payload, signature, reviewed public key, and live verification state</small></div>
         </div>
+        {credential.sourceDocumentHash ? (
+          <div className="source-document-register">
+            <div><span>Issuance basis</span><strong>{credential.issuanceBasis === "legacy_report_confirmation" ? "Laboratory confirmation of a historical report" : credential.issuanceBasis || "Issuer supplied"}</strong><small>The original document remains private unless its owners separately authorize publication</small></div>
+            <div><span>Source PDF fingerprint</span><code>sha256:{credential.sourceDocumentHash}</code><small>{credential.sourceDocumentName || "Source filename withheld"}</small></div>
+            <div><span>Laboratory reference</span><strong>{credential.laboratoryReportNumber || "Not supplied"}</strong><small>{credential.laboratoryOrderNumber ? `Order ${credential.laboratoryOrderNumber}` : "No order number supplied"}</small></div>
+          </div>
+        ) : null}
       </section>
 
       <section className="version-register" aria-labelledby="version-register-title">
@@ -93,7 +100,7 @@ export default async function RecordPage({ params }: PageProps) {
       <section className="record-boundary">
         <p className="section-kicker">Interpretation boundary</p>
         <h2>This record proves provenance, not product safety.</h2>
-        <p>{integrity.issuerSignatureVerified ? "TEC confirms that the canonical payload matched the reviewed issuer key when this version was accepted and preserves its registry history." : "This legacy record has a registry fingerprint but no verified laboratory signature; attribution therefore relies on the registry account record."} TEC does not replace representative sampling, method suitability, accreditation, regulatory review, or expert interpretation.</p>
+        <p>{integrity.issuerSignatureVerified ? "TEC confirms that the canonical payload matched the reviewed issuer key when this version was accepted and preserves its registry history." : "This legacy record has a registry fingerprint but no verified laboratory signature; attribution therefore relies on the registry account record."} {credential.sourceDocumentHash ? "For a historical-report confirmation, the signed payload also binds the exact source-document fingerprint; TECRID does not imply that the PDF itself is public." : ""} TEC does not replace representative sampling, method suitability, accreditation, regulatory review, or expert interpretation.</p>
       </section>
       <ProductFooter />
     </main>

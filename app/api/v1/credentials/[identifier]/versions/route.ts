@@ -32,10 +32,8 @@ export async function POST(request: Request, { params }: RouteContext) {
     );
     return Response.json({ revision }, { status: 201 });
   } catch (error) {
-    const status =
-      error instanceof TecAuthorizationError || error instanceof TecInputError
-        ? error.status
-        : 500;
+    const known = error instanceof TecAuthorizationError || error instanceof TecInputError;
+    const status = known ? error.status : 500;
     return Response.json(
       {
         error: {
@@ -45,7 +43,7 @@ export async function POST(request: Request, { params }: RouteContext) {
               : status === 400
                 ? "invalid_request"
                 : "internal_error",
-          message: error instanceof Error ? error.message : "Revision failed.",
+          message: known ? error.message : "Revision failed.",
         },
       },
       { status },

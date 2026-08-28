@@ -68,9 +68,9 @@ export async function POST(request: Request) {
     }
     await processStripeEvent(event);
     return Response.json({ received: true });
-  } catch (error) {
+  } catch {
     return Response.json(
-      { error: error instanceof Error ? error.message : "Webhook processing failed." },
+      { error: "Webhook processing failed." },
       { status: 500 },
     );
   }

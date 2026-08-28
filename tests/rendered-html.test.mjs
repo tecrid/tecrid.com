@@ -43,34 +43,47 @@ test("renders pricing and API documentation", async () => {
   assert.match(join, /Founding Organization/);
   assert.match(join, /\$2,500/);
   assert.match(join, /buy\.stripe\.com/);
-  assert.match(join, /Membership never purchases/);
+  assert.match(join, /Membership purchases workflow and implementation/);
   assert.match(developers, /TEC Registry API/);
   assert.match(developers, /POST \/api\/v1\/credentials/);
   assert.match(developers, /Bearer keys/);
 });
 
 test("keeps durable infrastructure, proof enforcement, and production metadata wired", async () => {
-  const [hosting, schema, service, migration, proofMigration, layout, packageJson] = await Promise.all([
+  const [hosting, schema, service, migration, proofMigration, intakeMigration, releaseMigration, intakeService, layout, packageJson] = await Promise.all([
     readFile(new URL("../.openai/hosting.json", import.meta.url), "utf8"),
     readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
     readFile(new URL("../lib/tec.ts", import.meta.url), "utf8"),
     readFile(new URL("../drizzle/0001_nosy_gressill.sql", import.meta.url), "utf8"),
     readFile(new URL("../drizzle/0002_clumsy_princess_powerful.sql", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0003_dapper_ultimatum.sql", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0004_polite_corsair.sql", import.meta.url), "utf8"),
+    readFile(new URL("../lib/legacy-reports.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
   assert.match(hosting, /"d1": "DB"/);
+  assert.match(hosting, /"r2": "DOCUMENTS"/);
   assert.match(schema, /billingEvents/);
   assert.match(schema, /credentialResults/);
   assert.match(schema, /credentialVersions/);
   assert.match(schema, /issuerApplications/);
   assert.match(schema, /issuerSignature/);
+  assert.match(schema, /legacyReports/);
+  assert.match(schema, /legacyReportEvents/);
   assert.match(service, /Ed25519/);
   assert.match(service, /crypto\.subtle\.verify/);
   assert.match(service, /TECRID·/);
   assert.match(migration, /DELETE FROM `credentials` WHERE `identifier` = 'TEC·GLP-26-7F3A92'/);
   assert.match(proofMigration, /credential_versions_no_update/);
   assert.match(proofMigration, /credential_versions_no_delete/);
+  assert.match(intakeMigration, /legacy_report_source_immutable/);
+  assert.match(intakeMigration, /legacy_report_events_no_update/);
+  assert.match(releaseMigration, /released_at/);
+  assert.match(intakeService, /sourceSha256/);
+  assert.match(intakeService, /legacy_report_confirmation/);
+  assert.match(intakeService, /ready_for_signature/);
+  assert.match(intakeService, /confirmationTokenHash/);
   assert.match(service, /verifyStoredProof/);
   assert.match(service, /signedPayload/);
   assert.match(layout, /TEC Registry/);
@@ -80,8 +93,22 @@ test("keeps durable infrastructure, proof enforcement, and production metadata w
   await assert.doesNotReject(access(new URL("../app/api/v1/credentials/canonicalize/route.ts", import.meta.url)));
   await assert.doesNotReject(access(new URL("../app/api/v1/credentials/[identifier]/versions/route.ts", import.meta.url)));
   await assert.doesNotReject(access(new URL("../app/standard/page.tsx", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../app/api/legacy-reports/route.ts", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../app/api/legacy-reports/[reportId]/document/route.ts", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../app/confirm/[token]/page.tsx", import.meta.url)));
   await assert.doesNotReject(access(new URL("../public/og.png", import.meta.url)));
   await assert.doesNotReject(access(new URL("../dist/server/index.js", import.meta.url)));
+});
+
+test("explains and exposes the honest historical-report intake path", async () => {
+  const response = await render("/submit-report");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /A PDF can begin the process/);
+  assert.match(html, /Submission is not verification/);
+  assert.match(html, /Start private intake/);
+  assert.match(html, /Laboratory signed/);
+  assert.doesNotMatch(html, /automatically verified|instant verification/i);
 });
 
 test("keeps the sample honest and separate from the live registry", async () => {

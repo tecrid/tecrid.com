@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 const title = "TEC Registry — Every result, back to its source";
 const description =
-  "TEC Registry gives laboratory evidence a permanent TECRID so anyone can verify its issuer, contents, status, and history.";
+  "The neutral trust layer between laboratories, suppliers, brands, retailers, and the public—giving laboratory evidence a permanent, verifiable TECRID.";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       type: "website",
-      images: [{ url: image, width: 1732, height: 909, alt: "TEC Registry — Every result, back to its source" }],
+      images: [{ url: image, width: 1734, height: 907, alt: "TEC Registry — the neutral trust layer for laboratory evidence" }],
     },
     twitter: {
       card: "summary_large_image",

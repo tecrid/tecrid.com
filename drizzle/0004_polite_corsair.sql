@@ -1,0 +1,1 @@
+ALTER TABLE `credentials` ADD `released_at` text;
