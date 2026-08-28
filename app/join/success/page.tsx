@@ -5,8 +5,8 @@ import { ProductFooter, ProductNav } from "../../site-nav";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Welcome to TEC Network",
-  description: "Continue Founding Organization onboarding with TEC Network.",
+  title: "Welcome to TEC Registry",
+  description: "Continue Founding Organization onboarding with TEC Registry.",
 };
 
 export default async function JoinSuccessPage() {

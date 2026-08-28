@@ -1,8 +1,9 @@
-# vinext-starter
+# TEC Registry
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+TEC Registry is an Institute of Contaminant Standards initiative for permanent,
+publicly resolvable laboratory evidence records. A Test Evidence Credential
+(TEC) receives a TEC Record Identifier (TECRID), an issuer signature, a registry
+fingerprint, a current status, and append-only versions.
 
 ## Prerequisites
 
@@ -18,14 +19,16 @@ npm run build
 
 This starter does not use `wrangler.jsonc`.
 
-## Included Shape
+## Product shape
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
+- public TECRID resolution under `app/records/`
+- issuer applications and ICS review under `app/dashboard/` and `app/admin/`
+- bearer-key and public v1 endpoints under `app/api/v1/`
+- Ed25519 issuance and signed revision verification in `lib/tec.ts`
+- Drizzle/D1 persistence under `db/` and `drizzle/`
+- `.openai/hosting.json` declares the Sites D1 binding
 - `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+- `ICS_ADMIN_EMAILS` is a comma-separated allowlist for the restricted issuer-review page
 
 ## Workspace Auth Headers
 
@@ -91,7 +94,7 @@ actions tied to the current ChatGPT user. Leave public content anonymous.
 
 - `npm run dev`: start local development
 - `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
+- `npm test`: build the registry and verify core rendered and infrastructure surfaces
 - `npm run db:generate`: generate Drizzle migrations after schema changes
 
 ## Learn More

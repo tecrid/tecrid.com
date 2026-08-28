@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ProductFooter, ProductNav } from "./site-nav";
 
-const SAMPLE_TEC = "TEC·GLP-26-7F3A92";
+const SAMPLE_TECRID = "TECRID·GLP-26-7F3A92";
 
 const results = [
   { analyte: "Lead", symbol: "Pb", result: "42", unit: "µg/kg", loq: "10" },
@@ -20,15 +20,19 @@ export default function Home() {
 
   function lookup(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const normalized = query.trim().toUpperCase().replace("TEC:", "TEC·");
-    if (!normalized) return setMessage("Enter a TEC identifier to resolve a record.");
-    const identifier = normalized.startsWith("TEC·") ? normalized : `TEC·${normalized}`;
+    const normalized = query.trim().toUpperCase().replace(/^TECRID[:-]/, "TECRID·").replace(/^TEC[:-]/, "TECRID·");
+    if (!normalized) return setMessage("Enter a TECRID to resolve a record.");
+    const identifier = normalized.startsWith("TECRID·") ? normalized : `TECRID·${normalized}`;
+    if (identifier === SAMPLE_TECRID) {
+      window.location.href = "/demo";
+      return;
+    }
     setMessage("Resolving the canonical registry record…");
     window.location.href = `/records/${encodeURIComponent(identifier)}`;
   }
 
   async function copyTec() {
-    await navigator.clipboard?.writeText(SAMPLE_TEC);
+    await navigator.clipboard?.writeText(SAMPLE_TECRID);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
   }
@@ -41,31 +45,31 @@ export default function Home() {
         <div className="eyebrow"><span /> An open initiative of the Institute of Contaminant Standards</div>
         <h1>Lab results that<br />speak for themselves.</h1>
         <p className="hero-copy">
-          TEC turns contaminant reports into persistent, lab-issued digital records—so the data a brand shares is the data the laboratory released.
+          TEC Registry gives laboratory evidence a permanent record—so anyone can verify who issued it, what it contained, and whether it changed.
         </p>
 
         <form className="lookup" onSubmit={lookup}>
-          <label htmlFor="tec-lookup">Verify a TEC identifier</label>
+          <label htmlFor="tec-lookup">Resolve a TECRID</label>
           <div className="lookup-row">
             <input
               id="tec-lookup"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="TEC·LAB-00-000000"
+              placeholder="TECRID·LAB-00-000000"
               aria-describedby="lookup-message"
               autoComplete="off"
             />
             <button type="submit">Find record <span aria-hidden="true">↗</span></button>
           </div>
           <p id="lookup-message" className="lookup-message" aria-live="polite">
-            {message || <>No PDF. No retyping. <button type="button" onClick={() => setQuery(SAMPLE_TEC)}>Use sample TEC</button></>}
+            {message || <>Permanent, public, and versioned. <button type="button" onClick={() => { setQuery(SAMPLE_TECRID); setMessage("Sample selected. Submit to open the clearly labeled demonstration record."); }}>Use sample TECRID</button></>}
           </p>
         </form>
 
         <div className="hero-proof" aria-label="TEC principles">
-          <span>Lab issued</span><i />
-          <span>Tamper evident</span><i />
-          <span>Publicly resolvable</span>
+          <span>Issuer signature required</span><i />
+          <span>Versions preserved</span><i />
+          <span>Status publicly resolvable</span>
         </div>
       </section>
 
@@ -74,7 +78,7 @@ export default function Home() {
         <div>
           <h2 id="definition-title"><span>T</span>est <span>E</span>vidence <span>C</span>redential</h2>
           <p>
-            A TEC is a persistent identifier and structured credential for analytical evidence. Like a DOI points to a scholarly work, a TEC resolves to an authoritative lab-issued record.
+            A TEC is the structured evidence credential. Its permanent TEC Record Identifier—TECRID—resolves to the canonical record, current status, and complete version history.
           </p>
         </div>
       </section>
@@ -82,30 +86,30 @@ export default function Home() {
       <section className="record-section" id="record" aria-labelledby="record-title">
         <div className="section-title-row">
           <div>
-            <p className="section-kicker">A resolvable record, not a file</p>
+          <p className="section-kicker">Demonstration record · not issued</p>
             <h2 id="record-title">One result. One source of truth.</h2>
           </div>
-          <span className="verified-pill"><i /> Issuer verified</span>
+          <span className="verified-pill demo-pill"><i /> Demonstration only</span>
         </div>
 
         <article className="record-card">
           <header className="record-header">
             <div>
-              <p className="record-label">TEC identifier</p>
+              <p className="record-label">TEC Record Identifier</p>
               <div className="identifier-row">
-                <h3>{SAMPLE_TEC}</h3>
-                <button type="button" className="copy-button" onClick={copyTec} aria-label="Copy TEC identifier">
-                  {copied ? "Copied" : "Copy"}
+                <h3>{SAMPLE_TECRID}</h3>
+                <button type="button" className="copy-button" onClick={copyTec} aria-label="Copy TECRID">
+                  {copied ? "Copied" : "Copy TECRID"}
                 </button>
               </div>
             </div>
-            <div className="seal" aria-label="Authentic lab-issued record"><span>LAB</span><strong>✓</strong><small>ISSUED</small></div>
+            <div className="seal demo-seal" aria-label="Demonstration record"><span>TEC</span><strong>·</strong><small>DEMO</small></div>
           </header>
 
           <div className="record-summary">
             <div><span>Sample</span><strong>Organic cacao powder</strong><small>Lot C-240518</small></div>
-            <div><span>Issued by</span><strong>Greenleaf Analytical</strong><small>Accreditation on record</small></div>
-            <div><span>Published</span><strong>18 June 2026</strong><small>14:32 UTC · Version 1</small></div>
+            <div><span>Example issuer</span><strong>Greenleaf Analytical</strong><small>Fictional demonstration laboratory</small></div>
+            <div><span>Example state</span><strong>Version 1</strong><small>Not present in the live registry</small></div>
           </div>
 
           <div className="record-body">
@@ -131,8 +135,8 @@ export default function Home() {
                   <div><span>Received</span><strong>14 June 2026</strong></div>
                   <div><span>Testing window</span><strong>15–17 June 2026</strong></div>
                   <div><span>Method family</span><strong>ICP-MS</strong></div>
-                  <div><span>Submitting party</span><strong>Withheld by issuer</strong></div>
-                  <div><span>Record status</span><strong className="status-text">● Current</strong></div>
+                    <div><span>Submitting party</span><strong>Demonstration only</strong></div>
+                    <div><span>Record status</span><strong className="status-text">● Example</strong></div>
                 </div>
               )}
 
@@ -163,21 +167,21 @@ export default function Home() {
                 <div className="provenance-grid">
                   <div className="signature-block">
                     <span className="signature-icon">✓</span>
-                    <div><strong>Digital signature valid</strong><small>Signed by the issuer credential on record</small></div>
+                    <div><strong>No live signature asserted</strong><small>A real issued TEC must verify against the reviewed issuer key</small></div>
                   </div>
                   <dl>
-                    <div><dt>Issuer ID</dt><dd>TEC-LAB-GLP</dd></div>
-                    <div><dt>Credential</dt><dd>Active</dd></div>
-                    <div><dt>Record fingerprint</dt><dd>sha256:8f10…a27e</dd></div>
-                    <div><dt>Revision history</dt><dd>Original issuance · no amendments</dd></div>
+                    <div><dt>Issuer ID</dt><dd>DEMO-LAB-GLP</dd></div>
+                    <div><dt>Credential</dt><dd>Illustrative</dd></div>
+                    <div><dt>Record fingerprint</dt><dd>Not registered</dd></div>
+                    <div><dt>Revision history</dt><dd>Example version state</dd></div>
                   </dl>
                 </div>
               )}
             </div>
 
             <footer className="record-footer">
-              <span><i /> Registry integrity check passed</span>
-              <span>Machine-readable data available</span>
+              <span><i /> Interface demonstration</span>
+              <span>No live evidence claim</span>
             </footer>
           </div>
         </article>
@@ -191,8 +195,8 @@ export default function Home() {
         </div>
         <ol className="steps">
           <li><span>01</span><div><strong>The lab releases</strong><p>Results, methods, sample context, and units are recorded directly from the laboratory’s system.</p></div></li>
-          <li><span>02</span><div><strong>TEC seals the record</strong><p>An authenticated issuer signs a timestamped, tamper-evident version and receives a persistent identifier.</p></div></li>
-          <li><span>03</span><div><strong>Anyone can resolve it</strong><p>Brands share a link or TEC. Buyers and auditors see the same authoritative evidence and revision history.</p></div></li>
+          <li><span>02</span><div><strong>The registry verifies and records</strong><p>The API checks the laboratory’s Ed25519 signature against its reviewed public key, records the version fingerprint, and assigns a TECRID.</p></div></li>
+          <li><span>03</span><div><strong>Anyone can resolve it</strong><p>Brands share a link or TECRID. Buyers and auditors see the current status, issued values, issuer scope, and append-only version history.</p></div></li>
         </ol>
       </section>
 
@@ -243,7 +247,7 @@ export default function Home() {
           <p className="section-kicker light">Infrastructure for verifiable disclosure</p>
           <h2>Make every contaminant claim resolvable.</h2>
         </div>
-        <a href="/join">Join the network <span aria-hidden="true">↗</span></a>
+        <a href="/join">Join the registry <span aria-hidden="true">↗</span></a>
       </section>
 
       <ProductFooter />

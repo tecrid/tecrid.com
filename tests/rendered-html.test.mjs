@@ -19,14 +19,16 @@ async function render(path = "/") {
   );
 }
 
-test("renders the TEC Network public product", async () => {
+test("renders the TEC Registry public product", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /TEC Network/);
+  assert.match(html, /TEC Registry/);
   assert.match(html, /Lab results that/);
   assert.match(html, /Test Evidence Credential/);
-  assert.match(html, /Join the network/);
+  assert.match(html, /Join the registry/);
+  assert.match(html, /TECRID/);
+  assert.match(html, /Demonstration record/);
   assert.match(html, /Institute of Contaminant Standards/);
   assert.doesNotMatch(html, /codex-preview|loading skeleton|react-loading-skeleton/i);
 });
@@ -42,24 +44,52 @@ test("renders pricing and API documentation", async () => {
   assert.match(join, /\$2,500/);
   assert.match(join, /buy\.stripe\.com/);
   assert.match(join, /Membership never purchases/);
-  assert.match(developers, /TEC Network API/);
+  assert.match(developers, /TEC Registry API/);
   assert.match(developers, /POST \/api\/v1\/credentials/);
   assert.match(developers, /Bearer keys/);
 });
 
-test("keeps durable infrastructure and production metadata wired", async () => {
-  const [hosting, schema, layout, packageJson] = await Promise.all([
+test("keeps durable infrastructure, proof enforcement, and production metadata wired", async () => {
+  const [hosting, schema, service, migration, proofMigration, layout, packageJson] = await Promise.all([
     readFile(new URL("../.openai/hosting.json", import.meta.url), "utf8"),
     readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/tec.ts", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0001_nosy_gressill.sql", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0002_clumsy_princess_powerful.sql", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
   assert.match(hosting, /"d1": "DB"/);
   assert.match(schema, /billingEvents/);
   assert.match(schema, /credentialResults/);
-  assert.match(layout, /TEC Network/);
+  assert.match(schema, /credentialVersions/);
+  assert.match(schema, /issuerApplications/);
+  assert.match(schema, /issuerSignature/);
+  assert.match(service, /Ed25519/);
+  assert.match(service, /crypto\.subtle\.verify/);
+  assert.match(service, /TECRID·/);
+  assert.match(migration, /DELETE FROM `credentials` WHERE `identifier` = 'TEC·GLP-26-7F3A92'/);
+  assert.match(proofMigration, /credential_versions_no_update/);
+  assert.match(proofMigration, /credential_versions_no_delete/);
+  assert.match(service, /verifyStoredProof/);
+  assert.match(service, /signedPayload/);
+  assert.match(layout, /TEC Registry/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await assert.doesNotReject(access(new URL("../drizzle/0000_narrow_vengeance.sql", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../app/api/v1/health/route.ts", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../app/api/v1/credentials/canonicalize/route.ts", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../app/api/v1/credentials/[identifier]/versions/route.ts", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../app/standard/page.tsx", import.meta.url)));
   await assert.doesNotReject(access(new URL("../public/og.png", import.meta.url)));
   await assert.doesNotReject(access(new URL("../dist/server/index.js", import.meta.url)));
+});
+
+test("keeps the sample honest and separate from the live registry", async () => {
+  const response = await render("/demo");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Demonstration only/);
+  assert.match(html, /not a public TEC/i);
+  assert.match(html, /no laboratory issuance/i);
+  assert.doesNotMatch(html, /Issuer signature verified/);
 });

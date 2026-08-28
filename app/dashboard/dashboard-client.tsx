@@ -96,10 +96,26 @@ export function ApiKeyPanel({ keys }: { keys: KeySummary[] }) {
     setMessage("Copied. Store it in your secret manager.");
   }
 
+  async function revokeKey(id: string) {
+    if (!window.confirm("Revoke this API key? Existing integrations using it will stop working.")) return;
+    setPending(true);
+    setMessage("");
+    const response = await fetch("/api/keys", {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    const body = await response.json();
+    setPending(false);
+    if (!response.ok) return setMessage(body.error ?? "Could not revoke API key.");
+    setMessage("API key revoked. Reloading…");
+    window.location.reload();
+  }
+
   return (
     <section className="dashboard-panel api-panel" id="api-keys">
-      <div className="panel-heading">
-        <div><p className="section-kicker">API access</p><h2>Issuer keys</h2></div>
+        <div className="panel-heading">
+        <div><p className="section-kicker">API access</p><h2>API keys</h2></div>
         <a href="/developers">Read API docs ↗</a>
       </div>
       <p className="panel-copy">Keys authenticate your LIMS or reporting workflow. They are displayed once and stored as a one-way hash.</p>
@@ -122,6 +138,7 @@ export function ApiKeyPanel({ keys }: { keys: KeySummary[] }) {
             <strong>{key.label}</strong>
             <code>{key.keyPrefix}••••••{key.lastFour}</code>
             <small>Created {new Date(key.createdAt).toLocaleDateString()} · {key.lastUsedAt ? `Last used ${new Date(key.lastUsedAt).toLocaleDateString()}` : "Never used"}</small>
+            {!key.revokedAt ? <button type="button" disabled={pending} onClick={() => revokeKey(key.id)}>Revoke</button> : <span />}
           </div>
         )) : <p className="empty-state">No API keys yet.</p>}
       </div>

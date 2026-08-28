@@ -6,8 +6,8 @@ import { ProductFooter, ProductNav } from "../site-nav";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Join TEC Network",
-  description: "Create a free TEC Network organization account or become a Founding Organization.",
+  title: "Join TEC Registry",
+  description: "Create a free TEC Registry organization account or become a Founding Organization.",
 };
 
 export default async function JoinPage() {
@@ -19,10 +19,10 @@ export default async function JoinPage() {
     <main className="product-page">
       <ProductNav compact />
       <section className="product-hero join-hero">
-        <p className="section-kicker light">Join the evidence network</p>
+        <p className="section-kicker light">Join the evidence registry</p>
         <h1>Verification is free.<br />Infrastructure is a business.</h1>
         <p>
-          Every organization can resolve TEC records and use the open standard. Laboratories can create an account, request issuer verification, and start building draft integrations without a contract.
+          Every organization can resolve public TECRIDs and implement the open draft protocol. Laboratories can create an account, submit a scoped issuer application, and build private draft integrations without a contract.
         </p>
       </section>
 
@@ -34,12 +34,12 @@ export default async function JoinPage() {
           <ul>
             <li>Public TEC resolution and verification</li>
             <li>Organization account and issuer application</li>
-            <li>Standards-compliant draft credentials</li>
+            <li>Draft-protocol credential tooling</li>
             <li>Reasonable public and issuer API access</li>
             <li>Public correction and version history</li>
           </ul>
           <a className="button-dark" href={freeHref}>{membership ? "Open dashboard" : user ? "Complete setup" : "Create free account"} <span>→</span></a>
-          <small>Sign-in uses your ChatGPT identity. Issuer verification is a separate standards review.</small>
+          <small>Sign-in uses your ChatGPT identity. Public issuance requires a separate ICS scope and signing-key review.</small>
         </article>
 
         <article className="price-card founding-card">
@@ -49,10 +49,10 @@ export default async function JoinPage() {
           <ul>
             <li>Everything in the open network</li>
             <li>Structured implementation onboarding</li>
-            <li>Priority LIMS and workflow integration support</li>
-            <li>Extended API capacity and monitoring</li>
-            <li>Early access to policy and procurement tools</li>
-            <li>Founding cohort recognition</li>
+            <li>Priority technical support for the draft protocol</li>
+            <li>Implementation and LIMS integration scoping</li>
+            <li>Participation in policy and procurement pilots</li>
+            <li>Founding cohort recognition, with consent</li>
           </ul>
           <a className="button-mint" href="https://buy.stripe.com/14AfZi02HabV0HKfxZ3ZK00">Become a founding organization <span>↗</span></a>
           <small>Membership never purchases, accelerates, or guarantees laboratory verification.</small>
@@ -62,7 +62,7 @@ export default async function JoinPage() {
       <section className="independence-callout">
         <p className="section-kicker">The commercial firewall</p>
         <h2>Pay for workflow. Never pay for credibility.</h2>
-        <p>TEC can charge for integrations, support, monitoring, procurement controls, and enterprise operations. The issuer-review decision remains method-based and independent of payment.</p>
+        <p>TEC can charge for implementation support, integrations, monitoring, procurement controls, and enterprise operations as those services become available. The issuer-review decision remains method-based and independent of payment.</p>
       </section>
       <ProductFooter />
     </main>

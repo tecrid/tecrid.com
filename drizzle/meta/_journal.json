@@ -8,6 +8,20 @@
       "when": 1787843374520,
       "tag": "0000_narrow_vengeance",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1787897169932,
+      "tag": "0001_nosy_gressill",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1787897321703,
+      "tag": "0002_clumsy_princess_powerful",
+      "breakpoints": true
     }
   ]
 }

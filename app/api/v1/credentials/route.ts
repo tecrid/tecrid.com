@@ -14,8 +14,14 @@ function errorResponse(error: unknown) {
   return Response.json(
     {
       error: {
-        code: status === 403 ? "not_authorized" : status === 400 ? "invalid_request" : "server_error",
-        message: error instanceof Error ? error.message : "The request could not be completed.",
+        code:
+          status === 403
+            ? "not_authorized"
+            : status === 400
+              ? "invalid_request"
+              : "internal_error",
+        message:
+          error instanceof Error ? error.message : "Credential operation failed.",
       },
     },
     { status },
@@ -24,9 +30,9 @@ function errorResponse(error: unknown) {
 
 export async function GET(request: Request) {
   try {
-    const context = await authenticateApiRequest(request);
-    const data = await listCredentialsForApi(context.organization.id);
-    return Response.json({ object: "list", data, has_more: false });
+    const { organization } = await authenticateApiRequest(request);
+    const records = await listCredentialsForApi(organization.id);
+    return Response.json({ records, count: records.length });
   } catch (error) {
     return errorResponse(error);
   }
@@ -34,13 +40,13 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const context = await authenticateApiRequest(request);
+    const { organization } = await authenticateApiRequest(request);
     const credential = await createCredential(
-      context.organization,
-      `api_key:${context.key.id}`,
+      organization,
+      null,
       await request.json(),
     );
-    return Response.json({ object: "credential", ...credential }, { status: 201 });
+    return Response.json({ credential }, { status: 201 });
   } catch (error) {
     return errorResponse(error);
   }

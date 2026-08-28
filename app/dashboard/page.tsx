@@ -3,11 +3,12 @@ import { requireChatGPTUser, chatGPTSignOutPath } from "../chatgpt-auth";
 import { getDashboardData } from "../../lib/tec";
 import { ProductFooter, ProductNav } from "../site-nav";
 import { ApiKeyPanel, OrganizationOnboarding } from "./dashboard-client";
+import { IssuerApplicationPanel } from "./issuer-application";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "TEC Network Dashboard",
+  title: "TEC Registry Dashboard",
   description: "Manage your TEC organization, credentials, and API access.",
 };
 
@@ -21,7 +22,7 @@ export default async function DashboardPage() {
       <header className="dashboard-header">
         <div>
           <p className="section-kicker light">Authenticated workspace</p>
-          <h1>{data ? data.organization.name : "Welcome to TEC Network"}</h1>
+          <h1>{data ? data.organization.name : "Welcome to TEC Registry"}</h1>
           <p>{user.displayName} · <a href={chatGPTSignOutPath("/")}>Sign out</a></p>
         </div>
         {data ? <span className="workspace-code">Issuer code <strong>{data.organization.issuerCode}</strong></span> : null}
@@ -35,7 +36,7 @@ export default async function DashboardPage() {
             <article><span>Plan</span><strong>{data.organization.plan === "free" ? "Open network" : data.organization.plan}</strong><small>Verification remains free</small></article>
             <article><span>Issuer status</span><strong className={`status-${data.organization.issuerStatus}`}>{data.organization.issuerStatus.replaceAll("_", " ")}</strong><small>{data.organization.organizationType === "laboratory" ? "ICS review required for public issuance" : "Public issuance belongs to laboratories"}</small></article>
             <article><span>Credentials</span><strong>{data.records.length}</strong><small>{data.records.filter((record) => record.publicRecord).length} public</small></article>
-            <article><span>API</span><strong>v1</strong><small>Operational</small></article>
+            <article><span>API</span><strong>v1</strong><small>Bearer access available</small></article>
           </section>
 
           <section className="dashboard-panel credential-panel">
@@ -44,7 +45,7 @@ export default async function DashboardPage() {
               <a className="button-dark" href="/dashboard/credentials/new">New credential <span>→</span></a>
             </div>
             {data.organization.organizationType === "laboratory" && data.organization.issuerStatus !== "verified" ? (
-              <div className="verification-banner"><strong>Issuer review pending.</strong><span>You may create drafts and test the API. TEC publication remains locked until ICS verifies the laboratory.</span></div>
+              <div className="verification-banner"><strong>No public issuance authority yet.</strong><span>You may create private drafts and test canonicalization. Publication remains locked until ICS verifies the laboratory scope and signing key.</span></div>
             ) : null}
             <div className="credential-list">
               {data.records.length ? data.records.map((record) => (
@@ -58,10 +59,17 @@ export default async function DashboardPage() {
             </div>
           </section>
 
+          {data.organization.organizationType === "laboratory" ? (
+            <IssuerApplicationPanel
+              application={data.issuerApplication}
+              issuerStatus={data.organization.issuerStatus}
+            />
+          ) : null}
+
           <ApiKeyPanel keys={data.keys} />
 
           <section className="dashboard-panel billing-panel">
-            <div><p className="section-kicker light">Founding organization</p><h2>Need implementation support?</h2><p>Add priority onboarding, expanded API capacity, monitoring, and workflow integration without changing your issuer-review outcome.</p></div>
+            <div><p className="section-kicker light">Founding organization</p><h2>Need implementation support?</h2><p>Add structured onboarding, priority draft-protocol support, and integration scoping without changing your issuer-review outcome.</p></div>
             <a className="button-mint" href="/join">View founding membership ↗</a>
           </section>
         </div>

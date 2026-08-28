@@ -13,7 +13,7 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
-button, input { font: inherit; }
+button, input, textarea, select { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; text-decoration: none; }
 
@@ -334,11 +334,12 @@ td:first-child { display: flex; align-items: center; gap: 10px; color: var(--ink
 .new-key-box code { overflow: auto; font-size: 11px; }
 .new-key-box button { border: 0; background: transparent; color: #087744; font-size: 10px; font-weight: 750; cursor: pointer; }
 .key-list { border-top: 1px solid var(--line); }
-.key-list > div { padding: 16px 0; display: grid; grid-template-columns: 65px .8fr 1fr 1fr; gap: 15px; align-items: center; border-bottom: 1px solid var(--line); }
+.key-list > div { padding: 16px 0; display: grid; grid-template-columns: 65px .8fr 1fr 1fr auto; gap: 15px; align-items: center; border-bottom: 1px solid var(--line); }
 .key-list strong { font-size: 11px; }
 .key-list code, .key-list small { color: var(--muted); font-size: 9px; }
 .key-state { color: #087744; text-transform: uppercase; letter-spacing: .1em; font-size: 7px; font-weight: 800; }
 .key-state.revoked { color: #a34a4a; }
+.key-list button { padding: 7px 9px; border: 1px solid var(--line); color: #8f3333; background: white; cursor: pointer; font-size: 8px; font-weight: 750; }
 .billing-panel { display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; color: white; background: var(--ink); }
 .billing-panel h2 { margin: 0 0 14px; font: 500 40px Georgia, serif; }
 .billing-panel p:last-child { max-width: 700px; margin: 0; color: #9da6b7; font-size: 12px; line-height: 1.6; }
@@ -421,6 +422,143 @@ td:first-child { display: flex; align-items: center; gap: 10px; color: var(--ink
 .error-table span { font-weight: 750; font-size: 11px; }
 .error-table p { margin: 0; color: var(--muted); font-size: 11px; }
 
+/* Registry trust surfaces */
+.demo-pill { color: #6f5e3b; background: #fff7dc; border-color: #d9c17a; }
+.demo-pill i { background: #b18421; }
+.demo-seal { color: #8c6b22; border-color: #b99b56; }
+.public-unverified { align-self: center; display: flex; gap: 8px; align-items: center; padding: 11px 14px; border: 1px solid rgba(255,255,255,.35); border-radius: 999px; color: rgba(255,255,255,.78); text-transform: uppercase; letter-spacing: .1em; font-size: 8px; font-weight: 750; }
+.public-unverified i { width: 7px; height: 7px; border-radius: 50%; background: #e7bd6f; }
+.status-bar-revoked span:first-child { color: #9e3f3f; }
+.record-revoked { color: #8f3333; background: #f7dddd; }
+.record-submitted { color: #775307; background: #fae9b5; }
+.record-needs_information { color: #764d16; background: #f6dfbe; }
+.record-rejected { color: #8f3333; background: #f7dddd; }
+
+.version-register { padding: 20px 7vw 105px; }
+.version-register .section-title-row { margin-left: 0; margin-right: 0; }
+.version-register ol { margin: 0; padding: 0; border-top: 1px solid var(--ink); list-style: none; }
+.version-register li { padding: 23px 0; display: grid; grid-template-columns: 75px 1fr 1fr; gap: 25px; align-items: start; border-bottom: 1px solid var(--line); }
+.version-register li > span { color: var(--blue); font: 650 12px var(--font-geist-mono), monospace; }
+.version-register li strong, .version-register li small, .version-register li code { display: block; }
+.version-register li strong { text-transform: capitalize; font: 500 21px Georgia, serif; }
+.version-register li p { margin: 7px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.version-register li > div:last-child { text-align: right; }
+.version-register li small { margin-bottom: 8px; color: var(--muted); font-size: 9px; }
+.version-register li code { overflow-wrap: anywhere; color: var(--blue); font-size: 9px; }
+
+.ingredient-integrity-section { padding: 110px 7vw 125px; display: grid; grid-template-columns: .72fr 1.28fr; gap: 8vw; border-bottom: 1px solid var(--line); }
+.ingredient-integrity-section h2 { max-width: 580px; margin: 0; font: 500 clamp(43px, 5.3vw, 72px)/.98 Georgia, serif; letter-spacing: -.05em; }
+.ingredient-integrity-section > div > p:last-child { max-width: 580px; color: var(--muted); line-height: 1.65; }
+.integrity-chain { margin: 0; padding: 0; border-top: 1px solid var(--ink); list-style: none; }
+.integrity-chain li { padding: 25px 0; display: grid; grid-template-columns: 58px 1fr; gap: 18px; border-bottom: 1px solid var(--line); }
+.integrity-chain > li > span { color: var(--blue); font: 650 10px var(--font-geist-mono), monospace; }
+.integrity-chain strong { font: 500 24px Georgia, serif; }
+.integrity-chain p { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+
+/* Issuer register and public standard */
+.issuer-hero::after { content: "LAB"; }
+.standard-hero::after { content: "1.0"; }
+.issuer-directory { padding: 90px 7vw 110px; }
+.issuer-directory .section-title-row { margin-left: 0; margin-right: 0; }
+.issuer-list { border-top: 1px solid var(--ink); }
+.issuer-list > a { min-height: 108px; padding: 22px 0; display: grid; grid-template-columns: 120px 1.4fr 1fr 60px; gap: 24px; align-items: center; border-bottom: 1px solid var(--line); }
+.issuer-list > a > span { color: var(--blue); font: 650 10px var(--font-geist-mono), monospace; }
+.issuer-list > a > strong { font: 500 26px Georgia, serif; }
+.issuer-list > a > small { color: var(--muted); font-size: 9px; }
+.issuer-list > a > i { justify-self: end; color: var(--blue); font-size: 16px; }
+.empty-registry { padding: 32px 0; color: var(--muted); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.empty-registry strong { color: var(--ink); font: 500 22px Georgia, serif; }
+.empty-registry p { margin: 7px 0 0; font-size: 11px; line-height: 1.55; }
+
+.issuer-record-hero h1 { font-family: Georgia, serif; }
+.issuer-record-shell { margin: 65px 7vw 95px; border: 1px solid var(--line); background: white; box-shadow: 8px 8px 0 #d9d3c7; }
+.issuer-status-statement { padding: 36px; border-bottom: 1px solid var(--line); }
+.issuer-status-statement span, .issuer-scope-grid span { display: block; margin-bottom: 10px; color: var(--blue); text-transform: uppercase; letter-spacing: .11em; font-size: 8px; font-weight: 800; }
+.issuer-status-statement strong { display: block; font: 500 32px Georgia, serif; }
+.issuer-status-statement p { max-width: 760px; margin: 12px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.issuer-facts { margin: 0; display: grid; grid-template-columns: 1fr 1fr; }
+.issuer-facts > div { min-height: 115px; padding: 25px 28px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.issuer-facts > div:nth-child(even) { border-right: 0; }
+.issuer-facts dt { margin-bottom: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; font-size: 8px; font-weight: 750; }
+.issuer-facts dd { margin: 0; font-size: 12px; line-height: 1.55; }
+.issuer-facts a, .issuer-facts code { color: var(--blue); overflow-wrap: anywhere; }
+.issuer-facts small { display: block; margin-top: 7px; color: var(--muted); font-size: 9px; }
+.issuer-scope-grid { display: grid; grid-template-columns: 1fr 1fr; }
+.issuer-scope-grid article { min-height: 170px; padding: 28px; border-right: 1px solid var(--line); }
+.issuer-scope-grid article:last-child { border-right: 0; }
+.issuer-scope-grid p { margin: 0; color: var(--muted); line-height: 1.65; }
+
+.draft-standard-badge { position: relative; z-index: 1; width: max-content; margin-top: 34px; padding: 10px 13px; display: flex; gap: 8px; align-items: center; border: 1px solid rgba(255,255,255,.32); border-radius: 999px; color: rgba(255,255,255,.78); text-transform: uppercase; letter-spacing: .1em; font-size: 8px; font-weight: 750; }
+.draft-standard-badge i { width: 7px; height: 7px; border-radius: 50%; background: #e7bd6f; }
+.standard-requirements { padding: 105px 7vw 115px; display: grid; grid-template-columns: .72fr 1.28fr; gap: 8vw; }
+.standard-requirements h2, .standard-status h2 { margin: 0 0 22px; font: 500 clamp(43px, 5.3vw, 72px)/.98 Georgia, serif; letter-spacing: -.05em; }
+.standard-requirements > div > p:last-child { color: var(--muted); line-height: 1.65; }
+.standard-requirements ol { margin: 0; padding: 0; border-top: 1px solid var(--ink); list-style: none; }
+.standard-requirements li { padding: 24px 0; display: grid; grid-template-columns: 55px 1fr; gap: 18px; border-bottom: 1px solid var(--line); }
+.standard-requirements li > span { color: var(--blue); font: 650 10px var(--font-geist-mono), monospace; }
+.standard-requirements strong { font: 500 23px Georgia, serif; }
+.standard-requirements li p { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.trust-model { padding: 105px 7vw 115px; display: grid; grid-template-columns: .75fr 1.25fr; gap: 8vw; color: white; background: var(--ink); }
+.trust-model h2 { margin: 0; font: 500 clamp(43px, 5.3vw, 72px)/.98 Georgia, serif; letter-spacing: -.05em; }
+.trust-model-grid { display: grid; grid-template-columns: 1fr; border-top: 1px solid rgba(255,255,255,.22); }
+.trust-model-grid article { padding: 28px 0; display: grid; grid-template-columns: 55px 1fr; gap: 15px; border-bottom: 1px solid rgba(255,255,255,.22); }
+.trust-model-grid article > span { color: var(--mint); font: 10px var(--font-geist-mono), monospace; }
+.trust-model-grid strong { font: 500 24px Georgia, serif; }
+.trust-model-grid p { grid-column: 2; margin: -7px 0 0; color: #aab1bf; font-size: 12px; line-height: 1.6; }
+.standard-status { padding: 105px 7vw 115px; display: grid; grid-template-columns: .72fr 1.28fr; gap: 8vw; }
+.standard-status dl { margin: 0; border-top: 1px solid var(--ink); }
+.standard-status dl > div { padding: 25px 0; display: grid; grid-template-columns: 175px 1fr; gap: 25px; border-bottom: 1px solid var(--line); }
+.standard-status dt { color: var(--blue); font-weight: 750; }
+.standard-status dd { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+
+/* Dashboard issuance and governance forms */
+.issuer-application-panel { margin-top: 24px; }
+.issuer-application-form, .credential-draft-form { max-width: 900px; margin-top: 30px; }
+.issuer-application-form > label, .credential-draft-form > label, .form-pair > label, .form-triplet > label, .signing-key-details > label { display: grid; gap: 8px; margin-bottom: 18px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; font-size: 8px; font-weight: 750; }
+.issuer-application-form input, .issuer-application-form textarea, .credential-draft-form input, .credential-draft-form textarea, .review-controls input { width: 100%; min-height: 48px; padding: 12px 13px; border: 1px solid var(--line); border-radius: 0; color: var(--ink); background: #fbfaf6; outline: 0; text-transform: none; letter-spacing: 0; font-size: 13px; resize: vertical; }
+.issuer-application-form input:focus, .issuer-application-form textarea:focus, .credential-draft-form input:focus, .credential-draft-form textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(23,67,227,.1); }
+.form-pair, .form-triplet { display: grid; gap: 18px; }
+.form-pair { grid-template-columns: 1fr 1fr; }
+.form-triplet { grid-template-columns: repeat(3, 1fr); }
+.signing-key-details { margin: 22px 0; padding: 18px; border: 1px solid var(--line); background: #f2efe7; }
+.signing-key-details summary { cursor: pointer; font-weight: 750; font-size: 11px; }
+.signing-key-details summary span { color: var(--muted); font-weight: 500; }
+.signing-key-details p { color: var(--muted); font-size: 10px; line-height: 1.55; }
+.attestation-check { grid-template-columns: 18px 1fr !important; align-items: start; text-transform: none !important; letter-spacing: 0 !important; font-size: 11px !important; line-height: 1.55; }
+.attestation-check input { width: 17px; min-height: 17px; margin: 1px 0 0; }
+.review-boundary, .draft-boundary { margin: 24px 0; padding: 17px 18px; display: grid; gap: 5px; border-left: 3px solid #b18421; background: #fff7dc; }
+.review-boundary strong, .draft-boundary strong { font-size: 11px; }
+.review-boundary span, .draft-boundary span { color: var(--muted); font-size: 10px; line-height: 1.55; }
+.verified-issuer-panel { border-color: #8ac9a8; }
+.credential-form-shell { padding: 55px 7vw 105px; }
+.credential-draft-form { max-width: 920px; margin: 0; padding: 35px; border: 1px solid var(--line); background: white; }
+.credential-draft-form fieldset { margin: 10px 0 25px; padding: 24px; border: 1px solid var(--line); }
+.credential-draft-form legend { padding: 0 8px; color: var(--blue); font: 500 19px Georgia, serif; }
+.new-draft-id { margin: 22px 0 0; padding: 17px; display: grid; gap: 7px; color: #075d38; border: 1px solid #8ac9a8; background: #e7f8ee; }
+.new-draft-id span { text-transform: uppercase; letter-spacing: .1em; font-size: 8px; font-weight: 800; }
+.new-draft-id code { color: var(--ink); overflow-wrap: anywhere; }
+
+.admin-application-list { padding: 55px 7vw 110px; }
+.admin-application-list > article { margin-bottom: 28px; border: 1px solid var(--line); background: white; }
+.admin-application-list article > header { padding: 25px 28px; display: flex; align-items: flex-start; justify-content: space-between; gap: 25px; border-bottom: 1px solid var(--line); }
+.admin-application-list header span:first-child { color: var(--blue); text-transform: uppercase; letter-spacing: .1em; font-size: 8px; font-weight: 800; }
+.admin-application-list h2 { margin: 8px 0 4px; font: 500 30px Georgia, serif; }
+.admin-application-list header p { margin: 0; color: var(--muted); font-size: 11px; }
+.admin-application-list dl { margin: 0; display: grid; grid-template-columns: 1fr 1fr; }
+.admin-application-list dl > div { min-height: 110px; padding: 23px 28px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.admin-application-list dl > div:nth-child(even) { border-right: 0; }
+.admin-application-list dt { margin-bottom: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; font-size: 8px; font-weight: 750; }
+.admin-application-list dd { margin: 0; white-space: pre-wrap; font-size: 11px; line-height: 1.55; }
+.admin-application-list dd code, .admin-application-list dd small { display: block; overflow-wrap: anywhere; }
+.admin-application-list dd small { margin-top: 6px; color: var(--muted); font-size: 9px; }
+.admin-review-note { margin: 0; padding: 18px 28px; color: var(--muted); border-bottom: 1px solid var(--line); font-size: 11px; }
+.admin-review-note strong { margin-right: 12px; color: var(--ink); }
+.review-controls { padding: 18px 28px; display: flex; gap: 10px; align-items: center; }
+.review-controls button { padding: 10px 13px; border: 1px solid var(--line); background: white; cursor: pointer; font-size: 9px; font-weight: 750; }
+.review-controls button:first-child { color: white; background: var(--ink); }
+.review-controls button:last-of-type { color: #8f3333; }
+.review-controls small { margin-left: auto; color: var(--muted); }
+
 @media (max-width: 900px) {
   .definition { grid-template-columns: 1fr; gap: 5px; }
   .protocol-section, .boundary-section { grid-template-columns: 1fr; }
@@ -443,6 +581,9 @@ td:first-child { display: flex; align-items: center; gap: 10px; color: var(--ink
   .dashboard-summary article:nth-child(2) { border-right: 0; }
   .dashboard-summary article:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
   .api-layout { grid-template-columns: 1fr; }
+  .ingredient-integrity-section, .standard-requirements, .trust-model, .standard-status { grid-template-columns: 1fr; }
+  .issuer-list > a { grid-template-columns: 95px 1fr 60px; }
+  .issuer-list > a > small { grid-column: 2; }
   .api-toc { position: static; grid-template-columns: repeat(3, 1fr); }
   .api-toc > span, .api-toc .button-dark { grid-column: 1 / -1; }
 }
@@ -526,7 +667,7 @@ td:first-child { display: flex; align-items: center; gap: 10px; color: var(--ink
   .credential-list article > div:nth-child(3), .credential-list article > a, .credential-list .draft-lock { grid-column: 2; }
   .new-key-box { grid-template-columns: 1fr; }
   .key-list > div { grid-template-columns: 60px 1fr; }
-  .key-list code, .key-list small { grid-column: 2; }
+  .key-list code, .key-list small, .key-list button { grid-column: 2; }
   .credential-form > section { grid-template-columns: 1fr; }
   .field-grid { grid-template-columns: 1fr; }
   .form-section-number { margin-bottom: 18px; }
@@ -541,6 +682,20 @@ td:first-child { display: flex; align-items: center; gap: 10px; color: var(--ink
   .api-toc { grid-template-columns: 1fr 1fr; }
   .error-table > div { grid-template-columns: 50px 1fr; }
   .error-table p { grid-column: 2; }
+  .ingredient-integrity-section, .standard-requirements, .trust-model, .standard-status, .issuer-directory, .version-register, .admin-application-list, .credential-form-shell { padding-left: 22px; padding-right: 22px; }
+  .version-register li { grid-template-columns: 48px 1fr; }
+  .version-register li > div:last-child { grid-column: 2; text-align: left; }
+  .issuer-list > a { grid-template-columns: 1fr 36px; }
+  .issuer-list > a > span, .issuer-list > a > small { grid-column: 1; }
+  .issuer-list > a > i { grid-column: 2; grid-row: 1 / 4; }
+  .issuer-record-shell { margin: 35px 22px 70px; }
+  .issuer-facts, .issuer-scope-grid, .admin-application-list dl { grid-template-columns: 1fr; }
+  .issuer-facts > div, .issuer-scope-grid article, .admin-application-list dl > div { border-right: 0; }
+  .standard-status dl > div { grid-template-columns: 1fr; gap: 8px; }
+  .form-pair, .form-triplet { grid-template-columns: 1fr; gap: 0; }
+  .credential-draft-form { padding: 25px 20px; }
+  .review-controls { flex-direction: column; align-items: stretch; }
+  .review-controls small { margin-left: 0; }
   .footer-actions { justify-content: flex-start; flex-wrap: wrap; }
 }
 

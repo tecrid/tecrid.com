@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const title = "TEC Network — Lab results that speak for themselves";
+const title = "TEC Registry — Every result, back to its source";
 const description =
-  "Test Evidence Credentials turn contaminant reports into persistent, lab-issued digital records. An open initiative of the Institute of Contaminant Standards.";
+  "TEC Registry gives laboratory evidence a permanent TECRID so anyone can verify its issuer, contents, status, and history.";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       type: "website",
-      images: [{ url: image, width: 1731, height: 909, alt: "TEC Network — Lab results, verifiable at source" }],
+      images: [{ url: image, width: 1732, height: 909, alt: "TEC Registry — Every result, back to its source" }],
     },
     twitter: {
       card: "summary_large_image",

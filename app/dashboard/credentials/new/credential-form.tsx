@@ -2,37 +2,16 @@
 
 import { useState } from "react";
 
-type ResultRow = {
-  analyte: string;
-  symbol: string;
-  resultText: string;
-  unit: string;
-  loqText: string;
-};
-
-const initialRows: ResultRow[] = [
-  { analyte: "Lead", symbol: "Pb", resultText: "", unit: "µg/kg", loqText: "" },
-  { analyte: "Cadmium", symbol: "Cd", resultText: "", unit: "µg/kg", loqText: "" },
-  { analyte: "Arsenic", symbol: "As", resultText: "", unit: "µg/kg", loqText: "" },
-  { analyte: "Mercury", symbol: "Hg", resultText: "", unit: "µg/kg", loqText: "" },
-];
-
-export function CredentialForm({ canPublish }: { canPublish: boolean }) {
-  const [rows, setRows] = useState(initialRows);
-  const [pending, setPending] = useState(false);
+export function CredentialDraftForm() {
   const [message, setMessage] = useState("");
-  const [created, setCreated] = useState<{ identifier: string; status: string } | null>(null);
-
-  function updateRow(index: number, field: keyof ResultRow, value: string) {
-    setRows((current) => current.map((row, rowIndex) => rowIndex === index ? { ...row, [field]: value } : row));
-  }
+  const [tecrid, setTecrid] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
     setMessage("");
     const form = new FormData(event.currentTarget);
-    const results = rows.filter((row) => row.resultText.trim());
     const response = await fetch("/api/credentials", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -41,94 +20,57 @@ export function CredentialForm({ canPublish }: { canPublish: boolean }) {
         lotNumber: form.get("lotNumber"),
         matrix: form.get("matrix"),
         method: form.get("method"),
-        submittingParty: form.get("submittingParty"),
+        collectedAt: form.get("collectedAt"),
         receivedAt: form.get("receivedAt"),
         testedAt: form.get("testedAt"),
-        publish: canPublish && form.get("publish") === "on",
-        results,
+        publish: false,
+        results: [
+          {
+            analyte: form.get("analyte"),
+            symbol: form.get("symbol"),
+            resultText: form.get("resultText"),
+            unit: form.get("unit"),
+            loqText: form.get("loqText"),
+          },
+        ],
       }),
     });
     const body = await response.json();
     setPending(false);
-    if (!response.ok) return setMessage(body.error ?? "Credential creation failed.");
-    setCreated(body.credential);
-    setMessage(body.credential.status === "issued" ? "The TEC is now publicly resolvable." : "Draft saved. Public issuance remains locked until issuer verification.");
-  }
-
-  if (created) {
-    return (
-      <div className="credential-success">
-        <span className="success-seal">✓</span>
-        <p className="section-kicker">Credential created</p>
-        <h2>{created.identifier}</h2>
-        <p>{message}</p>
-        <div>
-          {created.status === "issued" ? <a className="button-dark" href={`/records/${encodeURIComponent(created.identifier)}`}>Open public record ↗</a> : null}
-          <a className="button-outline" href="/dashboard">Return to dashboard →</a>
-        </div>
-      </div>
-    );
+    if (!response.ok) return setMessage(body.error ?? "Draft creation failed.");
+    setTecrid(body.credential.tecrid ?? body.credential.identifier);
+    setMessage("Draft saved. It is private and has not been represented as issued evidence.");
   }
 
   return (
-    <form className="credential-form" onSubmit={submit}>
-      <section>
-        <p className="form-section-number">01</p>
-        <div className="form-section-content">
-          <h2>Sample context</h2>
-          <div className="field-grid">
-            <label>Sample name<input name="sampleName" required placeholder="Organic cacao powder" /></label>
-            <label>Lot or batch<input name="lotNumber" placeholder="C-240518" /></label>
-            <label>Matrix<input name="matrix" placeholder="Food · Powder" /></label>
-            <label>Submitting party<input name="submittingParty" placeholder="Optional or withheld" /></label>
-            <label>Received date<input name="receivedAt" type="date" /></label>
-            <label>Testing completion<input name="testedAt" type="date" /></label>
-          </div>
+    <form className="credential-draft-form" onSubmit={submit}>
+      <div className="draft-boundary"><strong>Draft only.</strong><span>Browser-created records cannot be publicly issued. Publication requires a verified laboratory API key and an Ed25519 signature over the canonical payload.</span></div>
+      <label>Sample name<input name="sampleName" required placeholder="Organic cacao powder" /></label>
+      <div className="form-pair">
+        <label>Lot number<input name="lotNumber" placeholder="C-240518" /></label>
+        <label>Matrix<input name="matrix" placeholder="Food · Powder" /></label>
+      </div>
+      <label>Method family<input name="method" placeholder="ICP-MS" /></label>
+      <div className="form-triplet">
+        <label>Collected<input name="collectedAt" type="datetime-local" /></label>
+        <label>Received<input name="receivedAt" type="datetime-local" /></label>
+        <label>Tested<input name="testedAt" type="datetime-local" /></label>
+      </div>
+      <fieldset>
+        <legend>First analytical result</legend>
+        <div className="form-pair">
+          <label>Analyte<input name="analyte" required placeholder="Lead" /></label>
+          <label>Symbol<input name="symbol" placeholder="Pb" maxLength={12} /></label>
         </div>
-      </section>
-
-      <section>
-        <p className="form-section-number">02</p>
-        <div className="form-section-content">
-          <h2>Analytical method</h2>
-          <label>Method or method family<input name="method" placeholder="ICP-MS · AOAC 2015.01" /></label>
+        <div className="form-triplet">
+          <label>Reported value<input name="resultText" required placeholder="42" /></label>
+          <label>Unit<input name="unit" required placeholder="µg/kg" /></label>
+          <label>LOQ<input name="loqText" placeholder="10" /></label>
         </div>
-      </section>
-
-      <section>
-        <p className="form-section-number">03</p>
-        <div className="form-section-content">
-          <h2>Results</h2>
-          <p>Enter exactly what the laboratory reports. Qualifiers such as “&lt; 10” belong in the result field.</p>
-          <div className="result-editor">
-            <div className="result-editor-head"><span>Analyte</span><span>Symbol</span><span>Result</span><span>Unit</span><span>LOQ</span></div>
-            {rows.map((row, index) => (
-              <div className="result-editor-row" key={`${row.analyte}-${index}`}>
-                <input aria-label={`Analyte ${index + 1}`} value={row.analyte} onChange={(event) => updateRow(index, "analyte", event.target.value)} />
-                <input aria-label={`Symbol ${index + 1}`} value={row.symbol} onChange={(event) => updateRow(index, "symbol", event.target.value)} />
-                <input aria-label={`Result ${index + 1}`} value={row.resultText} onChange={(event) => updateRow(index, "resultText", event.target.value)} placeholder="42" />
-                <input aria-label={`Unit ${index + 1}`} value={row.unit} onChange={(event) => updateRow(index, "unit", event.target.value)} />
-                <input aria-label={`LOQ ${index + 1}`} value={row.loqText} onChange={(event) => updateRow(index, "loqText", event.target.value)} placeholder="10" />
-              </div>
-            ))}
-          </div>
-          <button className="add-result" type="button" onClick={() => setRows((current) => [...current, { analyte: "", symbol: "", resultText: "", unit: "µg/kg", loqText: "" }])}>+ Add analyte</button>
-        </div>
-      </section>
-
-      <section className="issuance-section">
-        <p className="form-section-number">04</p>
-        <div className="form-section-content">
-          <h2>Issuance</h2>
-          <div className={`publish-choice ${!canPublish ? "disabled" : ""}`}>
-            <input id="publish-credential" name="publish" type="checkbox" disabled={!canPublish} aria-label="Publish as an authoritative TEC" />
-            <span><strong>Publish as an authoritative TEC</strong><small>{canPublish ? "The record becomes publicly resolvable and receives a fingerprint." : "Locked until ICS verifies this laboratory issuer."}</small></span>
-          </div>
-          <p className="issuance-note">Submitting creates an immutable versioned record. Corrections are new revisions, never silent overwrites.</p>
-          <button className="button-dark" type="submit" disabled={pending}>{pending ? "Creating credential…" : canPublish ? "Create credential →" : "Save draft credential →"}</button>
-          <p className="form-message" role="status">{message}</p>
-        </div>
-      </section>
+      </fieldset>
+      <button className="button-dark" type="submit" disabled={pending}>{pending ? "Saving…" : "Save private draft →"}</button>
+      {tecrid ? <p className="new-draft-id"><span>Draft TECRID</span><code>{tecrid}</code></p> : null}
+      <p className="form-message" role="status">{message}</p>
     </form>
   );
 }

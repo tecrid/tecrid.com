@@ -2,12 +2,20 @@ import type { Metadata } from "next";
 import { ProductFooter, ProductNav } from "../site-nav";
 
 export const metadata: Metadata = {
-  title: "Why TEC exists — TEC Network",
+  title: "Why TEC exists — TEC Registry",
   description:
-    "The documented case for verifiable, machine-readable laboratory evidence—and why the TEC Network is free at the edges.",
+    "The documented case for verifiable, machine-readable laboratory evidence—and why TEC Registry is free at the edges.",
 };
 
 const sources = [
+  {
+    date: "2026",
+    authority: "University of California, Davis",
+    title: "Brands may unknowingly receive adulterated avocado oil",
+    detail:
+      "UC Davis reported widespread inconsistency in avocado-oil-labeled processed foods and noted that adulteration may originate through upstream suppliers and brokers.",
+    href: "https://www.ucdavis.edu/food/news/avocado-oil-chip-youre-eating-may-not-be-made-pure-avocado-oil",
+  },
   {
     date: "2025",
     authority: "UK National Food Crime Unit",
@@ -68,7 +76,7 @@ export default function WhyTec() {
           <blockquote>
             Organizations lack a universal, authoritative way to exchange and verify laboratory evidence after it leaves the issuing laboratory.
           </blockquote>
-          <small>TEC Network problem statement · v1.0</small>
+          <small>TEC Registry problem statement · v1.0</small>
         </aside>
       </header>
 
@@ -134,15 +142,16 @@ export default function WhyTec() {
       <section className="naming-section" aria-labelledby="naming-title">
         <div>
           <p className="section-kicker">A durable architecture</p>
-          <h2 id="naming-title">One mark. Three clear meanings.</h2>
+          <h2 id="naming-title">One mark. Four clear meanings.</h2>
           <p>
-            TEC is distinctive enough to own and broad enough to grow. The generic alternatives are crowded; the acronym becomes intuitive through consistent use.
+            TEC names the evidence credential. TECRID names its permanent record identifier. Registry names the public infrastructure—not a vague membership network.
           </p>
         </div>
         <dl className="name-system">
-          <div><dt>TEC Network</dt><dd>The open global evidence network</dd></div>
+          <div><dt>TEC Registry</dt><dd>The public resolver and operating platform</dd></div>
           <div><dt>Test Evidence Credential</dt><dd>The lab-issued digital record</dd></div>
-          <div><dt>TEC Registry</dt><dd>The persistent public resolver</dd></div>
+          <div><dt>TECRID</dt><dd>The permanent TEC Record Identifier</dd></div>
+          <div><dt>TEC Protocol</dt><dd>The open technical and governance standard</dd></div>
           <div><dt>ICS</dt><dd>The standards steward and public-interest home</dd></div>
         </dl>
       </section>
@@ -152,11 +161,11 @@ export default function WhyTec() {
           <p className="section-kicker light">Free at the edges</p>
           <h2 id="free-title">Verification cannot become valuable until it becomes ubiquitous.</h2>
           <p>
-            TEC follows a network strategy: remove the tollbooths from participation, then build paid services around the activity the open network creates.
+            TEC Registry follows a network strategy: remove the tollbooths from verification, then build paid services around the activity the open registry creates.
           </p>
         </div>
 
-        <div className="network-orbit" aria-label="TEC Network flywheel">
+        <div className="network-orbit" aria-label="TEC Registry flywheel">
           <div className="orbit-ring ring-one" />
           <div className="orbit-ring ring-two" />
           <span className="orbit-node node-labs">Labs issue</span>
@@ -172,7 +181,7 @@ export default function WhyTec() {
             <h3>The network utility</h3>
             <ul>
               <li>Public resolution and verification</li>
-              <li>Standards-compliant TEC issuance</li>
+              <li>Draft-protocol TEC issuance tooling</li>
               <li>The open credential specification</li>
               <li>Basic issuer and correction history</li>
               <li>A reasonable public API</li>
@@ -197,6 +206,20 @@ export default function WhyTec() {
         </blockquote>
       </section>
 
+      <section className="ingredient-integrity-section" aria-labelledby="ingredient-integrity-title">
+        <div>
+          <p className="section-kicker">Proposed vertical · not yet implemented</p>
+          <h2 id="ingredient-integrity-title">Preserve what was claimed.<br />Test what was present.</h2>
+          <p>A supplier declaration and a laboratory result answer different questions. This proposed application would link them to the same physical lot without pretending that the declaration itself is analytical proof.</p>
+        </div>
+        <ol className="integrity-chain">
+          <li><span>01</span><div><strong>Supplier declares</strong><p>“Lot AO-1842 is 100% avocado oil.” The named supplier signs and timestamps that representation.</p></div></li>
+          <li><span>02</span><div><strong>Custody connects</strong><p>Shipment, containers, seals, receiving, sampling, and laboratory receipt point to the same lot.</p></div></li>
+          <li><span>03</span><div><strong>The laboratory issues</strong><p>An authenticity TEC records the method, analytical markers, results, uncertainty, issuer proof, and TECRID.</p></div></li>
+          <li><span>04</span><div><strong>A future application compares</strong><p>The resulting state could be consistent, inconsistent, inconclusive, or custody not established—not a marketing badge.</p></div></li>
+        </ol>
+      </section>
+
       <section className="ics-section" aria-labelledby="ics-title">
         <div className="ics-monogram" aria-hidden="true">ICS</div>
         <div>
@@ -219,7 +242,7 @@ export default function WhyTec() {
           <p className="section-kicker light">The opportunity</p>
           <h2>Make evidence portable before making it powerful.</h2>
         </div>
-        <a href="/join">Join the network <span aria-hidden="true">↗</span></a>
+        <a href="/join">Join the registry <span aria-hidden="true">↗</span></a>
       </section>
 
       <ProductFooter />
