@@ -89,7 +89,31 @@ test("keeps the sample honest and separate from the live registry", async () => 
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /Demonstration only/);
-  assert.match(html, /not a public TEC/i);
-  assert.match(html, /no laboratory issuance/i);
+  assert.match(html, /no public TECRID/i);
+  assert.match(html, /excluded from the live resolver and public API/i);
   assert.doesNotMatch(html, /Issuer signature verified/);
+});
+
+test("renders an isolated fictional lab and two complete dummy findings", async () => {
+  const [labResponse, metalsResponse, avocadoResponse] = await Promise.all([
+    render("/demo/lab"),
+    render("/demo/heavy-metals"),
+    render("/demo/avocado-oil"),
+  ]);
+  assert.equal(labResponse.status, 200);
+  assert.equal(metalsResponse.status, 200);
+  assert.equal(avocadoResponse.status, 200);
+  const [lab, metals, avocado] = await Promise.all([
+    labResponse.text(), metalsResponse.text(), avocadoResponse.text(),
+  ]);
+  assert.match(lab, /Northstar Laboratory Demonstration/);
+  assert.match(lab, /Not a registered issuer/);
+  for (const analyte of ["Lead", "Mercury", "Arsenic", "Cadmium", "Nickel", "Aluminum", "Chromium[(]VI[)]", "Tin"]) {
+    assert.match(metals, new RegExp(analyte));
+  }
+  assert.match(metals, /Every value is invented/);
+  assert.match(avocado, /100% refined avocado oil/);
+  assert.match(avocado, /non-avocado vegetable-oil contribution/);
+  assert.match(avocado, /UC Davis/);
+  assert.doesNotMatch(`${lab}${metals}${avocado}`, /Issuer signature verified/);
 });

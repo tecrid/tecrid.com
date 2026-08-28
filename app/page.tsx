@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ProductFooter, ProductNav } from "./site-nav";
 
-const SAMPLE_TECRID = "TECRID·GLP-26-7F3A92";
+const SAMPLE_TECRID = "DEMO-TECRID·NLA-26-HM0001";
 
 const results = [
   { analyte: "Lead", symbol: "Pb", result: "42", unit: "µg/kg", loq: "10" },
@@ -20,13 +20,14 @@ export default function Home() {
 
   function lookup(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const normalized = query.trim().toUpperCase().replace(/^TECRID[:-]/, "TECRID·").replace(/^TEC[:-]/, "TECRID·");
-    if (!normalized) return setMessage("Enter a TECRID to resolve a record.");
-    const identifier = normalized.startsWith("TECRID·") ? normalized : `TECRID·${normalized}`;
-    if (identifier === SAMPLE_TECRID) {
-      window.location.href = "/demo";
+    const raw = query.trim().toUpperCase();
+    if (raw === SAMPLE_TECRID) {
+      window.location.href = "/demo/heavy-metals";
       return;
     }
+    const normalized = raw.replace(/^TECRID[:-]/, "TECRID·").replace(/^TEC[:-]/, "TECRID·");
+    if (!normalized) return setMessage("Enter a TECRID to resolve a record.");
+    const identifier = normalized.startsWith("TECRID·") ? normalized : `TECRID·${normalized}`;
     setMessage("Resolving the canonical registry record…");
     window.location.href = `/records/${encodeURIComponent(identifier)}`;
   }
@@ -62,7 +63,7 @@ export default function Home() {
             <button type="submit">Find record <span aria-hidden="true">↗</span></button>
           </div>
           <p id="lookup-message" className="lookup-message" aria-live="polite">
-            {message || <>Permanent, public, and versioned. <button type="button" onClick={() => { setQuery(SAMPLE_TECRID); setMessage("Sample selected. Submit to open the clearly labeled demonstration record."); }}>Use sample TECRID</button></>}
+            {message || <>Permanent, public, and versioned. <button type="button" onClick={() => { setQuery(SAMPLE_TECRID); setMessage("Demonstration selected. Submit to open the isolated fictional record."); }}>Use demonstration ID</button></>}
           </p>
         </form>
 
@@ -98,8 +99,8 @@ export default function Home() {
               <p className="record-label">TEC Record Identifier</p>
               <div className="identifier-row">
                 <h3>{SAMPLE_TECRID}</h3>
-                <button type="button" className="copy-button" onClick={copyTec} aria-label="Copy TECRID">
-                  {copied ? "Copied" : "Copy TECRID"}
+                <button type="button" className="copy-button" onClick={copyTec} aria-label="Copy demonstration ID">
+                  {copied ? "Copied" : "Copy demo ID"}
                 </button>
               </div>
             </div>
@@ -107,8 +108,8 @@ export default function Home() {
           </header>
 
           <div className="record-summary">
-            <div><span>Sample</span><strong>Organic cacao powder</strong><small>Lot C-240518</small></div>
-            <div><span>Example issuer</span><strong>Greenleaf Analytical</strong><small>Fictional demonstration laboratory</small></div>
+            <div><span>Sample</span><strong>Cocoa powder, retail composite</strong><small>Fictional lot DEMO-CP-0826</small></div>
+            <div><span>Example issuer</span><strong>Northstar Laboratory Demonstration</strong><small>Fictional demonstration laboratory</small></div>
             <div><span>Example state</span><strong>Version 1</strong><small>Not present in the live registry</small></div>
           </div>
 
@@ -170,7 +171,7 @@ export default function Home() {
                     <div><strong>No live signature asserted</strong><small>A real issued TEC must verify against the reviewed issuer key</small></div>
                   </div>
                   <dl>
-                    <div><dt>Issuer ID</dt><dd>DEMO-LAB-GLP</dd></div>
+                    <div><dt>Issuer ID</dt><dd>DEMO-NLA</dd></div>
                     <div><dt>Credential</dt><dd>Illustrative</dd></div>
                     <div><dt>Record fingerprint</dt><dd>Not registered</dd></div>
                     <div><dt>Revision history</dt><dd>Example version state</dd></div>
