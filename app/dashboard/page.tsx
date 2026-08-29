@@ -52,6 +52,12 @@ export default async function DashboardPage() {
           </section>
 
           <section className="dashboard-workflow-grid">
+            <article className="dashboard-workflow-card sharing-card">
+              <p className="section-kicker light">Scoped share codes</p>
+              <h2>Replace document uploads with consented evidence packages.</h2>
+              <p>Create recipient-bound codes for selected TECRIDs, selected SKUs, or a time-limited portfolio. Every redemption produces a fingerprinted receipt.</p>
+              <Link href="/dashboard/sharing">Open evidence sharing →</Link>
+            </article>
             <article className="dashboard-workflow-card routing-card">
               <p className="section-kicker light">Controlled evidence routing</p>
               <h2>Request, grant, and deliver by SKU.</h2>

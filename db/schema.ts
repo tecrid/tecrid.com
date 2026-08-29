@@ -997,3 +997,129 @@ export const organizationNotifications = sqliteTable(
     ),
   ],
 );
+
+export const participantProfiles = sqliteTable(
+  "participant_profiles",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    publicSlug: text("public_slug").notNull(),
+    displayName: text("display_name").notNull(),
+    website: text("website"),
+    summary: text("summary").notNull(),
+    participationStatus: text("participation_status")
+      .notNull()
+      .default("active"),
+    isPublic: integer("is_public", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    registryVerified: integer("registry_verified", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    publishedAt: text("published_at"),
+    updatedByUserId: text("updated_by_user_id"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_participant_profiles_organization").on(table.organizationId),
+    uniqueIndex("idx_participant_profiles_slug").on(table.publicSlug),
+    index("idx_participant_profiles_public_status").on(
+      table.isPublic,
+      table.participationStatus,
+    ),
+  ],
+);
+
+export const evidenceShareCodes = sqliteTable(
+  "evidence_share_codes",
+  {
+    id: text("id").primaryKey(),
+    controllerOrganizationId: text("controller_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    recipientOrganizationId: text("recipient_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    label: text("label").notNull(),
+    purpose: text("purpose").notNull(),
+    scopeMode: text("scope_mode").notNull(),
+    scopeJson: text("scope_json").notNull(),
+    accessLevel: text("access_level").notNull(),
+    analyteScopeJson: text("analyte_scope_json"),
+    tokenHash: text("token_hash").notNull(),
+    tokenPrefix: text("token_prefix").notNull(),
+    tokenLastFour: text("token_last_four").notNull(),
+    status: text("status").notNull().default("active"),
+    createdByUserId: text("created_by_user_id").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    expiresAt: text("expires_at").notNull(),
+    redeemedAt: text("redeemed_at"),
+    revokedByUserId: text("revoked_by_user_id"),
+    revokedAt: text("revoked_at"),
+  },
+  (table) => [
+    uniqueIndex("idx_evidence_share_codes_token_hash").on(table.tokenHash),
+    index("idx_evidence_share_codes_controller_status").on(
+      table.controllerOrganizationId,
+      table.status,
+    ),
+    index("idx_evidence_share_codes_recipient_status").on(
+      table.recipientOrganizationId,
+      table.status,
+    ),
+  ],
+);
+
+export const evidenceShareRedemptions = sqliteTable(
+  "evidence_share_redemptions",
+  {
+    id: text("id").primaryKey(),
+    shareCodeId: text("share_code_id")
+      .notNull()
+      .references(() => evidenceShareCodes.id, { onDelete: "restrict" }),
+    controllerOrganizationId: text("controller_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    recipientOrganizationId: text("recipient_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    packageJson: text("package_json").notNull(),
+    packageFingerprint: text("package_fingerprint").notNull(),
+    recordCount: integer("record_count").notNull(),
+    redeemedAt: text("redeemed_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_evidence_share_redemptions_code").on(table.shareCodeId),
+    index("idx_evidence_share_redemptions_recipient_created").on(
+      table.recipientOrganizationId,
+      table.redeemedAt,
+    ),
+  ],
+);
+
+export const laboratoryInvitations = sqliteTable(
+  "laboratory_invitations",
+  {
+    id: text("id").primaryKey(),
+    controllerOrganizationId: text("controller_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    laboratoryName: text("laboratory_name").notNull(),
+    laboratoryEmail: text("laboratory_email").notNull(),
+    productSkusJson: text("product_skus_json").notNull(),
+    message: text("message").notNull(),
+    status: text("status").notNull().default("drafted"),
+    createdByUserId: text("created_by_user_id").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    sentAt: text("sent_at"),
+  },
+  (table) => [
+    index("idx_laboratory_invitations_controller_created").on(
+      table.controllerOrganizationId,
+      table.createdAt,
+    ),
+  ],
+);

@@ -15,6 +15,7 @@ export function ProductNav({ compact = false }: { compact?: boolean }) {
         <a href="/why">Why TEC</a>
         <a href="/standard">Standard</a>
         <a href="/issuers">Issuers</a>
+        <a href="/participants">Participants</a>
         <a href="/sandbox">Sandbox</a>
         <a href="/demo/disclosure-operations">Disclosure Ops</a>
         <a href="/submit-report">Submit report</a>
@@ -37,6 +38,7 @@ export function ProductFooter() {
         <a href="/why">Why TEC</a>
         <a href="/standard">Standard</a>
         <a href="/issuers">Issuers</a>
+        <a href="/participants">Participants</a>
         <a href="/sandbox">Sandbox</a>
         <a href="/submit-report">Submit report</a>
         <a href="/demo/lab-defense">Lab dispute demo</a>

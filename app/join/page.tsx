@@ -53,6 +53,7 @@ export default async function JoinPage() {
             <li>Draft-protocol credential tooling</li>
             <li>Reasonable public and issuer API access</li>
             <li>Public correction and version history</li>
+            <li>Scoped share codes and participant-directory opt-in</li>
           </ul>
           <a className="button-dark" href={freeHref}>{membership ? "Open dashboard" : user ? "Complete setup" : "Create free account"} <span>→</span></a>
           <small>Sign-in uses your ChatGPT identity. Public issuance requires a separate ICS scope and signing-key review.</small>
@@ -80,6 +81,12 @@ export default async function JoinPage() {
       <section className="join-sandbox-callout">
         <div><p className="section-kicker light">Try it before creating an account</p><h2>See exactly what every participant gets.</h2><p>Use the public sandbox as a brand, laboratory, supplier, and retailer. Complete a fictional report workflow without a login or live registry access.</p></div>
         <a className="button-mint" href="/sandbox">Open interactive sandbox →</a>
+      </section>
+
+      <section className="independence-callout">
+        <p className="section-kicker">Network formation</p>
+        <h2>Core enrollment is free for every role.</h2>
+        <p>Laboratories, brands, ingredient suppliers, retailers, certification bodies, and government programs can create an organization workspace without a subscription. Free participation includes identity setup, laboratory-verification intake, public resolution, governed evidence sharing, and an optional public participant profile. Paid plans fund implementation and scale, not trust status.</p>
       </section>
 
       <section className="purchase-clarity">

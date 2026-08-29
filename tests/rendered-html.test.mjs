@@ -447,3 +447,38 @@ test("wires append-only certification intake by share link, CSV, and scoped API"
   assert.match(await developers.text(), /POST \/api\/v1\/certification\/submissions/);
   assert.match(template, /^tecrid/m);
 });
+
+test("wires recipient-bound evidence codes, opt-in participants, and safe result projection", async () => {
+  const [schema, migration, sharing, dashboard, participants, redeemRoute, invitationRoute, developers] = await Promise.all([
+    readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0013_nosy_chamber.sql", import.meta.url), "utf8"),
+    readFile(new URL("../lib/sharing.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/sharing/sharing-client.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/participants/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/v1/share-codes/redeem/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/laboratory-invitations/route.ts", import.meta.url), "utf8"),
+    render("/developers"),
+  ]);
+  for (const table of ["participantProfiles", "evidenceShareCodes", "evidenceShareRedemptions", "laboratoryInvitations"]) {
+    assert.match(schema, new RegExp(table));
+  }
+  assert.match(migration, /share_codes_identity_immutable/);
+  assert.match(migration, /share_redemptions_no_update/);
+  assert.match(migration, /share_redemptions_no_delete/);
+  assert.match(migration, /Paleo Foundation/);
+  assert.match(migration, /Heavy Metal Tested & Certified/);
+  assert.match(sharing, /recipientOrganizationId/);
+  assert.match(sharing, /payloadWithheld/);
+  assert.match(sharing, /signedPayload: null/);
+  assert.match(sharing, /status: "redeemed"/);
+  assert.match(sharing, /portfolio/);
+  assert.match(dashboard, /current portfolio/i);
+  assert.match(dashboard, /Selected SKUs/);
+  assert.match(dashboard, /one-time bearer credential/i);
+  assert.match(participants, /What the directory proves/);
+  assert.match(redeemRoute, /redeemEvidenceShareCode/);
+  assert.match(invitationRoute, /createLaboratoryInvitation/);
+  const developerHtml = await developers.text();
+  assert.match(developerHtml, /POST \/api\/v1\/share-codes\/redeem/);
+  assert.match(developerHtml, /github\.com\/tecrid\/tecrid-connect/);
+});

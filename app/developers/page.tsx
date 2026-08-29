@@ -132,6 +132,7 @@ export default function DevelopersPage() {
           <a href="#resolve">Resolve credential</a>
           <a href="#versions">Correct or revoke</a>
           <a href="#controlled-routing">Controlled routing</a>
+          <a href="#share-codes">Share-code redemption</a>
           <a href="#certification-intake">Certification intake</a>
           <a href="#legacy-api">Legacy reports</a>
           <a href="#insights">Portfolio insights</a>
@@ -229,6 +230,18 @@ export default function DevelopersPage() {
   }'`}</code></pre>
             <p>The token begins <code>tec_intake_</code>, is displayed once, and is stored by TECRID only as a SHA-256 hash. Passing the intake gate does not award certification.</p>
           </section>
+          <section id="share-codes">
+            <p className="doc-index">08A / SHARE-CODE REDEMPTION</p>
+            <h2>POST /api/v1/share-codes/redeem</h2>
+            <p>A brand or supplier creates a one-time code addressed to one named certification body, retailer, or government workspace. The recipient redeems the code with its public organization code. The response is a frozen structured package plus a package fingerprint. A retry by the same named recipient returns the existing receipt rather than creating a second delivery.</p>
+            <pre><code>{`curl https://tecrid.com/api/v1/share-codes/redeem \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "tec_share_••••••••••••",
+    "recipientOrganizationCode": "HMTC"
+  }'`}</code></pre>
+            <p>Codes are high-entropy bearer credentials, recipient-bound, expiring, revocable before use, and consumed after the first successful redemption. Raw report files and onward sharing are excluded from the package.</p>
+          </section>
           <section id="legacy-api">
             <p className="doc-index">09 / LEGACY REPORTS</p>
             <h2>POST /api/v1/legacy-reports</h2>
@@ -251,7 +264,9 @@ export default function DevelopersPage() {
             <p className="doc-index">11 / CONNECTOR PROFILES</p>
             <h2>Start with a report-release hook, not a LIMS replacement.</h2>
             <p>The TECRID Connect starter includes configuration profiles for LabWare, LabVantage, and STARLIMS plus generic JSON and CSV. These profiles map each system&apos;s release event and report-template fields to the same reserve/finalize protocol. They are implementation starters, not vendor-certified integrations.</p>
-            <p><a className="button-dark" href="/downloads/tecrid-connect.zip">Download TECRID Connect starter →</a></p>
+            <p><a className="button-dark" href="https://github.com/tecrid/tecrid-connect">Open the public TECRID Connect repository ↗</a></p>
+            <p>The repository is the canonical starting point for labs, brands, suppliers, retailers, and certification programs. It includes role-specific setup, report reservation and finalization examples, connector profiles, signing utilities, and deployment-safe environment guidance. A versioned ZIP remains available for offline review.</p>
+            <p><a href="/downloads/tecrid-connect.zip">Download the current ZIP snapshot →</a></p>
             <p>Outbound email is not yet a production claim. In-product notifications and controller receipts are live; email delivery still requires a configured sending provider and deliverability controls.</p>
           </section>
           <section id="errors">
