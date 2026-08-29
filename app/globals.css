@@ -1617,11 +1617,11 @@ td:first-child { display: flex; align-items: center; gap: 10px; color: var(--ink
 .explainer-page { background: #f4f6f8; }
 .explainer-hero { min-height: 610px; padding: 90px max(24px, calc((100vw - 1180px) / 2)) 80px; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(320px, .7fr); gap: 75px; align-items: end; color: white; background: var(--blue); }
 .explainer-hero h1 { margin: 18px 0 26px; font: 500 clamp(66px, 9vw, 122px)/.84 Georgia, serif; letter-spacing: -.065em; }
-.explainer-hero > div > p:not(.section-kicker) { max-width: 770px; margin: 0; color: rgba(255,255,255,.79); font-size: 17px; line-height: 1.65; }
-.explainer-hero > div > p strong { color: white; font-weight: 650; }
+.explainer-definition { max-width: 770px; margin: 0; color: rgba(255,255,255,.79); font-size: 17px; line-height: 1.65; }
+.explainer-definition strong { color: white; font-weight: 650; }
 .explainer-actions { margin-top: 36px; display: flex; align-items: center; gap: 26px; }
 .explainer-text-link { padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,.5); font-size: 11px; font-weight: 700; }
-.explainer-hero .explainer-review { margin-top: 19px; color: rgba(255,255,255,.5); font-size: 8px; text-transform: uppercase; letter-spacing: .08em; }
+.explainer-hero .explainer-review { max-width: 770px; margin: 16px 0 0; color: rgba(255,255,255,.46); font-size: 8px; line-height: 1.4; letter-spacing: .035em; }
 .explainer-hero aside { border: 1px solid rgba(255,255,255,.28); }
 .explainer-hero aside > div { min-height: 108px; padding: 20px 22px; display: flex; flex-direction: column; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.18); }
 .explainer-hero aside > div:last-child { border-bottom: 0; }
@@ -1684,7 +1684,7 @@ td:first-child { display: flex; align-items: center; gap: 10px; color: var(--ink
 @media (max-width: 680px) {
   .explainer-hero { min-height: 720px; padding: 68px 22px 55px; }
   .explainer-hero h1 { font-size: 65px; }
-  .explainer-hero > div > p:not(.section-kicker) { font-size: 14px; }
+  .explainer-definition { font-size: 14px; }
   .explainer-actions, .explainer-cta { align-items: flex-start; flex-direction: column; }
   .explainer-actions .button-mint { width: 100%; }
   .explainer-hero aside, .identifier-comparison, .explainer-audiences > div:last-child { grid-template-columns: 1fr; }

@@ -38,11 +38,12 @@ test("renders the TEC Registry public product", async () => {
 });
 
 test("defines TECRID for people, search engines, and AI answer systems", async () => {
-  const [response, homeResponse, robotsResponse, sitemapResponse] = await Promise.all([
+  const [response, homeResponse, robotsResponse, sitemapResponse, styles] = await Promise.all([
     render("/what-is-a-tecrid"),
     render("/"),
     render("/robots.txt"),
     render("/sitemap.xml"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
   assert.equal(response.status, 200);
   assert.equal(homeResponse.status, 200);
@@ -59,6 +60,10 @@ test("defines TECRID for people, search engines, and AI answer systems", async (
   assert.match(html, /It does not make fraud impossible/i);
   assert.match(html, /Evidence can cross borders without losing its source/);
   assert.match(html, /Private, controlled or public/);
+  assert.match(html, /Maintained by the Institute of Contaminant Standards · Reviewed 29 Aug 2026/);
+  assert.match(styles, /\.explainer-definition \{[^}]*font-size: 17px/);
+  assert.match(styles, /\.explainer-hero \.explainer-review \{[^}]*font-size: 8px/);
+  assert.doesNotMatch(styles, /\.explainer-hero > div > p:not\(\.section-kicker\)/);
   assert.match(home, /href="\/what-is-a-tecrid"/);
 
   const siteIdentity = [...home.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]

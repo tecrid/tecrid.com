@@ -82,9 +82,9 @@ export default function WhatIsATecridPage() {
         <div>
           <p className="section-kicker light">TECRID, explained</p>
           <h1>What is a<br />TECRID?</h1>
-          <p><strong>TECRID stands for Test Evidence Credential Record Identifier.</strong> {definition}</p>
+          <p className="explainer-definition"><strong>TECRID stands for Test Evidence Credential Record Identifier.</strong> {definition}</p>
           <div className="explainer-actions"><a className="button-mint" href={`/records/${encodeURIComponent(SAMPLE_TECRID)}`}>Resolve a sample TECRID →</a><a className="explainer-text-link" href="/verify">Verify a report →</a></div>
-          <p className="explainer-review">Definition maintained by the Institute of Contaminant Standards · Reviewed 29 August 2026</p>
+          <p className="explainer-review">Maintained by the Institute of Contaminant Standards · Reviewed 29 Aug 2026</p>
         </div>
         <aside aria-label="TECRID at a glance">
           <div><span>Identifies</span><strong>Laboratory evidence</strong></div>
