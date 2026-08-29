@@ -125,6 +125,7 @@ export default function DevelopersPage() {
         <aside className="api-toc">
           <span>API reference</span>
           <a href="#authentication">Authentication</a>
+          <a href="#issuer-onboarding">Issuer onboarding</a>
           <a href="#canonicalize">Canonicalize</a>
           <a href="#report-mark">Print TECRID on report</a>
           <a href="#create">Issue credential</a>
@@ -146,6 +147,22 @@ export default function DevelopersPage() {
             <h2>Bearer keys, scoped to one organization.</h2>
             <p>Create a key inside your authenticated dashboard, store it in a secret manager, and pass it in the Authorization header. The registry displays each secret once and stores only its SHA-256 hash.</p>
             <pre><code>Authorization: Bearer tec_live_••••••••••••</code></pre>
+          </section>
+          <section id="issuer-onboarding">
+            <p className="doc-index">01A / ISSUER ONBOARDING</p>
+            <h2>Five gates before production issuance.</h2>
+            <p>A laboratory account begins unverified. ICS records legal identity and authority, accreditation or comparable competence evidence, the approved method and matrix scope, private-key control, and TECRID signing conformance as separate checks. The final approval endpoint remains locked until all five pass.</p>
+            <p>Key control and conformance use a single-use, 15-minute canonical challenge. The laboratory signs the exact UTF-8 payload with the Ed25519 private key corresponding to its submitted public JWK. Private keys never go to TECRID.</p>
+            <pre><code>{`POST /api/issuer-application/key-challenge
+
+POST /api/issuer-application/key-challenge/verify
+Content-Type: application/json
+
+{
+  "challengeId": "issuer_challenge_…",
+  "signature": "BASE64URL_ED25519_SIGNATURE"
+}`}</code></pre>
+            <p>Successful challenge verification proves the key relationship and the required signing format. It does not approve laboratory identity, competence, or analytical scope; those remain independent ICS review decisions.</p>
           </section>
           <section id="canonicalize">
             <p className="doc-index">02 / CANONICALIZE</p>

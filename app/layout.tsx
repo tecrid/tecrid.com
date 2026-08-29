@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const title = "TECRID — Verifiable identifiers for laboratory reports";
+const title = "TECRID — Verifiable Laboratory Reports and COA Authentication";
 const description =
-  "A TECRID (Test Evidence Credential Record Identifier) is a permanent identifier for laboratory-issued test evidence. Verify the issuer, record, status, and version history at TEC Registry.";
+  "TECRID is a persistent identifier and verification record for laboratory reports. Authenticate the issuer, structured findings, source fingerprint, status, and version history.";
 
 const siteIdentity = {
   "@context": "https://schema.org",

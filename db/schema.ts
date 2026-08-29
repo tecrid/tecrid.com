@@ -364,6 +364,9 @@ export const issuerApplications = sqliteTable(
       .references(() => organizations.id, { onDelete: "cascade" }),
     legalName: text("legal_name").notNull(),
     laboratoryAddress: text("laboratory_address").notNull(),
+    laboratoryWebsite: text("laboratory_website"),
+    authorityRole: text("authority_role"),
+    accreditationStatus: text("accreditation_status").notNull().default("accredited"),
     accreditationBody: text("accreditation_body"),
     accreditationNumber: text("accreditation_number"),
     accreditationUrl: text("accreditation_url"),
@@ -385,6 +388,90 @@ export const issuerApplications = sqliteTable(
       table.organizationId,
     ),
     index("idx_issuer_applications_status").on(table.status),
+  ],
+);
+
+export const issuerApplicationDocuments = sqliteTable(
+  "issuer_application_documents",
+  {
+    id: text("id").primaryKey(),
+    applicationId: text("application_id")
+      .notNull()
+      .references(() => issuerApplications.id, { onDelete: "cascade" }),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    documentType: text("document_type").notNull(),
+    objectKey: text("object_key").notNull(),
+    filename: text("filename").notNull(),
+    mimeType: text("mime_type").notNull(),
+    size: integer("size").notNull(),
+    sha256: text("sha256").notNull(),
+    uploadedByUserId: text("uploaded_by_user_id").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_issuer_documents_application_type").on(
+      table.applicationId,
+      table.documentType,
+    ),
+    index("idx_issuer_documents_organization").on(table.organizationId),
+  ],
+);
+
+export const issuerVerificationChecks = sqliteTable(
+  "issuer_verification_checks",
+  {
+    id: text("id").primaryKey(),
+    applicationId: text("application_id")
+      .notNull()
+      .references(() => issuerApplications.id, { onDelete: "cascade" }),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    checkType: text("check_type").notNull(),
+    status: text("status").notNull().default("pending"),
+    evidenceNote: text("evidence_note"),
+    reviewedByUserId: text("reviewed_by_user_id"),
+    reviewedByEmail: text("reviewed_by_email"),
+    reviewedAt: text("reviewed_at"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_issuer_checks_application_type").on(
+      table.applicationId,
+      table.checkType,
+    ),
+    index("idx_issuer_checks_organization_status").on(
+      table.organizationId,
+      table.status,
+    ),
+  ],
+);
+
+export const issuerKeyChallenges = sqliteTable(
+  "issuer_key_challenges",
+  {
+    id: text("id").primaryKey(),
+    applicationId: text("application_id")
+      .notNull()
+      .references(() => issuerApplications.id, { onDelete: "cascade" }),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    canonicalPayload: text("canonical_payload").notNull(),
+    status: text("status").notNull().default("pending"),
+    expiresAt: text("expires_at").notNull(),
+    verifiedAt: text("verified_at"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_issuer_key_challenges_application_status").on(
+      table.applicationId,
+      table.status,
+    ),
+    index("idx_issuer_key_challenges_expiry").on(table.expiresAt),
   ],
 );
 

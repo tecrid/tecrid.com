@@ -7,6 +7,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${origin}/`, lastModified, changeFrequency: "weekly", priority: 1 },
     { url: `${origin}/what-is-a-tecrid`, lastModified, changeFrequency: "monthly", priority: 1 },
+    { url: `${origin}/for-laboratories`, lastModified, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${origin}/laboratory-pilot`, lastModified, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${origin}/for-brands`, lastModified, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${origin}/for-certifiers-retailers`, lastModified, changeFrequency: "monthly", priority: 0.8 },
     { url: `${origin}/why`, lastModified, changeFrequency: "monthly", priority: 0.9 },
     { url: `${origin}/standard`, lastModified, changeFrequency: "monthly", priority: 0.9 },
     { url: `${origin}/verify`, lastModified, changeFrequency: "monthly", priority: 0.9 },

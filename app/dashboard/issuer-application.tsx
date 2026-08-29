@@ -3,30 +3,168 @@
 import { useState } from "react";
 
 type ApplicationSummary = {
+  id: string;
   status: string;
   submittedAt: string;
   reviewedAt: string | null;
   reviewNote: string | null;
+  keyId: string | null;
+  publicKeyJwk: string | null;
 } | null;
+
+type EvidenceSummary = {
+  id: string;
+  documentType: string;
+  filename: string;
+  sha256: string;
+  createdAt: string;
+};
+
+type CheckSummary = {
+  checkType: string;
+  status: string;
+  evidenceNote: string | null;
+  reviewedAt: string | null;
+};
+
+type SigningChallenge = {
+  id: string;
+  canonicalPayload: string;
+  expiresAt: string;
+};
 
 export function IssuerApplicationPanel({
   application,
   issuerStatus,
+  documents,
+  checks,
 }: {
   application: ApplicationSummary;
   issuerStatus: string;
+  documents: EvidenceSummary[];
+  checks: CheckSummary[];
 }) {
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
   const [keyId, setKeyId] = useState("");
   const [publicKeyJwk, setPublicKeyJwk] = useState("");
   const [keyPassphrase, setKeyPassphrase] = useState("");
+  const [evidenceMessage, setEvidenceMessage] = useState("");
+  const [challengeMessage, setChallengeMessage] = useState("");
+  const [challenge, setChallenge] = useState<SigningChallenge | null>(null);
+  const [externalSignature, setExternalSignature] = useState("");
+  const [keystoreFile, setKeystoreFile] = useState<File | null>(null);
 
   function encodeBase64Url(value: ArrayBuffer) {
     const bytes = new Uint8Array(value);
     let binary = "";
     for (const byte of bytes) binary += String.fromCharCode(byte);
     return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+  }
+
+  function decodeBase64Url(value: string) {
+    const normalized = value.replaceAll("-", "+").replaceAll("_", "/");
+    const binary = atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "="));
+    return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+  }
+
+  async function uploadEvidence(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPending(true);
+    setEvidenceMessage("");
+    const response = await fetch("/api/issuer-application/evidence", {
+      method: "POST",
+      body: new FormData(event.currentTarget),
+    });
+    const body = await response.json();
+    setPending(false);
+    if (!response.ok) return setEvidenceMessage(body.error ?? "Evidence upload failed.");
+    setEvidenceMessage("Evidence fingerprinted and stored privately. Reloading…");
+    window.location.reload();
+  }
+
+  async function createChallenge() {
+    setPending(true);
+    setChallengeMessage("");
+    const response = await fetch("/api/issuer-application/key-challenge", { method: "POST" });
+    const body = await response.json();
+    setPending(false);
+    if (!response.ok) return setChallengeMessage(body.error ?? "Challenge creation failed.");
+    setChallenge(body.challenge);
+    setChallengeMessage("Sign the exact payload below before the 15-minute challenge expires.");
+  }
+
+  async function verifyChallenge(signature: string) {
+    if (!challenge) return setChallengeMessage("Create a signing challenge first.");
+    setPending(true);
+    const response = await fetch("/api/issuer-application/key-challenge/verify", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ challengeId: challenge.id, signature }),
+    });
+    const body = await response.json();
+    setPending(false);
+    if (!response.ok) return setChallengeMessage(body.error ?? "Signature verification failed.");
+    setChallengeMessage("Key control and signing conformance verified. Reloading…");
+    window.location.reload();
+  }
+
+  async function signWithDownloadedKey() {
+    if (!challenge) return setChallengeMessage("Create a signing challenge first.");
+    if (!keystoreFile) return setChallengeMessage("Choose the encrypted TECRID key file.");
+    if (!keyPassphrase) return setChallengeMessage("Enter the key-file passphrase.");
+    setPending(true);
+    setChallengeMessage("Decrypting locally and signing the challenge…");
+    try {
+      const keystore = JSON.parse(await keystoreFile.text()) as {
+        format: string;
+        kdf: { hash: string; iterations: number; salt: string };
+        cipher: { iv: string; ciphertext: string };
+      };
+      if (keystore.format !== "tecrid-encrypted-keystore-v1") throw new Error();
+      const passwordKey = await crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(keyPassphrase),
+        "PBKDF2",
+        false,
+        ["deriveKey"],
+      );
+      const encryptionKey = await crypto.subtle.deriveKey(
+        {
+          name: "PBKDF2",
+          hash: keystore.kdf.hash,
+          salt: decodeBase64Url(keystore.kdf.salt),
+          iterations: keystore.kdf.iterations,
+        },
+        passwordKey,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["decrypt"],
+      );
+      const privateBytes = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: decodeBase64Url(keystore.cipher.iv) },
+        encryptionKey,
+        decodeBase64Url(keystore.cipher.ciphertext),
+      );
+      const privateJwk = JSON.parse(new TextDecoder().decode(privateBytes)) as JsonWebKey;
+      const privateKey = await crypto.subtle.importKey(
+        "jwk",
+        privateJwk,
+        { name: "Ed25519" },
+        false,
+        ["sign"],
+      );
+      const signature = await crypto.subtle.sign(
+        { name: "Ed25519" },
+        privateKey,
+        new TextEncoder().encode(challenge.canonicalPayload),
+      );
+      setKeyPassphrase("");
+      await verifyChallenge(encodeBase64Url(signature));
+    } catch {
+      setPending(false);
+      setChallengeMessage("The key file could not be decrypted or did not contain a usable Ed25519 private key.");
+    }
   }
 
   async function generateEncryptedIssuerKey() {
@@ -111,6 +249,9 @@ export function IssuerApplicationPanel({
       body: JSON.stringify({
         legalName: form.get("legalName"),
         laboratoryAddress: form.get("laboratoryAddress"),
+        laboratoryWebsite: form.get("laboratoryWebsite"),
+        authorityRole: form.get("authorityRole"),
+        accreditationStatus: form.get("accreditationStatus"),
         accreditationBody: form.get("accreditationBody"),
         accreditationNumber: form.get("accreditationNumber"),
         accreditationUrl: form.get("accreditationUrl"),
@@ -145,6 +286,15 @@ export function IssuerApplicationPanel({
   const canResubmit = application && ["needs_information", "rejected"].includes(application.status);
 
   if (application && !canResubmit) {
+    const checkByType = new Map(checks.map((check) => [check.checkType, check]));
+    const checklist = [
+      ["identity", "Legal identity and authority"],
+      ["accreditation", "Accreditation or competence evidence"],
+      ["scope", "Methods, matrices and analyte scope"],
+      ["key_control", "Issuer signing-key control"],
+      ["conformance", "TECRID signing conformance"],
+    ];
+    const keyComplete = checkByType.get("key_control")?.status === "passed" && checkByType.get("conformance")?.status === "passed";
     return (
       <section className="dashboard-panel issuer-application-panel">
         <div className="panel-heading">
@@ -152,7 +302,44 @@ export function IssuerApplicationPanel({
           <span className="record-status record-draft">{application.status}</span>
         </div>
         <p className="panel-copy">Submitted {new Date(application.submittedAt).toLocaleDateString()}. Payment cannot accelerate or determine this review.</p>
-        <div className="review-boundary"><strong>Not yet authorized to publish.</strong><span>Drafts and canonicalization tools remain available while ICS reviews identity, scope, accreditation evidence, and signing-key control.</span></div>
+        <div className="review-boundary"><strong>Not yet authorized to publish.</strong><span>All five gates below must pass. An application or payment never creates issuance authority.</span></div>
+        <div className="issuer-gate-list" aria-label="Issuer verification gates">
+          {checklist.map(([checkType, label], index) => {
+            const check = checkByType.get(checkType);
+            const status = check?.status ?? "pending";
+            return <article key={checkType}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{label}</strong><small>{check?.evidenceNote || (checkType === "key_control" || checkType === "conformance" ? "Complete the cryptographic challenge below." : "Awaiting ICS evidence review.")}</small></div><i className={`gate-status gate-${status}`}>{status}</i></article>;
+          })}
+        </div>
+
+        <div className="issuer-verification-tools">
+          <form className="issuer-evidence-form" onSubmit={uploadEvidence}>
+            <div><p className="section-kicker">Private evidence</p><h3>Upload review documents</h3><p>PDFs remain restricted to your laboratory and ICS reviewers. Each file is fingerprinted when received.</p></div>
+            <label>Evidence type<select name="documentType" defaultValue="accreditation_scope"><option value="accreditation_scope">Accreditation scope</option><option value="accreditation_certificate">Accreditation certificate</option><option value="legal_identity">Legal identity or authority</option></select></label>
+            <label>PDF evidence<input name="document" type="file" accept="application/pdf,.pdf" required /></label>
+            <button className="button-dark" type="submit" disabled={pending}>{pending ? "Working…" : "Upload private evidence →"}</button>
+            <p className="form-message" role="status">{evidenceMessage}</p>
+            {documents.length ? <div className="issuer-evidence-list">{documents.map((document) => <a key={document.id} href={`/api/issuer-application/evidence/${encodeURIComponent(document.id)}`} target="_blank" rel="noreferrer"><strong>{document.documentType.replaceAll("_", " ")}</strong><span>{document.filename}</span><code>{document.sha256.slice(0, 12)}…{document.sha256.slice(-8)}</code></a>)}</div> : <p className="empty-state">No private verification documents uploaded yet.</p>}
+          </form>
+
+          <div className="issuer-key-conformance">
+            <div><p className="section-kicker">Cryptographic gate</p><h3>{keyComplete ? "Key control verified" : "Prove control of the issuer key"}</h3><p>{keyComplete ? "The submitted public key verified a canonical TECRID challenge and signing-format test." : "TECRID issues a single-use canonical payload. The laboratory must sign its exact UTF-8 bytes with the private key corresponding to the submitted public key."}</p></div>
+            {keyComplete ? <div className="key-conformance-complete"><strong>Passed</strong><span>Key control and signing conformance are recorded separately from ICS identity and scope review.</span></div> : <>
+              <button className="button-dark" type="button" onClick={createChallenge} disabled={pending}>{challenge ? "Replace challenge" : "Create 15-minute challenge"} →</button>
+              {challenge ? <>
+                <label>Canonical challenge payload<textarea readOnly rows={7} value={challenge.canonicalPayload} /></label>
+                <small>Expires {new Date(challenge.expiresAt).toLocaleString()} · Sign the payload exactly as shown.</small>
+                <div className="keystore-conformance">
+                  <strong>Use the encrypted browser key generated above</strong>
+                  <label>TECRID key file<input type="file" accept="application/json,.json" onChange={(event) => setKeystoreFile(event.target.files?.[0] ?? null)} /></label>
+                  <label>Key-file passphrase<input type="password" value={keyPassphrase} onChange={(event) => setKeyPassphrase(event.target.value)} autoComplete="current-password" /></label>
+                  <button type="button" onClick={signWithDownloadedKey} disabled={pending}>Sign locally and verify →</button>
+                </div>
+                <details className="external-signature-details"><summary>Using an HSM or external key manager?</summary><label>Base64url signature<textarea rows={4} value={externalSignature} onChange={(event) => setExternalSignature(event.target.value)} placeholder="Paste the Ed25519 signature without padding" /></label><button type="button" onClick={() => verifyChallenge(externalSignature)} disabled={pending || !externalSignature}>Verify external signature →</button></details>
+              </> : null}
+              <p className="form-message" role="status">{challengeMessage}</p>
+            </>}
+          </div>
+        </div>
         {application.reviewNote ? <p className="form-message">ICS note: {application.reviewNote}</p> : null}
       </section>
     );
@@ -169,6 +356,11 @@ export function IssuerApplicationPanel({
       <form className="issuer-application-form" onSubmit={submit}>
         <label>Laboratory legal name<input name="legalName" required /></label>
         <label>Physical laboratory address<textarea name="laboratoryAddress" required rows={3} /></label>
+        <div className="form-pair">
+          <label>Laboratory website<input name="laboratoryWebsite" type="url" required placeholder="https://laboratory.example" /></label>
+          <label>Your authority role<input name="authorityRole" required placeholder="Quality director, laboratory manager…" /></label>
+        </div>
+        <label>Accreditation status<select name="accreditationStatus" defaultValue="accredited" required><option value="accredited">Accredited for at least part of the requested scope</option><option value="in_process">Accreditation in process</option><option value="not_accredited">Not accredited — submit comparable competence evidence</option></select></label>
         <div className="form-pair">
           <label>Accreditation body<input name="accreditationBody" placeholder="Optional if not accredited" /></label>
           <label>Accreditation number<input name="accreditationNumber" /></label>
@@ -189,8 +381,8 @@ export function IssuerApplicationPanel({
             <label>New key-file passphrase<input type="password" value={keyPassphrase} onChange={(event) => setKeyPassphrase(event.target.value)} minLength={12} autoComplete="new-password" /></label>
             <button type="button" onClick={generateEncryptedIssuerKey} disabled={pending || keyPassphrase.length < 12}>Generate and download encrypted key</button>
           </div>
-          <label>Key ID<input name="keyId" value={keyId} onChange={(event) => setKeyId(event.target.value)} placeholder="lab.example/key/2026-01" /></label>
-          <label>Public JWK<textarea name="publicKeyJwk" value={publicKeyJwk} onChange={(event) => setPublicKeyJwk(event.target.value)} rows={5} placeholder={'{"kty":"OKP","crv":"Ed25519","x":"…"}'} /></label>
+          <label>Key ID<input name="keyId" value={keyId} onChange={(event) => setKeyId(event.target.value)} placeholder="lab.example/key/2026-01" required /></label>
+          <label>Public JWK<textarea name="publicKeyJwk" value={publicKeyJwk} onChange={(event) => setPublicKeyJwk(event.target.value)} rows={5} placeholder={'{"kty":"OKP","crv":"Ed25519","x":"…"}'} required /></label>
         </details>
         <label className="attestation-check"><input name="attested" type="checkbox" required /><span>I attest that this application is accurate and that payment has no bearing on the review outcome.</span></label>
         <p className="collection-notice">Application materials are restricted to issuer verification, registry integrity, support, and legal obligations; submitting them does not create a public laboratory profile. Review <a href="/privacy" target="_blank">Privacy &amp; Data Governance ↗</a>.</p>

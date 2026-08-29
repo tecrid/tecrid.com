@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 type CodeRecord = {
   id: string; label: string; purpose: string; scopeMode: string; scopeValues: string[];
@@ -66,7 +67,7 @@ export function SharingClient({ organization, codes, redemptions, invitations, p
   }
 
   return <div className="sharing-shell">
-    <section className="sharing-rule"><p>{message}</p><a href="/participants">Browse public participants →</a></section>
+    <section className="sharing-rule"><p>{message}</p><Link href="/participants">Browse public participants →</Link></section>
 
     <section className="sharing-action-grid">
       <form className="sharing-form" onSubmit={(event) => void submit(event, "/api/evidence-sharing/codes")}>

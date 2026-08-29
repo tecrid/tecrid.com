@@ -30,6 +30,31 @@ This starter does not use `wrangler.jsonc`.
 - `vite.config.ts` simulates declared bindings for local development
 - `ICS_ADMIN_EMAILS` is a comma-separated allowlist for the restricted issuer-review page
 
+## Laboratory issuer onboarding
+
+Creating a laboratory workspace does **not** create production issuance authority.
+The dashboard keeps publication locked until five separately recorded gates pass:
+
+1. legal identity and authorized representative review
+2. accreditation or comparable competence-evidence review
+3. approved matrices, analytes, methods, sites, and exclusions
+4. proof that the laboratory controls its submitted Ed25519 private key
+5. successful TECRID canonical-payload signing conformance
+
+The key-control test uses a single-use challenge that expires after 15 minutes.
+The laboratory signs the exact UTF-8 payload locally and submits only the
+base64url signature. Private keys never leave the laboratory. Accreditation,
+scope, and identity evidence PDFs are stored privately in R2, fingerprinted at
+intake, and available only to the laboratory organization and ICS reviewers.
+
+Public onboarding and search-intent routes:
+
+- `/for-laboratories`
+- `/laboratory-pilot`
+- `/for-brands`
+- `/for-certifiers-retailers`
+- `/developers#issuer-onboarding`
+
 ## Workspace Auth Headers
 
 Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.

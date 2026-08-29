@@ -9,7 +9,9 @@ import {
   credentialVersions,
   credentials,
   foundingOnboarding,
+  issuerApplicationDocuments,
   issuerApplications,
+  issuerVerificationChecks,
   organizationMembers,
   organizations,
 } from "../db/schema";
@@ -604,12 +606,28 @@ export async function getDashboardData(userId: string) {
     .from(foundingOnboarding)
     .where(eq(foundingOnboarding.organizationId, membership.organization.id))
     .limit(1);
+  const issuerDocuments = issuerApplication
+    ? await db
+        .select()
+        .from(issuerApplicationDocuments)
+        .where(eq(issuerApplicationDocuments.applicationId, issuerApplication.id))
+        .orderBy(desc(issuerApplicationDocuments.createdAt))
+    : [];
+  const issuerChecks = issuerApplication
+    ? await db
+        .select()
+        .from(issuerVerificationChecks)
+        .where(eq(issuerVerificationChecks.applicationId, issuerApplication.id))
+        .orderBy(asc(issuerVerificationChecks.checkType))
+    : [];
 
   return {
     ...membership,
     records,
     keys,
     issuerApplication: issuerApplication ?? null,
+    issuerDocuments,
+    issuerChecks,
     foundingLaunch: foundingLaunch ?? null,
   };
 }
@@ -627,6 +645,9 @@ export async function submitIssuerApplication(
 
   const legalName = normalizeText(value.legalName, 180);
   const laboratoryAddress = normalizeText(value.laboratoryAddress, 300);
+  const laboratoryWebsite = normalizeText(value.laboratoryWebsite, 300);
+  const authorityRole = normalizeText(value.authorityRole, 180);
+  const accreditationStatus = normalizeText(value.accreditationStatus, 40);
   const accreditationBody = normalizeText(value.accreditationBody, 180) || null;
   const accreditationNumber = normalizeText(value.accreditationNumber, 120) || null;
   const accreditationUrl = normalizeText(value.accreditationUrl, 300) || null;
@@ -641,15 +662,29 @@ export async function submitIssuerApplication(
   if (
     !legalName ||
     !laboratoryAddress ||
+    !laboratoryWebsite ||
+    !authorityRole ||
+    !["accredited", "not_accredited", "in_process"].includes(accreditationStatus) ||
     !scopeSummary ||
     !methodFamilies ||
     !contactName ||
     !contactEmail ||
+    !keyId ||
+    !publicKeyJwk ||
     !attested
   ) {
     throw new TecInputError(
-      "Legal identity, laboratory location, scope, methods, contact, and attestation are required.",
+      "Legal identity, laboratory location, website, authority role, accreditation status, scope, methods, contact, public signing key, and attestation are required.",
     );
+  }
+  try {
+    const url = new URL(laboratoryWebsite);
+    if (!["http:", "https:"].includes(url.protocol)) throw new Error();
+  } catch {
+    throw new TecInputError("Laboratory website must be a complete http or https URL.");
+  }
+  if (accreditationStatus === "accredited" && (!accreditationBody || !accreditationNumber)) {
+    throw new TecInputError("Accredited laboratories must provide the accreditation body and certificate number.");
   }
   if (!/^\S+@\S+\.\S+$/.test(contactEmail)) {
     throw new TecInputError("Enter a valid laboratory contact email.");
@@ -694,6 +729,9 @@ export async function submitIssuerApplication(
     organizationId: membership.organization.id,
     legalName,
     laboratoryAddress,
+    laboratoryWebsite,
+    authorityRole,
+    accreditationStatus,
     accreditationBody,
     accreditationNumber,
     accreditationUrl,
@@ -722,6 +760,8 @@ export async function submitIssuerApplication(
     payload: JSON.stringify({
       accreditationBody,
       accreditationNumber,
+      accreditationStatus,
+      laboratoryWebsite,
       keyId,
       keySubmitted: Boolean(normalizedJwk),
     }),
@@ -734,7 +774,7 @@ export async function submitIssuerApplication(
 export async function listIssuerApplicationsForAdmin(user: ChatGPTUser) {
   if (!isIcsAdmin(user)) throw new TecAuthorizationError("ICS administrator access required.");
   const db = getDb();
-  return db
+  const applications = await db
     .select({
       application: issuerApplications,
       organizationName: organizations.name,
@@ -748,6 +788,21 @@ export async function listIssuerApplicationsForAdmin(user: ChatGPTUser) {
       eq(issuerApplications.organizationId, organizations.id),
     )
     .orderBy(desc(issuerApplications.submittedAt));
+  return Promise.all(applications.map(async (record) => {
+    const [documents, checks] = await Promise.all([
+      db
+        .select()
+        .from(issuerApplicationDocuments)
+        .where(eq(issuerApplicationDocuments.applicationId, record.application.id))
+        .orderBy(desc(issuerApplicationDocuments.createdAt)),
+      db
+        .select()
+        .from(issuerVerificationChecks)
+        .where(eq(issuerVerificationChecks.applicationId, record.application.id))
+        .orderBy(asc(issuerVerificationChecks.checkType)),
+    ]);
+    return { ...record, documents, checks };
+  }));
 }
 
 export async function reviewIssuerApplication(
@@ -775,10 +830,28 @@ export async function reviewIssuerApplication(
     .where(eq(issuerApplications.id, applicationId))
     .limit(1);
   if (!record) throw new TecInputError("Issuer application not found.");
+  if (record.application.status !== "submitted") {
+    throw new TecInputError("Only a submitted issuer application can receive a final review decision.");
+  }
   if (decision === "approve" && (!record.application.publicKeyJwk || !record.application.keyId)) {
     throw new TecInputError(
       "Approval requires an Ed25519 public key and key ID in the application.",
     );
+  }
+
+  const verificationChecks = await db
+    .select()
+    .from(issuerVerificationChecks)
+    .where(eq(issuerVerificationChecks.applicationId, applicationId));
+  const requiredChecks = ["identity", "accreditation", "scope", "key_control", "conformance"];
+  const checkMap = new Map(verificationChecks.map((check) => [check.checkType, check]));
+  if (decision === "approve") {
+    const incomplete = requiredChecks.filter((checkType) => checkMap.get(checkType)?.status !== "passed");
+    if (incomplete.length) {
+      throw new TecInputError(
+        `Approval is locked until these verification gates pass: ${incomplete.join(", ")}.`,
+      );
+    }
   }
 
   const reviewedAt = now();
@@ -813,7 +886,9 @@ export async function reviewIssuerApplication(
       issuerKeyAlgorithm:
         decision === "approve" ? "Ed25519" : record.organization.issuerKeyAlgorithm,
       issuerKeyVerifiedAt:
-        decision === "approve" ? reviewedAt : record.organization.issuerKeyVerifiedAt,
+        decision === "approve"
+          ? checkMap.get("key_control")?.reviewedAt ?? reviewedAt
+          : record.organization.issuerKeyVerifiedAt,
       updatedAt: reviewedAt,
     })
     .where(eq(organizations.id, record.organization.id));
@@ -829,6 +904,9 @@ export async function reviewIssuerApplication(
       reviewNote,
       issuerCode: record.organization.issuerCode,
       keyId: record.application.keyId,
+      verificationChecks: Object.fromEntries(
+        requiredChecks.map((checkType) => [checkType, checkMap.get(checkType)?.status ?? "missing"]),
+      ),
     }),
     createdAt: reviewedAt,
   });

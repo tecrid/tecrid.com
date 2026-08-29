@@ -37,6 +37,65 @@ test("renders the TEC Registry public product", async () => {
   assert.doesNotMatch(html, /codex-preview|loading skeleton|react-loading-skeleton/i);
 });
 
+test("publishes focused search-intent pages and a crawlable laboratory pilot path", async () => {
+  const [homeResponse, labsResponse, pilotResponse, brandsResponse, recipientsResponse, sitemapResponse, nav] = await Promise.all([
+    render("/"),
+    render("/for-laboratories"),
+    render("/laboratory-pilot"),
+    render("/for-brands"),
+    render("/for-certifiers-retailers"),
+    render("/sitemap.xml"),
+    readFile(new URL("../app/site-nav.tsx", import.meta.url), "utf8"),
+  ]);
+  for (const response of [homeResponse, labsResponse, pilotResponse, brandsResponse, recipientsResponse, sitemapResponse]) assert.equal(response.status, 200);
+  const [home, labs, pilot, brands, recipients, sitemap] = await Promise.all([
+    homeResponse.text(), labsResponse.text(), pilotResponse.text(), brandsResponse.text(), recipientsResponse.text(), sitemapResponse.text(),
+  ]);
+  assert.match(home, /persistent identifier and verification record for laboratory reports/i);
+  assert.match(home, /Certificate of Analysis authentication/i);
+  assert.match(home, /Who TECRID serves/);
+  assert.match(home, /Founding laboratory pilot/);
+  assert.match(labs, /Stop answering the same report question twice/);
+  assert.match(labs, /laboratory report verification/i);
+  assert.match(pilot, /Five production gates/);
+  assert.match(pilot, /An account is not an authenticated issuer/);
+  assert.match(brands, /governed evidence portfolio/i);
+  assert.match(recipients, /Receive laboratory evidence as data/i);
+  for (const path of ["for-laboratories", "laboratory-pilot", "for-brands", "for-certifiers-retailers"]) {
+    assert.match(sitemap, new RegExp(`https:\\/\\/tecrid\\.com\\/${path}`));
+    assert.match(nav, new RegExp(`href="\\/${path}`));
+  }
+});
+
+test("locks laboratory approval behind evidence, key-control, and conformance gates", async () => {
+  const [schema, migration, verificationService, issuerService, dashboardPanel, adminPanel] = await Promise.all([
+    readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0014_spooky_shen.sql", import.meta.url), "utf8"),
+    readFile(new URL("../lib/issuer-verification.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/tec.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/issuer-application.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/admin/issuers/review-controls.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(schema, /issuerApplicationDocuments/);
+  assert.match(schema, /issuerVerificationChecks/);
+  assert.match(schema, /issuerKeyChallenges/);
+  assert.match(migration, /issuer_application_documents_no_update/);
+  assert.match(migration, /issuer_key_challenges_identity_immutable/);
+  assert.match(verificationService, /TECRIDIssuerKeyConformanceChallenge/);
+  assert.match(verificationService, /crypto\.subtle\.verify/);
+  assert.match(verificationService, /expiresAt/);
+  assert.match(verificationService, /key_control/);
+  assert.match(verificationService, /conformance/);
+  assert.match(issuerService, /Approval is locked until these verification gates pass/);
+  assert.match(issuerService, /"identity", "accreditation", "scope", "key_control", "conformance"/);
+  assert.match(dashboardPanel, /Upload private evidence/);
+  assert.match(dashboardPanel, /Create 15-minute challenge/);
+  assert.match(adminPanel, /approvalReady/);
+  await assert.doesNotReject(access(new URL("../app/api/issuer-application/evidence/route.ts", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../app/api/issuer-application/key-challenge/verify/route.ts", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../app/api/admin/issuer-applications/[applicationId]/checks/route.ts", import.meta.url)));
+});
+
 test("defines TECRID for people, search engines, and AI answer systems", async () => {
   const [response, homeResponse, robotsResponse, sitemapResponse, styles] = await Promise.all([
     render("/what-is-a-tecrid"),

@@ -11,16 +11,21 @@ export function ProductNav({ compact = false }: { compact?: boolean }) {
         </span>
       </a>
       <div className="nav-links">
-        <a href="/verify">Verify</a>
-        <a href="/what-is-a-tecrid">What is a TECRID?</a>
-        <a href="/standard">Standard</a>
-        <a href="/issuers">Issuers</a>
-        <a href="/participants">Participants</a>
-        <a href="/sandbox">Sandbox</a>
-        <a href="/demo/disclosure-operations">Disclosure Ops</a>
-        <a href="/submit-report">Submit report</a>
+        <details className="nav-group">
+          <summary>Understand <span>⌄</span></summary>
+          <div><a href="/what-is-a-tecrid">What is a TECRID?</a><a href="/why">Why TECRID</a><a href="/standard">The standard</a><a href="/participants">Participants</a><a href="/issuers">Verified issuers</a></div>
+        </details>
+        <details className="nav-group">
+          <summary>For organizations <span>⌄</span></summary>
+          <div><a href="/for-laboratories">Laboratories</a><a href="/laboratory-pilot">Laboratory pilot</a><a href="/for-brands">Brands &amp; suppliers</a><a href="/for-certifiers-retailers">Certifiers &amp; retailers</a></div>
+        </details>
+        <details className="nav-group">
+          <summary>Use TECRID <span>⌄</span></summary>
+          <div><a href="/verify">Verify a report</a><a href="/submit-report">Submit an existing report</a><a href="/sandbox">Run the sandbox</a><a href="/developers">API &amp; integrations</a><a href="/badge">TECRID badge</a></div>
+        </details>
         <a href="/dashboard">Dashboard</a>
         <a className="nav-cta nav-cta-link" href="/join">Join the registry</a>
+        <details className="nav-mobile-menu"><summary aria-label="Open site navigation">Menu</summary><div><a href="/what-is-a-tecrid">What is a TECRID?</a><a href="/why">Why TECRID</a><a href="/for-laboratories">For laboratories</a><a href="/laboratory-pilot">Laboratory pilot</a><a href="/for-brands">For brands</a><a href="/for-certifiers-retailers">For certifiers &amp; retailers</a><a href="/verify">Verify</a><a href="/participants">Participants</a><a href="/sandbox">Sandbox</a><a href="/developers">API</a><a href="/dashboard">Dashboard</a></div></details>
       </div>
     </nav>
   );
@@ -36,6 +41,10 @@ export function ProductFooter() {
       <div className="footer-actions">
         <a href="/verify">Verify report</a>
         <a href="/what-is-a-tecrid">What is a TECRID?</a>
+        <a href="/for-laboratories">For laboratories</a>
+        <a href="/laboratory-pilot">Laboratory pilot</a>
+        <a href="/for-brands">For brands</a>
+        <a href="/for-certifiers-retailers">For certifiers &amp; retailers</a>
         <a href="/why">Why TEC</a>
         <a href="/standard">Standard</a>
         <a href="/issuers">Issuers</a>

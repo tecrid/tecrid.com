@@ -10,7 +10,9 @@ export const metadata: Metadata = {
   description: "Create a free TEC Registry organization account or become a Founding Organization.",
 };
 
-export default async function JoinPage() {
+export default async function JoinPage({ searchParams }: { searchParams: Promise<{ role?: string }> }) {
+  const { role } = await searchParams;
+  const laboratoryEntry = role === "laboratory";
   const user = await getChatGPTUser();
   const membership = user ? await getOrganizationForUser(user.userId) : null;
   const freeHref = membership ? "/dashboard" : user ? "/dashboard" : chatGPTSignInPath("/dashboard");
@@ -32,19 +34,21 @@ export default async function JoinPage() {
     <main className="product-page">
       <ProductNav compact />
       <section className="product-hero join-hero">
-        <p className="section-kicker light">Join the evidence registry</p>
-        <h1>Know what happens<br />before you pay.</h1>
+        <p className="section-kicker light">{laboratoryEntry ? "Free founding laboratory pilot" : "Join the evidence registry"}</p>
+        <h1>{laboratoryEntry ? <>Apply as a laboratory.<br />Verification is free.</> : <>Know what happens<br />before you pay.</>}</h1>
         <p>
-          The open registry is a self-serve trust utility. Founding Organization is a one-year implementation membership with a defined 30-day launch—not a fee for laboratory approval.
+          {laboratoryEntry ? "Create the laboratory workspace, submit identity and scope evidence, prove signing-key control, and pass conformance. Public issuance remains locked until every verification gate passes." : "The open registry is a self-serve trust utility. Founding Organization is a one-year implementation membership with a defined 30-day launch—not a fee for laboratory approval."}
         </p>
       </section>
+
+      {laboratoryEntry ? <section className="lab-join-sequence"><article><span>01</span><strong>Create the free workspace</strong><p>Use an authorized laboratory contact and the laboratory’s legal website.</p></article><article><span>02</span><strong>Complete five verification gates</strong><p>Identity, competence evidence, scope, key control, and signing conformance are recorded separately.</p></article><article><span>03</span><strong>Issue only after approval</strong><p>Account creation and payment never unlock production TECRIDs.</p></article><a href="/laboratory-pilot">Read complete pilot requirements →</a></section> : null}
 
       <section className="pricing-grid" aria-label="TEC plans">
         <article className="price-card free-card">
           <span className="plan-label">Open network</span>
           <h2>Free</h2>
           <p className="price"><strong>$0</strong><span>forever</span></p>
-          <p className="plan-outcome"><strong>Use the registry yourself.</strong><span>Create a workspace, submit private reports, invite laboratories, and publish only after valid confirmation.</span></p>
+          <p className="plan-outcome"><strong>{laboratoryEntry ? "Apply for laboratory issuance authority." : "Use the registry yourself."}</strong><span>{laboratoryEntry ? "Create the workspace, submit the issuer application and evidence, and complete the signing challenge without paying." : "Create a workspace, submit private reports, invite laboratories, and publish only after valid confirmation."}</span></p>
           <ul>
             <li>Public TEC resolution and verification</li>
             <li>Free laboratory verification and report confirmation</li>
@@ -55,7 +59,7 @@ export default async function JoinPage() {
             <li>Public correction and version history</li>
             <li>Scoped share codes and participant-directory opt-in</li>
           </ul>
-          <a className="button-dark" href={freeHref}>{membership ? "Open dashboard" : user ? "Complete setup" : "Create free account"} <span>→</span></a>
+          <a className="button-dark" href={freeHref}>{membership ? "Open dashboard" : user ? "Complete setup" : laboratoryEntry ? "Create laboratory workspace" : "Create free account"} <span>→</span></a>
           <small>Sign-in uses your ChatGPT identity. Public issuance requires a separate ICS scope and signing-key review. <a href="/privacy">Privacy &amp; data governance →</a></small>
         </article>
 

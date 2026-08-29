@@ -126,6 +126,8 @@ export default async function DashboardPage() {
             <IssuerApplicationPanel
               application={data.issuerApplication}
               issuerStatus={data.organization.issuerStatus}
+              documents={data.issuerDocuments}
+              checks={data.issuerChecks}
             />
           ) : null}
 
