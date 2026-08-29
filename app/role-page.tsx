@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ProductFooter, ProductNav } from "./site-nav";
 
 type RolePageProps = {
@@ -27,7 +26,7 @@ export function RolePage(props: RolePageProps) {
     <main className="product-page role-page">
       <ProductNav compact />
       <section className="role-hero">
-        <div><p className="section-kicker light">{props.kicker}</p><h1>{props.title}</h1><p>{props.intro}</p><div className="role-hero-actions"><Link className="button-mint" href={props.primaryHref}>{props.primaryLabel} →</Link><Link href={props.secondaryHref}>{props.secondaryLabel} →</Link></div></div>
+        <div><p className="section-kicker light">{props.kicker}</p><h1>{props.title}</h1><p>{props.intro}</p><div className="role-hero-actions"><a className="button-mint" href={props.primaryHref}>{props.primaryLabel} →</a><a href={props.secondaryHref}>{props.secondaryLabel} →</a></div></div>
         <aside><span>{props.eyebrow}</span><strong>The neutral trust layer between laboratories, suppliers, brands, retailers, certifiers, regulators, and the public.</strong></aside>
       </section>
 
@@ -51,7 +50,7 @@ export function RolePage(props: RolePageProps) {
         <ul>{props.boundaries.map((boundary) => <li key={boundary}>{boundary}</li>)}</ul>
       </section>
 
-      <section className="role-cta"><div><p className="section-kicker light">Begin with one workflow</p><h2>{props.ctaTitle}</h2><p>{props.ctaCopy}</p></div><Link href={props.primaryHref}>{props.primaryLabel} <span>↗</span></Link></section>
+      <section className="role-cta"><div><p className="section-kicker light">Begin with one workflow</p><h2>{props.ctaTitle}</h2><p>{props.ctaCopy}</p></div><a href={props.primaryHref}>{props.primaryLabel} <span>↗</span></a></section>
       <ProductFooter />
     </main>
   );
