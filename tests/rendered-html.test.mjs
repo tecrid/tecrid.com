@@ -81,12 +81,13 @@ test("defines TECRID for people, search engines, and AI answer systems", async (
   assert.doesNotMatch(sitemap, /\/sandbox|\/demo\//);
 });
 
-test("publishes a portable TECRID identity mark and email-signature workflow", async () => {
-  const [response, nav, sharingClient, participantRoute] = await Promise.all([
+test("publishes a portable, minification-safe TECRID identity mark and email-signature workflow", async () => {
+  const [response, nav, sharingClient, participantRoute, identifierMark] = await Promise.all([
     render("/badge?code=PFND"),
     readFile(new URL("../app/site-nav.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/dashboard/sharing/sharing-client.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/participants/[issuerCode]/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../public/brand/tecrid-id.svg", import.meta.url), "utf8"),
   ]);
   assert.equal(response.status, 200);
   const html = await response.text();
@@ -100,6 +101,10 @@ test("publishes a portable TECRID identity mark and email-signature workflow", a
   assert.match(sharingClient, /tecrid-profile-badge\.png/);
   assert.match(participantRoute, /getPublicParticipant/);
   assert.match(participantRoute, /What this profile proves/);
+  assert.match(identifierMark, /viewBox="0 0 64 64"/);
+  assert.match(identifierMark, /fill="#1743E3"/);
+  assert.match(identifierMark, /fill="white"/);
+  assert.doesNotMatch(identifierMark, /<text|gradient|filter|stroke=/i);
   await assert.doesNotReject(access(new URL("../public/brand/tecrid-id.svg", import.meta.url)));
   await assert.doesNotReject(access(new URL("../public/brand/tecrid-id.png", import.meta.url)));
   await assert.doesNotReject(access(new URL("../public/brand/tecrid-profile-badge.svg", import.meta.url)));

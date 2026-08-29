@@ -17,8 +17,8 @@ export default async function BadgePage({ searchParams }: PageProps) {
     <main className="product-page badge-page">
       <ProductNav compact />
       <header className="badge-hero">
-        <div><p className="section-kicker light">A portable registry identity</p><h1>Put your TECRID profile where trust begins.</h1><p>The blue T·ID badge turns an email signature, proposal, supplier packet, or website footer into a direct path to the organization&apos;s opt-in TECRID profile.</p></div>
-        <div className="badge-hero-art"><img src="/brand/tecrid-id.svg" width="170" height="170" alt="Blue TECRID T ID mark" /><strong>TECRID</strong><span>Registry profile</span></div>
+        <div><p className="section-kicker light">A portable registry identity</p><h1>Put your TECRID profile where trust begins.</h1><p>The blue tID badge turns an email signature, proposal, supplier packet, or website footer into a direct path to the organization&apos;s opt-in TECRID profile.</p></div>
+        <div className="badge-hero-art"><img src="/brand/tecrid-id.svg" width="170" height="170" alt="Blue TECRID tID mark" /><strong>TECRID</strong><span>Registry profile</span></div>
       </header>
       <BadgeBuilder initialCode={code} />
       <section className="badge-boundary" aria-labelledby="badge-boundary-title">
