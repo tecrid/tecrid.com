@@ -77,6 +77,11 @@ export default async function JoinPage() {
         </article>
       </section>
 
+      <section className="join-sandbox-callout">
+        <div><p className="section-kicker light">Try it before creating an account</p><h2>See exactly what every participant gets.</h2><p>Use the public sandbox as a brand, laboratory, supplier, and retailer. Complete a fictional report workflow without a login or live registry access.</p></div>
+        <a className="button-mint" href="/sandbox">Open interactive sandbox →</a>
+      </section>
+
       <section className="purchase-clarity">
         <div className="purchase-clarity-intro">
           <p className="section-kicker">What happens next</p>

@@ -155,3 +155,21 @@ test("renders an isolated fictional lab and two complete dummy findings", async 
   assert.match(avocado, /UC Davis/);
   assert.doesNotMatch(`${lab}${metals}${avocado}`, /Issuer signature verified/);
 });
+
+test("renders a resettable multi-party sandbox without production authority", async () => {
+  const [response, route] = await Promise.all([
+    render("/sandbox"),
+    readFile(new URL("../app/api/sandbox/v1/scenario/route.ts", import.meta.url), "utf8"),
+  ]);
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Run the workflow from every side/);
+  assert.match(html, /Atlas Pantry/);
+  assert.match(html, /Northstar Analytical/);
+  assert.match(html, /Organization portal/);
+  assert.match(html, /API console/);
+  assert.match(html, /Nothing enters the live registry/);
+  assert.match(route, /persistent: false/);
+  assert.match(route, /productionAuthority: false/);
+  assert.doesNotMatch(route, /env\.DB|env\.DOCUMENTS/);
+});
