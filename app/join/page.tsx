@@ -56,7 +56,7 @@ export default async function JoinPage() {
             <li>Scoped share codes and participant-directory opt-in</li>
           </ul>
           <a className="button-dark" href={freeHref}>{membership ? "Open dashboard" : user ? "Complete setup" : "Create free account"} <span>→</span></a>
-          <small>Sign-in uses your ChatGPT identity. Public issuance requires a separate ICS scope and signing-key review.</small>
+          <small>Sign-in uses your ChatGPT identity. Public issuance requires a separate ICS scope and signing-key review. <a href="/privacy">Privacy &amp; data governance →</a></small>
         </article>
 
         <article className="price-card founding-card">
@@ -74,7 +74,7 @@ export default async function JoinPage() {
             <li>Founding cohort recognition, with consent</li>
           </ul>
           <a className="button-mint" href={foundingHref}>{checkoutLabel} <span>{membership?.organization.plan === "founding" ? "→" : "↗"}</span></a>
-          <small>Annual subscription. Checkout uses the workspace owner email so activation can attach to the correct organization. Membership does not guarantee any laboratory will confirm a report.</small>
+          <small>Annual subscription. Checkout uses the workspace owner email so activation can attach to the correct organization. Membership does not guarantee any laboratory will confirm a report. <a href="/privacy">How ICS handles data →</a></small>
         </article>
       </section>
 

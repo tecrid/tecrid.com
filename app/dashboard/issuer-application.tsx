@@ -193,6 +193,7 @@ export function IssuerApplicationPanel({
           <label>Public JWK<textarea name="publicKeyJwk" value={publicKeyJwk} onChange={(event) => setPublicKeyJwk(event.target.value)} rows={5} placeholder={'{"kty":"OKP","crv":"Ed25519","x":"…"}'} /></label>
         </details>
         <label className="attestation-check"><input name="attested" type="checkbox" required /><span>I attest that this application is accurate and that payment has no bearing on the review outcome.</span></label>
+        <p className="collection-notice">Application materials are restricted to issuer verification, registry integrity, support, and legal obligations; submitting them does not create a public laboratory profile. Review <a href="/privacy" target="_blank">Privacy &amp; Data Governance ↗</a>.</p>
         <button className="button-dark" type="submit" disabled={pending}>{pending ? "Submitting…" : "Submit for ICS review →"}</button>
         <p className="form-message" role="status">{message}</p>
       </form>

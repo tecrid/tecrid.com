@@ -156,6 +156,7 @@ export function LegacyReportIntakeForm() {
       </fieldset>
 
       <label className="attestation-check intake-attestation"><input name="attested" type="checkbox" required /><span>I am authorized to place this report into private intake. I understand that submission does not imply laboratory participation, confirmation, accreditation, or TECRID issuance.</span></label>
+      <p className="collection-notice">The original document and findings remain confidential unless an authorized publication or recipient-specific sharing action occurs. ICS may use safeguarded, de-identified or aggregated data for internal trend analysis under its <a href="/privacy" target="_blank">Privacy &amp; Data Governance policy ↗</a>.</p>
       <button className="button-dark" type="submit" disabled={pending}>{pending ? "Fingerprinting and preserving…" : "Create private intake →"}</button>
       <p className="form-message" role="status">{message}</p>
     </form>

@@ -55,6 +55,32 @@ test("renders pricing and API documentation", async () => {
   assert.match(developers, /Bearer keys/);
 });
 
+test("publishes privacy boundaries that match controlled TECRID workflows", async () => {
+  const [response, footer, onboarding, intake, join, issuerApplication, foundingLaunch] = await Promise.all([
+    render("/privacy"),
+    readFile(new URL("../app/site-nav.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/dashboard-client.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/reports/new/report-intake-form.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/join/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/issuer-application.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/founding/founding-launch-form.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Private by default/);
+  assert.match(html, /A private TECRID cannot be turned into a public record by a requester/);
+  assert.match(html, /strict confidentiality rules/i);
+  assert.match(html, /global trend analysis/i);
+  assert.match(html, /pseudonymized, de-identified, or aggregated data/i);
+  assert.match(html, /does not sell confidential evidence/i);
+  assert.match(html, /does not use private laboratory reports or controlled findings to train a general-purpose/i);
+  assert.match(html, /valid compulsory process/i);
+  assert.match(html, /does not change a private TECRID.*registry visibility/i);
+  assert.match(html, /human review/i);
+  assert.doesNotMatch(html, /cannot be compelled|never disclose under any circumstance/i);
+  for (const source of [footer, onboarding, intake, join, issuerApplication, foundingLaunch]) assert.match(source, /href="\/privacy"/);
+});
+
 test("keeps durable infrastructure, proof enforcement, and production metadata wired", async () => {
   const [hosting, schema, service, migration, proofMigration, intakeMigration, releaseMigration, foundingMigration, intakeService, layout, packageJson] = await Promise.all([
     readFile(new URL("../.openai/hosting.json", import.meta.url), "utf8"),

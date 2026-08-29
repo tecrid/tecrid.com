@@ -55,6 +55,7 @@ export function OrganizationOnboarding({ email }: { email: string }) {
         <strong>Laboratory accounts start unverified.</strong>
         <p>You can build draft credentials immediately. Public issuance begins only after ICS verifies the laboratory identity and authority.</p>
       </div>
+      <p className="collection-notice">ICS uses account and organization data to operate, secure, and govern the registry. Evidence remains private unless an authorized workflow publishes or shares it. <a href="/privacy" target="_blank">Review Privacy &amp; Data Governance ↗</a></p>
       <button className="button-dark" type="submit" disabled={pending}>{pending ? "Creating workspace…" : "Create workspace →"}</button>
       <p className="form-message" role="status">{message}</p>
     </form>

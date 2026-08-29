@@ -44,6 +44,7 @@ export function ProductFooter() {
         <a href="/demo/lab-defense">Lab dispute demo</a>
         <a href="/developers">API</a>
         <a href="/pricing">Pricing</a>
+        <a href="/privacy">Privacy &amp; data governance</a>
         <a href="https://contaminantstandards.com" target="_blank" rel="noreferrer">ICS ↗</a>
       </div>
     </footer>

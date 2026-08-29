@@ -77,6 +77,8 @@ export function FoundingLaunchForm({ email, existing }: { email: string; existin
       </div>
       <label>Context, risks, or desired integrations <span>optional</span><textarea name="notes" rows={6} defaultValue={existing?.notes ?? ""} placeholder="Describe the reporting problem, stakeholders, and what success should look like." /></label>
 
+      <p className="collection-notice">ICS uses this restricted brief to deliver and govern the implementation program. It does not publish the named products, reports, laboratories, or launch details. Review <a href="/privacy" target="_blank">Privacy &amp; Data Governance ↗</a>.</p>
+
       <div className="founding-form-actions">
         <button className="button-dark" type="submit" disabled={pending}>{pending ? "Saving…" : saved ? "Update launch brief →" : "Submit launch brief →"}</button>
         <Link className="button-outline" href="/dashboard/reports/new">Upload first private report</Link>
