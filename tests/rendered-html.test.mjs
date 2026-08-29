@@ -287,6 +287,50 @@ test("wires controller-gated evidence routing for certifiers, retailers, and gov
   assert.match(developers, /receive routed evidence/i);
 });
 
+test("wires two-pass report marking, controller receipts, legacy API intake, and source-linked insights", async () => {
+  const [schema, migration, issuance, routing, reservationRoute, finalizeRoute, legacyRoute, insights, insightsRoute, dashboard, routingPage, developers] = await Promise.all([
+    readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0012_purple_runaways.sql", import.meta.url), "utf8"),
+    readFile(new URL("../lib/report-issuance.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/evidence-routing.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/v1/report-reservations/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/v1/report-reservations/[reservationId]/finalize/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/v1/legacy-reports/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/insights.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/v1/insights/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/insights/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/evidence-routing/routing-client.tsx", import.meta.url), "utf8"),
+    render("/developers"),
+  ]);
+  for (const table of ["reportReservations", "controllerEvidenceReceipts", "organizationNotifications"]) assert.match(schema, new RegExp(table));
+  assert.match(migration, /controller_evidence_receipts_no_update/);
+  assert.match(migration, /report_reservations_identity_immutable/);
+  assert.match(migration, /report_reservations_no_delete/);
+  assert.match(migration, /PRAGMA optimize/);
+  assert.match(issuance, /Reserve a new TECRID and render the report again/);
+  assert.match(issuance, /SHA-256 fingerprint and filename of the final TECRID-marked PDF/);
+  assert.match(issuance, /reservedIdentifier: reservation\.identifier/);
+  assert.match(issuance, /sourceSystem must be generic, labware, labvantage, or starlims/);
+  assert.match(routing, /controllerEvidenceReceipts/);
+  assert.match(routing, /Full controller receipt|includeControlledResults: true/);
+  assert.match(routing, /organizationNotifications/);
+  assert.match(reservationRoute, /authenticateApiRequest/);
+  assert.match(finalizeRoute, /finalizeReportTecrid/);
+  assert.match(legacyRoute, /createLegacyReportForApi/);
+  assert.match(insightsRoute, /getEvidenceInsightsForOrganization/);
+  assert.match(insights, /descriptive portfolio summaries/);
+  assert.match(insights, /latestTecrid/);
+  assert.match(dashboard, /Every source remains resolvable/);
+  assert.match(routingPage, /The brand or supplier receives the complete signed record first/);
+  const developerHtml = await developers.text();
+  assert.match(developerHtml, /Reserve\. Render\. Fingerprint\. Sign\. Finalize/);
+  assert.match(developerHtml, /POST \/api\/v1\/report-reservations/);
+  assert.match(developerHtml, /GET \/api\/v1\/insights/);
+  assert.match(developerHtml, /not vendor-certified integrations/i);
+  assert.match(developerHtml, /Outbound email is not yet a production claim/);
+  await assert.doesNotReject(access(new URL("../public/downloads/tecrid-connect.zip", import.meta.url)));
+});
+
 test("renders the disclosure-operations wedge as workflow rather than an unproven savings claim", async () => {
   const response = await render("/demo/disclosure-operations");
   assert.equal(response.status, 200);

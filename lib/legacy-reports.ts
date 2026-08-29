@@ -184,9 +184,11 @@ function canAccessBundle(
   return false;
 }
 
-export async function createLegacyReport(user: ChatGPTUser, form: FormData) {
-  const membership = await getOrganizationForUser(user.userId);
-  if (!membership) throw new TecAuthorizationError("Complete organization setup first.");
+async function createLegacyReportForOrganization(
+  organization: typeof organizations.$inferSelect,
+  actorUserId: string,
+  form: FormData,
+) {
   const db = getDb();
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const [[dailyUsage], [totalUsage]] = await Promise.all([
@@ -195,16 +197,16 @@ export async function createLegacyReport(user: ChatGPTUser, form: FormData) {
       .from(legacyReports)
       .where(
         and(
-          eq(legacyReports.submittingOrganizationId, membership.organization.id),
+          eq(legacyReports.submittingOrganizationId, organization.id),
           gte(legacyReports.createdAt, since),
         ),
       ),
     db
       .select({ value: count() })
       .from(legacyReports)
-      .where(eq(legacyReports.submittingOrganizationId, membership.organization.id)),
+      .where(eq(legacyReports.submittingOrganizationId, organization.id)),
   ]);
-  const founding = membership.organization.plan === "founding";
+  const founding = organization.plan === "founding";
   if ((dailyUsage?.value ?? 0) >= (founding ? 250 : 25)) {
     throw new LegacyReportRateLimitError(
       "This workspace has reached its 24-hour private-intake limit.",
@@ -264,7 +266,7 @@ export async function createLegacyReport(user: ChatGPTUser, form: FormData) {
     .from(legacyReports)
     .where(
       and(
-        eq(legacyReports.submittingOrganizationId, membership.organization.id),
+        eq(legacyReports.submittingOrganizationId, organization.id),
         eq(legacyReports.sourceSha256, sourceSha256),
       ),
     )
@@ -280,7 +282,7 @@ export async function createLegacyReport(user: ChatGPTUser, form: FormData) {
       .from(legacyReports)
       .where(
         and(
-          eq(legacyReports.submittingOrganizationId, membership.organization.id),
+          eq(legacyReports.submittingOrganizationId, organization.id),
           eq(legacyReports.laboratoryName, laboratoryName),
           eq(legacyReports.reportNumber, reportNumber),
         ),
@@ -297,7 +299,7 @@ export async function createLegacyReport(user: ChatGPTUser, form: FormData) {
   const token = randomToken();
   const tokenHash = await sha256Text(token);
   const createdAt = now();
-  const objectKey = `legacy-reports/${membership.organization.id}/${id}/${sourceSha256}.pdf`;
+  const objectKey = `legacy-reports/${organization.id}/${id}/${sourceSha256}.pdf`;
   const bucket = documentsBucket();
 
   await bucket.put(objectKey, bytes, {
@@ -305,15 +307,15 @@ export async function createLegacyReport(user: ChatGPTUser, form: FormData) {
     customMetadata: {
       sha256: sourceSha256,
       intakeId: id,
-      submittingOrganizationId: membership.organization.id,
+      submittingOrganizationId: organization.id,
     },
   });
 
   try {
     const reportInsert = db.insert(legacyReports).values({
       id,
-      submittingOrganizationId: membership.organization.id,
-      submittedByUserId: user.userId,
+      submittingOrganizationId: organization.id,
+      submittedByUserId: actorUserId,
       status: "awaiting_lab_claim",
       laboratoryName,
       laboratoryWebsite,
@@ -355,16 +357,16 @@ export async function createLegacyReport(user: ChatGPTUser, form: FormData) {
     const eventInsert = db.insert(legacyReportEvents).values({
       id: `levent_${crypto.randomUUID().replaceAll("-", "")}`,
       legacyReportId: id,
-      organizationId: membership.organization.id,
-      actorUserId: user.userId,
+      organizationId: organization.id,
+      actorUserId,
       eventType: "report.submitted",
       payload: JSON.stringify({ sourceSha256, resultCount: results.length }),
       createdAt,
     });
     const auditInsert = db.insert(auditEvents).values({
       id: `evt_${crypto.randomUUID().replaceAll("-", "")}`,
-      organizationId: membership.organization.id,
-      actorUserId: user.userId,
+      organizationId: organization.id,
+      actorUserId,
       eventType: "legacy_report.submitted",
       entityType: "legacy_report",
       entityId: id,
@@ -383,6 +385,40 @@ export async function createLegacyReport(user: ChatGPTUser, form: FormData) {
     sourceSha256,
     confirmationPath: `/confirm/${token}`,
   };
+}
+
+export async function createLegacyReport(user: ChatGPTUser, form: FormData) {
+  const membership = await getOrganizationForUser(user.userId);
+  if (!membership) throw new TecAuthorizationError("Complete organization setup first.");
+  return createLegacyReportForOrganization(membership.organization, user.userId, form);
+}
+
+export async function createLegacyReportForApi(
+  organization: typeof organizations.$inferSelect,
+  apiKeyId: string,
+  form: FormData,
+) {
+  return createLegacyReportForOrganization(organization, `api:${apiKeyId}`, form);
+}
+
+export async function listLegacyReportsForOrganization(organizationId: string) {
+  return getDb()
+    .select({
+      id: legacyReports.id,
+      status: legacyReports.status,
+      laboratoryName: legacyReports.laboratoryName,
+      sampleName: legacyReports.sampleName,
+      reportNumber: legacyReports.reportNumber,
+      sourceFilename: legacyReports.sourceFilename,
+      sourceSha256: legacyReports.sourceSha256,
+      issuedCredentialIdentifier: legacyReports.issuedCredentialIdentifier,
+      createdAt: legacyReports.createdAt,
+      updatedAt: legacyReports.updatedAt,
+    })
+    .from(legacyReports)
+    .where(eq(legacyReports.submittingOrganizationId, organizationId))
+    .orderBy(desc(legacyReports.createdAt))
+    .limit(100);
 }
 
 export async function listLegacyReportsForUser(user: ChatGPTUser) {

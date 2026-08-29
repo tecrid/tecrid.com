@@ -82,6 +82,7 @@ type CredentialCreationOptions = {
   legacyReportId?: string | null;
   issuanceBasis?: string | null;
   controlledRoutingAuthorized?: boolean;
+  reservedIdentifier?: string | null;
 };
 
 export type CredentialRevisionInput = Partial<CredentialInput> & {
@@ -116,6 +117,15 @@ function randomCharacters(length: number) {
   const bytes = new Uint8Array(length);
   crypto.getRandomValues(bytes);
   return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join("");
+}
+
+export function generateTecridIdentifier(issuerCode: string) {
+  const normalizedCode = normalizeText(issuerCode, 32)
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+  if (!normalizedCode) throw new TecInputError("A valid issuer code is required.");
+  const year = String(new Date().getUTCFullYear()).slice(-2);
+  return `TECRID·${normalizedCode}-${year}-${randomCharacters(8)}`;
 }
 
 function normalizeText(value: unknown, maximum = 180) {
@@ -1030,8 +1040,15 @@ export async function createCredential(
     throw new TecInputError("Controlled-result issuance requires productSku so the signed record can be bound to the authorized SKU.");
   }
 
-  const year = String(new Date().getUTCFullYear()).slice(-2);
-  const identifier = `TECRID·${organization.issuerCode}-${year}-${randomCharacters(8)}`;
+  const identifier = options.reservedIdentifier
+    ? normalizeText(options.reservedIdentifier, 120).toUpperCase()
+    : generateTecridIdentifier(organization.issuerCode);
+  if (options.reservedIdentifier) {
+    const prefix = `TECRID·${organization.issuerCode.toUpperCase()}-`;
+    if (!identifier.startsWith(prefix)) {
+      throw new TecAuthorizationError("The reserved TECRID does not belong to this laboratory issuer.");
+    }
+  }
   const issued = Boolean(input.publish && canPublish);
   const createdAt = now();
   const signedPayload = JSON.stringify(issuerPayload(input));

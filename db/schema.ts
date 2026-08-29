@@ -889,3 +889,111 @@ export const evidenceDeliveries = sqliteTable(
     ),
   ],
 );
+
+export const reportReservations = sqliteTable(
+  "report_reservations",
+  {
+    id: text("id").primaryKey(),
+    identifier: text("identifier").notNull(),
+    laboratoryOrganizationId: text("laboratory_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    controllerOrganizationId: text("controller_organization_id").references(
+      () => organizations.id,
+      { onDelete: "restrict" },
+    ),
+    routingAuthorizationId: text("routing_authorization_id").references(
+      () => routingAuthorizations.id,
+      { onDelete: "restrict" },
+    ),
+    productName: text("product_name").notNull(),
+    productSku: text("product_sku").notNull(),
+    laboratoryReportNumber: text("laboratory_report_number"),
+    sourceSystem: text("source_system").notNull().default("generic"),
+    status: text("status").notNull().default("reserved"),
+    expiresAt: text("expires_at").notNull(),
+    finalizedCredentialIdentifier: text("finalized_credential_identifier").references(
+      () => credentials.identifier,
+      { onDelete: "restrict" },
+    ),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    finalizedAt: text("finalized_at"),
+  },
+  (table) => [
+    uniqueIndex("idx_report_reservations_identifier").on(table.identifier),
+    uniqueIndex("idx_report_reservations_finalized_credential").on(
+      table.finalizedCredentialIdentifier,
+    ),
+    index("idx_report_reservations_lab_status").on(
+      table.laboratoryOrganizationId,
+      table.status,
+    ),
+    index("idx_report_reservations_controller_created").on(
+      table.controllerOrganizationId,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const controllerEvidenceReceipts = sqliteTable(
+  "controller_evidence_receipts",
+  {
+    id: text("id").primaryKey(),
+    routingAuthorizationId: text("routing_authorization_id")
+      .notNull()
+      .references(() => routingAuthorizations.id, { onDelete: "restrict" }),
+    controllerOrganizationId: text("controller_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    laboratoryOrganizationId: text("laboratory_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    credentialIdentifier: text("credential_identifier")
+      .notNull()
+      .references(() => credentials.identifier, { onDelete: "restrict" }),
+    credentialVersion: integer("credential_version").notNull(),
+    snapshotJson: text("snapshot_json").notNull(),
+    snapshotFingerprint: text("snapshot_fingerprint").notNull(),
+    deliveredAt: text("delivered_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_controller_receipts_org_credential").on(
+      table.controllerOrganizationId,
+      table.credentialIdentifier,
+    ),
+    index("idx_controller_receipts_org_created").on(
+      table.controllerOrganizationId,
+      table.deliveredAt,
+    ),
+    index("idx_controller_receipts_lab_created").on(
+      table.laboratoryOrganizationId,
+      table.deliveredAt,
+    ),
+  ],
+);
+
+export const organizationNotifications = sqliteTable(
+  "organization_notifications",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    eventType: text("event_type").notNull(),
+    title: text("title").notNull(),
+    body: text("body").notNull(),
+    actionPath: text("action_path"),
+    entityType: text("entity_type").notNull(),
+    entityId: text("entity_id").notNull(),
+    status: text("status").notNull().default("unread"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    readAt: text("read_at"),
+  },
+  (table) => [
+    index("idx_organization_notifications_status_created").on(
+      table.organizationId,
+      table.status,
+      table.createdAt,
+    ),
+  ],
+);

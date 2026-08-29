@@ -15,6 +15,14 @@ export async function GET(_request: Request, { params }: RouteContext) {
   const { getCredential, publicCredentialDocument } = await import("../../../../../lib/tec");
   const record = await getCredential(decodeURIComponent(identifier));
   if (!record) {
+    const { getPublicReportReservation } = await import("../../../../../lib/report-issuance");
+    const reservation = await getPublicReportReservation(identifier);
+    if (reservation) {
+      return Response.json(reservation, {
+        status: 202,
+        headers: { "cache-control": "no-store", "x-tecrid-state": "reserved" },
+      });
+    }
     return Response.json(
       { error: { code: "not_found", message: "No public TECRID was found." } },
       { status: 404 },

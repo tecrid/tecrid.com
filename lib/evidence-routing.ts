@@ -3,9 +3,11 @@ import type { ChatGPTUser } from "../app/chatgpt-auth";
 import { getDb } from "../db";
 import {
   auditEvents,
+  controllerEvidenceReceipts,
   evidenceAccessGrants,
   evidenceDeliveries,
   evidenceRequests,
+  organizationNotifications,
   organizations,
   routingAuthorizations,
 } from "../db/schema";
@@ -244,8 +246,7 @@ export async function createRoutingAuthorization(user: ChatGPTUser, input: Recor
   if (!productName || !productSku) throw new TecInputError("Product and SKU are required.");
   const db = getDb();
   const grants = await db.select({ id: evidenceAccessGrants.id, productName: evidenceAccessGrants.productName }).from(evidenceAccessGrants).where(and(eq(evidenceAccessGrants.controllerOrganizationId, membership.organization.id), eq(evidenceAccessGrants.productSku, productSku), eq(evidenceAccessGrants.status, "active"))).limit(1);
-  if (!grants.length) throw new TecInputError("Approve at least one recipient grant for this SKU before authorizing laboratory routing.");
-  if (grants[0].productName.toLowerCase() !== productName.toLowerCase()) {
+  if (grants.length && grants[0].productName.toLowerCase() !== productName.toLowerCase()) {
     throw new TecInputError("The product name must match the active recipient grant for this SKU.");
   }
   const daysValue = Number(input.expiresInDays);
@@ -310,7 +311,30 @@ export async function authorizeRoutingToken(tokenValue: unknown, laboratoryOrgan
     throw new TecAuthorizationError("This routing token was issued to a different laboratory.");
   }
   const grants = await db.select().from(evidenceAccessGrants).where(and(eq(evidenceAccessGrants.controllerOrganizationId, record.authorization.controllerOrganizationId), eq(evidenceAccessGrants.productSku, record.authorization.productSku), eq(evidenceAccessGrants.status, "active")));
-  if (!grants.length) throw new TecAuthorizationError("No active recipient grant remains for this routing token.");
+  return { ...record, grants };
+}
+
+export async function authorizeRoutingAuthorizationId(idValue: unknown, laboratoryOrganizationId?: string) {
+  const id = clean(idValue, 100);
+  if (!id) throw new TecAuthorizationError("A current routing authorization is required.");
+  const db = getDb();
+  const [record] = await db
+    .select({ authorization: routingAuthorizations, controller: organizations })
+    .from(routingAuthorizations)
+    .innerJoin(organizations, eq(routingAuthorizations.controllerOrganizationId, organizations.id))
+    .where(and(eq(routingAuthorizations.id, id), eq(routingAuthorizations.status, "active")))
+    .limit(1);
+  if (!record || new Date(record.authorization.expiresAt).getTime() <= Date.now()) {
+    throw new TecAuthorizationError("The routing authorization is invalid, expired, or revoked.");
+  }
+  if (laboratoryOrganizationId && record.authorization.laboratoryOrganizationId !== laboratoryOrganizationId) {
+    throw new TecAuthorizationError("This routing authorization belongs to a different laboratory.");
+  }
+  const grants = await db.select().from(evidenceAccessGrants).where(and(
+    eq(evidenceAccessGrants.controllerOrganizationId, record.authorization.controllerOrganizationId),
+    eq(evidenceAccessGrants.productSku, record.authorization.productSku),
+    eq(evidenceAccessGrants.status, "active"),
+  ));
   return { ...record, grants };
 }
 
@@ -370,6 +394,54 @@ export async function deliverCredentialWithAuthorization(
   const deliveredAt = new Date().toISOString();
   const db = getDb();
   const delivered: Array<{ recipientOrganizationId: string; grantId: string; accessLevel: string; snapshotFingerprint: string }> = [];
+  const [existingControllerReceipt] = await db
+    .select({ id: controllerEvidenceReceipts.id, snapshotFingerprint: controllerEvidenceReceipts.snapshotFingerprint })
+    .from(controllerEvidenceReceipts)
+    .where(and(
+      eq(controllerEvidenceReceipts.controllerOrganizationId, authorizationRecord.authorization.controllerOrganizationId),
+      eq(controllerEvidenceReceipts.credentialIdentifier, record.credential.identifier),
+    ))
+    .limit(1);
+  let controllerReceipt = existingControllerReceipt
+    ? { id: existingControllerReceipt.id, snapshotFingerprint: existingControllerReceipt.snapshotFingerprint, created: false }
+    : null;
+  if (!controllerReceipt) {
+    const snapshotJson = JSON.stringify({
+      ...publicCredentialDocument(record, { includeControlledResults: true }),
+      deliveryAuthority: {
+        controllerOrganizationId: authorizationRecord.authorization.controllerOrganizationId,
+        routingAuthorizationId: authorizationRecord.authorization.id,
+        productSku: authorizationRecord.authorization.productSku,
+      },
+    });
+    const snapshotFingerprint = await sha256(snapshotJson);
+    const receiptId = crypto.randomUUID();
+    await db.batch([
+      db.insert(controllerEvidenceReceipts).values({
+        id: receiptId,
+        routingAuthorizationId: authorizationRecord.authorization.id,
+        controllerOrganizationId: authorizationRecord.authorization.controllerOrganizationId,
+        laboratoryOrganizationId: authorizationRecord.authorization.laboratoryOrganizationId,
+        credentialIdentifier: record.credential.identifier,
+        credentialVersion: record.credential.version,
+        snapshotJson,
+        snapshotFingerprint,
+        deliveredAt,
+      }),
+      db.insert(organizationNotifications).values({
+        id: crypto.randomUUID(),
+        organizationId: authorizationRecord.authorization.controllerOrganizationId,
+        eventType: "laboratory_report.received",
+        title: `Laboratory TECRID received for ${authorizationRecord.authorization.productSku}`,
+        body: `${record.issuer.name} issued ${record.credential.identifier}. The signed findings are now in your evidence workspace.`,
+        actionPath: "/dashboard/evidence-routing#laboratory-reports",
+        entityType: "credential",
+        entityId: record.credential.identifier,
+        createdAt: deliveredAt,
+      }),
+    ]);
+    controllerReceipt = { id: receiptId, snapshotFingerprint, created: true };
+  }
   for (const grant of authorizationRecord.grants) {
     const [existing] = await db.select({ id: evidenceDeliveries.id }).from(evidenceDeliveries).where(and(eq(evidenceDeliveries.grantId, grant.id), eq(evidenceDeliveries.credentialIdentifier, record.credential.identifier))).limit(1);
     if (existing) continue;
@@ -404,13 +476,24 @@ export async function deliverCredentialWithAuthorization(
       }),
       createdAt: deliveredAt,
     });
+    await db.insert(organizationNotifications).values({
+      id: crypto.randomUUID(),
+      organizationId: grant.recipientOrganizationId,
+      eventType: "evidence_routing.delivered",
+      title: `TECRID delivered for ${authorizationRecord.authorization.productSku}`,
+      body: `${record.credential.identifier} was delivered under your approved ${grant.accessLevel.replaceAll("_", " ")} scope.`,
+      actionPath: "/dashboard/evidence-routing#recipient-deliveries",
+      entityType: "evidence_delivery",
+      entityId: deliveryId,
+      createdAt: deliveredAt,
+    });
     if (grant.deliveryMode === "one_time") {
       await db.update(evidenceAccessGrants).set({ status: "fulfilled" }).where(eq(evidenceAccessGrants.id, grant.id));
     }
     delivered.push({ recipientOrganizationId: grant.recipientOrganizationId, grantId: grant.id, accessLevel: grant.accessLevel, snapshotFingerprint });
   }
   await db.update(routingAuthorizations).set({ lastUsedAt: deliveredAt }).where(eq(routingAuthorizations.id, authorizationRecord.authorization.id));
-  return { tecrid: record.credential.identifier, productSku: authorizationRecord.authorization.productSku, deliveredAt, deliveries: delivered };
+  return { tecrid: record.credential.identifier, productSku: authorizationRecord.authorization.productSku, deliveredAt, controllerReceipt, deliveries: delivered };
 }
 
 export async function routeExistingCredential(request: Request, input: Record<string, unknown>) {
@@ -449,13 +532,14 @@ export async function listEvidenceRoutingForUser(user: ChatGPTUser) {
   const membership = await requireMembership(user);
   const organizationId = membership.organization.id;
   const db = getDb();
-  const [requests, grants, deliveries, authorizations, directory] = await Promise.all([
+  const [requests, grants, deliveries, controllerReceipts, authorizations, directory] = await Promise.all([
     db.select().from(evidenceRequests).where(or(eq(evidenceRequests.requesterOrganizationId, organizationId), eq(evidenceRequests.controllerOrganizationId, organizationId))).orderBy(desc(evidenceRequests.requestedAt)).limit(100),
     db.select().from(evidenceAccessGrants).where(or(eq(evidenceAccessGrants.controllerOrganizationId, organizationId), eq(evidenceAccessGrants.recipientOrganizationId, organizationId))).orderBy(desc(evidenceAccessGrants.createdAt)).limit(100),
     db.select().from(evidenceDeliveries).where(or(eq(evidenceDeliveries.controllerOrganizationId, organizationId), eq(evidenceDeliveries.recipientOrganizationId, organizationId))).orderBy(desc(evidenceDeliveries.deliveredAt)).limit(100),
+    db.select().from(controllerEvidenceReceipts).where(eq(controllerEvidenceReceipts.controllerOrganizationId, organizationId)).orderBy(desc(controllerEvidenceReceipts.deliveredAt)).limit(100),
     db.select().from(routingAuthorizations).where(eq(routingAuthorizations.controllerOrganizationId, organizationId)).orderBy(desc(routingAuthorizations.createdAt)).limit(100),
     db.select({ id: organizations.id, name: organizations.name, code: organizations.issuerCode, type: organizations.organizationType }).from(organizations),
   ]);
   const organizationMap = Object.fromEntries(directory.map((item) => [item.id, item]));
-  return { membership, requests, grants, deliveries, authorizations, organizationMap };
+  return { membership, requests, grants, deliveries, controllerReceipts, authorizations, organizationMap };
 }

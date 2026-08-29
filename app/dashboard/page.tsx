@@ -70,6 +70,12 @@ export default async function DashboardPage() {
               <p>Create applicant submission links and scoped API tokens. Every TECRID is authority-checked and frozen at the version reviewed.</p>
               <Link href="/dashboard/certification">Open certification intake →</Link>
             </article>
+            <article className="dashboard-workflow-card insights-card">
+              <p className="section-kicker">Evidence insights</p>
+              <h2>Review the portfolio without flattening the evidence.</h2>
+              <p>See result coverage, SKU volume, missing requested analytes, and the exact TECRID behind every summary.</p>
+              <Link href="/dashboard/insights">Open evidence insights →</Link>
+            </article>
           </section>
 
           <section className="dashboard-panel legacy-report-panel">

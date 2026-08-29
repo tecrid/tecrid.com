@@ -76,6 +76,40 @@ const controlledRoutingExample = `curl https://tecrid.com/api/v1/credentials \\
     ]
   }'`;
 
+const reserveReportExample = `curl https://tecrid.com/api/v1/report-reservations \\
+  -H "Authorization: Bearer $LAB_TEC_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "productName": "Organic cacao powder",
+    "productSku": "CACAO-12OZ",
+    "laboratoryReportNumber": "LAB-240518",
+    "sourceSystem": "labware",
+    "routingToken": "tec_route_••••••••••••"
+  }'`;
+
+const finalizeReportExample = `curl https://tecrid.com/api/v1/report-reservations/$RESERVATION_ID/finalize \\
+  -H "Authorization: Bearer $LAB_TEC_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "sampleName": "Organic cacao powder",
+    "productSku": "CACAO-12OZ",
+    "visibility": "controlled",
+    "publish": true,
+    "sourceDocument": {
+      "sha256": "SHA256_OF_FINAL_TECRID_MARKED_PDF",
+      "filename": "final-report.pdf",
+      "reportNumber": "LAB-240518"
+    },
+    "proof": {
+      "keyId": "lab.example/key/2026-01",
+      "algorithm": "Ed25519",
+      "signature": "BASE64URL_SIGNATURE"
+    },
+    "results": [
+      { "analyte": "Lead", "resultText": "42", "unit": "µg/kg" }
+    ]
+  }'`;
+
 export default function DevelopersPage() {
   return (
     <main className="product-page developers-page">
@@ -92,12 +126,16 @@ export default function DevelopersPage() {
           <span>API reference</span>
           <a href="#authentication">Authentication</a>
           <a href="#canonicalize">Canonicalize</a>
+          <a href="#report-mark">Print TECRID on report</a>
           <a href="#create">Issue credential</a>
           <a href="#list">List credentials</a>
           <a href="#resolve">Resolve credential</a>
           <a href="#versions">Correct or revoke</a>
           <a href="#controlled-routing">Controlled routing</a>
           <a href="#certification-intake">Certification intake</a>
+          <a href="#legacy-api">Legacy reports</a>
+          <a href="#insights">Portfolio insights</a>
+          <a href="#connectors">LIMS connector profiles</a>
           <a href="#errors">Errors</a>
           <a className="button-dark" href="/dashboard#api-keys">Create an API key →</a>
         </aside>
@@ -120,6 +158,17 @@ export default function DevelopersPage() {
             <p>Creates a private draft when <code>publish</code> is false. Public issuance additionally requires verified laboratory status, a reviewed key, and a valid Ed25519 signature over the canonical payload. Successful issuance returns a permanent TECRID.</p>
             <p>For a historical PDF, include <code>sourceDocument</code>. Its SHA-256 fingerprint, report reference, submitting party, and release date become part of the signed payload; the private PDF itself is not exposed by the public API.</p>
             <pre><code>{createExample}</code></pre>
+          </section>
+          <section id="report-mark">
+            <p className="doc-index">03A / REPORT MARK</p>
+            <h2>Reserve. Render. Fingerprint. Sign. Finalize.</h2>
+            <p>A laboratory cannot add an identifier after hashing the final PDF. Reserve the TECRID first, place the returned human-readable identifier and resolver URL or QR data into the report template, then hash and sign that finished PDF during finalization.</p>
+            <h3>POST /api/v1/report-reservations</h3>
+            <pre><code>{reserveReportExample}</code></pre>
+            <p>The response includes <code>reportMark.templateFields.tecrid_identifier</code>, <code>tecrid_resolver_url</code>, and <code>qrData</code>. Before finalization, the resolver shows an explicit reserved—not issued—state.</p>
+            <h3>POST /api/v1/report-reservations/:id/finalize</h3>
+            <pre><code>{finalizeReportExample}</code></pre>
+            <p>Successful finalization issues the preprinted TECRID, preserves the final PDF fingerprint in the signed payload, creates the brand or supplier&apos;s full controller receipt, and fans out narrower packages to any active certifier, retailer, or government grants.</p>
           </section>
           <section id="list">
             <p className="doc-index">04 / LIST</p>
@@ -180,8 +229,33 @@ export default function DevelopersPage() {
   }'`}</code></pre>
             <p>The token begins <code>tec_intake_</code>, is displayed once, and is stored by TECRID only as a SHA-256 hash. Passing the intake gate does not award certification.</p>
           </section>
+          <section id="legacy-api">
+            <p className="doc-index">09 / LEGACY REPORTS</p>
+            <h2>POST /api/v1/legacy-reports</h2>
+            <p>Upload an existing private PDF with multipart form data, its transcribed results JSON, the named laboratory, and the laboratory confirmation contact. The API returns a private intake id, source fingerprint, and confirmation path. Uploading never creates a TECRID by itself.</p>
+            <pre><code>{`curl https://tecrid.com/api/v1/legacy-reports \\
+  -H "Authorization: Bearer $BRAND_TEC_API_KEY" \\
+  -F "document=@report.pdf;type=application/pdf" \\
+  -F "laboratoryName=Example Analytical" \\
+  -F "confirmationEmail=quality@example-lab.com" \\
+  -F "sampleName=Organic cacao powder" \\
+  -F 'results=[{"analyte":"Lead","resultText":"42","unit":"µg/kg"}]' \\
+  -F "attested=on"`}</code></pre>
+          </section>
+          <section id="insights">
+            <p className="doc-index">10 / INSIGHTS</p>
+            <h2>GET /api/v1/insights</h2>
+            <p>Returns deterministic summaries across TECRIDs the organization issued or was authorized to receive: distinct records, result rows, SKU coverage, analyte counts, missing requested analytes, and the exact source TECRID behind every latest value. It does not infer safety, compliance, or comparability across units or methods.</p>
+          </section>
+          <section id="connectors">
+            <p className="doc-index">11 / CONNECTOR PROFILES</p>
+            <h2>Start with a report-release hook, not a LIMS replacement.</h2>
+            <p>The TECRID Connect starter includes configuration profiles for LabWare, LabVantage, and STARLIMS plus generic JSON and CSV. These profiles map each system&apos;s release event and report-template fields to the same reserve/finalize protocol. They are implementation starters, not vendor-certified integrations.</p>
+            <p><a className="button-dark" href="/downloads/tecrid-connect.zip">Download TECRID Connect starter →</a></p>
+            <p>Outbound email is not yet a production claim. In-product notifications and controller receipts are live; email delivery still requires a configured sending provider and deliverability controls.</p>
+          </section>
           <section id="errors">
-            <p className="doc-index">09 / ERRORS</p>
+            <p className="doc-index">12 / ERRORS</p>
             <h2>Stable, inspectable responses.</h2>
             <div className="error-table"><div><code>400</code><span>invalid_request</span><p>Required fields, result structure, revision reason, or proof shape is invalid.</p></div><div><code>403</code><span>not_authorized</span><p>The API key, issuer authority, reviewed signing key, or signature verification failed.</p></div><div><code>404</code><span>not_found</span><p>No public TECRID matches the identifier.</p></div></div>
           </section>
