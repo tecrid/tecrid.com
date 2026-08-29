@@ -22,7 +22,7 @@ export default function DemoLibraryPage() {
       </header>
 
       <section className="demo-hub">
-        <div className="demo-warning"><strong>Demonstration boundary</strong><p>These examples cannot be resolved as TECRIDs, do not appear in the issuer register, and make no claim about any real product, supplier, laboratory, or brand.</p></div>
+        <div className="demo-warning"><strong>Demonstration boundary</strong><p>The heavy-metals example resolves only inside TECRID’s reserved DEMO namespace. Neither example has production authority, appears as a verified issuer record, or makes a claim about any real product, supplier, laboratory, or brand.</p></div>
         <div className="demo-sandbox-callout"><div><p className="section-kicker light">Want to operate the workflow?</p><h2>Switch roles inside the interactive sandbox.</h2><p>Move one fictional report from brand intake through laboratory confirmation and into a retailer evidence gate.</p></div><a className="button-mint" href="/sandbox">Launch sandbox →</a></div>
         <div className="demo-sandbox-callout disclosure-demo-callout"><div><p className="section-kicker light">For monthly disclosure operations</p><h2>Watch one source file become five reusable surfaces.</h2><p>A fictional regulated-brand workflow shows 12 production aggregates, 11 ready rows, one blocked exception, and the publication boundary between brand disclosure and TECRID.</p></div><a className="button-mint" href="/demo/disclosure-operations">Open workflow demo →</a></div>
         <div className="section-title-row"><div><p className="section-kicker">Fictional issuer</p><h2>{demoLaboratory.name}</h2></div><a href="/demo/lab">Inspect lab profile ↗</a></div>

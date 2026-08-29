@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (isSampleTecrid(identifier)) {
     return {
       title: `${SAMPLE_TECRID} — Resolver sample`,
-      description: "A resolver-compatible fictional TECRID showing the complete public record experience.",
+      description: "A complete fictional laboratory-report TECRID with product, SKU, lot, dates, method, results, source certificate, and provenance.",
       robots: { index: false, follow: true },
       openGraph: { title: `${SAMPLE_TECRID} — Resolver sample`, description: "A fictional public TECRID sample.", images: [] },
       twitter: { title: `${SAMPLE_TECRID} — Resolver sample`, description: "A fictional public TECRID sample.", images: [] },
@@ -186,6 +186,7 @@ function ReservedRecordPage({ reservation }: { reservation: NonNullable<Awaited<
 
 function SampleRecordPage() {
   const sample = sampleCredentialDocument();
+  const displayDate = (value: string) => new Date(`${value}T00:00:00.000Z`).toLocaleDateString("en", { dateStyle: "long", timeZone: "UTC" });
   return (
     <main className="product-page public-record-page sample-resolver-page">
       <ProductNav compact />
@@ -193,48 +194,74 @@ function SampleRecordPage() {
         <div>
           <p className="section-kicker light">Public resolver sample · fictional report</p>
           <h1>{SAMPLE_TECRID}</h1>
-          <p>Sample version 1 · published {new Date(SAMPLE_ISSUED_AT).toLocaleString("en", { dateStyle: "long", timeStyle: "short", timeZone: "UTC" })} UTC</p>
+          <p>Report {sample.report.reportNumber} · released {displayDate(sample.timeline.releasedAt)} · sample version 1</p>
         </div>
         <span className="public-sample"><i /> Sample · no live authority</span>
       </header>
 
       <section className="sample-explainer">
-        <div><p className="section-kicker">You just resolved a TECRID</p><h2>This is the complete public record experience.</h2></div>
-        <p>This identifier uses TECRID’s reserved sample namespace, so anyone can type it into the homepage and inspect the same human record, JSON document, provenance fields, and version history. Every party and value is fictional; no real laboratory issued it.</p>
+        <div><p className="section-kicker">You just resolved a TECRID</p><h2>The report identity comes first.</h2></div>
+        <p>This record preserves the product, SKU, lot, sample ID, laboratory references, testing dates, method, findings, approval state, source certificate, and version as one resolvable object. Every party and value is fictional; no real laboratory issued it.</p>
       </section>
 
       <section className="public-record-shell">
         <div className="record-integrity-bar status-bar-sample"><span><i /> Sample digest and current version are internally consistent</span><span>Status: sample</span></div>
+        <div className="sample-identity-grid">
+          <article><span>Product</span><strong>{sample.subject.productName}</strong><small>{sample.customer.brandName} · fictional</small></article>
+          <article><span>SKU</span><code>{sample.subject.sku}</code><small>{sample.subject.packageFormat}</small></article>
+          <article><span>Lot</span><code>{sample.subject.lotNumber}</code><small>Lot reported by submitting party</small></article>
+          <article><span>Sample ID</span><code>{sample.subject.sampleId}</code><small>{sample.subject.sampleDescription}</small></article>
+        </div>
+        <div className="sample-report-grid">
+          <div><span>Prepared for</span><strong>{sample.customer.organizationName}</strong><small>Account {sample.customer.accountCode}</small></div>
+          <div><span>Assay</span><strong>{sample.report.assay}</strong><small>Test {sample.report.testNumber}</small></div>
+          <div><span>Serving size</span><strong>{sample.subject.servingSize}</strong><small>{sample.subject.matrix}</small></div>
+          <div><span>Laboratory references</span><strong>{sample.report.reportNumber}</strong><small>Order {sample.report.orderNumber}</small></div>
+        </div>
+        <div className="sample-timeline-grid" aria-label="Report timeline">
+          <div><span>Received</span><strong>{displayDate(sample.timeline.receivedAt)}</strong></div>
+          <div><span>Tested</span><strong>{displayDate(sample.timeline.testedAt)}</strong></div>
+          <div><span>Released</span><strong>{displayDate(sample.timeline.releasedAt)}</strong></div>
+          <div><span>TECRID issued</span><strong>{new Date(sample.timeline.tecridIssuedAt).toLocaleString("en", { dateStyle: "long", timeStyle: "short", timeZone: "UTC" })} UTC</strong></div>
+        </div>
         <div className="public-record-summary">
-          <article><span>Sample</span><strong>{sample.subject.sampleName}</strong><small>{sample.subject.lotNumber}</small></article>
           <article><span>Example issuer</span><strong><a href="/demo/lab">{sample.issuer.name} ↗</a></strong><small>{sample.issuer.code} · not registered</small></article>
-          <article><span>Method</span><strong>{sample.subject.method}</strong><small>{sample.subject.matrix}</small></article>
+          <article><span>Method</span><strong>{sample.method.code}</strong><small>{sample.method.name}</small></article>
+          <article><span>Testing location</span><strong>{sample.report.testingLocation}</strong><small>{sample.method.accreditationScope}</small></article>
+        </div>
+        <div className="sample-method-register">
+          <div><span>Method detail</span><p>{sample.method.reference}</p></div>
+          <div><span>Sample notes</span><p>{sample.report.notes}</p></div>
         </div>
         <div className="public-results">
-          <div className="results-note"><span>Analytical results</span><small>Invented values shown exactly as sampled</small></div>
+          <div className="results-note"><span>Complete analytical panel · 8 of 8 rows</span><small>Exact fictional result text · limits are fictional customer specifications, not regulatory limits</small></div>
           <table>
-            <thead><tr><th>Analyte</th><th>Result</th><th>Unit</th><th>LOQ</th><th>Status</th></tr></thead>
+            <thead><tr><th>Analyte</th><th>Reported result</th><th>LOQ</th><th>Limit</th><th>Lab status</th></tr></thead>
             <tbody>{sample.results.map((row) => (
               <tr key={row.sequence}>
-                <td><i className="element-badge">{row.symbol}</i><strong>{row.analyte}</strong></td>
-                <td className="result-value">{row.resultText}</td>
-                <td>{row.unit}</td>
+                <td><i className="element-badge">{row.symbol}</i><span className="sample-analyte-copy"><strong>{row.analyte}</strong><small>{row.basis}</small></span></td>
+                <td className="result-value">{row.resultText} <small>{row.unit}</small></td>
                 <td>{row.loqText || "—"}</td>
-                <td><span className="reported">Sampled</span></td>
+                <td>{row.limitText || "Not reported"}</td>
+                <td><span className={`sample-result-label result-${row.qualifier}`}>{row.status}</span></td>
               </tr>
             ))}</tbody>
           </table>
         </div>
+        <div className="source-document-register sample-source-register">
+          <div><span>Source certificate</span><strong><a href={sample.sourceDocument.publicPath} target="_blank" rel="noreferrer">Open fictional source COA ↗</a></strong><small>Public demonstration PDF · {sample.sourceDocument.pageCount} page</small></div>
+          <div><span>Source PDF fingerprint</span><code>sha256:{SAMPLE_SOURCE_FINGERPRINT}</code><small>{sample.sourceDocument.filename}</small></div>
+          <div><span>Laboratory references</span><strong>{sample.sourceDocument.reportNumber}</strong><small>Order {sample.sourceDocument.orderNumber} · Test {sample.sourceDocument.testNumber}</small></div>
+        </div>
         <div className="provenance-register">
-          <div><span>Example issuer</span><strong><a href="/demo/lab">{sample.issuer.name} ↗</a></strong><small>No legal entity or production authority</small></div>
+          <div><span>Approval</span><strong>{sample.approval.approverName}</strong><small>{sample.approval.approverTitle} · {displayDate(sample.approval.approvedAt)}</small></div>
           <div><span>Record fingerprint</span><code>sha256:{SAMPLE_RECORD_FINGERPRINT}</code><small>Recomputed from the fixed sample document</small></div>
           <div><span>Issuer proof</span><strong>Not present by design</strong><small>A sample must never be confused with a laboratory signature</small></div>
           <div><span>Machine access</span><a href={`/api/v1/credentials/${encodeURIComponent(SAMPLE_TECRID)}`}>Open JSON endpoint ↗</a><small>Returns the same record with sample and productionAuthority flags</small></div>
         </div>
-        <div className="source-document-register">
-          <div><span>Issuance basis</span><strong>Resolver-compatible sample report</strong><small>Demonstrates the workflow without publishing real evidence</small></div>
-          <div><span>Source PDF fingerprint</span><code>sha256:{SAMPLE_SOURCE_FINGERPRINT}</code><small>northstar-demo-heavy-metals-report.pdf</small></div>
-          <div><span>Laboratory reference</span><strong>DEMO-NS-260823-01</strong><small>Order DEMO-ORD-0821</small></div>
+        <div className="sample-visibility-register">
+          <div><span>Public in this sample</span><strong>Report, product, dates, method, results, approval state and source COA</strong></div>
+          <div><span>Controlled in production</span><strong>Customer contacts, chain of custody and raw instrument data</strong></div>
         </div>
       </section>
 
@@ -243,14 +270,14 @@ function SampleRecordPage() {
           <div><p className="section-kicker">Append-only history</p><h2 id="sample-version-title">Version register</h2></div>
           <span className="verified-pill demo-pill"><i /> 1 sample version</span>
         </div>
-        <ol><li><span>v1</span><div><strong>sample issuance</strong><p>Resolver-compatible fictional record published for evaluation</p></div><div><small>29 Aug 2026 · 00:00 UTC</small><code>sha256:{SAMPLE_RECORD_FINGERPRINT}</code></div></li></ol>
+        <ol><li><span>v1</span><div><strong>sample issuance</strong><p>Complete report-shaped fictional record published for resolver evaluation</p></div><div><small>{new Date(SAMPLE_ISSUED_AT).toLocaleString("en", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC</small><code>sha256:{SAMPLE_RECORD_FINGERPRINT}</code></div></li></ol>
       </section>
 
       <section className="record-boundary">
         <p className="section-kicker">Demonstration boundary</p>
         <h2>This record demonstrates resolution. It proves no laboratory claim.</h2>
-        <p>Its identifier, JSON document, source fingerprint, findings, and version history behave like the public surfaces of a TECRID. The fictional issuer has no reviewed key, no laboratory identity, and no production issuance authority.</p>
-        <div className="sample-next"><a className="button-dark" href="/sandbox">Run the workflow in your own sandbox →</a><a href="/demo/heavy-metals">Inspect the underlying fictional report ↗</a></div>
+        <p>Its identifier, complete report identity, JSON document, inspectable source PDF, fingerprints, findings, visibility rules, and version history behave like TECRID public surfaces. The fictional issuer has no reviewed key, legal identity, accreditation, or production issuance authority.</p>
+        <div className="sample-next"><a className="button-dark" href="/sandbox">Run the workflow in your own sandbox →</a><a href={sample.sourceDocument.publicPath} target="_blank" rel="noreferrer">Open the fictional source COA ↗</a></div>
       </section>
       <ProductFooter />
     </main>

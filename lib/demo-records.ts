@@ -14,8 +14,41 @@ export type DemoResult = {
   result: string;
   unit: string;
   loq?: string;
+  qualifier?: "reported" | "less_than" | "not_detected";
+  numericValue?: number | null;
+  limit?: string;
+  limitSource?: string;
+  status?: string;
+  basis?: string;
   interpretation: string;
   method?: string;
+};
+
+export type DemoReportDetails = {
+  preparedFor: string;
+  productName: string;
+  brandName: string;
+  sku: string;
+  packageFormat: string;
+  sampleId: string;
+  reportNumber: string;
+  orderNumber: string;
+  testNumber: string;
+  assay: string;
+  servingSize: string;
+  testingLocation: string;
+  receivedAt: string;
+  testedAt: string;
+  releasedAt: string;
+  methodCode: string;
+  methodReference: string;
+  accreditation: string;
+  approverName: string;
+  approverTitle: string;
+  approvalState: string;
+  sourceFilename: string;
+  sourcePath: string;
+  notes: string;
 };
 
 export type DemoRecord = {
@@ -32,6 +65,7 @@ export type DemoRecord = {
   source?: { label: string; href: string; detail: string };
   declaration?: string;
   custody?: string;
+  report?: DemoReportDetails;
 };
 
 export const demoRecords: DemoRecord[] = [
@@ -43,17 +77,43 @@ export const demoRecords: DemoRecord[] = [
     lot: "DEMO-CP-0826",
     matrix: "Food · Cocoa powder",
     method: "Microwave digestion + ICP-MS; separate Cr(VI) extraction/speciation — illustrative",
+    report: {
+      preparedFor: "Atlas Pantry Demonstration",
+      productName: "Unsweetened Cocoa Powder",
+      brandName: "Atlas Pantry",
+      sku: "ATL-COCOA-340",
+      packageFormat: "340 g retail pouch",
+      sampleId: "DEMO-SMP-260821-04",
+      reportNumber: "DEMO-NS-260823-01",
+      orderNumber: "DEMO-ORD-0821",
+      testNumber: "DEMO-TST-260821-04",
+      assay: "Expanded elemental panel",
+      servingSize: "5.0 grams",
+      testingLocation: "In-house · fictional demonstration environment",
+      receivedAt: "2026-08-21",
+      testedAt: "2026-08-22",
+      releasedAt: "2026-08-23",
+      methodCode: "DEMO-NLA-MET-01",
+      methodReference: "Illustrative microwave digestion and ICP-MS workflow; Chromium(VI) uses a separate illustrative alkaline extraction and IC-ICP-MS method.",
+      accreditation: "No accreditation claimed · fictional laboratory and method",
+      approverName: "Morgan Vale",
+      approverTitle: "Laboratory Director · fictional",
+      approvalState: "Demonstration approval recorded · no cryptographic laboratory signature",
+      sourceFilename: "northstar-demo-heavy-metals-report.pdf",
+      sourcePath: "/demo/northstar-demo-heavy-metals-report.pdf",
+      notes: "Retail composite submitted in an original sealed pouch; all identifiers and findings are invented.",
+    },
     finding: "Eight-analyte demonstration",
     findingDetail: "These invented values demonstrate mixed units, detection limits, total-element results, and a separately specified hexavalent-chromium result. They do not establish safety or compliance.",
     results: [
-      { analyte: "Lead", symbol: "Pb", result: "42", unit: "µg/kg", loq: "10 µg/kg", interpretation: "Invented reported value" },
-      { analyte: "Mercury", symbol: "Hg", result: "6", unit: "µg/kg", loq: "2 µg/kg", interpretation: "Invented reported value" },
-      { analyte: "Arsenic (total)", symbol: "As", result: "84", unit: "µg/kg", loq: "10 µg/kg", interpretation: "Invented total-element value" },
-      { analyte: "Cadmium", symbol: "Cd", result: "312", unit: "µg/kg", loq: "10 µg/kg", interpretation: "Invented reported value" },
-      { analyte: "Nickel", symbol: "Ni", result: "680", unit: "µg/kg", loq: "20 µg/kg", interpretation: "Invented reported value" },
-      { analyte: "Aluminum", symbol: "Al", result: "3.8", unit: "mg/kg", loq: "0.10 mg/kg", interpretation: "Invented reported value" },
-      { analyte: "Chromium(VI)", symbol: "Cr⁶⁺", result: "< 10", unit: "µg/kg", loq: "10 µg/kg", interpretation: "Invented non-detect; separate speciation method", method: "Alkaline extraction + IC-ICP-MS — illustrative" },
-      { analyte: "Tin", symbol: "Sn", result: "0.24", unit: "mg/kg", loq: "0.05 mg/kg", interpretation: "Invented reported value" },
+      { analyte: "Lead", symbol: "Pb", result: "42", unit: "µg/kg", qualifier: "reported", numericValue: 42, loq: "10 µg/kg", limit: "100 µg/kg", limitSource: "Fictional customer specification DEMO-SPEC-MET-01", status: "Within fictional specification", basis: "As received", interpretation: "Invented reported value" },
+      { analyte: "Mercury", symbol: "Hg", result: "6", unit: "µg/kg", qualifier: "reported", numericValue: 6, loq: "2 µg/kg", limit: "20 µg/kg", limitSource: "Fictional customer specification DEMO-SPEC-MET-01", status: "Within fictional specification", basis: "As received", interpretation: "Invented reported value" },
+      { analyte: "Arsenic (total)", symbol: "As", result: "84", unit: "µg/kg", qualifier: "reported", numericValue: 84, loq: "10 µg/kg", limit: "120 µg/kg", limitSource: "Fictional customer specification DEMO-SPEC-MET-01", status: "Within fictional specification", basis: "As received", interpretation: "Invented total-element value" },
+      { analyte: "Cadmium", symbol: "Cd", result: "312", unit: "µg/kg", qualifier: "reported", numericValue: 312, loq: "10 µg/kg", limit: "500 µg/kg", limitSource: "Fictional customer specification DEMO-SPEC-MET-01", status: "Within fictional specification", basis: "As received", interpretation: "Invented reported value" },
+      { analyte: "Nickel", symbol: "Ni", result: "680", unit: "µg/kg", qualifier: "reported", numericValue: 680, loq: "20 µg/kg", limit: "Not specified", limitSource: "No fictional customer specification supplied", status: "Reported · no specification", basis: "As received", interpretation: "Invented reported value" },
+      { analyte: "Aluminum", symbol: "Al", result: "3.8", unit: "mg/kg", qualifier: "reported", numericValue: 3.8, loq: "0.10 mg/kg", limit: "5.0 mg/kg", limitSource: "Fictional customer specification DEMO-SPEC-MET-01", status: "Within fictional specification", basis: "As received", interpretation: "Invented reported value" },
+      { analyte: "Chromium(VI)", symbol: "Cr⁶⁺", result: "< 10", unit: "µg/kg", qualifier: "less_than", numericValue: null, loq: "10 µg/kg", limit: "20 µg/kg", limitSource: "Fictional customer specification DEMO-SPEC-MET-01", status: "Below reporting limit", basis: "As received", interpretation: "Invented below-LOQ result; separate speciation method", method: "DEMO-NLA-CR6-01 · alkaline extraction + IC-ICP-MS · illustrative" },
+      { analyte: "Tin", symbol: "Sn", result: "0.24", unit: "mg/kg", qualifier: "reported", numericValue: 0.24, loq: "0.05 mg/kg", limit: "1.0 mg/kg", limitSource: "Fictional customer specification DEMO-SPEC-MET-01", status: "Within fictional specification", basis: "As received", interpretation: "Invented reported value" },
     ],
   },
   {

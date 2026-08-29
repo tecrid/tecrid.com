@@ -247,9 +247,30 @@ test("resolves a reserved sample TECRID without asserting laboratory authority",
   assert.match(record, /You just resolved a TECRID/);
   assert.match(record, /Sample · no live authority/);
   assert.match(record, /This record demonstrates resolution/);
+  assert.match(record, /ATL-COCOA-340/);
+  assert.match(record, /DEMO-CP-0826/);
+  assert.match(record, /DEMO-SMP-260821-04/);
+  assert.match(record, /August 21, 2026/);
+  assert.match(record, /August 22, 2026/);
+  assert.match(record, /August 23, 2026/);
+  assert.match(record, /Open fictional source COA/);
   assert.equal(api.tecrid, "TECRID·DEMO-26-HM0001");
   assert.equal(api.sample, true);
   assert.equal(api.productionAuthority, false);
+  assert.equal(api.subject.sku, "ATL-COCOA-340");
+  assert.equal(api.subject.lotNumber, "DEMO-CP-0826");
+  assert.equal(api.subject.sampleId, "DEMO-SMP-260821-04");
+  assert.equal(api.report.reportNumber, "DEMO-NS-260823-01");
+  assert.equal(api.report.orderNumber, "DEMO-ORD-0821");
+  assert.equal(api.report.testNumber, "DEMO-TST-260821-04");
+  assert.equal(api.timeline.receivedAt, "2026-08-21");
+  assert.equal(api.timeline.testedAt, "2026-08-22");
+  assert.equal(api.timeline.releasedAt, "2026-08-23");
+  assert.equal(api.results.length, 8);
+  assert.equal(api.results.find((row) => row.analyte === "Chromium(VI)").qualifier, "less_than");
+  assert.equal(api.sourceDocument.publicPath, "/demo/northstar-demo-heavy-metals-report.pdf");
+  const sourcePdf = await readFile(new URL("../public/demo/northstar-demo-heavy-metals-report.pdf", import.meta.url));
+  assert.equal(createHash("sha256").update(sourcePdf).digest("hex"), api.sourceDocument.sha256);
   assert.equal(api.integrity.issuerSignatureVerified, false);
   assert.equal(
     createHash("sha256").update(api.versions[0].canonicalPayload).digest("hex"),

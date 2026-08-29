@@ -6,10 +6,10 @@ const record = getDemoRecord("heavy-metals");
 
 export const metadata: Metadata = {
   title: `${record.title} — TEC demonstration`,
-  description: "Invented eight-analyte heavy-metals panel demonstrating a TEC record interface.",
+  description: "Invented eight-analyte heavy-metals panel underlying TECRID’s reserved resolver sample.",
   robots: { index: false, follow: true },
-  openGraph: { title: `${record.title} — TEC demonstration`, description: "Invented values; not a public TEC or laboratory finding.", images: [] },
-  twitter: { title: `${record.title} — TEC demonstration`, description: "Invented values; not a public TEC or laboratory finding.", images: [] },
+  openGraph: { title: `${record.title} — TEC demonstration`, description: "Invented values; reserved resolver sample with no production authority.", images: [] },
+  twitter: { title: `${record.title} — TEC demonstration`, description: "Invented values; reserved resolver sample with no production authority.", images: [] },
 };
 
 export default function HeavyMetalsDemoPage() {
