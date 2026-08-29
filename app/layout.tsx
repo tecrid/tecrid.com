@@ -53,6 +53,9 @@ export async function generateMetadata(): Promise<Metadata> {
     authors: [{ name: "Institute of Contaminant Standards", url: "https://contaminantstandards.com" }],
     creator: "Institute of Contaminant Standards",
     publisher: "Institute of Contaminant Standards",
+    verification: {
+      google: "1NWO0uv6B0GJqNBADyugLLo1W4d9dXlJ5T9nEide21Y",
+    },
     robots: { index: true, follow: true },
     openGraph: {
       title,

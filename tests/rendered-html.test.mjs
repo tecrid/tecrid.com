@@ -33,6 +33,7 @@ test("renders the TEC Registry public product", async () => {
   assert.match(html, /Look up a TECRID/);
   assert.match(html, /Try the sample TECRID/);
   assert.match(html, /Institute of Contaminant Standards/);
+  assert.match(html, /<meta name="google-site-verification" content="1NWO0uv6B0GJqNBADyugLLo1W4d9dXlJ5T9nEide21Y"/i);
   assert.doesNotMatch(html, /codex-preview|loading skeleton|react-loading-skeleton/i);
 });
 
