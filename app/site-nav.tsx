@@ -11,6 +11,7 @@ export function ProductNav({ compact = false }: { compact?: boolean }) {
         </span>
       </a>
       <div className="nav-links">
+        <a href="/verify">Verify</a>
         <a href="/why">Why TEC</a>
         <a href="/standard">Standard</a>
         <a href="/issuers">Issuers</a>
@@ -32,11 +33,13 @@ export function ProductFooter() {
       </a>
       <p>Test Evidence Credentials and permanent TECRIDs · An ICS initiative</p>
       <div className="footer-actions">
+        <a href="/verify">Verify report</a>
         <a href="/why">Why TEC</a>
         <a href="/standard">Standard</a>
         <a href="/issuers">Issuers</a>
         <a href="/sandbox">Sandbox</a>
         <a href="/submit-report">Submit report</a>
+        <a href="/demo/lab-defense">Lab dispute demo</a>
         <a href="/developers">API</a>
         <a href="/pricing">Pricing</a>
         <a href="https://contaminantstandards.com" target="_blank" rel="noreferrer">ICS ↗</a>

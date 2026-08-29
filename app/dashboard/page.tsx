@@ -51,6 +51,21 @@ export default async function DashboardPage() {
             <Link className="button-mint" href="/dashboard/disclosures">Open disclosure operations →</Link>
           </section>
 
+          <section className="dashboard-workflow-grid">
+            <article className="dashboard-workflow-card verification-card">
+              <p className="section-kicker">Laboratory verification desk</p>
+              <h2>Answer report questions with durable receipts.</h2>
+              <p>See checks against issued records, compare two public TECRIDs, and download one fingerprinted evidence manifest for technical review.</p>
+              <Link href="/dashboard/lab-defense">Open laboratory desk →</Link>
+            </article>
+            <article className="dashboard-workflow-card certification-card">
+              <p className="section-kicker light">Certification intake</p>
+              <h2>Receive evidence by ID, CSV, or API.</h2>
+              <p>Create applicant submission links and scoped API tokens. Every TECRID is authority-checked and frozen at the version reviewed.</p>
+              <Link href="/dashboard/certification">Open certification intake →</Link>
+            </article>
+          </section>
+
           <section className="dashboard-panel legacy-report-panel">
             <div className="panel-heading">
               <div><p className="section-kicker">Legacy report intake</p><h2>Existing laboratory reports</h2></div>

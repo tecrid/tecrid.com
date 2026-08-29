@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { SAMPLE_TECRID } from "../lib/sample-tecrid";
 import { ProductFooter, ProductNav } from "./site-nav";
 
@@ -99,6 +100,19 @@ export default function Home() {
         <div>
           <p>TECRID fingerprints the original file, records the brand’s transcription, and creates a restricted laboratory confirmation gate. Submission alone never creates a public credential.</p>
           <a className="button-mint" href="/submit-report">Start legacy-report intake <span>→</span></a>
+        </div>
+      </section>
+
+      <section className="trust-workflows-section" aria-labelledby="trust-workflows-title">
+        <div className="trust-workflows-intro">
+          <p className="section-kicker">For laboratories and certification bodies</p>
+          <h2 id="trust-workflows-title">Resolve the report once.<br />Reuse the evidence everywhere.</h2>
+          <p>TECRID is not only a public record. It is a transport layer for the work that currently begins with attachments, OCR, phone calls, and manual reconciliation.</p>
+        </div>
+        <div className="trust-workflow-cards">
+          <article><span>Laboratory verification</span><h3>Did this report come from us?</h3><p>Anyone can compare a TECRID or a locally computed PDF fingerprint and receive a durable registry verification receipt.</p><a href="/verify">Verify a report →</a></article>
+          <article><span>Dispute preparation</span><h3>Are these results actually comparable?</h3><p>Align two public records, normalize compatible units, expose missing technical context, and freeze the evidence handoff—without declaring a winner.</p><a href="/demo/lab-defense">See the fictional workflow →</a></article>
+          <article><span>Certification intake</span><h3>Submit identifiers, not a folder of PDFs.</h3><p>Brands send a CSV or API array of TECRIDs. The receiving body validates authority and preserves the exact record versions reviewed.</p><Link href="/dashboard/certification">Open certification intake →</Link></article>
         </div>
       </section>
 

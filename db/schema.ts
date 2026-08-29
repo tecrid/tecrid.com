@@ -570,3 +570,157 @@ export const disclosureImportRows = sqliteTable(
     index("idx_disclosure_import_rows_status").on(table.importId, table.status),
   ],
 );
+
+export const verificationChecks = sqliteTable(
+  "verification_checks",
+  {
+    id: text("id").primaryKey(),
+    lookupType: text("lookup_type").notNull(),
+    lookupValue: text("lookup_value").notNull(),
+    outcome: text("outcome").notNull(),
+    credentialIdentifier: text("credential_identifier"),
+    issuerOrganizationId: text("issuer_organization_id").references(
+      () => organizations.id,
+      { onDelete: "set null" },
+    ),
+    recordFingerprint: text("record_fingerprint"),
+    receiptFingerprint: text("receipt_fingerprint").notNull(),
+    requesterUserId: text("requester_user_id"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_verification_checks_issuer_created").on(
+      table.issuerOrganizationId,
+      table.createdAt,
+    ),
+    index("idx_verification_checks_credential_created").on(
+      table.credentialIdentifier,
+      table.createdAt,
+    ),
+    uniqueIndex("idx_verification_checks_receipt_fingerprint").on(
+      table.receiptFingerprint,
+    ),
+  ],
+);
+
+export const disputeCases = sqliteTable(
+  "dispute_cases",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    createdByUserId: text("created_by_user_id").notNull(),
+    title: text("title").notNull(),
+    purpose: text("purpose"),
+    status: text("status").notNull().default("open"),
+    leftCredentialIdentifier: text("left_credential_identifier").notNull(),
+    rightCredentialIdentifier: text("right_credential_identifier").notNull(),
+    comparisonStatus: text("comparison_status").notNull(),
+    comparisonJson: text("comparison_json").notNull(),
+    evidenceManifestJson: text("evidence_manifest_json").notNull(),
+    evidenceFingerprint: text("evidence_fingerprint").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_dispute_cases_org_created").on(table.organizationId, table.createdAt),
+    index("idx_dispute_cases_left_identifier").on(table.leftCredentialIdentifier),
+    index("idx_dispute_cases_right_identifier").on(table.rightCredentialIdentifier),
+  ],
+);
+
+export const certificationPrograms = sqliteTable(
+  "certification_programs",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    publicToken: text("public_token").notNull(),
+    apiTokenHash: text("api_token_hash").notNull(),
+    apiTokenPrefix: text("api_token_prefix").notNull(),
+    apiTokenLastFour: text("api_token_last_four").notNull(),
+    active: integer("active", { mode: "boolean" }).notNull().default(true),
+    createdByUserId: text("created_by_user_id").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_certification_programs_public_token").on(table.publicToken),
+    uniqueIndex("idx_certification_programs_api_token_hash").on(table.apiTokenHash),
+    index("idx_certification_programs_org_created").on(
+      table.organizationId,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const certificationIntakes = sqliteTable(
+  "certification_intakes",
+  {
+    id: text("id").primaryKey(),
+    programId: text("program_id")
+      .notNull()
+      .references(() => certificationPrograms.id, { onDelete: "restrict" }),
+    receivingOrganizationId: text("receiving_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    applicantOrganization: text("applicant_organization").notNull(),
+    applicantName: text("applicant_name").notNull(),
+    applicantEmail: text("applicant_email").notNull(),
+    submissionReference: text("submission_reference"),
+    sourceType: text("source_type").notNull(),
+    status: text("status").notNull(),
+    rowCount: integer("row_count").notNull(),
+    validRows: integer("valid_rows").notNull(),
+    blockedRows: integer("blocked_rows").notNull(),
+    manifestJson: text("manifest_json").notNull(),
+    manifestFingerprint: text("manifest_fingerprint").notNull(),
+    submittedByUserId: text("submitted_by_user_id"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_certification_intakes_receiver_created").on(
+      table.receivingOrganizationId,
+      table.createdAt,
+    ),
+    index("idx_certification_intakes_program_created").on(
+      table.programId,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const certificationIntakeItems = sqliteTable(
+  "certification_intake_items",
+  {
+    id: text("id").primaryKey(),
+    intakeId: text("intake_id")
+      .notNull()
+      .references(() => certificationIntakes.id, { onDelete: "cascade" }),
+    rowNumber: integer("row_number").notNull(),
+    submittedIdentifier: text("submitted_identifier").notNull(),
+    normalizedIdentifier: text("normalized_identifier").notNull(),
+    validationStatus: text("validation_status").notNull(),
+    credentialIdentifier: text("credential_identifier"),
+    issuerOrganizationId: text("issuer_organization_id").references(
+      () => organizations.id,
+      { onDelete: "set null" },
+    ),
+    recordVersion: integer("record_version"),
+    recordStatus: text("record_status"),
+    issuerSignatureVerified: integer("issuer_signature_verified", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    snapshotFingerprint: text("snapshot_fingerprint"),
+    snapshotJson: text("snapshot_json"),
+    errors: text("errors"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_certification_items_intake_row").on(table.intakeId, table.rowNumber),
+    index("idx_certification_items_identifier").on(table.credentialIdentifier),
+    index("idx_certification_items_status").on(table.intakeId, table.validationStatus),
+  ],
+);

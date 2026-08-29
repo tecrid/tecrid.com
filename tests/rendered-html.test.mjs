@@ -262,3 +262,67 @@ test("wires durable disclosure intake, publication gates, public JSON, and hones
   assert.match(publicPage, /Suggested citation/);
   assert.match(template, /lead_ppb.*cadmium_ppb.*arsenic_ppb.*mercury_ppb/);
 });
+
+test("renders public verification and an honest laboratory dispute demonstration", async () => {
+  const [verifyResponse, demoResponse, client, service] = await Promise.all([
+    render("/verify"),
+    render("/demo/lab-defense"),
+    readFile(new URL("../app/verify/verification-client.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/lab-defense.ts", import.meta.url), "utf8"),
+  ]);
+  assert.equal(verifyResponse.status, 200);
+  assert.equal(demoResponse.status, 200);
+  const [verify, demo] = await Promise.all([verifyResponse.text(), demoResponse.text()]);
+  assert.match(verify, /Did this report come/);
+  assert.match(verify, /document itself is not uploaded/i);
+  assert.match(verify, /Identity and integrity/);
+  assert.match(client, /crypto\.subtle\.digest/);
+  assert.match(client, /documentSha256: fingerprint/);
+  assert.doesNotMatch(client, /FormData|body:\s*file/);
+  assert.match(service, /This comparison identifies compatibility and missing context/);
+  assert.match(service, /does not determine which laboratory is correct/);
+  assert.match(service, /Resolver samples cannot become evidence cases/);
+  assert.match(demo, /Stop arguing over/);
+  assert.match(demo, /does not declare a winner/i);
+  assert.match(demo, /workflow logic, not a claimed customer result/i);
+});
+
+test("wires append-only certification intake by share link, CSV, and scoped API", async () => {
+  const [schema, migration, manifestMigration, service, apiRoute, browserRoute, manifestRoute, consolePage, submitPage, developers, template] = await Promise.all([
+    readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0008_lazy_shinko_yamashiro.sql", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0009_puzzling_midnight.sql", import.meta.url), "utf8"),
+    readFile(new URL("../lib/certification.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/v1/certification/submissions/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/certification/submit/[token]/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/certification/intakes/[intakeId]/manifest/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/certification/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/certify/[token]/page.tsx", import.meta.url), "utf8"),
+    render("/developers"),
+    readFile(new URL("../public/templates/certification-tecrid-intake.csv", import.meta.url), "utf8"),
+  ]);
+  for (const table of ["certificationPrograms", "certificationIntakes", "certificationIntakeItems", "verificationChecks", "disputeCases"]) assert.match(schema, new RegExp(table));
+  assert.match(migration, /certification_intakes_no_update/);
+  assert.match(migration, /certification_intake_items_no_delete/);
+  assert.match(migration, /verification_checks_no_update/);
+  assert.match(migration, /dispute_evidence_immutable/);
+  assert.match(migration, /PRAGMA optimize/);
+  assert.match(manifestMigration, /manifest_json/);
+  assert.match(manifestMigration, /PRAGMA optimize/);
+  assert.match(service, /apiTokenHash: await sha256\(plainTextApiToken\)/);
+  assert.match(service, /sample TECRIDs have no production authority/);
+  assert.match(service, /issuing laboratory is not verified/);
+  assert.match(service, /issuer signature is not verified/);
+  assert.match(service, /current fingerprint could not be recomputed/);
+  assert.match(service, /current row and version history are inconsistent/);
+  assert.match(service, /snapshotFingerprint/);
+  assert.match(service, /const manifestFingerprint = await sha256\(manifestJson\)/);
+  assert.match(apiRoute, /authenticateCertificationIntakeRequest/);
+  assert.match(browserRoute, /rejectCrossOriginWrite/);
+  assert.match(browserRoute, /getChatGPTUser/);
+  assert.match(manifestRoute, /new Response\(record\.intake\.manifestJson/);
+  assert.match(consolePage, /Receive evidence by ID/);
+  assert.match(submitPage, /Submit a CSV of identifiers/);
+  assert.match(await developers.text(), /POST \/api\/v1\/certification\/submissions/);
+  assert.match(template, /^tecrid/m);
+});

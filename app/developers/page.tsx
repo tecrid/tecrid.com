@@ -75,6 +75,7 @@ export default function DevelopersPage() {
           <a href="#list">List credentials</a>
           <a href="#resolve">Resolve credential</a>
           <a href="#versions">Correct or revoke</a>
+          <a href="#certification-intake">Certification intake</a>
           <a href="#errors">Errors</a>
           <a className="button-dark" href="/dashboard#api-keys">Create an API key →</a>
         </aside>
@@ -125,8 +126,24 @@ export default function DevelopersPage() {
   }
 }`}</code></pre>
           </section>
+          <section id="certification-intake">
+            <p className="doc-index">07 / CERTIFICATION INTAKE</p>
+            <h2>POST /api/v1/certification/submissions</h2>
+            <p>A certification organization creates a program-scoped intake secret in its dashboard and gives it to an applicant&apos;s system. The endpoint resolves every TECRID, blocks samples and incomplete authority, freezes each accepted public record version, and returns one package fingerprint.</p>
+            <pre><code>{`curl https://tecrid.com/api/v1/certification/submissions \\
+  -H "Authorization: Bearer $TECRID_INTAKE_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "applicantOrganization": "Example Brand",
+    "applicantName": "Quality Lead",
+    "applicantEmail": "quality@example.com",
+    "submissionReference": "CERT-2026-41",
+    "tecrids": ["TECRID·LAB-26-000001"]
+  }'`}</code></pre>
+            <p>The token begins <code>tec_intake_</code>, is displayed once, and is stored by TECRID only as a SHA-256 hash. Passing the intake gate does not award certification.</p>
+          </section>
           <section id="errors">
-            <p className="doc-index">07 / ERRORS</p>
+            <p className="doc-index">08 / ERRORS</p>
             <h2>Stable, inspectable responses.</h2>
             <div className="error-table"><div><code>400</code><span>invalid_request</span><p>Required fields, result structure, revision reason, or proof shape is invalid.</p></div><div><code>403</code><span>not_authorized</span><p>The API key, issuer authority, reviewed signing key, or signature verification failed.</p></div><div><code>404</code><span>not_found</span><p>No public TECRID matches the identifier.</p></div></div>
           </section>
