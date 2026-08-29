@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { ProductFooter, ProductNav } from "../site-nav";
 
 export const metadata: Metadata = {
-  title: "TEC Registry API",
-  description: "Canonicalize, sign, issue, revise, and resolve TEC records through the implemented v1 API.",
+  title: "TECRID API and Integration",
+  description: "Integrate TECRID with a LIMS, brand portal, retailer system, or certification program through the implemented v1 API and agent-guided connector.",
+  alternates: { canonical: "https://tecrid.com/developers" },
 };
 
 const credentialBody = `{
@@ -25,12 +26,12 @@ const credentialBody = `{
 }`;
 
 const canonicalizeExample = `curl https://tecrid.com/api/v1/credentials/canonicalize \\
-  -H "Authorization: Bearer $TEC_API_KEY" \\
+  -H "Authorization: Bearer $TECRID_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '${credentialBody}'`;
 
 const createExample = `curl https://tecrid.com/api/v1/credentials \\
-  -H "Authorization: Bearer $TEC_API_KEY" \\
+  -H "Authorization: Bearer $TECRID_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "sampleName": "Organic cacao powder",
@@ -57,7 +58,7 @@ const createExample = `curl https://tecrid.com/api/v1/credentials \\
   }'`;
 
 const controlledRoutingExample = `curl https://tecrid.com/api/v1/credentials \\
-  -H "Authorization: Bearer $LAB_TEC_API_KEY" \\
+  -H "Authorization: Bearer $LAB_TECRID_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "sampleName": "Organic cacao powder",
@@ -77,7 +78,7 @@ const controlledRoutingExample = `curl https://tecrid.com/api/v1/credentials \\
   }'`;
 
 const reserveReportExample = `curl https://tecrid.com/api/v1/report-reservations \\
-  -H "Authorization: Bearer $LAB_TEC_API_KEY" \\
+  -H "Authorization: Bearer $LAB_TECRID_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "productName": "Organic cacao powder",
@@ -88,7 +89,7 @@ const reserveReportExample = `curl https://tecrid.com/api/v1/report-reservations
   }'`;
 
 const finalizeReportExample = `curl https://tecrid.com/api/v1/report-reservations/$RESERVATION_ID/finalize \\
-  -H "Authorization: Bearer $LAB_TEC_API_KEY" \\
+  -H "Authorization: Bearer $LAB_TECRID_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "sampleName": "Organic cacao powder",
@@ -121,9 +122,15 @@ export default function DevelopersPage() {
         <div className="api-status"><i /> Live service check <a href="/api/v1/health">Open health JSON ↗</a></div>
       </section>
 
+      <section className="api-agent-onboarding" id="agent-setup">
+        <div><p className="section-kicker">Fastest implementation path</p><h2>Open the repository. Type <code>integrate</code>.</h2><p>The checked-in Codex and Claude Code instructions inspect the target stack, create a secret-free role plan, implement the smallest compatible connection, run tests, and leave a durable integration report. People retain control of identity, credentials, disclosure, deployment, and production writes.</p></div>
+        <div><a className="button-dark" href="/integrate">Read the four-step setup →</a><a href="https://github.com/tecrid/tecrid-connect" target="_blank" rel="noreferrer">Open TECRID Connect on GitHub ↗</a><a href="/downloads/tecrid-connect.zip" download>Download the current ZIP ↓</a></div>
+      </section>
+
       <section className="api-layout">
         <aside className="api-toc">
           <span>API reference</span>
+          <a href="#agent-setup">Agent-guided setup</a>
           <a href="#authentication">Authentication</a>
           <a href="#issuer-onboarding">Issuer onboarding</a>
           <a href="#canonicalize">Canonicalize</a>
@@ -193,7 +200,7 @@ Content-Type: application/json
             <h2>GET /api/v1/credentials</h2>
             <p>Returns up to 100 credentials for the organization associated with the bearer key, newest first.</p>
             <pre><code>curl https://tecrid.com/api/v1/credentials \
-  -H &quot;Authorization: Bearer $TEC_API_KEY&quot;</code></pre>
+  -H &quot;Authorization: Bearer $TECRID_API_KEY&quot;</code></pre>
           </section>
           <section id="resolve">
             <p className="doc-index">05 / RESOLVE</p>
@@ -228,7 +235,7 @@ Content-Type: application/json
   -d '{ "tecrid": "TECRID·LAB-26-000001" }'`}</code></pre>
             <h3>GET /api/v1/routing/deliveries · receive routed evidence</h3>
             <pre><code>{`curl https://tecrid.com/api/v1/routing/deliveries \\
-  -H "Authorization: Bearer $RECIPIENT_TEC_API_KEY"`}</code></pre>
+  -H "Authorization: Bearer $RECIPIENT_TECRID_API_KEY"`}</code></pre>
             <p>The recipient response contains only deliveries in which its organization is a party. Revocation blocks future delivery; it does not erase a package already received and relied upon.</p>
           </section>
           <section id="certification-intake">
@@ -264,7 +271,7 @@ Content-Type: application/json
             <h2>POST /api/v1/legacy-reports</h2>
             <p>Upload an existing private PDF with multipart form data, its transcribed results JSON, the named laboratory, and the laboratory confirmation contact. The API returns a private intake id, source fingerprint, and confirmation path. Uploading never creates a TECRID by itself.</p>
             <pre><code>{`curl https://tecrid.com/api/v1/legacy-reports \\
-  -H "Authorization: Bearer $BRAND_TEC_API_KEY" \\
+  -H "Authorization: Bearer $BRAND_TECRID_API_KEY" \\
   -F "document=@report.pdf;type=application/pdf" \\
   -F "laboratoryName=Example Analytical" \\
   -F "confirmationEmail=quality@example-lab.com" \\

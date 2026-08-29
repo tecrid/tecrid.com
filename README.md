@@ -50,10 +50,20 @@ intake, and available only to the laboratory organization and ICS reviewers.
 Public onboarding and search-intent routes:
 
 - `/for-laboratories`
+- `/laboratory-value` — printable laboratory business-case one-pager
 - `/laboratory-pilot`
 - `/for-brands`
 - `/for-certifiers-retailers`
+- `/integrate` — agent-guided, role-aware setup
 - `/developers#issuer-onboarding`
+
+The public connector lives at
+[`tecrid/tecrid-connect`](https://github.com/tecrid/tecrid-connect). Codex and
+Claude Code users can open the connector with the target repository and type
+`integrate`; the checked-in agent contract performs discovery, creates a
+secret-free plan, implements the role-specific boundary, runs tests, and writes
+`TECRID-INTEGRATION-REPORT.md`. Identity, secret custody, disclosure authority,
+deployment, and the first production write remain human approval gates.
 
 ## Workspace Auth Headers
 

@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${origin}/`, lastModified, changeFrequency: "weekly", priority: 1 },
     { url: `${origin}/what-is-a-tecrid`, lastModified, changeFrequency: "monthly", priority: 1 },
     { url: `${origin}/for-laboratories`, lastModified, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${origin}/laboratory-value`, lastModified, changeFrequency: "monthly", priority: 0.9 },
     { url: `${origin}/laboratory-pilot`, lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: `${origin}/for-brands`, lastModified, changeFrequency: "monthly", priority: 0.8 },
     { url: `${origin}/for-certifiers-retailers`, lastModified, changeFrequency: "monthly", priority: 0.8 },
@@ -21,6 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${origin}/join`, lastModified, changeFrequency: "monthly", priority: 0.7 },
     { url: `${origin}/pricing`, lastModified, changeFrequency: "monthly", priority: 0.6 },
     { url: `${origin}/privacy`, lastModified, changeFrequency: "yearly", priority: 0.5 },
+    { url: `${origin}/integrate`, lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: `${origin}/developers`, lastModified, changeFrequency: "monthly", priority: 0.6 },
   ];
 }

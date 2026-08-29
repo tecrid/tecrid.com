@@ -16,8 +16,8 @@ export default function ForLaboratoriesPage() {
     intro="TECRID gives each laboratory-issued report a persistent identifier, a verified issuer signature, and a versioned record that customers and authorized recipients can resolve without asking the laboratory to reconstruct the evidence by email."
     primaryHref="/laboratory-pilot"
     primaryLabel="Apply for the free pilot"
-    secondaryHref="/developers"
-    secondaryLabel="Review the API"
+    secondaryHref="/laboratory-value"
+    secondaryLabel="Read the lab one-pager"
     problemTitle="PDF delivery ends the laboratory’s control over provenance."
     problemCopy="Once a report is downloaded, forwarded, renamed, cropped, or manually transcribed, the laboratory is pulled back into verification calls, disputes, and repeat delivery. TECRID keeps the issuer, exact findings, source fingerprint, status, and correction history attached to the record."
     proofPoints={[{ value: "1", label: "signed canonical record" }, { value: "0", label: "public issuance before verification" }, { value: "∞", label: "authorized resolutions from the same source" }]}

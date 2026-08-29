@@ -37,19 +37,21 @@ test("renders the TEC Registry public product", async () => {
   assert.doesNotMatch(html, /codex-preview|loading skeleton|react-loading-skeleton/i);
 });
 
-test("publishes focused search-intent pages and a crawlable laboratory pilot path", async () => {
-  const [homeResponse, labsResponse, pilotResponse, brandsResponse, recipientsResponse, sitemapResponse, nav] = await Promise.all([
+test("publishes focused search-intent pages, the laboratory one-pager, and agent-guided setup", async () => {
+  const [homeResponse, labsResponse, valueResponse, pilotResponse, brandsResponse, recipientsResponse, integrateResponse, sitemapResponse, nav] = await Promise.all([
     render("/"),
     render("/for-laboratories"),
+    render("/laboratory-value"),
     render("/laboratory-pilot"),
     render("/for-brands"),
     render("/for-certifiers-retailers"),
+    render("/integrate"),
     render("/sitemap.xml"),
     readFile(new URL("../app/site-nav.tsx", import.meta.url), "utf8"),
   ]);
-  for (const response of [homeResponse, labsResponse, pilotResponse, brandsResponse, recipientsResponse, sitemapResponse]) assert.equal(response.status, 200);
-  const [home, labs, pilot, brands, recipients, sitemap] = await Promise.all([
-    homeResponse.text(), labsResponse.text(), pilotResponse.text(), brandsResponse.text(), recipientsResponse.text(), sitemapResponse.text(),
+  for (const response of [homeResponse, labsResponse, valueResponse, pilotResponse, brandsResponse, recipientsResponse, integrateResponse, sitemapResponse]) assert.equal(response.status, 200);
+  const [home, labs, value, pilot, brands, recipients, integrate, sitemap] = await Promise.all([
+    homeResponse.text(), labsResponse.text(), valueResponse.text(), pilotResponse.text(), brandsResponse.text(), recipientsResponse.text(), integrateResponse.text(), sitemapResponse.text(),
   ]);
   assert.match(home, /persistent identifier and verification record for laboratory reports/i);
   assert.match(home, /Certificate of Analysis authentication/i);
@@ -57,11 +59,16 @@ test("publishes focused search-intent pages and a crawlable laboratory pilot pat
   assert.match(home, /Founding laboratory pilot/);
   assert.match(labs, /Stop answering the same report question twice/);
   assert.match(labs, /laboratory report verification/i);
+  assert.match(value, /Protect the report after it leaves the laboratory/);
+  assert.match(value, /The laboratory keeps paying for a report it already finished/);
   assert.match(pilot, /Five production gates/);
   assert.match(pilot, /An account is not an authenticated issuer/);
   assert.match(brands, /governed evidence portfolio/i);
   assert.match(recipients, /Receive laboratory evidence as data/i);
-  for (const path of ["for-laboratories", "laboratory-pilot", "for-brands", "for-certifiers-retailers"]) {
+  assert.match(integrate, /Open the repo/);
+  assert.match(integrate, /TECRID-INTEGRATION-REPORT\.md/);
+  assert.match(integrate, /Human approval still controls identity, secrets, deployment, and production writes/);
+  for (const path of ["for-laboratories", "laboratory-value", "laboratory-pilot", "for-brands", "for-certifiers-retailers", "integrate"]) {
     assert.match(sitemap, new RegExp(`https:\\/\\/tecrid\\.com\\/${path}`));
     assert.match(nav, new RegExp(`href="\\/${path}`));
   }
@@ -194,6 +201,8 @@ test("renders pricing and API documentation", async () => {
   assert.match(join, /locked_prefilled_email/);
   assert.match(join, /client_reference_id/);
   assert.match(developers, /TEC Registry API/);
+  assert.match(developers, /Open the repository/);
+  assert.match(developers, /TECRID Connect/);
   assert.match(developers, /POST \/api\/v1\/credentials/);
   assert.match(developers, /Bearer keys/);
 });
