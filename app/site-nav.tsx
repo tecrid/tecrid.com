@@ -15,6 +15,7 @@ export function ProductNav({ compact = false }: { compact?: boolean }) {
         <a href="/standard">Standard</a>
         <a href="/issuers">Issuers</a>
         <a href="/sandbox">Sandbox</a>
+        <a href="/demo/disclosure-operations">Disclosure Ops</a>
         <a href="/submit-report">Submit report</a>
         <a href="/dashboard">Dashboard</a>
         <a className="nav-cta nav-cta-link" href="/join">Join the registry</a>

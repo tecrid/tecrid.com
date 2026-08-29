@@ -421,3 +421,152 @@ export const foundingOnboarding = sqliteTable(
     index("idx_founding_onboarding_status").on(table.status),
   ],
 );
+
+export const disclosureProducts = sqliteTable(
+  "disclosure_products",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    sku: text("sku").notNull(),
+    upc: text("upc"),
+    category: text("category"),
+    ageRange: text("age_range"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_disclosure_products_org_slug").on(
+      table.organizationId,
+      table.slug,
+    ),
+    uniqueIndex("idx_disclosure_products_org_sku").on(
+      table.organizationId,
+      table.sku,
+    ),
+  ],
+);
+
+export const disclosureImports = sqliteTable(
+  "disclosure_imports",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    sourceName: text("source_name").notNull(),
+    sourceSha256: text("source_sha256").notNull(),
+    status: text("status").notNull().default("processing"),
+    rowCount: integer("row_count").notNull().default(0),
+    readyRows: integer("ready_rows").notNull().default(0),
+    blockedRows: integer("blocked_rows").notNull().default(0),
+    createdByUserId: text("created_by_user_id").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_disclosure_imports_org_created").on(
+      table.organizationId,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const disclosureBatches = sqliteTable(
+  "disclosure_batches",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    productId: text("product_id")
+      .notNull()
+      .references(() => disclosureProducts.id, { onDelete: "cascade" }),
+    importId: text("import_id").references(() => disclosureImports.id, {
+      onDelete: "set null",
+    }),
+    batchCode: text("batch_code").notNull(),
+    productionDate: text("production_date").notNull(),
+    shelfLifeEnd: text("shelf_life_end").notNull(),
+    retentionUntil: text("retention_until").notNull(),
+    status: text("status").notNull().default("ready_for_review"),
+    sourceType: text("source_type").notNull().default("csv_import"),
+    laboratoryName: text("laboratory_name").notNull(),
+    labReportNumber: text("lab_report_number").notNull(),
+    sourceSha256: text("source_sha256").notNull(),
+    labConfirmed: integer("lab_confirmed", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    linkedTecrid: text("linked_tecrid"),
+    publicRecord: integer("public_record", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    publishedAt: text("published_at"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_disclosure_batches_product_code").on(
+      table.productId,
+      table.batchCode,
+    ),
+    index("idx_disclosure_batches_org_status").on(
+      table.organizationId,
+      table.status,
+    ),
+    index("idx_disclosure_batches_product").on(table.productId),
+  ],
+);
+
+export const disclosureResults = sqliteTable(
+  "disclosure_results",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    batchId: text("batch_id")
+      .notNull()
+      .references(() => disclosureBatches.id, { onDelete: "cascade" }),
+    analyte: text("analyte").notNull(),
+    symbol: text("symbol").notNull(),
+    resultText: text("result_text").notNull(),
+    numericValue: real("numeric_value"),
+    unit: text("unit").notNull().default("ppb"),
+    loqText: text("loq_text"),
+    sequence: integer("sequence").notNull().default(0),
+  },
+  (table) => [
+    uniqueIndex("idx_disclosure_results_batch_analyte").on(
+      table.batchId,
+      table.analyte,
+    ),
+  ],
+);
+
+export const disclosureImportRows = sqliteTable(
+  "disclosure_import_rows",
+  {
+    id: text("id").primaryKey(),
+    importId: text("import_id")
+      .notNull()
+      .references(() => disclosureImports.id, { onDelete: "cascade" }),
+    rowNumber: integer("row_number").notNull(),
+    status: text("status").notNull(),
+    productName: text("product_name"),
+    batchCode: text("batch_code"),
+    payload: text("payload").notNull(),
+    errors: text("errors"),
+    disclosureBatchId: text("disclosure_batch_id").references(
+      () => disclosureBatches.id,
+      { onDelete: "set null" },
+    ),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_disclosure_import_rows_import_row").on(
+      table.importId,
+      table.rowNumber,
+    ),
+    index("idx_disclosure_import_rows_status").on(table.importId, table.status),
+  ],
+);

@@ -1,0 +1,2 @@
+product_name,product_sku,upc,batch_code,production_date,shelf_life_end,laboratory_name,lab_report_number,source_sha256,lead_ppb,lead_loq_ppb,cadmium_ppb,cadmium_loq_ppb,arsenic_ppb,arsenic_loq_ppb,mercury_ppb,mercury_loq_ppb
+Example Pear Puree,EX-PEAR-01,012345678901,LOT-2026-001,2026-08-01,2027-08-01,Example Laboratory,LAB-REPORT-001,0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef,3.2,1,0.8,0.5,5.4,2,0.4,0.2

@@ -42,6 +42,15 @@ export default async function DashboardPage() {
             <article><span>Private intake</span><strong>{legacyReports.length}</strong><small>{legacyReports.filter((report) => report.status === "issued").length} issued</small></article>
           </section>
 
+          <section className="dashboard-panel disclosure-dashboard-entry">
+            <div>
+              <p className="section-kicker light">Disclosure operations</p>
+              <h2>Turn one laboratory file into every disclosure surface.</h2>
+              <p>Stage production aggregates, stop incomplete rows, publish brand disclosures, expose retailer-ready JSON, and preserve the path to laboratory confirmation.</p>
+            </div>
+            <Link className="button-mint" href="/dashboard/disclosures">Open disclosure operations →</Link>
+          </section>
+
           <section className="dashboard-panel legacy-report-panel">
             <div className="panel-heading">
               <div><p className="section-kicker">Legacy report intake</p><h2>Existing laboratory reports</h2></div>

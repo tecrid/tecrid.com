@@ -209,3 +209,56 @@ test("renders a multi-party portal with personal sandbox and API-key boundaries"
   assert.match(migration, /CREATE TABLE `sandbox_api_keys`/);
   assert.doesNotMatch(`${sessionRoute}${keyRoute}`, /productionAuthority:\s*true/);
 });
+
+test("renders the disclosure-operations wedge as workflow rather than an unproven savings claim", async () => {
+  const response = await render("/demo/disclosure-operations");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /One laboratory file/);
+  assert.match(html, /Production aggregates/);
+  assert.match(html, />12</);
+  assert.match(html, />11</);
+  assert.match(html, /Mercury result missing/);
+  assert.match(html, /People review the exception/);
+  assert.match(html, /workflow math, not a claimed customer result/i);
+  assert.match(html, /brand records stay distinct from laboratory-issued TECRIDs/i);
+  assert.doesNotMatch(html, /10x guaranteed|compliance guaranteed/i);
+});
+
+test("wires durable disclosure intake, publication gates, public JSON, and honest authority labels", async () => {
+  const [schema, migration, service, dashboard, client, importRoute, publishRoute, publicRoute, publicFeedRoute, publicPage, template] = await Promise.all([
+    readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0007_lovely_phalanx.sql", import.meta.url), "utf8"),
+    readFile(new URL("../lib/disclosures.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/disclosures/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/disclosures/disclosure-operations-client.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/disclosures/import/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/disclosures/[batchId]/publish/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/public/disclosures/[organizationSlug]/[batchId]/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/public/disclosures/[organizationSlug]/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/disclosures/[organizationSlug]/[batchId]/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../public/templates/ab899-production-aggregate-template.csv", import.meta.url), "utf8"),
+  ]);
+  for (const table of ["disclosureProducts", "disclosureImports", "disclosureImportRows", "disclosureBatches", "disclosureResults"]) {
+    assert.match(schema, new RegExp(table));
+  }
+  assert.match(migration, /PRAGMA optimize/);
+  assert.match(service, /REQUIRED_DISCLOSURE_ANALYTES/);
+  for (const analyte of ["Lead", "Cadmium", "Arsenic", "Mercury"]) assert.match(service, new RegExp(analyte));
+  assert.match(service, /source_sha256 must be a 64-character SHA-256 digest/);
+  assert.match(service, /Publication is blocked until/);
+  assert.match(service, /representation: record\.batch\.labConfirmed \? "laboratory_confirmed" : "brand_disclosure"/);
+  assert.match(service, /Disclosure is not a safety or legal-compliance determination|not a safety or legal-compliance determination/i);
+  assert.match(dashboard, /One source file/);
+  assert.match(client, /Validate and stage/);
+  assert.match(client, /Brand disclosure published\. This did not create a laboratory-issued TECRID/);
+  assert.match(importRoute, /rejectCrossOriginWrite/);
+  assert.match(publishRoute, /publishDisclosureBatch/);
+  assert.match(publicRoute, /publicDisclosureDocument/);
+  assert.match(publicFeedRoute, /publicDisclosureFeedDocument/);
+  assert.match(publicFeedRoute, /format.*csv/);
+  assert.match(publicFeedRoute, /Regulator|regulator|disclosures\.csv/);
+  assert.match(publicPage, /Brand disclosure · laboratory confirmation pending/);
+  assert.match(publicPage, /Suggested citation/);
+  assert.match(template, /lead_ppb.*cadmium_ppb.*arsenic_ppb.*mercury_ppb/);
+});

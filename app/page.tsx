@@ -79,6 +79,18 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="disclosure-home-section" aria-labelledby="disclosure-home-title">
+        <div>
+          <p className="section-kicker light">For regulated brands</p>
+          <h2 id="disclosure-home-title">One lab file.<br />Every required surface.</h2>
+          <p>Validate production aggregates once, then reuse the same underlying record for a brand disclosure page, QR destination, retention clock, retailer data, and eventual laboratory confirmation.</p>
+        </div>
+        <div className="disclosure-home-proof">
+          <span>Monthly file</span><i>→</i><span>Exception gate</span><i>→</i><span>Public + machine-readable</span>
+          <a className="button-mint" href="/demo/disclosure-operations">See the end-to-end demonstration →</a>
+        </div>
+      </section>
+
       <section className="legacy-entry-section" aria-labelledby="legacy-entry-title">
         <div>
           <p className="section-kicker light">Already have a laboratory PDF?</p>
