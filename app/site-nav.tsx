@@ -12,7 +12,7 @@ export function ProductNav({ compact = false }: { compact?: boolean }) {
       </a>
       <div className="nav-links">
         <a href="/verify">Verify</a>
-        <a href="/why">Why TEC</a>
+        <a href="/what-is-a-tecrid">What is a TECRID?</a>
         <a href="/standard">Standard</a>
         <a href="/issuers">Issuers</a>
         <a href="/participants">Participants</a>
@@ -35,6 +35,7 @@ export function ProductFooter() {
       <p>Test Evidence Credentials and permanent TECRIDs · An ICS initiative</p>
       <div className="footer-actions">
         <a href="/verify">Verify report</a>
+        <a href="/what-is-a-tecrid">What is a TECRID?</a>
         <a href="/why">Why TEC</a>
         <a href="/standard">Standard</a>
         <a href="/issuers">Issuers</a>

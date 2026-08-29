@@ -42,7 +42,7 @@ export default function Home() {
         <div className="eyebrow"><span /> An open initiative of the Institute of Contaminant Standards</div>
         <h1>Lab results that<br />speak for themselves.</h1>
         <p className="hero-copy">
-          The neutral trust layer between laboratories, suppliers, brands, retailers, and the public—giving laboratory evidence a permanent record anyone can resolve.
+          A TECRID is a permanent identifier for a laboratory-issued digital evidence record. It lets authorized recipients and the public verify who issued a result, what the record contains, and whether it has changed.
         </p>
 
         <form className="lookup" onSubmit={lookup}>
@@ -71,11 +71,11 @@ export default function Home() {
       </section>
 
       <section className="definition" aria-labelledby="definition-title">
-        <p className="section-kicker">The evidence identifier</p>
+        <p className="section-kicker">What TECRID means</p>
         <div>
-          <h2 id="definition-title"><span>T</span>est <span>E</span>vidence <span>C</span>redential</h2>
+          <h2 id="definition-title">Test Evidence Credential <span>Record Identifier.</span></h2>
           <p>
-            A TEC is the structured evidence credential. Its permanent TEC Record Identifier—TECRID—resolves to the canonical record, current status, and complete version history.
+            TECRID stands for Test Evidence Credential Record Identifier. It identifies a TEC—the structured evidence record—and resolves to the authorized record, issuer, current status, and version history. <Link className="definition-link" href="/what-is-a-tecrid">Read the complete explanation →</Link>
           </p>
         </div>
       </section>

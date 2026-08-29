@@ -36,6 +36,49 @@ test("renders the TEC Registry public product", async () => {
   assert.doesNotMatch(html, /codex-preview|loading skeleton|react-loading-skeleton/i);
 });
 
+test("defines TECRID for people, search engines, and AI answer systems", async () => {
+  const [response, homeResponse, robotsResponse, sitemapResponse] = await Promise.all([
+    render("/what-is-a-tecrid"),
+    render("/"),
+    render("/robots.txt"),
+    render("/sitemap.xml"),
+  ]);
+  assert.equal(response.status, 200);
+  assert.equal(homeResponse.status, 200);
+  assert.equal(robotsResponse.status, 200);
+  assert.equal(sitemapResponse.status, 200);
+  const [html, home, robots, sitemap] = await Promise.all([
+    response.text(), homeResponse.text(), robotsResponse.text(), sitemapResponse.text(),
+  ]);
+  assert.match(html, /<title>What is a TECRID\? Meaning, purpose and how it works<\/title>/);
+  assert.match(html, /rel="canonical" href="https:\/\/tecrid\.com\/what-is-a-tecrid"/);
+  assert.match(html, /TECRID stands for Test Evidence Credential Record Identifier/);
+  assert.match(html, /A DOI persistently identifies a research output/);
+  assert.match(html, /reduces opportunities for evidence fraud/i);
+  assert.match(html, /It does not make fraud impossible/i);
+  assert.match(html, /Evidence can cross borders without losing its source/);
+  assert.match(html, /Private, controlled or public/);
+  assert.match(home, /href="\/what-is-a-tecrid"/);
+
+  const siteIdentity = [...home.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
+    .map((match) => JSON.parse(match[1]))
+    .find((value) => value["@graph"]?.some((item) => item["@type"] === "WebSite"));
+  assert.ok(siteIdentity);
+  assert.equal(siteIdentity["@graph"].find((item) => item["@type"] === "WebSite").name, "TECRID");
+
+  const structuredData = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
+    .map((match) => JSON.parse(match[1]))
+    .find((value) => value["@graph"]?.some((item) => item["@type"] === "DefinedTerm"));
+  assert.ok(structuredData);
+  const term = structuredData["@graph"].find((item) => item["@type"] === "DefinedTerm");
+  assert.equal(term.name, "TECRID");
+  assert.equal(term.alternateName, "Test Evidence Credential Record Identifier");
+  assert.match(robots, /Sitemap: https:\/\/tecrid\.com\/sitemap\.xml/);
+  assert.match(robots, /Disallow: \/dashboard\//);
+  assert.match(sitemap, /https:\/\/tecrid\.com\/what-is-a-tecrid/);
+  assert.doesNotMatch(sitemap, /\/sandbox|\/demo\//);
+});
+
 test("renders pricing and API documentation", async () => {
   const [join, developersResponse] = await Promise.all([
     readFile(new URL("../app/join/page.tsx", import.meta.url), "utf8"),

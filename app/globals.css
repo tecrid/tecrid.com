@@ -1495,6 +1495,89 @@ td:first-child { display: flex; align-items: center; gap: 10px; color: var(--ink
 .detail-list > article { grid-template-columns: 100px 1fr 150px; }
 .detail-list article > div:last-child { text-align: right; }
 
+/* TECRID definition and search explainer */
+.definition-link { display: inline-block; margin-left: 5px; color: var(--blue); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.explainer-page { background: #f4f6f8; }
+.explainer-hero { min-height: 610px; padding: 90px max(24px, calc((100vw - 1180px) / 2)) 80px; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(320px, .7fr); gap: 75px; align-items: end; color: white; background: var(--blue); }
+.explainer-hero h1 { margin: 18px 0 26px; font: 500 clamp(66px, 9vw, 122px)/.84 Georgia, serif; letter-spacing: -.065em; }
+.explainer-hero > div > p:not(.section-kicker) { max-width: 770px; margin: 0; color: rgba(255,255,255,.79); font-size: 17px; line-height: 1.65; }
+.explainer-hero > div > p strong { color: white; font-weight: 650; }
+.explainer-actions { margin-top: 36px; display: flex; align-items: center; gap: 26px; }
+.explainer-text-link { padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,.5); font-size: 11px; font-weight: 700; }
+.explainer-hero .explainer-review { margin-top: 19px; color: rgba(255,255,255,.5); font-size: 8px; text-transform: uppercase; letter-spacing: .08em; }
+.explainer-hero aside { border: 1px solid rgba(255,255,255,.28); }
+.explainer-hero aside > div { min-height: 108px; padding: 20px 22px; display: flex; flex-direction: column; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.18); }
+.explainer-hero aside > div:last-child { border-bottom: 0; }
+.explainer-hero aside span { color: rgba(255,255,255,.58); font-size: 8px; text-transform: uppercase; letter-spacing: .12em; }
+.explainer-hero aside strong { font: 500 20px/1.15 Georgia, serif; }
+.identifier-comparison { max-width: 1180px; margin: -1px auto 0; display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #d9e2e9; background: white; }
+.identifier-comparison article { min-height: 145px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; border-right: 1px solid #d9e2e9; }
+.identifier-comparison article:last-child { border-right: 0; }
+.identifier-comparison span { color: #60778a; font-size: 9px; font-weight: 750; letter-spacing: .1em; }
+.identifier-comparison strong { max-width: 250px; color: #0b2a4a; font: 500 20px/1.15 Georgia, serif; }
+.identifier-comparison .active { color: white; background: #0b2a4a; }
+.identifier-comparison .active span, .identifier-comparison .active strong { color: white; }
+.explainer-section { padding: 105px max(24px, calc((100vw - 1180px) / 2)); }
+.explainer-section > div:first-child > h2, .global-transparency h2 { max-width: 840px; margin: 0; color: #0b2a4a; font: 500 clamp(43px, 5.5vw, 74px)/.97 Georgia, serif; letter-spacing: -.05em; }
+.explainer-function { display: grid; grid-template-columns: .9fr 1.1fr; gap: 8vw; }
+.explainer-function ol { margin: 0; padding: 0; list-style: none; border-top: 1px solid #bfcbd4; }
+.explainer-function li { padding: 23px 0; display: grid; grid-template-columns: 55px 1fr; gap: 18px; border-bottom: 1px solid #d9e2e9; }
+.explainer-function li > span { color: var(--blue); font: 700 8px var(--font-geist-mono), monospace; }
+.explainer-function li strong { color: #0b2a4a; font: 500 22px Georgia, serif; }
+.explainer-function li p { margin: 8px 0 0; color: #5a7183; font-size: 11px; line-height: 1.65; }
+.explainer-audiences { color: white; background: #0b2a4a; }
+.explainer-audiences > div:first-child { max-width: 900px; }
+.explainer-audiences > div:first-child h2 { color: white; }
+.explainer-audiences > div:first-child > p:last-child { max-width: 720px; color: #c3d2dd; font-size: 13px; line-height: 1.7; }
+.explainer-audiences > div:last-child { margin-top: 65px; display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid rgba(255,255,255,.2); }
+.explainer-audiences article { min-height: 300px; padding: 25px 22px; display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,.18); }
+.explainer-audiences article:last-child { border-right: 0; }
+.explainer-audiences article > span { color: #aac0d1; font-size: 8px; }
+.explainer-audiences h3 { margin: auto 0 15px; font: 500 23px Georgia, serif; }
+.explainer-audiences article p { margin: 0; color: #c3d2dd; font-size: 10px; line-height: 1.65; }
+.fraud-boundary { display: grid; grid-template-columns: .8fr 1.2fr; gap: 7vw; }
+.fraud-boundary > div:first-child > p:not(.section-kicker) { color: #5a7183; font-size: 13px; line-height: 1.7; }
+.fraud-boundary > div:first-child > a { display: inline-block; margin-top: 20px; color: var(--blue); font-size: 11px; font-weight: 750; }
+.fraud-columns { border: 1px solid #d9e2e9; background: white; }
+.fraud-columns article { padding: 27px; border-bottom: 1px solid #d9e2e9; }
+.fraud-columns article:last-child { border-bottom: 0; background: #edf2f6; }
+.fraud-columns article > span { color: #0b2a4a; font-size: 9px; font-weight: 750; text-transform: uppercase; letter-spacing: .1em; }
+.fraud-columns ul { margin: 20px 0 0; padding: 0; list-style: none; }
+.fraud-columns li { padding: 10px 0; border-top: 1px solid #d9e2e9; color: #526a7c; font-size: 10px; line-height: 1.55; }
+.global-transparency { padding: 90px max(24px, calc((100vw - 1180px) / 2)); display: grid; grid-template-columns: .9fr 1.1fr; gap: 8vw; color: white; background: var(--blue); }
+.global-transparency h2 { color: white; }
+.global-transparency > p { max-width: 680px; margin: 34px 0 0; color: rgba(255,255,255,.76); font-size: 15px; line-height: 1.75; }
+.explainer-faq { display: grid; grid-template-columns: .65fr 1.35fr; gap: 8vw; }
+.explainer-faq > div:last-child { border-top: 1px solid #bfcbd4; }
+.explainer-faq article { padding: 23px 0; border-bottom: 1px solid #d9e2e9; }
+.explainer-faq h3 { margin: 0; color: #0b2a4a; font: 500 22px Georgia, serif; }
+.explainer-faq article p { margin: 10px 0 0; color: #5a7183; font-size: 11px; line-height: 1.7; }
+.explainer-cta { padding: 80px max(24px, calc((100vw - 1180px) / 2)); display: flex; align-items: end; justify-content: space-between; gap: 50px; color: white; background: #0b2a4a; }
+.explainer-cta h2 { margin: 0; font: 500 clamp(45px, 6vw, 78px)/.94 Georgia, serif; letter-spacing: -.05em; }
+
+@media (max-width: 900px) {
+  .explainer-hero, .explainer-function, .fraud-boundary, .global-transparency, .explainer-faq { grid-template-columns: 1fr; }
+  .explainer-hero aside { max-width: 650px; display: grid; grid-template-columns: 1fr 1fr; }
+  .explainer-hero aside > div:nth-child(odd) { border-right: 1px solid rgba(255,255,255,.18); }
+  .explainer-audiences > div:last-child { grid-template-columns: 1fr 1fr; }
+  .explainer-audiences article:nth-child(2) { border-right: 0; }
+  .explainer-audiences article:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,.18); }
+}
+
+@media (max-width: 680px) {
+  .explainer-hero { min-height: 720px; padding: 68px 22px 55px; }
+  .explainer-hero h1 { font-size: 65px; }
+  .explainer-hero > div > p:not(.section-kicker) { font-size: 14px; }
+  .explainer-actions, .explainer-cta { align-items: flex-start; flex-direction: column; }
+  .explainer-actions .button-mint { width: 100%; }
+  .explainer-hero aside, .identifier-comparison, .explainer-audiences > div:last-child { grid-template-columns: 1fr; }
+  .explainer-hero aside > div, .explainer-hero aside > div:nth-child(odd), .identifier-comparison article, .explainer-audiences article, .explainer-audiences article:nth-child(2) { border-right: 0; border-bottom: 1px solid rgba(255,255,255,.18); }
+  .identifier-comparison article { border-bottom-color: #d9e2e9; }
+  .identifier-comparison article:last-child, .explainer-audiences article:last-child { border-bottom: 0; }
+  .explainer-section, .global-transparency, .explainer-cta { padding-left: 22px; padding-right: 22px; }
+  .explainer-audiences article { min-height: 230px; }
+}
+
 /* Privacy and data governance */
 .privacy-page { background: #f4f6f8; }
 .privacy-hero { min-height: 490px; padding: 95px max(24px, calc((100vw - 1180px) / 2)) 85px; display: grid; grid-template-columns: minmax(0, 1fr) 190px; gap: 60px; align-items: end; color: white; background: #0b2a4a; }

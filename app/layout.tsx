@@ -13,9 +13,31 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const title = "TEC Registry — Every result, back to its source";
+const title = "TECRID — Verifiable identifiers for laboratory reports";
 const description =
-  "The neutral trust layer between laboratories, suppliers, brands, retailers, and the public—giving laboratory evidence a permanent, verifiable TECRID.";
+  "A TECRID (Test Evidence Credential Record Identifier) is a permanent identifier for laboratory-issued test evidence. Verify the issuer, record, status, and version history at TEC Registry.";
+
+const siteIdentity = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://tecrid.com/#website",
+      url: "https://tecrid.com",
+      name: "TECRID",
+      alternateName: "TEC Registry",
+      description,
+      publisher: { "@id": "https://tecrid.com/#ics" },
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://tecrid.com/#ics",
+      name: "Institute of Contaminant Standards",
+      url: "https://contaminantstandards.com",
+      brand: { "@type": "Brand", name: "TECRID", alternateName: "TEC Registry" },
+    },
+  ],
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
@@ -24,12 +46,20 @@ export async function generateMetadata(): Promise<Metadata> {
   const image = `${protocol}://${host}/og.png`;
 
   return {
+    metadataBase: new URL("https://tecrid.com"),
     title,
     description,
+    applicationName: "TECRID",
+    authors: [{ name: "Institute of Contaminant Standards", url: "https://contaminantstandards.com" }],
+    creator: "Institute of Contaminant Standards",
+    publisher: "Institute of Contaminant Standards",
+    robots: { index: true, follow: true },
     openGraph: {
       title,
       description,
       type: "website",
+      siteName: "TECRID · TEC Registry",
+      url: "https://tecrid.com",
       images: [{ url: image, width: 1734, height: 907, alt: "TEC Registry — the neutral trust layer for laboratory evidence" }],
     },
     twitter: {
@@ -51,6 +81,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteIdentity).replaceAll("<", "\\u003c") }} />
         {children}
       </body>
     </html>
