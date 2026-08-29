@@ -95,7 +95,7 @@ test("publishes a portable, minification-safe TECRID identity mark and email-sig
   assert.match(html, /Email signature builder/);
   assert.match(html, /The badge is a link—not a blanket endorsement/);
   assert.match(html, /https:\/\/tecrid\.com\/participants\/PFND/);
-  assert.match(nav, /\/brand\/tecrid-id\.svg/);
+  assert.match(nav, /\/brand\/tecrid-logo\.png/);
   assert.match(nav, /href="\/badge"/);
   assert.match(sharingClient, /Copy email-signature HTML/);
   assert.match(sharingClient, /tecrid-profile-badge\.png/);
