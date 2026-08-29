@@ -29,14 +29,14 @@ export default async function ParticipantsPage() {
         <p>Organizations appear here only when they choose to be discoverable. An integration pilot is not a laboratory endorsement, and a participant profile does not grant access to private evidence.</p>
       </header>
       <section className="participants-shell">
-        <div className="participants-head"><div><p className="section-kicker">Public participants</p><h2>{participants.length} organization{participants.length === 1 ? "" : "s"}</h2></div><a className="button-dark" href="/dashboard/sharing">Manage your listing →</a></div>
+        <div className="participants-head"><div><p className="section-kicker">Public participants</p><h2>{participants.length} organization{participants.length === 1 ? "" : "s"}</h2></div><div className="participants-head-actions"><a href="/badge">Use the TECRID badge →</a><a className="button-dark" href="/dashboard/sharing">Manage your listing →</a></div></div>
         <div className="participant-grid">
           {participants.map(({ profile, organization }) => <article key={profile.id}>
             <div><span>{TYPE_LABELS[organization.organizationType] ?? organization.organizationType.replaceAll("_", " ")}</span><code>{organization.issuerCode}</code></div>
             <h2>{profile.displayName}</h2>
             <p>{profile.summary}</p>
             <dl><div><dt>Network status</dt><dd>{profile.participationStatus.replaceAll("_", " ")}</dd></div><div><dt>Registry identity</dt><dd>{profile.registryVerified ? "Operator verified" : "Account supplied"}</dd></div><div><dt>Evidence visibility</dt><dd>Private unless separately granted</dd></div></dl>
-            {profile.website ? <a href={profile.website} target="_blank" rel="noreferrer">Visit organization ↗</a> : null}
+            <div className="participant-card-actions"><a href={`/participants/${encodeURIComponent(organization.issuerCode)}`}>View TECRID profile →</a>{profile.website ? <a href={profile.website} target="_blank" rel="noreferrer">Website ↗</a> : null}</div>
           </article>)}
         </div>
         <aside className="participants-note"><strong>What the directory proves</strong><p>It proves that the named organization has an identified role and a declared participation status in TECRID. It does not prove that every report, product, laboratory method, or certification decision associated with that organization has been verified.</p></aside>

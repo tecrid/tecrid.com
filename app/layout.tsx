@@ -57,6 +57,7 @@ export async function generateMetadata(): Promise<Metadata> {
       google: "1NWO0uv6B0GJqNBADyugLLo1W4d9dXlJ5T9nEide21Y",
     },
     robots: { index: true, follow: true },
+    icons: { icon: "/favicon.svg" },
     openGraph: {
       title,
       description,

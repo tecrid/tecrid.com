@@ -425,6 +425,22 @@ export async function listPublicParticipants() {
     .orderBy(participantProfiles.displayName);
 }
 
+export async function getPublicParticipant(issuerCodeValue: string) {
+  const issuerCode = normalizeCode(issuerCodeValue);
+  if (!issuerCode) return null;
+  const db = getDb();
+  const [participant] = await db
+    .select({ profile: participantProfiles, organization: organizations })
+    .from(participantProfiles)
+    .innerJoin(organizations, eq(participantProfiles.organizationId, organizations.id))
+    .where(and(
+      eq(participantProfiles.isPublic, true),
+      eq(organizations.issuerCode, issuerCode),
+    ))
+    .limit(1);
+  return participant ?? null;
+}
+
 export async function upsertParticipantProfile(user: ChatGPTUser, input: Record<string, unknown>) {
   const membership = await requireMembership(user);
   const displayName = clean(input.displayName, 160) || membership.organization.name;

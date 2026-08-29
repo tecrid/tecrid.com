@@ -30,6 +30,8 @@ export function SharingClient({ organization, codes, redemptions, invitations, p
   const [portfolio, setPortfolio] = useState(false);
   const controller = ["brand", "supplier"].includes(organization.type);
   const recipient = ["certification_body", "retailer", "government"].includes(organization.type);
+  const profileUrl = `https://tecrid.com/participants/${encodeURIComponent(organization.code)}`;
+  const signatureHtml = `<a href="${profileUrl}" title="View TECRID registry profile" style="text-decoration:none"><img src="https://tecrid.com/brand/tecrid-profile-badge.png" width="224" height="52" alt="View TECRID registry profile" style="display:block;width:224px;height:52px;border:0;outline:none;text-decoration:none"></a>`;
 
   async function submit(event: React.FormEvent<HTMLFormElement>, endpoint: string) {
     event.preventDefault(); setBusy(true); setMessage("Saving the governed share decision…");
@@ -56,6 +58,11 @@ export function SharingClient({ organization, codes, redemptions, invitations, p
       if (!response.ok) throw new Error(body.error || "The code could not be revoked.");
       window.location.reload();
     } catch (error) { setMessage(error instanceof Error ? error.message : "The code could not be revoked."); setBusy(false); }
+  }
+
+  async function copyBadge() {
+    await navigator.clipboard.writeText(signatureHtml);
+    setMessage("Email-signature HTML copied. Paste it into an HTML-capable signature editor.");
   }
 
   return <div className="sharing-shell">
@@ -99,13 +106,20 @@ export function SharingClient({ organization, codes, redemptions, invitations, p
     </section>
 
     <section className="sharing-directory-settings">
-      <form className="sharing-form" onSubmit={(event) => void submit(event, "/api/participant-profile")}>
+      <form className="sharing-form" id="directory-profile" onSubmit={(event) => void submit(event, "/api/participant-profile")}>
         <div><p className="section-kicker">Opt-in network directory</p><h2>Be discoverable on your terms.</h2><p>Public listing is optional. A participant listing describes the organization&apos;s role; it does not imply laboratory verification or endorsement.</p></div>
         <div className="form-pair"><label>Public name<input name="displayName" defaultValue={profile?.displayName ?? organization.name} required /></label><label>Website<input name="website" type="url" defaultValue={profile?.website ?? organization.website ?? ""} /></label></div>
         <label>Public description<textarea name="summary" rows={3} defaultValue={profile?.summary ?? ""} /></label>
         <label className="sharing-confirm"><input type="checkbox" name="isPublic" defaultChecked={profile?.isPublic ?? false} /><span>List this organization in the public TECRID participant directory.</span></label>
         <button type="submit" disabled={busy}>Save directory preference →</button>
       </form>
+      <div className="sharing-profile-card">
+        <p className="section-kicker light">Portable organization profile</p>
+        <h2>Put TECRID in your signature.</h2>
+        <p>{profile?.isPublic ? "Your public profile is ready to receive visitors from email signatures, proposals, and your website." : "Publish the optional participant profile before using the badge. Private evidence remains private."}</p>
+        <a className="sharing-badge-preview" href={profile?.isPublic ? profileUrl : "/badge"}><img src="/brand/tecrid-profile-badge.svg" width="224" height="52" alt="View TECRID registry profile" /></a>
+        {profile?.isPublic ? <><code>{profileUrl}</code><button type="button" onClick={() => void copyBadge()}>Copy email-signature HTML →</button><a href={`/badge?code=${encodeURIComponent(organization.code)}`}>Badge downloads and instructions →</a></> : <a href="#directory-profile">Publish your profile above →</a>}
+      </div>
       <div className="sharing-invitation-history"><p className="section-kicker light">Prepared lab requests</p><h2>Adoption history</h2>{invitations.length ? invitations.map((invite) => <article key={invite.id}><strong>{invite.laboratoryName}</strong><span>{invite.laboratoryEmail}</span><small>{invite.skus.join(", ") || "No SKU limit"} · {new Date(invite.createdAt).toLocaleDateString()}</small></article>) : <p>No laboratory invitation drafts yet.</p>}</div>
     </section>
   </div>;

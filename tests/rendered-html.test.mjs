@@ -77,7 +77,33 @@ test("defines TECRID for people, search engines, and AI answer systems", async (
   assert.match(robots, /Sitemap: https:\/\/tecrid\.com\/sitemap\.xml/);
   assert.match(robots, /Disallow: \/dashboard\//);
   assert.match(sitemap, /https:\/\/tecrid\.com\/what-is-a-tecrid/);
+  assert.match(sitemap, /https:\/\/tecrid\.com\/badge/);
   assert.doesNotMatch(sitemap, /\/sandbox|\/demo\//);
+});
+
+test("publishes a portable TECRID identity mark and email-signature workflow", async () => {
+  const [response, nav, sharingClient, participantRoute] = await Promise.all([
+    render("/badge?code=PFND"),
+    readFile(new URL("../app/site-nav.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/sharing/sharing-client.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/participants/[issuerCode]/page.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Put your TECRID profile where trust begins/);
+  assert.match(html, /Email signature builder/);
+  assert.match(html, /The badge is a link—not a blanket endorsement/);
+  assert.match(html, /https:\/\/tecrid\.com\/participants\/PFND/);
+  assert.match(nav, /\/brand\/tecrid-id\.svg/);
+  assert.match(nav, /href="\/badge"/);
+  assert.match(sharingClient, /Copy email-signature HTML/);
+  assert.match(sharingClient, /tecrid-profile-badge\.png/);
+  assert.match(participantRoute, /getPublicParticipant/);
+  assert.match(participantRoute, /What this profile proves/);
+  await assert.doesNotReject(access(new URL("../public/brand/tecrid-id.svg", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../public/brand/tecrid-id.png", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../public/brand/tecrid-profile-badge.svg", import.meta.url)));
+  await assert.doesNotReject(access(new URL("../public/brand/tecrid-profile-badge.png", import.meta.url)));
 });
 
 test("renders pricing and API documentation", async () => {

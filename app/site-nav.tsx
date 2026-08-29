@@ -4,7 +4,7 @@ export function ProductNav({ compact = false }: { compact?: boolean }) {
   return (
     <nav className={`nav ${compact ? "nav-compact" : ""}`} aria-label="Primary navigation">
       <a className="brand" href="/" aria-label="TEC Registry home">
-        <span className="brand-mark" aria-hidden="true">T</span>
+        <img className="brand-mark" src="/brand/tecrid-id.svg" alt="" width="30" height="30" />
         <span className="brand-stack">
           <strong>TEC Registry</strong>
           <small>Institute of Contaminant Standards</small>
@@ -30,7 +30,7 @@ export function ProductFooter() {
   return (
     <footer className="site-footer">
       <a className="brand footer-brand" href="/">
-        <span className="brand-mark">T</span><span>TEC Registry</span>
+        <img className="brand-mark" src="/brand/tecrid-id.svg" alt="" width="30" height="30" /><span>TEC Registry</span>
       </a>
       <p>Test Evidence Credentials and permanent TECRIDs · An ICS initiative</p>
       <div className="footer-actions">
@@ -40,6 +40,7 @@ export function ProductFooter() {
         <a href="/standard">Standard</a>
         <a href="/issuers">Issuers</a>
         <a href="/participants">Participants</a>
+        <a href="/badge">TECRID badge</a>
         <a href="/sandbox">Sandbox</a>
         <a href="/submit-report">Submit report</a>
         <a href="/demo/lab-defense">Lab dispute demo</a>

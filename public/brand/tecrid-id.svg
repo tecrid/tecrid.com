@@ -1,4 +1,6 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">TECRID identifier mark</title>
+  <desc id="desc">A blue circular T ID mark for TECRID</desc>
   <circle cx="32" cy="32" r="32" fill="#1743E3"/>
   <path d="M8 17.5C8 15.567 9.567 14 11.5 14H29.5C31.433 14 33 15.567 33 17.5C33 19.433 31.433 21 29.5 21H24.5V47C24.5 48.657 23.157 50 21.5 50H19.5C17.843 50 16.5 48.657 16.5 47V21H11.5C9.567 21 8 19.433 8 17.5Z" fill="white"/>
   <circle cx="33.5" cy="37" r="3" fill="white"/>

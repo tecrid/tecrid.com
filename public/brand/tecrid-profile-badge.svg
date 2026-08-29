@@ -1,0 +1,13 @@
+<svg width="224" height="52" viewBox="0 0 224 52" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">View TECRID registry profile</title>
+  <desc id="desc">The blue TECRID identifier mark with a registry profile label</desc>
+  <g transform="translate(3 3) scale(.71875)">
+    <circle cx="32" cy="32" r="32" fill="#1743E3"/>
+    <path d="M8 17.5C8 15.567 9.567 14 11.5 14H29.5C31.433 14 33 15.567 33 17.5C33 19.433 31.433 21 29.5 21H24.5V47C24.5 48.657 23.157 50 21.5 50H19.5C17.843 50 16.5 48.657 16.5 47V21H11.5C9.567 21 8 19.433 8 17.5Z" fill="white"/>
+    <circle cx="33.5" cy="37" r="3" fill="white"/>
+    <rect x="38" y="23" width="5" height="27" rx="2.5" fill="white"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M46 23H48.5C55.798 23 59 27.804 59 36.5C59 45.196 55.798 50 48.5 50H46V23ZM51 29V44H51.4C53.968 44 55 41.638 55 36.5C55 31.362 53.968 29 51.4 29H51Z" fill="white"/>
+  </g>
+  <text x="66" y="23" fill="#1743E3" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="0.2">TECRID</text>
+  <text x="66" y="40" fill="#4C5A73" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="400">View registry profile ↗</text>
+</svg>
