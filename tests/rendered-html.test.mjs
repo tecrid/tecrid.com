@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
@@ -28,7 +29,9 @@ test("renders the TEC Registry public product", async () => {
   assert.match(html, /Test Evidence Credential/);
   assert.match(html, /Join the registry/);
   assert.match(html, /TECRID/);
-  assert.match(html, /Demonstration record/);
+  assert.match(html, /Resolver sample/);
+  assert.match(html, /Look up a TECRID/);
+  assert.match(html, /Try the sample TECRID/);
   assert.match(html, /Institute of Contaminant Standards/);
   assert.doesNotMatch(html, /codex-preview|loading skeleton|react-loading-skeleton/i);
 });
@@ -122,14 +125,32 @@ test("explains and exposes the honest historical-report intake path", async () =
   assert.doesNotMatch(html, /automatically verified|instant verification/i);
 });
 
-test("keeps the sample honest and separate from the live registry", async () => {
-  const response = await render("/demo");
-  assert.equal(response.status, 200);
-  const html = await response.text();
-  assert.match(html, /Demonstration only/);
-  assert.match(html, /no public TECRID/i);
-  assert.match(html, /excluded from the live resolver and public API/i);
-  assert.doesNotMatch(html, /Issuer signature verified/);
+test("resolves a reserved sample TECRID without asserting laboratory authority", async () => {
+  const [demoResponse, recordResponse, apiResponse] = await Promise.all([
+    render("/demo"),
+    render("/records/TECRID%C2%B7DEMO-26-HM0001"),
+    render("/api/v1/credentials/TECRID%C2%B7DEMO-26-HM0001"),
+  ]);
+  assert.equal(demoResponse.status, 200);
+  assert.equal(recordResponse.status, 200);
+  assert.equal(apiResponse.status, 200);
+  const [demo, record, api] = await Promise.all([
+    demoResponse.text(), recordResponse.text(), apiResponse.json(),
+  ]);
+  assert.match(demo, /reserved sample namespace/i);
+  assert.match(demo, /no production TECRID/i);
+  assert.match(record, /You just resolved a TECRID/);
+  assert.match(record, /Sample · no live authority/);
+  assert.match(record, /This record demonstrates resolution/);
+  assert.equal(api.tecrid, "TECRID·DEMO-26-HM0001");
+  assert.equal(api.sample, true);
+  assert.equal(api.productionAuthority, false);
+  assert.equal(api.integrity.issuerSignatureVerified, false);
+  assert.equal(
+    createHash("sha256").update(api.versions[0].canonicalPayload).digest("hex"),
+    api.integrity.fingerprint,
+  );
+  assert.doesNotMatch(`${demo}${record}`, /Issuer signature verified/);
 });
 
 test("renders an isolated fictional lab and two complete dummy findings", async () => {
@@ -156,10 +177,15 @@ test("renders an isolated fictional lab and two complete dummy findings", async 
   assert.doesNotMatch(`${lab}${metals}${avocado}`, /Issuer signature verified/);
 });
 
-test("renders a resettable multi-party sandbox without production authority", async () => {
-  const [response, route] = await Promise.all([
+test("renders a multi-party portal with personal sandbox and API-key boundaries", async () => {
+  const [response, route, page, sessionRoute, keyRoute, schema, migration] = await Promise.all([
     render("/sandbox"),
     readFile(new URL("../app/api/sandbox/v1/scenario/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/sandbox/sandbox-client.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/sandbox/session/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/sandbox/keys/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0006_dark_micromacro.sql", import.meta.url), "utf8"),
   ]);
   assert.equal(response.status, 200);
   const html = await response.text();
@@ -168,8 +194,18 @@ test("renders a resettable multi-party sandbox without production authority", as
   assert.match(html, /Northstar Analytical/);
   assert.match(html, /Organization portal/);
   assert.match(html, /API console/);
-  assert.match(html, /Nothing enters the live registry/);
-  assert.match(route, /persistent: false/);
+  assert.match(html, /API &amp; integrations/);
+  assert.match(html, /Organization settings/);
+  assert.match(html, /Sign in to preserve progress/);
+  assert.match(route, /authenticateSandboxApiRequest/);
   assert.match(route, /productionAuthority: false/);
-  assert.doesNotMatch(route, /env\.DB|env\.DOCUMENTS/);
+  assert.match(page, /tec_sandbox_/);
+  assert.match(page, /Only its one-way hash is stored/);
+  assert.match(sessionRoute, /getChatGPTUser/);
+  assert.match(keyRoute, /createSandboxApiKey/);
+  assert.match(schema, /sandboxSessions/);
+  assert.match(schema, /sandboxApiKeys/);
+  assert.match(migration, /CREATE TABLE `sandbox_sessions`/);
+  assert.match(migration, /CREATE TABLE `sandbox_api_keys`/);
+  assert.doesNotMatch(`${sessionRoute}${keyRoute}`, /productionAuthority:\s*true/);
 });

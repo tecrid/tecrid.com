@@ -1,3 +1,5 @@
+import { authenticateSandboxApiRequest, SandboxInputError } from "../../../../../lib/sandbox";
+
 export const dynamic = "force-dynamic";
 
 type Stage = "submitted" | "claimed" | "confirmed" | "issued";
@@ -10,10 +12,10 @@ const transitions: Record<Action, { from: Stage; to: Stage; message: string }> =
   issue: { from: "confirmed", to: "issued", message: "Sandbox TECRID issued. Switch to the retailer to see the evidence gate update." },
 };
 
-function scenario(stage: Stage) {
+function scenario(stage: Stage, persistent = false) {
   return {
     sandbox: true,
-    persistent: false,
+    persistent,
     scenarioId: "SBX-AVO-260812",
     stage,
     identifier: stage === "issued" ? "SBX·NORTHSTAR-26-AVO8F2C1" : null,
@@ -32,6 +34,18 @@ function scenario(stage: Stage) {
 }
 
 export async function GET(request: Request) {
+  try {
+    const authenticated = await authenticateSandboxApiRequest(request);
+    if (authenticated) {
+      return Response.json(
+        { scenario: scenario(authenticated.session.stage as Stage, true) },
+        { headers: { "cache-control": "no-store" } },
+      );
+    }
+  } catch (error) {
+    const message = error instanceof SandboxInputError ? error.message : "Sandbox API authentication failed.";
+    return Response.json({ error: { code: "invalid_api_key", message } }, { status: 401 });
+  }
   const requested = new URL(request.url).searchParams.get("stage");
   const stage = stages.includes(requested as Stage) ? requested as Stage : "submitted";
   return Response.json({ scenario: scenario(stage) }, { headers: { "cache-control": "no-store" } });

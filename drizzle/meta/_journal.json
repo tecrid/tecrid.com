@@ -43,6 +43,13 @@
       "when": 1787934198092,
       "tag": "0005_smiling_exodus",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1787975522911,
+      "tag": "0006_dark_micromacro",
+      "breakpoints": true
     }
   ]
 }

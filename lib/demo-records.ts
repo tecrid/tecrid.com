@@ -37,7 +37,7 @@ export type DemoRecord = {
 export const demoRecords: DemoRecord[] = [
   {
     slug: "heavy-metals",
-    demoId: "DEMO-TECRID·NLA-26-HM0001",
+    demoId: "TECRID·DEMO-26-HM0001",
     title: "Expanded elemental panel",
     sample: "Cocoa powder, retail composite — fictional sample",
     lot: "DEMO-CP-0826",

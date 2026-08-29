@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getCredential } from "../../../lib/tec";
+import {
+  isSampleTecrid,
+  SAMPLE_ISSUED_AT,
+  SAMPLE_RECORD_FINGERPRINT,
+  SAMPLE_SOURCE_FINGERPRINT,
+  SAMPLE_TECRID,
+  sampleCredentialDocument,
+} from "../../../lib/sample-tecrid";
 import { ProductFooter, ProductNav } from "../../site-nav";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +16,16 @@ type PageProps = { params: Promise<{ identifier: string }> };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { identifier } = await params;
+  if (isSampleTecrid(identifier)) {
+    return {
+      title: `${SAMPLE_TECRID} — Resolver sample`,
+      description: "A resolver-compatible fictional TECRID showing the complete public record experience.",
+      robots: { index: false, follow: true },
+      openGraph: { title: `${SAMPLE_TECRID} — Resolver sample`, description: "A fictional public TECRID sample.", images: [] },
+      twitter: { title: `${SAMPLE_TECRID} — Resolver sample`, description: "A fictional public TECRID sample.", images: [] },
+    };
+  }
+  const { getCredential } = await import("../../../lib/tec");
   const record = await getCredential(decodeURIComponent(identifier));
   if (!record) {
     return {
@@ -30,6 +47,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function RecordPage({ params }: PageProps) {
   const { identifier } = await params;
+  if (isSampleTecrid(identifier)) return <SampleRecordPage />;
+  const { getCredential } = await import("../../../lib/tec");
   const record = await getCredential(decodeURIComponent(identifier));
   if (!record) notFound();
   const { credential, issuer, results, versions, integrity } = record;
@@ -101,6 +120,79 @@ export default async function RecordPage({ params }: PageProps) {
         <p className="section-kicker">Interpretation boundary</p>
         <h2>This record proves provenance, not product safety.</h2>
         <p>{integrity.issuerSignatureVerified ? "TEC confirms that the canonical payload matched the reviewed issuer key when this version was accepted and preserves its registry history." : "This legacy record has a registry fingerprint but no verified laboratory signature; attribution therefore relies on the registry account record."} {credential.sourceDocumentHash ? "For a historical-report confirmation, the signed payload also binds the exact source-document fingerprint; TECRID does not imply that the PDF itself is public." : ""} TEC does not replace representative sampling, method suitability, accreditation, regulatory review, or expert interpretation.</p>
+      </section>
+      <ProductFooter />
+    </main>
+  );
+}
+
+function SampleRecordPage() {
+  const sample = sampleCredentialDocument();
+  return (
+    <main className="product-page public-record-page sample-resolver-page">
+      <ProductNav compact />
+      <header className="record-page-hero">
+        <div>
+          <p className="section-kicker light">Public resolver sample · fictional report</p>
+          <h1>{SAMPLE_TECRID}</h1>
+          <p>Sample version 1 · published {new Date(SAMPLE_ISSUED_AT).toLocaleString("en", { dateStyle: "long", timeStyle: "short", timeZone: "UTC" })} UTC</p>
+        </div>
+        <span className="public-sample"><i /> Sample · no live authority</span>
+      </header>
+
+      <section className="sample-explainer">
+        <div><p className="section-kicker">You just resolved a TECRID</p><h2>This is the complete public record experience.</h2></div>
+        <p>This identifier uses TECRID’s reserved sample namespace, so anyone can type it into the homepage and inspect the same human record, JSON document, provenance fields, and version history. Every party and value is fictional; no real laboratory issued it.</p>
+      </section>
+
+      <section className="public-record-shell">
+        <div className="record-integrity-bar status-bar-sample"><span><i /> Sample digest and current version are internally consistent</span><span>Status: sample</span></div>
+        <div className="public-record-summary">
+          <article><span>Sample</span><strong>{sample.subject.sampleName}</strong><small>{sample.subject.lotNumber}</small></article>
+          <article><span>Example issuer</span><strong><a href="/demo/lab">{sample.issuer.name} ↗</a></strong><small>{sample.issuer.code} · not registered</small></article>
+          <article><span>Method</span><strong>{sample.subject.method}</strong><small>{sample.subject.matrix}</small></article>
+        </div>
+        <div className="public-results">
+          <div className="results-note"><span>Analytical results</span><small>Invented values shown exactly as sampled</small></div>
+          <table>
+            <thead><tr><th>Analyte</th><th>Result</th><th>Unit</th><th>LOQ</th><th>Status</th></tr></thead>
+            <tbody>{sample.results.map((row) => (
+              <tr key={row.sequence}>
+                <td><i className="element-badge">{row.symbol}</i><strong>{row.analyte}</strong></td>
+                <td className="result-value">{row.resultText}</td>
+                <td>{row.unit}</td>
+                <td>{row.loqText || "—"}</td>
+                <td><span className="reported">Sampled</span></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+        <div className="provenance-register">
+          <div><span>Example issuer</span><strong><a href="/demo/lab">{sample.issuer.name} ↗</a></strong><small>No legal entity or production authority</small></div>
+          <div><span>Record fingerprint</span><code>sha256:{SAMPLE_RECORD_FINGERPRINT}</code><small>Recomputed from the fixed sample document</small></div>
+          <div><span>Issuer proof</span><strong>Not present by design</strong><small>A sample must never be confused with a laboratory signature</small></div>
+          <div><span>Machine access</span><a href={`/api/v1/credentials/${encodeURIComponent(SAMPLE_TECRID)}`}>Open JSON endpoint ↗</a><small>Returns the same record with sample and productionAuthority flags</small></div>
+        </div>
+        <div className="source-document-register">
+          <div><span>Issuance basis</span><strong>Resolver-compatible sample report</strong><small>Demonstrates the workflow without publishing real evidence</small></div>
+          <div><span>Source PDF fingerprint</span><code>sha256:{SAMPLE_SOURCE_FINGERPRINT}</code><small>northstar-demo-heavy-metals-report.pdf</small></div>
+          <div><span>Laboratory reference</span><strong>DEMO-NS-260823-01</strong><small>Order DEMO-ORD-0821</small></div>
+        </div>
+      </section>
+
+      <section className="version-register" aria-labelledby="sample-version-title">
+        <div className="section-title-row">
+          <div><p className="section-kicker">Append-only history</p><h2 id="sample-version-title">Version register</h2></div>
+          <span className="verified-pill demo-pill"><i /> 1 sample version</span>
+        </div>
+        <ol><li><span>v1</span><div><strong>sample issuance</strong><p>Resolver-compatible fictional record published for evaluation</p></div><div><small>29 Aug 2026 · 00:00 UTC</small><code>sha256:{SAMPLE_RECORD_FINGERPRINT}</code></div></li></ol>
+      </section>
+
+      <section className="record-boundary">
+        <p className="section-kicker">Demonstration boundary</p>
+        <h2>This record demonstrates resolution. It proves no laboratory claim.</h2>
+        <p>Its identifier, JSON document, source fingerprint, findings, and version history behave like the public surfaces of a TECRID. The fictional issuer has no reviewed key, no laboratory identity, and no production issuance authority.</p>
+        <div className="sample-next"><a className="button-dark" href="/sandbox">Run the workflow in your own sandbox →</a><a href="/demo/heavy-metals">Inspect the underlying fictional report ↗</a></div>
       </section>
       <ProductFooter />
     </main>

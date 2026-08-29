@@ -17,8 +17,8 @@ export default function DemoLibraryPage() {
       <header className="product-hero demo-hero">
         <p className="section-kicker light">Isolated demonstration namespace</p>
         <h1>See the system.<br />Do not mistake it for evidence.</h1>
-        <p>Everything below is fictional, excluded from the live resolver and public API, and visibly marked as a demonstration.</p>
-        <div className="draft-standard-badge"><i /> No verified issuer · no public TECRID · no real findings</div>
+        <p>Everything below is fictional and visibly marked as a demonstration. The heavy-metals example uses TECRID’s reserved sample namespace so visitors can test the public resolver and JSON surface; it has no production authority.</p>
+        <div className="draft-standard-badge"><i /> No verified issuer · no production TECRID · no real findings</div>
       </header>
 
       <section className="demo-hub">

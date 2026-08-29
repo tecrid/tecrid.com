@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { SAMPLE_TECRID } from "../lib/sample-tecrid";
 import { ProductFooter, ProductNav } from "./site-nav";
-
-const SAMPLE_TECRID = "DEMO-TECRID·NLA-26-HM0001";
 
 const results = [
   { analyte: "Lead", symbol: "Pb", result: "42", unit: "µg/kg", loq: "10" },
@@ -21,14 +20,10 @@ export default function Home() {
   function lookup(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const raw = query.trim().toUpperCase();
-    if (raw === SAMPLE_TECRID) {
-      window.location.href = "/demo/heavy-metals";
-      return;
-    }
     const normalized = raw.replace(/^TECRID[:-]/, "TECRID·").replace(/^TEC[:-]/, "TECRID·");
-    if (!normalized) return setMessage("Enter a TECRID to resolve a record.");
+    if (!normalized) return setMessage("Enter a TECRID to look up a record.");
     const identifier = normalized.startsWith("TECRID·") ? normalized : `TECRID·${normalized}`;
-    setMessage("Resolving the canonical registry record…");
+    setMessage("Looking up the canonical registry record…");
     window.location.href = `/records/${encodeURIComponent(identifier)}`;
   }
 
@@ -50,7 +45,7 @@ export default function Home() {
         </p>
 
         <form className="lookup" onSubmit={lookup}>
-          <label htmlFor="tec-lookup">Resolve a TECRID</label>
+          <label htmlFor="tec-lookup">Look up a TECRID</label>
           <div className="lookup-row">
             <input
               id="tec-lookup"
@@ -60,10 +55,10 @@ export default function Home() {
               aria-describedby="lookup-message"
               autoComplete="off"
             />
-            <button type="submit">Find record <span aria-hidden="true">↗</span></button>
+            <button type="submit">View record <span aria-hidden="true">↗</span></button>
           </div>
           <p id="lookup-message" className="lookup-message" aria-live="polite">
-            {message || <>Permanent, public, and versioned. <button type="button" onClick={() => { setQuery(SAMPLE_TECRID); setMessage("Demonstration selected. Submit to open the isolated fictional record."); }}>Use demonstration ID</button></>}
+            {message || <>Permanent, public, and versioned. <button type="button" onClick={() => { setQuery(SAMPLE_TECRID); setMessage(`Sample loaded: ${SAMPLE_TECRID}. Select View record.`); }}>Try the sample TECRID</button></>}
           </p>
         </form>
 
@@ -98,7 +93,7 @@ export default function Home() {
       <section className="record-section" id="record" aria-labelledby="record-title">
         <div className="section-title-row">
           <div>
-          <p className="section-kicker">Demonstration record · not issued</p>
+          <p className="section-kicker">Resolver sample · fictional data</p>
             <h2 id="record-title">One result. One source of truth.</h2>
           </div>
           <span className="verified-pill demo-pill"><i /> Demonstration only</span>
@@ -115,13 +110,13 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            <div className="seal demo-seal" aria-label="Demonstration record"><span>TEC</span><strong>·</strong><small>DEMO</small></div>
+            <div className="seal demo-seal" aria-label="Resolver sample"><span>TEC</span><strong>·</strong><small>SAMPLE</small></div>
           </header>
 
           <div className="record-summary">
             <div><span>Sample</span><strong>Cocoa powder, retail composite</strong><small>Fictional lot DEMO-CP-0826</small></div>
             <div><span>Example issuer</span><strong>Northstar Laboratory Demonstration</strong><small>Fictional demonstration laboratory</small></div>
-            <div><span>Example state</span><strong>Version 1</strong><small>Not present in the live registry</small></div>
+            <div><span>Example state</span><strong>Version 1</strong><small>Public sample namespace</small></div>
           </div>
 
           <div className="record-body">
@@ -192,8 +187,8 @@ export default function Home() {
             </div>
 
             <footer className="record-footer">
-              <span><i /> Interface demonstration</span>
-              <span>No live evidence claim</span>
+              <span><i /> Resolver-compatible sample</span>
+              <a href={`/records/${encodeURIComponent(SAMPLE_TECRID)}`}>Open the full public record ↗</a>
             </footer>
           </div>
         </article>

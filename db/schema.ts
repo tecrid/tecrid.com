@@ -77,6 +77,38 @@ export const apiKeys = sqliteTable(
   ],
 );
 
+export const sandboxSessions = sqliteTable(
+  "sandbox_sessions",
+  {
+    userId: text("user_id").primaryKey(),
+    stage: text("stage").notNull().default("submitted"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("idx_sandbox_sessions_updated_at").on(table.updatedAt)],
+);
+
+export const sandboxApiKeys = sqliteTable(
+  "sandbox_api_keys",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => sandboxSessions.userId, { onDelete: "cascade" }),
+    label: text("label").notNull(),
+    keyPrefix: text("key_prefix").notNull(),
+    keyHash: text("key_hash").notNull(),
+    lastFour: text("last_four").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    lastUsedAt: text("last_used_at"),
+    revokedAt: text("revoked_at"),
+  },
+  (table) => [
+    uniqueIndex("idx_sandbox_api_keys_key_hash").on(table.keyHash),
+    index("idx_sandbox_api_keys_user_id").on(table.userId),
+  ],
+);
+
 export const credentials = sqliteTable(
   "credentials",
   {

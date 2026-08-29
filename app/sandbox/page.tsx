@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { chatGPTSignInPath, chatGPTSignOutPath, getChatGPTUser } from "../chatgpt-auth";
 import { ProductFooter, ProductNav } from "../site-nav";
 import { SandboxClient } from "./sandbox-client";
 
@@ -10,7 +11,10 @@ export const metadata: Metadata = {
   twitter: { title: "Interactive sandbox — TEC Registry", description: "A resettable demonstration workspace with fictional data.", images: [] },
 };
 
-export default function SandboxPage() {
+export const dynamic = "force-dynamic";
+
+export default async function SandboxPage() {
+  const user = await getChatGPTUser();
   return (
     <main className="product-page sandbox-page">
       <ProductNav compact />
@@ -22,7 +26,11 @@ export default function SandboxPage() {
         </div>
         <span className="sandbox-boundary">Isolated from the live registry</span>
       </header>
-      <SandboxClient />
+      <SandboxClient
+        viewer={user ? { displayName: user.displayName, email: user.email } : null}
+        signInHref={chatGPTSignInPath("/sandbox")}
+        signOutHref={chatGPTSignOutPath("/sandbox")}
+      />
       <ProductFooter />
     </main>
   );
