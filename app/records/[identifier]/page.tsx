@@ -48,17 +48,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function RecordPage({ params }: PageProps) {
   const { identifier } = await params;
   if (isSampleTecrid(identifier)) return <SampleRecordPage />;
-  const { getCredential } = await import("../../../lib/tec");
+  const { getCredential, publicCredentialDocument } = await import("../../../lib/tec");
   const record = await getCredential(decodeURIComponent(identifier));
   if (!record) notFound();
   const { credential, issuer, results, versions, integrity } = record;
+  const publicDocument = publicCredentialDocument(record);
+  const resultsControlled = publicDocument.resultsAccess.state === "controlled";
 
   return (
     <main className="product-page public-record-page">
       <ProductNav compact />
       <header className="record-page-hero">
         <div>
-          <p className="section-kicker light">Public TEC record · TECRID</p>
+          <p className="section-kicker light">Public TEC resolver · TECRID</p>
           <h1>{credential.identifier}</h1>
           <p>Canonical version {credential.version} · issued {credential.issuedAt ? new Date(credential.issuedAt).toLocaleString("en", { dateStyle: "long", timeStyle: "short", timeZone: "UTC" }) : "—"} UTC</p>
         </div>
@@ -68,30 +70,37 @@ export default async function RecordPage({ params }: PageProps) {
       <section className="public-record-shell">
         <div className={`record-integrity-bar status-bar-${credential.status}`}><span><i /> {integrity.issuerSignatureVerified && integrity.fingerprintValid && integrity.currentVersionConsistent ? "Issuer signature, fingerprint, and current version verified" : integrity.fingerprintRecorded ? "Integrity proof incomplete or not independently verifiable" : "No integrity proof recorded"}</span><span>Status: {credential.status}</span></div>
         <div className="public-record-summary">
-          <article><span>Sample</span><strong>{credential.sampleName}</strong><small>{credential.lotNumber || "No lot supplied"}</small></article>
+          <article><span>Sample</span><strong>{credential.sampleName}</strong><small>{credential.productSku ? `${credential.productSku} · ` : ""}{credential.lotNumber || "No lot supplied"}</small></article>
           <article><span>Issued by</span><strong><a href={`/issuers/${encodeURIComponent(issuer.issuerCode)}`}>{issuer.name} ↗</a></strong><small>{issuer.issuerCode} · {issuer.issuerStatus.replaceAll("_", " ")}</small></article>
           <article><span>Method</span><strong>{credential.method || "As reported by issuer"}</strong><small>{credential.matrix || "Matrix not supplied"}</small></article>
         </div>
-        <div className="public-results">
-          <div className="results-note"><span>Analytical results</span><small>Values shown exactly as issued</small></div>
-          <table>
-            <thead><tr><th>Analyte</th><th>Result</th><th>Unit</th><th>LOQ</th><th>Status</th></tr></thead>
-            <tbody>{results.map((row) => (
-              <tr key={row.id}>
-                <td><i className="element-badge">{row.symbol || "—"}</i><strong>{row.analyte}</strong></td>
-                <td className="result-value">{row.resultText}</td>
-                <td>{row.unit}</td>
-                <td>{row.loqText || "—"}</td>
-                <td><span className="reported">As issued</span></td>
-              </tr>
-            ))}</tbody>
-          </table>
-        </div>
+        {resultsControlled ? (
+          <div className="controlled-results-gate">
+            <div><p className="section-kicker">Controlled findings</p><h2>The TECRID resolves. Its analytical values require a grant.</h2></div>
+            <div><p>The issuer, status, fingerprint, and version history remain publicly verifiable. The brand or ingredient supplier controls which named organizations receive the findings for this SKU.</p><a href="/dashboard/evidence-routing">Open evidence routing →</a></div>
+          </div>
+        ) : (
+          <div className="public-results">
+            <div className="results-note"><span>Analytical results</span><small>Values shown exactly as issued</small></div>
+            <table>
+              <thead><tr><th>Analyte</th><th>Result</th><th>Unit</th><th>LOQ</th><th>Status</th></tr></thead>
+              <tbody>{results.map((row) => (
+                <tr key={row.id}>
+                  <td><i className="element-badge">{row.symbol || "—"}</i><strong>{row.analyte}</strong></td>
+                  <td className="result-value">{row.resultText}</td>
+                  <td>{row.unit}</td>
+                  <td>{row.loqText || "—"}</td>
+                  <td><span className="reported">As issued</span></td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
+        )}
         <div className="provenance-register">
           <div><span>Issuer identity</span><strong><a href={`/issuers/${encodeURIComponent(issuer.issuerCode)}`}>{issuer.name} ↗</a></strong><small>TEC issuer code {issuer.issuerCode}</small></div>
           <div><span>Record fingerprint</span><code>{credential.fingerprint ? `sha256:${credential.fingerprint}` : "Not recorded"}</code><small>{integrity.fingerprintValid ? "Recomputed from the canonical current version" : integrity.fingerprintRecorded ? "Recorded but not validated against a canonical version" : "This record has no fingerprint"}</small></div>
           <div><span>Issuer proof</span><strong>{integrity.issuerSignatureVerified ? `${credential.signatureAlgorithm} verified` : "Not present"}</strong><small>{integrity.issuerSignatureVerified ? `Key ${credential.issuerKeyId}` : "A fingerprint alone does not prove laboratory key control"}</small></div>
-          <div><span>Machine access</span><a href={`/api/v1/credentials/${encodeURIComponent(credential.identifier)}`}>Open JSON endpoint ↗</a><small>Includes exact signed payload, signature, reviewed public key, and live verification state</small></div>
+          <div><span>Machine access</span><a href={`/api/v1/credentials/${encodeURIComponent(credential.identifier)}`}>Open JSON endpoint ↗</a><small>{resultsControlled ? "Public integrity envelope; findings and signed payload withheld" : "Includes exact signed payload, signature, reviewed public key, and live verification state"}</small></div>
         </div>
         {credential.sourceDocumentHash ? (
           <div className="source-document-register">

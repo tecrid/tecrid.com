@@ -52,6 +52,12 @@ export default async function DashboardPage() {
           </section>
 
           <section className="dashboard-workflow-grid">
+            <article className="dashboard-workflow-card routing-card">
+              <p className="section-kicker light">Controlled evidence routing</p>
+              <h2>Request, grant, and deliver by SKU.</h2>
+              <p>Let certifiers, retailers, and government programs request TECRIDs while the brand or supplier controls each recipient, result scope, and laboratory route.</p>
+              <Link href="/dashboard/evidence-routing">Open evidence routing →</Link>
+            </article>
             <article className="dashboard-workflow-card verification-card">
               <p className="section-kicker">Laboratory verification desk</p>
               <h2>Answer report questions with durable receipts.</h2>

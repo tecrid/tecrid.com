@@ -236,6 +236,7 @@ export async function submitCertificationIntake(
     seen.add(normalizedIdentifier);
     if (!errors.length && !record) errors.push("no public registry record found");
     if (record) {
+      if (record.credential.visibility === "controlled") errors.push("controlled findings require an evidence delivery grant");
       if (record.credential.status !== "issued") errors.push(`record status is ${record.credential.status}`);
       if (record.issuer.issuerStatus !== "verified") errors.push("issuing laboratory is not verified");
       if (!record.integrity.issuerSignatureVerified) errors.push("issuer signature is not verified");

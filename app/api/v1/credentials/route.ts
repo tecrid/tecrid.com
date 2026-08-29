@@ -5,6 +5,10 @@ import {
   TecAuthorizationError,
   TecInputError,
 } from "../../../../lib/tec";
+import {
+  authorizeRoutingToken,
+  deliverCredentialWithAuthorization,
+} from "../../../../lib/evidence-routing";
 
 function errorResponse(error: unknown) {
   const known = error instanceof TecAuthorizationError || error instanceof TecInputError;
@@ -38,12 +42,29 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const { organization } = await authenticateApiRequest(request);
+    const payload = await request.json() as Record<string, unknown>;
+    const routingToken = typeof payload.routingToken === "string" ? payload.routingToken : "";
+    const routingAuthorization = routingToken
+      ? await authorizeRoutingToken(routingToken, organization.id)
+      : null;
+    if (routingAuthorization) {
+      const submittedSku = typeof payload.productSku === "string"
+        ? payload.productSku.trim().toUpperCase().replace(/\s+/g, "-")
+        : "";
+      if (submittedSku !== routingAuthorization.authorization.productSku) {
+        throw new TecInputError("productSku must match the SKU bound to the brand-controlled routing token.");
+      }
+    }
     const credential = await createCredential(
       organization,
       null,
-      await request.json(),
+      payload,
+      { controlledRoutingAuthorized: Boolean(routingAuthorization) },
     );
-    return Response.json({ credential }, { status: 201 });
+    const routing = routingAuthorization && credential.status === "issued"
+      ? await deliverCredentialWithAuthorization(routingAuthorization, credential.identifier)
+      : null;
+    return Response.json({ credential, routing }, { status: 201 });
   } catch (error) {
     return errorResponse(error);
   }

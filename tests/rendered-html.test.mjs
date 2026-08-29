@@ -192,6 +192,9 @@ test("renders a multi-party portal with personal sandbox and API-key boundaries"
   assert.match(html, /Run the workflow from every side/);
   assert.match(html, /Atlas Pantry/);
   assert.match(html, /Northstar Analytical/);
+  assert.match(html, /ICS Certification/);
+  assert.match(html, /Third-party certifier/);
+  assert.match(page, /Who may receive this SKU/);
   assert.match(html, /Organization portal/);
   assert.match(html, /API console/);
   assert.match(html, /API &amp; integrations/);
@@ -208,6 +211,80 @@ test("renders a multi-party portal with personal sandbox and API-key boundaries"
   assert.match(migration, /CREATE TABLE `sandbox_sessions`/);
   assert.match(migration, /CREATE TABLE `sandbox_api_keys`/);
   assert.doesNotMatch(`${sessionRoute}${keyRoute}`, /productionAuthority:\s*true/);
+});
+
+test("wires controller-gated evidence routing for certifiers, retailers, and government", async () => {
+  const [schema, migration, bindingMigration, service, tec, certification, sandboxService, sandboxPage, dashboardPage, dashboardClient, browserRequestRoute, browserGrantRoute, browserAuthorizationRoute, apiRoute, issuanceRoute, developersResponse] = await Promise.all([
+    readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0010_nebulous_old_lace.sql", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0011_chemical_ender_wiggin.sql", import.meta.url), "utf8"),
+    readFile(new URL("../lib/evidence-routing.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/tec.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/certification.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/sandbox.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/sandbox/sandbox-client.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/evidence-routing/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/evidence-routing/routing-client.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/evidence-routing/requests/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/evidence-routing/grants/[grantId]/revoke/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/evidence-routing/authorizations/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/v1/routing/deliveries/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/v1/credentials/route.ts", import.meta.url), "utf8"),
+    render("/developers"),
+  ]);
+
+  for (const table of ["evidenceRequests", "evidenceAccessGrants", "routingAuthorizations", "evidenceDeliveries"]) {
+    assert.match(schema, new RegExp(table));
+  }
+  assert.match(schema, /certifierDeliveryStatus/);
+  assert.match(schema, /retailerDeliveryStatus/);
+  assert.match(migration, /evidence_requests_scope_immutable/);
+  assert.match(migration, /evidence_grants_scope_immutable/);
+  assert.match(migration, /evidence_deliveries_no_update/);
+  assert.match(migration, /routing_authorizations_identity_immutable/);
+  assert.match(migration, /PRAGMA optimize/);
+  assert.match(bindingMigration, /ADD `product_sku`/);
+  assert.match(bindingMigration, /PRAGMA optimize/);
+  assert.match(service, /RECIPIENT_TYPES.*certification_body.*retailer.*government/s);
+  assert.match(service, /CONTROLLER_TYPES.*brand.*supplier/s);
+  assert.match(service, /cannot approve broader access/i);
+  assert.match(service, /cannot widen a one-time request to future delivery/i);
+  assert.match(service, /subset of the requested analytes/i);
+  assert.match(service, /tokenHash: await sha256\(plainTextToken\)/);
+  assert.match(service, /laboratoryOrganizationId && record\.authorization\.laboratoryOrganizationId/);
+  assert.match(service, /eq\(evidenceAccessGrants\.status, "active"\)/);
+  assert.match(service, /snapshotFingerprint = await sha256\(snapshotJson\)/);
+  assert.match(service, /signed productSku does not match this routing authorization/);
+  assert.match(service, /coverageState: missingAnalytes\.length \? "incomplete" : "complete"/);
+  assert.match(service, /the registry does not infer a passing result/i);
+  assert.match(service, /deliveryMode === "one_time"/);
+  assert.match(tec, /Controlled-result issuance requires a current routing authorization/);
+  assert.match(tec, /Controlled-result issuance requires productSku/);
+  assert.match(tec, /resultsControlled \? \[\]/);
+  assert.match(tec, /canonicalPayload: null/);
+  assert.match(tec, /signedPayload: null/);
+  assert.match(certification, /controlled findings require an evidence delivery grant/);
+  assert.match(sandboxService, /No active recipient has an undelivered grant/);
+  assert.match(sandboxPage, /ICS Certification/);
+  assert.match(sandboxPage, /Approve certifier request/);
+  assert.match(sandboxPage, /Revoke future delivery/);
+  assert.match(sandboxPage, /invented sandbox values/);
+  assert.match(dashboardPage, /Issuer authority is not disclosure authority/);
+  assert.match(dashboardClient, /One recipient does not imply another/);
+  assert.match(dashboardClient, /recipient-specific evidence packages/);
+  for (const route of [browserRequestRoute, browserGrantRoute, browserAuthorizationRoute]) {
+    assert.match(route, /rejectCrossOriginWrite/);
+    assert.match(route, /getChatGPTUser/);
+  }
+  assert.match(apiRoute, /authenticateApiRequest/);
+  assert.match(apiRoute, /routeExistingCredential/);
+  assert.match(issuanceRoute, /controlledRoutingAuthorized/);
+  assert.match(issuanceRoute, /productSku must match the SKU bound/);
+  assert.match(issuanceRoute, /deliverCredentialWithAuthorization/);
+  const developers = await developersResponse.text();
+  assert.match(developers, /CONTROLLED ROUTING/);
+  assert.match(developers, /POST \/api\/v1\/routing\/deliveries/);
+  assert.match(developers, /receive routed evidence/i);
 });
 
 test("renders the disclosure-operations wedge as workflow rather than an unproven savings claim", async () => {

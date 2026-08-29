@@ -82,6 +82,19 @@ export const sandboxSessions = sqliteTable(
   {
     userId: text("user_id").primaryKey(),
     stage: text("stage").notNull().default("submitted"),
+    certificationRequestStatus: text("certification_request_status")
+      .notNull()
+      .default("pending"),
+    certifierDeliveryStatus: text("certifier_delivery_status")
+      .notNull()
+      .default("not_delivered"),
+    retailerGrantStatus: text("retailer_grant_status")
+      .notNull()
+      .default("not_granted"),
+    retailerDeliveryStatus: text("retailer_delivery_status")
+      .notNull()
+      .default("not_delivered"),
+    routingStatus: text("routing_status").notNull().default("waiting"),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   },
@@ -118,6 +131,7 @@ export const credentials = sqliteTable(
       .references(() => organizations.id, { onDelete: "restrict" }),
     status: text("status").notNull().default("draft"),
     sampleName: text("sample_name").notNull(),
+    productSku: text("product_sku"),
     lotNumber: text("lot_number"),
     matrix: text("matrix"),
     method: text("method"),
@@ -145,6 +159,7 @@ export const credentials = sqliteTable(
     publicRecord: integer("public_record", { mode: "boolean" })
       .notNull()
       .default(false),
+    visibility: text("visibility").notNull().default("public"),
     createdByUserId: text("created_by_user_id"),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -722,5 +737,155 @@ export const certificationIntakeItems = sqliteTable(
     uniqueIndex("idx_certification_items_intake_row").on(table.intakeId, table.rowNumber),
     index("idx_certification_items_identifier").on(table.credentialIdentifier),
     index("idx_certification_items_status").on(table.intakeId, table.validationStatus),
+  ],
+);
+
+export const evidenceRequests = sqliteTable(
+  "evidence_requests",
+  {
+    id: text("id").primaryKey(),
+    requesterOrganizationId: text("requester_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    controllerOrganizationId: text("controller_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    programName: text("program_name").notNull(),
+    purpose: text("purpose").notNull(),
+    productName: text("product_name").notNull(),
+    productSku: text("product_sku").notNull(),
+    accessLevel: text("access_level").notNull(),
+    analyteScopeJson: text("analyte_scope_json"),
+    deliveryMode: text("delivery_mode").notNull(),
+    status: text("status").notNull().default("pending"),
+    requestedByUserId: text("requested_by_user_id").notNull(),
+    respondedByUserId: text("responded_by_user_id"),
+    requestedAt: text("requested_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    respondedAt: text("responded_at"),
+  },
+  (table) => [
+    index("idx_evidence_requests_requester_created").on(
+      table.requesterOrganizationId,
+      table.requestedAt,
+    ),
+    index("idx_evidence_requests_controller_status").on(
+      table.controllerOrganizationId,
+      table.status,
+    ),
+  ],
+);
+
+export const evidenceAccessGrants = sqliteTable(
+  "evidence_access_grants",
+  {
+    id: text("id").primaryKey(),
+    requestId: text("request_id")
+      .notNull()
+      .references(() => evidenceRequests.id, { onDelete: "restrict" }),
+    controllerOrganizationId: text("controller_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    recipientOrganizationId: text("recipient_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    productName: text("product_name").notNull(),
+    productSku: text("product_sku").notNull(),
+    accessLevel: text("access_level").notNull(),
+    analyteScopeJson: text("analyte_scope_json"),
+    deliveryMode: text("delivery_mode").notNull(),
+    status: text("status").notNull().default("active"),
+    createdByUserId: text("created_by_user_id").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    revokedByUserId: text("revoked_by_user_id"),
+    revokedAt: text("revoked_at"),
+  },
+  (table) => [
+    uniqueIndex("idx_evidence_grants_request").on(table.requestId),
+    index("idx_evidence_grants_controller_sku_status").on(
+      table.controllerOrganizationId,
+      table.productSku,
+      table.status,
+    ),
+    index("idx_evidence_grants_recipient_status").on(
+      table.recipientOrganizationId,
+      table.status,
+    ),
+  ],
+);
+
+export const routingAuthorizations = sqliteTable(
+  "routing_authorizations",
+  {
+    id: text("id").primaryKey(),
+    controllerOrganizationId: text("controller_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    laboratoryOrganizationId: text("laboratory_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    productName: text("product_name").notNull(),
+    productSku: text("product_sku").notNull(),
+    tokenHash: text("token_hash").notNull(),
+    tokenPrefix: text("token_prefix").notNull(),
+    tokenLastFour: text("token_last_four").notNull(),
+    status: text("status").notNull().default("active"),
+    createdByUserId: text("created_by_user_id").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    expiresAt: text("expires_at").notNull(),
+    lastUsedAt: text("last_used_at"),
+    revokedByUserId: text("revoked_by_user_id"),
+    revokedAt: text("revoked_at"),
+  },
+  (table) => [
+    uniqueIndex("idx_routing_authorizations_token_hash").on(table.tokenHash),
+    index("idx_routing_authorizations_controller_sku").on(
+      table.controllerOrganizationId,
+      table.productSku,
+    ),
+    index("idx_routing_authorizations_lab_status").on(
+      table.laboratoryOrganizationId,
+      table.status,
+    ),
+  ],
+);
+
+export const evidenceDeliveries = sqliteTable(
+  "evidence_deliveries",
+  {
+    id: text("id").primaryKey(),
+    grantId: text("grant_id")
+      .notNull()
+      .references(() => evidenceAccessGrants.id, { onDelete: "restrict" }),
+    routingAuthorizationId: text("routing_authorization_id")
+      .notNull()
+      .references(() => routingAuthorizations.id, { onDelete: "restrict" }),
+    controllerOrganizationId: text("controller_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    recipientOrganizationId: text("recipient_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
+    credentialIdentifier: text("credential_identifier")
+      .notNull()
+      .references(() => credentials.identifier, { onDelete: "restrict" }),
+    credentialVersion: integer("credential_version").notNull(),
+    accessLevel: text("access_level").notNull(),
+    snapshotJson: text("snapshot_json").notNull(),
+    snapshotFingerprint: text("snapshot_fingerprint").notNull(),
+    deliveredAt: text("delivered_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_evidence_deliveries_grant_credential").on(
+      table.grantId,
+      table.credentialIdentifier,
+    ),
+    index("idx_evidence_deliveries_recipient_created").on(
+      table.recipientOrganizationId,
+      table.deliveredAt,
+    ),
+    index("idx_evidence_deliveries_controller_created").on(
+      table.controllerOrganizationId,
+      table.deliveredAt,
+    ),
   ],
 );

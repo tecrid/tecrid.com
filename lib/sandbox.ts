@@ -6,6 +6,11 @@ import { sandboxApiKeys, sandboxSessions } from "../db/schema";
 export const sandboxStages = ["submitted", "claimed", "confirmed", "issued"] as const;
 export type SandboxStage = (typeof sandboxStages)[number];
 export type SandboxAction = "claim" | "confirm" | "issue";
+export type SandboxRoutingAction =
+  | "approve_certifier"
+  | "grant_retailer"
+  | "deliver_tecrid"
+  | "revoke_retailer";
 
 const transitions: Record<SandboxAction, { from: SandboxStage; to: SandboxStage; message: string }> = {
   claim: {
@@ -101,9 +106,55 @@ export async function resetSandboxSession(user: ChatGPTUser) {
   const db = getDb();
   await db
     .update(sandboxSessions)
-    .set({ stage: "submitted", updatedAt })
+    .set({
+      stage: "submitted",
+      certificationRequestStatus: "pending",
+      certifierDeliveryStatus: "not_delivered",
+      retailerGrantStatus: "not_granted",
+      retailerDeliveryStatus: "not_delivered",
+      routingStatus: "waiting",
+      updatedAt,
+    })
     .where(eq(sandboxSessions.userId, user.userId));
-  return { stage: "submitted" as const, updatedAt };
+  return {
+    stage: "submitted" as const,
+    certificationRequestStatus: "pending",
+    certifierDeliveryStatus: "not_delivered",
+    retailerGrantStatus: "not_granted",
+    retailerDeliveryStatus: "not_delivered",
+    routingStatus: "waiting",
+    updatedAt,
+  };
+}
+
+export async function transitionSandboxRouting(user: ChatGPTUser, action: SandboxRoutingAction) {
+  const session = await ensureSandboxSession(user);
+  const updatedAt = now();
+  const db = getDb();
+  if (action === "approve_certifier") {
+    if (session.certificationRequestStatus !== "pending") throw new SandboxInputError("The fictional certification request has already been answered.");
+    await db.update(sandboxSessions).set({ certificationRequestStatus: "approved", updatedAt }).where(eq(sandboxSessions.userId, user.userId));
+    return { ...session, certificationRequestStatus: "approved", updatedAt, message: "Atlas approved heavy-metals-only access for the certification program." };
+  }
+  if (action === "grant_retailer") {
+    if (!["not_granted", "revoked"].includes(session.retailerGrantStatus)) throw new SandboxInputError("The retailer already has an active fictional grant.");
+    await db.update(sandboxSessions).set({ retailerGrantStatus: "granted", updatedAt }).where(eq(sandboxSessions.userId, user.userId));
+    return { ...session, retailerGrantStatus: "granted", updatedAt, message: "Atlas granted Market Square status-and-heavy-metals access for this SKU." };
+  }
+  if (action === "revoke_retailer") {
+    if (session.retailerGrantStatus !== "granted") throw new SandboxInputError("No active fictional retailer grant exists.");
+    await db.update(sandboxSessions).set({ retailerGrantStatus: "revoked", updatedAt }).where(eq(sandboxSessions.userId, user.userId));
+    return { ...session, retailerGrantStatus: "revoked", updatedAt, message: "Atlas revoked future retailer delivery. Previously delivered evidence remains in the audit trail." };
+  }
+  if (session.stage !== "issued") throw new SandboxInputError("Issue the sandbox TECRID before routing it.");
+  const deliverCertifier = session.certificationRequestStatus === "approved" && session.certifierDeliveryStatus !== "delivered";
+  const deliverRetailer = session.retailerGrantStatus === "granted" && session.retailerDeliveryStatus !== "delivered";
+  if (!deliverCertifier && !deliverRetailer) throw new SandboxInputError("No active recipient has an undelivered grant for this TECRID.");
+  const certifierDeliveryStatus = deliverCertifier ? "delivered" : session.certifierDeliveryStatus;
+  const retailerDeliveryStatus = deliverRetailer ? "delivered" : session.retailerDeliveryStatus;
+  await db.update(sandboxSessions).set({ routingStatus: "delivered", certifierDeliveryStatus, retailerDeliveryStatus, updatedAt }).where(eq(sandboxSessions.userId, user.userId));
+  const recipients = [deliverCertifier ? "ICS Certification" : "", deliverRetailer ? "Market Square" : ""].filter(Boolean).join(" and ");
+  return { ...session, routingStatus: "delivered", certifierDeliveryStatus, retailerDeliveryStatus, updatedAt, message: `Northstar routed the TECRID to ${recipients}.` };
 }
 
 export async function listSandboxApiKeys(userId: string) {

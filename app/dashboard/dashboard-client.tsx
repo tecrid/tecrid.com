@@ -41,7 +41,10 @@ export function OrganizationOnboarding({ email }: { email: string }) {
         <select name="organizationType" defaultValue="laboratory" required>
           <option value="laboratory">Testing laboratory</option>
           <option value="brand">Brand or manufacturer</option>
+          <option value="supplier">Ingredient supplier</option>
           <option value="retailer">Retailer or marketplace</option>
+          <option value="certification_body">Third-party certification body</option>
+          <option value="government">Government or regulator</option>
           <option value="consultant">Consultant or auditor</option>
           <option value="research">Research organization</option>
           <option value="other">Other</option>

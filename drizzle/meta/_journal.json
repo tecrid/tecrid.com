@@ -71,6 +71,20 @@
       "when": 1787986292914,
       "tag": "0009_puzzling_midnight",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1787987622851,
+      "tag": "0010_nebulous_old_lace",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1787987848265,
+      "tag": "0011_chemical_ender_wiggin",
+      "breakpoints": true
     }
   ]
 }

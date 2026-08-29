@@ -1,0 +1,69 @@
+"use client";
+
+import { useState } from "react";
+
+type RequestRecord = { id: string; programName: string; purpose: string; productName: string; productSku: string; accessLevel: string; deliveryMode: string; status: string; requestedAt: string; direction: string; requesterName: string; requesterCode: string; controllerName: string; controllerCode: string; analytes: string[] };
+type GrantRecord = { id: string; productName: string; productSku: string; accessLevel: string; deliveryMode: string; status: string; createdAt: string; controllerName: string; recipientName: string; recipientCode: string; isController: boolean; analytes: string[] };
+type DeliveryRecord = { id: string; credentialIdentifier: string; credentialVersion: number; accessLevel: string; snapshotFingerprint: string; deliveredAt: string; controllerName: string; recipientName: string; sampleName: string; resultCount: number; results: Array<{ analyte: string; resultText: string; unit: string }>; scopeNote: string | null; missingAnalytes: string[] };
+type AuthorizationRecord = { id: string; productName: string; productSku: string; tokenPrefix: string; tokenLastFour: string; status: string; createdAt: string; expiresAt: string; lastUsedAt: string | null; laboratoryName: string };
+
+export function EvidenceRoutingClient({ organization, requests, grants, deliveries, authorizations }: { organization: { id: string; name: string; code: string; type: string }; requests: RequestRecord[]; grants: GrantRecord[]; deliveries: DeliveryRecord[]; authorizations: AuthorizationRecord[] }) {
+  const [message, setMessage] = useState("Organization codes identify the exact controller, recipient, and laboratory account. No result moves on a name match alone.");
+  const [busy, setBusy] = useState(false);
+  const [newRoute, setNewRoute] = useState<{ plainTextToken: string; laboratory: string; productSku: string; expiresAt: string } | null>(null);
+  const controller = ["brand", "supplier"].includes(organization.type);
+  const recipient = ["certification_body", "retailer", "government"].includes(organization.type);
+
+  async function submitForm(event: React.FormEvent<HTMLFormElement>, endpoint: string) {
+    event.preventDefault(); setBusy(true); setMessage("Saving the authorization decision…");
+    const form = new FormData(event.currentTarget);
+    const payload = Object.fromEntries(form.entries());
+    try {
+      const response = await fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+      const body = await response.json() as { result?: Record<string, unknown>; error?: string };
+      if (!response.ok || !body.result) throw new Error(body.error || "The operation failed.");
+      if (typeof body.result.plainTextToken === "string") setNewRoute(body.result as { plainTextToken: string; laboratory: string; productSku: string; expiresAt: string });
+      setMessage("Saved. Reloading the routing ledger…");
+      if (!body.result.plainTextToken) window.setTimeout(() => window.location.reload(), 500);
+    } catch (error) { setMessage(error instanceof Error ? error.message : "The operation failed."); }
+    finally { setBusy(false); }
+  }
+
+  async function post(endpoint: string, payload: Record<string, unknown>) {
+    setBusy(true); setMessage("Applying the controller decision…");
+    try {
+      const response = await fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+      const body = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(body.error || "The operation failed.");
+      setMessage("Saved. Reloading the routing ledger…"); window.setTimeout(() => window.location.reload(), 500);
+    } catch (error) { setMessage(error instanceof Error ? error.message : "The operation failed."); setBusy(false); }
+  }
+
+  return <>
+    <p className="routing-message" aria-live="polite">{message}</p>
+    <section className="routing-action-grid">
+      <form className="routing-form request-form" onSubmit={(event) => void submitForm(event, "/api/evidence-routing/requests")}>
+        <div><p className="section-kicker">For certifiers, retailers, and government</p><h2>Request a TECRID evidence stream.</h2><p>{recipient ? "Ask the brand or supplier for only what your program needs. The controller may approve less, decline, or revoke future delivery." : "Requests originate from a certification body, retailer, or government workspace. This account can still review requests, grants, and deliveries in which it is a party."}</p></div>
+        <label>Controller organization code<input name="controllerOrganizationCode" required placeholder="ATLAS7Q" /></label>
+        <div className="form-pair"><label>Program or policy<input name="programName" required placeholder="Heavy Metal Tested & Certified" /></label><label>Purpose<input name="purpose" required placeholder="Annual SKU certification" /></label></div>
+        <div className="form-pair"><label>Product<input name="productName" required placeholder="Cacao powder" /></label><label>SKU<input name="productSku" required placeholder="CACAO-12OZ" /></label></div>
+        <div className="form-pair"><label>Requested access<select name="accessLevel" defaultValue="selected_analytes"><option value="status_only">Status only</option><option value="selected_analytes">Selected analytes</option><option value="full_record">Full structured record</option></select></label><label>Delivery<select name="deliveryMode" defaultValue="future_sku"><option value="one_time">One TECRID</option><option value="future_sku">Current and future TECRIDs for SKU</option></select></label></div>
+        <label>Requested analytes<input name="analytes" defaultValue="Lead, Cadmium, Arsenic, Mercury" /></label>
+        <button className="button-dark" disabled={busy || !recipient} type="submit">{recipient ? "Send access request →" : "Recipient workspace required"}</button>
+      </form>
+      <div className="routing-controller-card">
+        <div><p className="section-kicker light">Controller boundary</p><h2>{controller ? "You control delivery for your SKUs." : "Recipients cannot self-grant access."}</h2><p>{controller ? "Approve each recipient and scope before creating a token for the named laboratory. A token routes evidence; it never lets the lab alter your grants." : "Your organization can request and receive evidence. Only the brand or ingredient supplier can approve the grant and authorize a laboratory route."}</p></div>
+        <dl><div><dt>Your organization code</dt><dd>{organization.code}</dd></div><div><dt>Organization type</dt><dd>{organization.type.replaceAll("_", " ")}</dd></div><div><dt>Default onward sharing</dt><dd>Prohibited</dd></div><div><dt>Raw PDF access</dt><dd>Never implied by a TECRID grant</dd></div></dl>
+      </div>
+    </section>
+
+    <section className="routing-ledger-grid">
+      <div className="routing-ledger inbound-ledger"><div className="routing-ledger-head"><p className="section-kicker">Evidence requests</p><h2>Ask, narrow, approve.</h2></div>{requests.length ? requests.map((request) => <article key={request.id}><div className="routing-row-heading"><span className={`record-status record-${request.status}`}>{request.status}</span><strong>{request.programName}</strong><small>{request.direction} · {new Date(request.requestedAt).toLocaleDateString()}</small></div><p>{request.requesterName} requests {request.accessLevel.replaceAll("_", " ")} from {request.controllerName} for <strong>{request.productName} · {request.productSku}</strong>.</p>{request.analytes.length ? <div className="routing-analytes">{request.analytes.map((item) => <span key={item}>{item}</span>)}</div> : null}{request.direction === "inbound" && request.status === "pending" ? <div className="routing-response-actions"><button disabled={busy} onClick={() => void post(`/api/evidence-routing/requests/${request.id}/response`, { decision: "accept", accessLevel: request.accessLevel, analytes: request.analytes, deliveryMode: request.deliveryMode })}>Approve requested scope</button><button disabled={busy} onClick={() => void post(`/api/evidence-routing/requests/${request.id}/response`, { decision: "decline" })}>Decline</button></div> : null}</article>) : <div className="empty-state"><strong>No evidence requests yet.</strong><p>Recipient requests and controller decisions will remain here.</p></div>}</div>
+      <div className="routing-ledger grant-ledger"><div className="routing-ledger-head dark"><p className="section-kicker light">Active permissions</p><h2>One recipient does not imply another.</h2></div>{grants.length ? grants.map((grant) => <article key={grant.id}><div className="routing-row-heading"><span className={`record-status record-${grant.status}`}>{grant.status}</span><strong>{grant.recipientName}</strong><small>{grant.accessLevel.replaceAll("_", " ")} · {grant.deliveryMode.replaceAll("_", " ")}</small></div><p>{grant.productName} · {grant.productSku}</p>{grant.analytes.length ? <div className="routing-analytes">{grant.analytes.map((item) => <span key={item}>{item}</span>)}</div> : null}{grant.isController && grant.status === "active" ? <button className="routing-revoke" type="button" disabled={busy} onClick={() => void post(`/api/evidence-routing/grants/${grant.id}/revoke`, {})}>Revoke future access</button> : null}</article>) : <div className="empty-state dark"><strong>No grants yet.</strong><p>Accepted requests become recipient-specific grants.</p></div>}</div>
+    </section>
+
+    {controller ? <section className="routing-lab-section"><form className="routing-form lab-route-form" onSubmit={(event) => void submitForm(event, "/api/evidence-routing/authorizations")}><div><p className="section-kicker light">After recipient approval</p><h2>Authorize the laboratory to route this SKU.</h2><p>The secret is shown once. The named laboratory can attach it to controlled issuance or call the delivery API afterward.</p></div><label>Verified laboratory organization code<input name="laboratoryOrganizationCode" required placeholder="NORTH9K" /></label><div className="form-pair"><label>Product<input name="productName" required placeholder="Cacao powder" /></label><label>SKU<input name="productSku" required placeholder="CACAO-12OZ" /></label></div><label>Expires in days<input name="expiresInDays" type="number" min="1" max="365" defaultValue="90" /></label><button className="button-mint" disabled={busy} type="submit">Create routing token →</button></form><div className="routing-token-list">{newRoute ? <div className="routing-new-token"><span>New routing token · shown once</span><strong>{newRoute.laboratory} · {newRoute.productSku}</strong><code>{newRoute.plainTextToken}</code><small>Expires {new Date(newRoute.expiresAt).toLocaleDateString()}</small><button type="button" onClick={() => void navigator.clipboard.writeText(newRoute.plainTextToken)}>Copy token</button></div> : null}{authorizations.map((authorization) => <article key={authorization.id}><span className={`record-status record-${authorization.status}`}>{authorization.status}</span><div><strong>{authorization.laboratoryName}</strong><small>{authorization.productName} · {authorization.productSku}</small></div><code>{authorization.tokenPrefix}••••{authorization.tokenLastFour}</code><small>Expires {new Date(authorization.expiresAt).toLocaleDateString()}</small>{authorization.status === "active" ? <button type="button" disabled={busy} onClick={() => void post(`/api/evidence-routing/authorizations/${authorization.id}/revoke`, {})}>Revoke</button> : null}</article>)}</div></section> : null}
+
+    <section className="routing-deliveries"><div className="routing-ledger-head"><p className="section-kicker">Recipient delivery ledger</p><h2>Exactly what each organization received.</h2><p>A later revocation stops future delivery; it does not erase a package already relied upon. Every delivered view has its own fingerprint.</p></div><div>{deliveries.length ? deliveries.map((delivery) => <article key={delivery.id}><div className="routing-delivery-summary"><span className="record-status record-issued">delivered</span><div><strong>{delivery.sampleName}</strong><code>{delivery.credentialIdentifier} · v{delivery.credentialVersion}</code><small>{delivery.controllerName} → {delivery.recipientName}</small></div><div><strong>{delivery.accessLevel.replaceAll("_", " ")}</strong><small>{delivery.resultCount} result rows</small></div><code>{delivery.snapshotFingerprint.slice(0, 12)}…{delivery.snapshotFingerprint.slice(-8)}</code><a href={`/records/${encodeURIComponent(delivery.credentialIdentifier)}`}>Resolve envelope ↗</a></div>{delivery.results.length ? <div className="routing-delivered-results">{delivery.results.map((result) => <div key={`${delivery.id}-${result.analyte}`}><span>{result.analyte}</span><strong>{result.resultText}</strong><small>{result.unit}</small></div>)}</div> : <div className="routing-status-only"><strong>Status-only package</strong><span>No analytical values were included in this grant.</span></div>}{delivery.missingAnalytes.length ? <div className="routing-missing-analytes"><strong>Human review required</strong><span>Missing from the issued TECRID: {delivery.missingAnalytes.join(", ")}</span></div> : null}{delivery.scopeNote ? <p className="routing-scope-note">{delivery.scopeNote}</p> : null}</article>) : <div className="empty-state"><strong>No routed TECRIDs yet.</strong><p>After a verified laboratory issues and routes a matching TECRID, recipient-specific evidence packages appear here.</p></div>}</div></section>
+  </>;
+}

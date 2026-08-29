@@ -18,7 +18,10 @@ import type { ChatGPTUser } from "../app/chatgpt-auth";
 const ORGANIZATION_TYPES = new Set([
   "laboratory",
   "brand",
+  "supplier",
   "retailer",
+  "certification_body",
+  "government",
   "consultant",
   "research",
   "other",
@@ -59,6 +62,7 @@ export type SourceDocumentInput = {
 
 export type CredentialInput = {
   sampleName: string;
+  productSku?: string;
   lotNumber?: string;
   matrix?: string;
   method?: string;
@@ -67,6 +71,7 @@ export type CredentialInput = {
   receivedAt?: string;
   testedAt?: string;
   releasedAt?: string;
+  visibility?: "public" | "controlled";
   publish?: boolean;
   proof?: CredentialProofInput;
   sourceDocument?: SourceDocumentInput;
@@ -76,6 +81,7 @@ export type CredentialInput = {
 type CredentialCreationOptions = {
   legacyReportId?: string | null;
   issuanceBasis?: string | null;
+  controlledRoutingAuthorized?: boolean;
 };
 
 export type CredentialRevisionInput = Partial<CredentialInput> & {
@@ -168,6 +174,7 @@ function issuerPayload(input: CredentialInput) {
   return {
     type: "TestEvidenceCredential",
     sampleName: input.sampleName,
+    productSku: input.productSku ?? null,
     lotNumber: input.lotNumber ?? null,
     matrix: input.matrix ?? null,
     method: input.method ?? null,
@@ -176,6 +183,7 @@ function issuerPayload(input: CredentialInput) {
     receivedAt: input.receivedAt ?? null,
     testedAt: input.testedAt ?? null,
     releasedAt: input.releasedAt ?? null,
+    visibility: input.visibility ?? "public",
     sourceDocument: input.sourceDocument
       ? {
           sha256: input.sourceDocument.sha256,
@@ -973,6 +981,7 @@ function validateCredentialInput(value: unknown): CredentialInput {
 
   return {
     sampleName,
+    productSku: normalizeText(input.productSku, 100).toUpperCase().replace(/\s+/g, "-") || undefined,
     lotNumber: normalizeText(input.lotNumber, 120) || undefined,
     matrix: normalizeText(input.matrix, 120) || undefined,
     method: normalizeText(input.method, 160) || undefined,
@@ -981,6 +990,7 @@ function validateCredentialInput(value: unknown): CredentialInput {
     receivedAt: normalizeText(input.receivedAt, 40) || undefined,
     testedAt: normalizeText(input.testedAt, 40) || undefined,
     releasedAt: normalizeText(input.releasedAt, 40) || undefined,
+    visibility: input.visibility === "controlled" ? "controlled" : "public",
     publish: Boolean(input.publish),
     proof: normalizeProof(input.proof),
     sourceDocument,
@@ -1011,6 +1021,14 @@ export async function createCredential(
       "Only an ICS-verified laboratory issuer can publish a public TEC. This record can be saved as a draft.",
     );
   }
+  if (input.publish && input.visibility === "controlled" && !options.controlledRoutingAuthorized) {
+    throw new TecAuthorizationError(
+      "Controlled-result issuance requires a current routing authorization from the brand or ingredient supplier.",
+    );
+  }
+  if (input.publish && input.visibility === "controlled" && !input.productSku) {
+    throw new TecInputError("Controlled-result issuance requires productSku so the signed record can be bound to the authorized SKU.");
+  }
 
   const year = String(new Date().getUTCFullYear()).slice(-2);
   const identifier = `TECRID·${organization.issuerCode}-${year}-${randomCharacters(8)}`;
@@ -1036,6 +1054,7 @@ export async function createCredential(
     organizationId: organization.id,
     status: issued ? "issued" : "draft",
     sampleName: input.sampleName,
+    productSku: input.productSku ?? null,
     lotNumber: input.lotNumber ?? null,
     matrix: input.matrix ?? null,
     method: input.method ?? null,
@@ -1062,6 +1081,7 @@ export async function createCredential(
     laboratoryReportNumber: input.sourceDocument?.reportNumber ?? null,
     laboratoryOrderNumber: input.sourceDocument?.orderNumber ?? null,
     publicRecord: issued,
+    visibility: input.visibility ?? "public",
     createdByUserId: actorUserId,
     createdAt,
     updatedAt: createdAt,
@@ -1127,6 +1147,8 @@ export async function createCredential(
     status: issued ? "issued" : "draft",
     fingerprint,
     signatureVerified: Boolean(proofDetails),
+    visibility: input.visibility ?? "public",
+    productSku: input.productSku ?? null,
   };
 }
 
@@ -1230,8 +1252,10 @@ export async function getCredential(identifierValue: string, includeDraft = fals
 
 export function publicCredentialDocument(
   record: NonNullable<Awaited<ReturnType<typeof getCredential>>>,
+  options: { includeControlledResults?: boolean } = {},
 ) {
   const { credential, issuer, results, versions, integrity } = record;
+  const resultsControlled = credential.visibility === "controlled" && !options.includeControlledResults;
   return {
     schemaVersion: "tec-registry/1.0-draft",
     type: "TestEvidenceCredential",
@@ -1240,6 +1264,10 @@ export function publicCredentialDocument(
     version: credential.version,
     issuedAt: credential.issuedAt,
     updatedAt: credential.updatedAt,
+    visibility: credential.visibility,
+    resultsAccess: resultsControlled
+      ? { state: "controlled", grantRequired: true }
+      : { state: "included", grantRequired: false },
     issuer: {
       code: issuer.issuerCode,
       name: issuer.name,
@@ -1248,6 +1276,7 @@ export function publicCredentialDocument(
     },
     subject: {
       sampleName: credential.sampleName,
+      productSku: credential.productSku,
       lotNumber: credential.lotNumber,
       matrix: credential.matrix,
       method: credential.method,
@@ -1267,7 +1296,7 @@ export function publicCredentialDocument(
           publicDocument: false,
         }
       : null,
-    results: results.map((row) => ({
+    results: resultsControlled ? [] : results.map((row) => ({
       analyte: row.analyte,
       symbol: row.symbol,
       resultText: row.resultText,
@@ -1282,6 +1311,20 @@ export function publicCredentialDocument(
       fingerprintAlgorithm: credential.fingerprint ? "SHA-256" : null,
       fingerprint: credential.fingerprint,
       issuerProof:
+        resultsControlled
+          ? {
+              algorithm: credential.signatureAlgorithm,
+              keyId: credential.issuerKeyId,
+              keyReviewedAt: credential.issuerKeyVerifiedAt,
+              publicKeyJwk: credential.issuerPublicKeyJwk
+                ? JSON.parse(credential.issuerPublicKeyJwk)
+                : null,
+              signature: credential.issuerSignature,
+              signedPayload: null,
+              signedPayloadHash: credential.signedPayloadHash,
+              payloadWithheld: true,
+            }
+          :
         integrity.issuerSignatureVerified
           ? {
               algorithm: credential.signatureAlgorithm,
@@ -1296,7 +1339,25 @@ export function publicCredentialDocument(
             }
           : null,
     },
-    versions,
+    versions: resultsControlled
+      ? versions.map((version) => ({
+          version: version.version,
+          status: version.status,
+          fingerprint: version.fingerprint,
+          canonicalPayload: null,
+          issuerSignature: null,
+          issuerKeyId: version.issuerKeyId,
+          issuerPublicKeyJwk: null,
+          issuerKeyVerifiedAt: version.issuerKeyVerifiedAt,
+          signatureAlgorithm: version.signatureAlgorithm,
+          signedPayload: null,
+          signedPayloadHash: version.signedPayloadHash,
+          changeType: version.changeType,
+          changeReason: version.changeReason,
+          createdAt: version.createdAt,
+          payloadWithheld: true,
+        }))
+      : versions,
     links: {
       human: `/records/${encodeURIComponent(credential.identifier)}`,
       json: `/api/v1/credentials/${encodeURIComponent(credential.identifier)}`,
@@ -1345,6 +1406,7 @@ async function prepareCredentialRevision(
     action === "revoke"
       ? ({
           sampleName: current.credential.sampleName,
+          productSku: current.credential.productSku ?? undefined,
           lotNumber: current.credential.lotNumber ?? undefined,
           matrix: current.credential.matrix ?? undefined,
           method: current.credential.method ?? undefined,
@@ -1353,6 +1415,7 @@ async function prepareCredentialRevision(
           receivedAt: current.credential.receivedAt ?? undefined,
           testedAt: current.credential.testedAt ?? undefined,
           releasedAt: current.credential.releasedAt ?? undefined,
+          visibility: current.credential.visibility === "controlled" ? "controlled" : "public",
           publish: true,
           proof: normalizeProof(revision.proof),
           sourceDocument: preservedSourceDocument,
@@ -1368,6 +1431,8 @@ async function prepareCredentialRevision(
         } satisfies CredentialInput)
       : validateCredentialInput({
           ...revision,
+          productSku: current.credential.productSku ?? revision.productSku,
+          visibility: current.credential.visibility,
           publish: true,
           sourceDocument: preservedSourceDocument ?? revision.sourceDocument,
         });
@@ -1464,6 +1529,7 @@ export async function createCredentialRevision(
     .set({
       status,
       sampleName: prepared.input.sampleName,
+      productSku: prepared.input.productSku ?? null,
       lotNumber: prepared.input.lotNumber ?? null,
       matrix: prepared.input.matrix ?? null,
       method: prepared.input.method ?? null,
@@ -1472,6 +1538,7 @@ export async function createCredentialRevision(
       receivedAt: prepared.input.receivedAt ?? null,
       testedAt: prepared.input.testedAt ?? null,
       releasedAt: prepared.input.releasedAt ?? null,
+      visibility: prepared.input.visibility ?? "public",
       version: prepared.version,
       fingerprint,
       issuerSignature: proofDetails.issuerSignature,
@@ -1545,7 +1612,9 @@ export async function listCredentialsForApi(organizationId: string) {
       identifier: credentials.identifier,
       status: credentials.status,
       sampleName: credentials.sampleName,
+      productSku: credentials.productSku,
       lotNumber: credentials.lotNumber,
+      visibility: credentials.visibility,
       issuedAt: credentials.issuedAt,
       version: credentials.version,
       publicRecord: credentials.publicRecord,

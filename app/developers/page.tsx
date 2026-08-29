@@ -34,6 +34,7 @@ const createExample = `curl https://tecrid.com/api/v1/credentials \\
   -H "Content-Type: application/json" \\
   -d '{
     "sampleName": "Organic cacao powder",
+    "productSku": "CACAO-12OZ",
     "lotNumber": "C-240518",
     "matrix": "Food · Powder",
     "method": "ICP-MS",
@@ -52,6 +53,26 @@ const createExample = `curl https://tecrid.com/api/v1/credentials \\
     },
     "results": [
       { "analyte": "Lead", "symbol": "Pb", "resultText": "42", "unit": "µg/kg", "loqText": "10" }
+    ]
+  }'`;
+
+const controlledRoutingExample = `curl https://tecrid.com/api/v1/credentials \\
+  -H "Authorization: Bearer $LAB_TEC_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "sampleName": "Organic cacao powder",
+    "productSku": "CACAO-12OZ",
+    "lotNumber": "C-240518",
+    "visibility": "controlled",
+    "publish": true,
+    "routingToken": "tec_route_••••••••••••",
+    "proof": {
+      "keyId": "lab.example/key/2026-01",
+      "algorithm": "Ed25519",
+      "signature": "BASE64URL_SIGNATURE"
+    },
+    "results": [
+      { "analyte": "Lead", "resultText": "42", "unit": "µg/kg" }
     ]
   }'`;
 
@@ -75,6 +96,7 @@ export default function DevelopersPage() {
           <a href="#list">List credentials</a>
           <a href="#resolve">Resolve credential</a>
           <a href="#versions">Correct or revoke</a>
+          <a href="#controlled-routing">Controlled routing</a>
           <a href="#certification-intake">Certification intake</a>
           <a href="#errors">Errors</a>
           <a className="button-dark" href="/dashboard#api-keys">Create an API key →</a>
@@ -109,7 +131,7 @@ export default function DevelopersPage() {
           <section id="resolve">
             <p className="doc-index">05 / RESOLVE</p>
             <h2>GET /api/v1/credentials/:identifier</h2>
-            <p>Public, no API key required. Returns issuer status, sample context, results, current status, every recorded version, and an independently verifiable proof bundle: exact signed payload, Ed25519 signature, reviewed public key, key-review timestamp, and live fingerprint/signature checks.</p>
+            <p>Public, no API key required. A public credential returns its results and complete proof bundle. A controlled credential returns only its resolver envelope—issuer, status, fingerprint, and version metadata—while results, canonical payloads, and signed payload remain withheld.</p>
             <pre><code>curl https://tecrid.com/api/v1/credentials/TECRID%C2%B7YOUR-LAB-26-XXXXXXXX</code></pre>
           </section>
           <section id="versions">
@@ -126,8 +148,24 @@ export default function DevelopersPage() {
   }
 }`}</code></pre>
           </section>
+          <section id="controlled-routing">
+            <p className="doc-index">07 / CONTROLLED ROUTING</p>
+            <h2>Issue once. Deliver only to active grants.</h2>
+            <p>A certifier, retailer, or government workspace requests a SKU and result scope. The brand or ingredient supplier may approve a narrower grant, then creates a show-once <code>tec_route_…</code> token for one verified laboratory. TECRID stores only its SHA-256 hash.</p>
+            <p>The laboratory can attach the token to controlled issuance. The registry verifies the laboratory signature, finds the active recipient grants for that SKU, and freezes a separate fingerprinted view for each recipient.</p>
+            <pre><code>{controlledRoutingExample}</code></pre>
+            <h3>POST /api/v1/routing/deliveries · retry without reissuing</h3>
+            <pre><code>{`curl https://tecrid.com/api/v1/routing/deliveries \\
+  -H "Authorization: Bearer $BRAND_ROUTING_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{ "tecrid": "TECRID·LAB-26-000001" }'`}</code></pre>
+            <h3>GET /api/v1/routing/deliveries · receive routed evidence</h3>
+            <pre><code>{`curl https://tecrid.com/api/v1/routing/deliveries \\
+  -H "Authorization: Bearer $RECIPIENT_TEC_API_KEY"`}</code></pre>
+            <p>The recipient response contains only deliveries in which its organization is a party. Revocation blocks future delivery; it does not erase a package already received and relied upon.</p>
+          </section>
           <section id="certification-intake">
-            <p className="doc-index">07 / CERTIFICATION INTAKE</p>
+            <p className="doc-index">08 / CERTIFICATION INTAKE</p>
             <h2>POST /api/v1/certification/submissions</h2>
             <p>A certification organization creates a program-scoped intake secret in its dashboard and gives it to an applicant&apos;s system. The endpoint resolves every TECRID, blocks samples and incomplete authority, freezes each accepted public record version, and returns one package fingerprint.</p>
             <pre><code>{`curl https://tecrid.com/api/v1/certification/submissions \\
@@ -143,7 +181,7 @@ export default function DevelopersPage() {
             <p>The token begins <code>tec_intake_</code>, is displayed once, and is stored by TECRID only as a SHA-256 hash. Passing the intake gate does not award certification.</p>
           </section>
           <section id="errors">
-            <p className="doc-index">08 / ERRORS</p>
+            <p className="doc-index">09 / ERRORS</p>
             <h2>Stable, inspectable responses.</h2>
             <div className="error-table"><div><code>400</code><span>invalid_request</span><p>Required fields, result structure, revision reason, or proof shape is invalid.</p></div><div><code>403</code><span>not_authorized</span><p>The API key, issuer authority, reviewed signing key, or signature verification failed.</p></div><div><code>404</code><span>not_found</span><p>No public TECRID matches the identifier.</p></div></div>
           </section>

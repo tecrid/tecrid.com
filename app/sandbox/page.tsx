@@ -5,7 +5,7 @@ import { SandboxClient } from "./sandbox-client";
 
 export const metadata: Metadata = {
   title: "Interactive sandbox — TEC Registry",
-  description: "Try the TEC Registry workflow as a fictional brand, laboratory, supplier, or retailer.",
+  description: "Try controlled TEC evidence routing as a fictional brand, laboratory, supplier, retailer, or third-party certifier.",
   robots: { index: false, follow: true },
   openGraph: { title: "Interactive sandbox — TEC Registry", description: "A resettable demonstration workspace with fictional data.", images: [] },
   twitter: { title: "Interactive sandbox — TEC Registry", description: "A resettable demonstration workspace with fictional data.", images: [] },
@@ -22,7 +22,7 @@ export default async function SandboxPage() {
         <div>
           <p className="section-kicker light">Public sandbox · fictional data</p>
           <h1>Run the workflow from every side.</h1>
-          <p>Switch organizations, inspect the shared evidence, and see how one report moves from a brand request to a laboratory-issued TECRID.</p>
+          <p>Switch between five organizations and run a controlled record from laboratory issuance through recipient-specific certification and retailer delivery.</p>
         </div>
         <span className="sandbox-boundary">Isolated from the live registry</span>
       </header>
