@@ -1,8 +1,6 @@
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">TECRID identifier mark</title>
-  <desc id="desc">A blue circular tID mark for TECRID</desc>
+  <desc id="desc">The blue circular TECRID mark with a distinctive notched T</desc>
   <circle cx="32" cy="32" r="32" fill="#1743E3"/>
-  <path d="M16 10H21V21H29V29H21V40C21 44 22.8 45.5 27 45.5H29V52H25C17 52 13 48 13 40V29H6V21H13V13C13 11.343 14.343 10 16 10Z" fill="white"/>
-  <rect x="31" y="21" width="7" height="30" rx="3.5" fill="white"/>
-  <path fill-rule="evenodd" clip-rule="evenodd" d="M41 21H45.5C54.1 21 59 26.4 59 36C59 45.6 54.1 51 45.5 51H41V21ZM48 27V45C51.5 45 53 42.1 53 36C53 29.9 51.5 27 48 27Z" fill="white"/>
+  <path d="M18 18H46V26H37V42H33V50H27V26H18V18Z" fill="white"/>
 </svg>

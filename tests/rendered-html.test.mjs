@@ -82,10 +82,11 @@ test("defines TECRID for people, search engines, and AI answer systems", async (
 });
 
 test("publishes a portable, minification-safe TECRID identity mark and email-signature workflow", async () => {
-  const [response, nav, sharingClient, participantRoute, identifierMark] = await Promise.all([
+  const [response, nav, sharingClient, participantDirectory, participantRoute, identifierMark] = await Promise.all([
     render("/badge?code=PFND"),
     readFile(new URL("../app/site-nav.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/dashboard/sharing/sharing-client.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/participants/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/participants/[issuerCode]/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../public/brand/tecrid-id.svg", import.meta.url), "utf8"),
   ]);
@@ -99,11 +100,14 @@ test("publishes a portable, minification-safe TECRID identity mark and email-sig
   assert.match(nav, /href="\/badge"/);
   assert.match(sharingClient, /Copy email-signature HTML/);
   assert.match(sharingClient, /tecrid-profile-badge\.png/);
+  assert.match(participantDirectory, /className="product-hero participants-hero"/);
   assert.match(participantRoute, /getPublicParticipant/);
   assert.match(participantRoute, /What this profile proves/);
+  assert.match(participantRoute, /\/brand\/tecrid-logo\.png/);
   assert.match(identifierMark, /viewBox="0 0 64 64"/);
   assert.match(identifierMark, /fill="#1743E3"/);
   assert.match(identifierMark, /fill="white"/);
+  assert.match(identifierMark, /M18 18H46V26H37V42H33V50H27V26H18V18Z/);
   assert.doesNotMatch(identifierMark, /<text|gradient|filter|stroke=/i);
   await assert.doesNotReject(access(new URL("../public/brand/tecrid-id.svg", import.meta.url)));
   await assert.doesNotReject(access(new URL("../public/brand/tecrid-id.png", import.meta.url)));

@@ -23,7 +23,7 @@ export default async function ParticipantsPage() {
   return (
     <main className="product-page participants-page">
       <ProductNav />
-      <header className="participants-hero">
+      <header className="product-hero participants-hero">
         <p className="section-kicker light">Opt-in network directory</p>
         <h1>Participants,<br />with roles made explicit.</h1>
         <p>Organizations appear here only when they choose to be discoverable. An integration pilot is not a laboratory endorsement, and a participant profile does not grant access to private evidence.</p>

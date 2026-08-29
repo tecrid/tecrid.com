@@ -37,7 +37,7 @@ export default async function ParticipantProfilePage({ params }: PageProps) {
       <ProductNav compact />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replaceAll("<", "\\u003c") }} />
       <header className="record-page-hero participant-profile-hero">
-        <div className="participant-profile-title"><img src="/brand/tecrid-id.svg" width="74" height="74" alt="" /><div><p className="section-kicker light">Public TECRID participant</p><h1>{profile.displayName}</h1><p>{role} · Organization code {organization.issuerCode}</p></div></div>
+        <div className="participant-profile-title"><img src="/brand/tecrid-logo.png" width="74" height="74" alt="" /><div><p className="section-kicker light">Public TECRID participant</p><h1>{profile.displayName}</h1><p>{role} · Organization code {organization.issuerCode}</p></div></div>
         <span className={profile.registryVerified ? "public-verified" : "public-unverified"}><i /> {profile.registryVerified ? "Operator verified identity" : "Account-supplied identity"}</span>
       </header>
       <section className="participant-profile-shell">
