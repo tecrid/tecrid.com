@@ -18,6 +18,14 @@ export default async function DashboardPage() {
   const user = await requireChatGPTUser("/dashboard");
   const data = await getDashboardData(user.userId);
   const legacyReports = data ? await listLegacyReportsForUser(user) : [];
+  const activeApiKey = data?.keys.some((key) => !key.revokedAt) ?? false;
+  const laboratoryMilestones = data?.organization.organizationType === "laboratory" ? [
+    { label: "Workspace", detail: "Organization created", complete: true, href: "/dashboard" },
+    { label: "Verification", detail: data.organization.issuerStatus === "verified" ? "Issuer authority active" : data.issuerApplication ? "ICS review in progress" : "Application not started", complete: data.organization.issuerStatus === "verified", href: "/dashboard#laboratory-verification" },
+    { label: "Integration", detail: activeApiKey ? "API access ready" : "Create API access", complete: activeApiKey, href: "/dashboard/settings#api-keys" },
+    { label: "First TECRID", detail: data.records.length ? `${data.records.length} credential${data.records.length === 1 ? "" : "s"} created` : "Create the first credential", complete: data.records.length > 0, href: "/dashboard/credentials/new" },
+  ] : [];
+  const nextLaboratoryMilestone = laboratoryMilestones.find((step) => !step.complete) ?? { label: "Monitor", detail: "Review report activity", complete: false, href: "/dashboard/insights" };
 
   return (
     <main className="product-page dashboard-page">
@@ -35,6 +43,11 @@ export default async function DashboardPage() {
         <section className="dashboard-onboarding"><OrganizationOnboarding email={user.email} /></section>
       ) : (
         <div className="dashboard-shell">
+          {laboratoryMilestones.length ? <section className="dashboard-launch-path" aria-label="Laboratory onboarding path">
+            <div><p className="section-kicker light">Recommended next action</p><h2>{nextLaboratoryMilestone.detail}</h2><p>Complete the laboratory path in order, while keeping verification, API setup, and issuance as separate gates.</p><Link className="button-mint" href={nextLaboratoryMilestone.href}>Continue {nextLaboratoryMilestone.label.toLowerCase()} →</Link></div>
+            <ol>{laboratoryMilestones.map((step, index) => <li className={step.complete ? "complete" : step === nextLaboratoryMilestone ? "next" : ""} key={step.label}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{step.label}</strong><small>{step.detail}</small></div><Link href={step.href}>{step.complete ? "Review" : "Open"} →</Link></li>)}</ol>
+          </section> : null}
+
           <section className="dashboard-summary" aria-label="Workspace summary">
             <article><span>Plan</span><strong>{data.organization.plan === "free" ? "Open network" : data.organization.plan}</strong><small>Verification remains free</small></article>
             <article><span>Issuer status</span><strong className={`status-${data.organization.issuerStatus}`}>{data.organization.issuerStatus.replaceAll("_", " ")}</strong><small>{data.organization.organizationType === "laboratory" ? "ICS review required for public issuance" : "Public issuance belongs to laboratories"}</small></article>
@@ -52,36 +65,36 @@ export default async function DashboardPage() {
           </section>
 
           <section className="dashboard-workflow-grid">
-            <article className="dashboard-workflow-card sharing-card">
+            <Link className="dashboard-workflow-card sharing-card" href="/dashboard/sharing">
               <p className="section-kicker light">Scoped share codes</p>
               <h2>Replace document uploads with consented evidence packages.</h2>
               <p>Create recipient-bound codes for selected TECRIDs, selected SKUs, or a time-limited portfolio. Every redemption produces a fingerprinted receipt.</p>
-              <Link href="/dashboard/sharing">Open evidence sharing →</Link>
-            </article>
-            <article className="dashboard-workflow-card routing-card">
+              <span>Open evidence sharing →</span>
+            </Link>
+            <Link className="dashboard-workflow-card routing-card" href="/dashboard/evidence-routing">
               <p className="section-kicker light">Controlled evidence routing</p>
               <h2>Request, grant, and deliver by SKU.</h2>
               <p>Let certifiers, retailers, and government programs request TECRIDs while the brand or supplier controls each recipient, result scope, and laboratory route.</p>
-              <Link href="/dashboard/evidence-routing">Open evidence routing →</Link>
-            </article>
-            <article className="dashboard-workflow-card verification-card">
+              <span>Open evidence routing →</span>
+            </Link>
+            <Link className="dashboard-workflow-card verification-card" href="/dashboard/lab-defense">
               <p className="section-kicker">Laboratory verification desk</p>
               <h2>Answer report questions with durable receipts.</h2>
               <p>See checks against issued records, compare two public TECRIDs, and download one fingerprinted evidence manifest for technical review.</p>
-              <Link href="/dashboard/lab-defense">Open laboratory desk →</Link>
-            </article>
-            <article className="dashboard-workflow-card certification-card">
+              <span>Open laboratory desk →</span>
+            </Link>
+            <Link className="dashboard-workflow-card certification-card" href="/dashboard/certification">
               <p className="section-kicker light">Certification intake</p>
               <h2>Receive evidence by ID, CSV, or API.</h2>
               <p>Create applicant submission links and scoped API tokens. Every TECRID is authority-checked and frozen at the version reviewed.</p>
-              <Link href="/dashboard/certification">Open certification intake →</Link>
-            </article>
-            <article className="dashboard-workflow-card insights-card">
+              <span>Open certification intake →</span>
+            </Link>
+            <Link className="dashboard-workflow-card insights-card" href="/dashboard/insights">
               <p className="section-kicker">Evidence insights</p>
               <h2>Review the portfolio without flattening the evidence.</h2>
               <p>See result coverage, SKU volume, missing requested analytes, and the exact TECRID behind every summary.</p>
-              <Link href="/dashboard/insights">Open evidence insights →</Link>
-            </article>
+              <span>Open evidence insights →</span>
+            </Link>
           </section>
 
           <section className="dashboard-panel legacy-report-panel">
@@ -102,7 +115,7 @@ export default async function DashboardPage() {
             </div>
           </section>
 
-          <section className="dashboard-panel credential-panel">
+          <section className="dashboard-panel credential-panel" id="credentials">
             <div className="panel-heading">
               <div><p className="section-kicker">Evidence records</p><h2>Credentials</h2></div>
               <a className="button-dark" href="/dashboard/credentials/new">New credential <span>→</span></a>
