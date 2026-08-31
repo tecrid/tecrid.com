@@ -43,6 +43,35 @@ describe("ProfileSettingsForm", () => {
     assert.equal(screen.getByRole("link", { name: "View public profile ↗" }).getAttribute("href"), "https://tecrid.com/participants/LAB%20%2F%201");
   });
 
+  it("adopts normalized saved fields for display and the next submission", async () => {
+    const normalized = {
+      displayName: "Normalized Laboratory",
+      website: "https://normalized.example",
+      summary: "Normalized summary.",
+      isPublic: true,
+    };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(Response.json({ result: normalized }))
+      .mockResolvedValueOnce(Response.json({ result: normalized }));
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ProfileSettingsForm organization={organization} profile={publicProfile} />);
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Public organization name" }), { target: { value: "Normalized Laboratory with text the server removes" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Website" }), { target: { value: "https://normalized.example/extra" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Public description" }), { target: { value: "Normalized summary with text the server removes." } });
+    const form = screen.getByRole("button", { name: "Save profile settings →" }).closest("form")!;
+    fireEvent.submit(form);
+
+    await waitFor(() => assert.equal((screen.getByRole("textbox", { name: "Public organization name" }) as HTMLInputElement).value, normalized.displayName));
+    assert.equal((screen.getByRole("textbox", { name: "Website" }) as HTMLInputElement).value, normalized.website);
+    assert.equal((screen.getByRole("textbox", { name: "Public description" }) as HTMLTextAreaElement).value, normalized.summary);
+
+    fireEvent.submit(form);
+    await waitFor(() => assert.equal(fetchMock.mock.calls.length, 2));
+    const secondRequest = fetchMock.mock.calls[1][1] as RequestInit;
+    assert.deepEqual(JSON.parse(String(secondRequest.body)), normalized);
+  });
+
   it("re-enables saving when the request fails or returns malformed JSON", async () => {
     const fetchMock = vi.fn()
       .mockRejectedValueOnce(new TypeError("offline"))
