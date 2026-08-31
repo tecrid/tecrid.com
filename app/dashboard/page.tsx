@@ -6,6 +6,7 @@ import { listLegacyReportsForUser } from "../../lib/legacy-reports";
 import { ProductFooter, ProductNav } from "../site-nav";
 import { ApiKeyPanel, OrganizationOnboarding } from "./dashboard-client";
 import { IssuerApplicationPanel } from "./issuer-application";
+import { getVerificationProgress } from "./laboratory-progress";
 
 export const dynamic = "force-dynamic";
 
@@ -19,9 +20,13 @@ export default async function DashboardPage() {
   const data = await getDashboardData(user.userId);
   const legacyReports = data ? await listLegacyReportsForUser(user) : [];
   const activeApiKey = data?.keys.some((key) => !key.revokedAt) ?? false;
+  const verificationProgress = getVerificationProgress(
+    data?.organization.issuerStatus ?? "pending",
+    data?.issuerApplication?.status,
+  );
   const laboratoryMilestones = data?.organization.organizationType === "laboratory" ? [
     { label: "Workspace", detail: "Organization created", complete: true, href: "/dashboard" },
-    { label: "Verification", detail: data.organization.issuerStatus === "verified" ? "Issuer authority active" : data.issuerApplication ? "ICS review in progress" : "Application not started", complete: data.organization.issuerStatus === "verified", href: "/dashboard#laboratory-verification" },
+    { label: "Verification", detail: verificationProgress.detail, complete: data.organization.issuerStatus === "verified", href: "/dashboard#laboratory-verification" },
     { label: "Integration", detail: activeApiKey ? "API access ready" : "Create API access", complete: activeApiKey, href: "/dashboard/settings#api-keys" },
     { label: "First TECRID", detail: data.records.length ? `${data.records.length} credential${data.records.length === 1 ? "" : "s"} created` : "Create the first credential", complete: data.records.length > 0, href: "/dashboard/credentials/new" },
   ] : [];

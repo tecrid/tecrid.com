@@ -22,7 +22,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           plan: data.organization.plan,
         }}
         progress={{
-          hasApplication: Boolean(data.issuerApplication),
+          applicationStatus: data.issuerApplication?.status ?? null,
           hasApiKey: data.keys.some((key) => !key.revokedAt),
           hasCredential: data.records.length > 0,
         }}

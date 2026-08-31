@@ -3,9 +3,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { getVerificationProgress } from "./laboratory-progress";
 
 type Organization = { name: string; code: string; type: string; issuerStatus: string; plan: string };
-type Progress = { hasApplication: boolean; hasApiKey: boolean; hasCredential: boolean };
+type Progress = { applicationStatus: string | null; hasApiKey: boolean; hasCredential: boolean };
 
 const roleNames: Record<string, string> = {
   laboratory: "Testing laboratory",
@@ -40,6 +41,7 @@ export function WorkspaceSidebar({ organization, progress, user, signOutHref }: 
   const controller = ["brand", "supplier"].includes(organization.type);
   const recipient = ["retailer", "certification_body", "government"].includes(organization.type);
   const verificationComplete = organization.issuerStatus === "verified";
+  const verificationProgress = getVerificationProgress(organization.issuerStatus, progress.applicationStatus);
   const completed = [true, verificationComplete, progress.hasApiKey, progress.hasCredential].filter(Boolean).length;
 
   const primary = laboratory ? [
@@ -82,7 +84,7 @@ export function WorkspaceSidebar({ organization, progress, user, signOutHref }: 
         <div><span>Laboratory launch</span><strong>{completed}/4</strong></div>
         <ol>
           <li className="complete"><i>1</i><span>Workspace created</span></li>
-          <li className={verificationComplete ? "complete" : "next"}><i>2</i><Link href="/dashboard#laboratory-verification">{verificationComplete ? "Issuer verified" : progress.hasApplication ? "Verification in review" : "Start verification"}</Link></li>
+          <li className={verificationComplete ? "complete" : "next"}><i>2</i><Link href="/dashboard#laboratory-verification">{verificationProgress.sidebarLabel}</Link></li>
           <li className={progress.hasApiKey ? "complete" : "next"}><i>3</i><Link href="/dashboard/settings#api-keys">{progress.hasApiKey ? "API access ready" : "Connect API"}</Link></li>
           <li className={progress.hasCredential ? "complete" : "next"}><i>4</i><Link href="/dashboard/credentials/new">{progress.hasCredential ? "First credential created" : "Create first credential"}</Link></li>
         </ol>

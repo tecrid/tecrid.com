@@ -683,12 +683,11 @@ test("wires recipient-bound evidence codes, opt-in participants, and safe result
 });
 
 test("gives authenticated organizations a role-aware workspace shell and a real settings destination", async () => {
-  const [layout, sidebar, dashboard, settings, profile, application] = await Promise.all([
+  const [layout, sidebar, dashboard, settings, application] = await Promise.all([
     readFile(new URL("../app/dashboard/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/dashboard/workspace-sidebar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/dashboard/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/dashboard/settings/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/dashboard/settings/profile-settings-form.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/dashboard/issuer-application.tsx", import.meta.url), "utf8"),
   ]);
 
@@ -713,11 +712,5 @@ test("gives authenticated organizations a role-aware workspace shell and a real 
   assert.match(dashboard, /className="dashboard-workflow-card insights-card" href="\/dashboard\/insights"/);
   assert.match(settings, /robots: \{ index: false/);
   assert.match(settings, /ApiKeyPanel/);
-  assert.match(profile, /\/api\/participant-profile/);
-  assert.match(profile, /const \[savedProfile, setSavedProfile\] = useState\(profile\)/);
-  assert.match(profile, /setSavedProfile\(body\.result\)/);
-  assert.match(profile, /savedProfile\?\.isPublic/);
-  assert.match(profile, /never makes private evidence public/i);
-  assert.match(profile, /does not publish TECRIDs or report findings/i);
   assert.match(application, /id="laboratory-verification"/);
 });

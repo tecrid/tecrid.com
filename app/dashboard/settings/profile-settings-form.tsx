@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 type Profile = { displayName: string; website: string | null; summary: string; isPublic: boolean } | null;
+type SaveResponse = { error?: string; result?: NonNullable<Profile> };
 
 export function ProfileSettingsForm({ organization, profile }: {
   organization: { name: string; code: string; website: string | null };
@@ -17,22 +18,34 @@ export function ProfileSettingsForm({ organization, profile }: {
     event.preventDefault();
     setPending(true);
     setMessage("Saving profile settings…");
-    const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/participant-profile", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        displayName: form.get("displayName"),
-        website: form.get("website"),
-        summary: form.get("summary"),
-        isPublic: form.get("isPublic") === "on",
-      }),
-    });
-    const body = await response.json() as { error?: string; result: NonNullable<Profile> };
-    setPending(false);
-    if (!response.ok) return setMessage(body.error || "The profile could not be saved.");
-    setSavedProfile(body.result);
-    setMessage("Profile settings saved.");
+    try {
+      const form = new FormData(event.currentTarget);
+      const response = await fetch("/api/participant-profile", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          displayName: form.get("displayName"),
+          website: form.get("website"),
+          summary: form.get("summary"),
+          isPublic: form.get("isPublic") === "on",
+        }),
+      });
+      const body = await response.json().catch(() => null) as SaveResponse | null;
+      if (!response.ok) {
+        setMessage(body?.error || "The profile could not be saved.");
+        return;
+      }
+      if (!body?.result) {
+        setMessage("The profile could not be saved.");
+        return;
+      }
+      setSavedProfile(body.result);
+      setMessage("Profile settings saved.");
+    } catch {
+      setMessage("The profile could not be saved. Check your connection and try again.");
+    } finally {
+      setPending(false);
+    }
   }
 
   const profileUrl = `https://tecrid.com/participants/${encodeURIComponent(organization.code)}`;
