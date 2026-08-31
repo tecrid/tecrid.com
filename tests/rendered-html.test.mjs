@@ -714,6 +714,9 @@ test("gives authenticated organizations a role-aware workspace shell and a real 
   assert.match(settings, /robots: \{ index: false/);
   assert.match(settings, /ApiKeyPanel/);
   assert.match(profile, /\/api\/participant-profile/);
+  assert.match(profile, /const \[savedProfile, setSavedProfile\] = useState\(profile\)/);
+  assert.match(profile, /setSavedProfile\(body\.result\)/);
+  assert.match(profile, /savedProfile\?\.isPublic/);
   assert.match(profile, /never makes private evidence public/i);
   assert.match(profile, /does not publish TECRIDs or report findings/i);
   assert.match(application, /id="laboratory-verification"/);
