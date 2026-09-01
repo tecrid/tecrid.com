@@ -313,6 +313,7 @@ Content-Type: application/json
             <p>The TECRID Connect starter includes configuration profiles for LabWare, LabVantage, and STARLIMS plus generic JSON and CSV. These profiles map each system&apos;s release event and report-template fields to the same reserve/finalize protocol. They are implementation starters, not vendor-certified integrations.</p>
             <p><a className="button-dark" href="https://github.com/tecrid/tecrid-connect">Open the public TECRID Connect repository ↗</a></p>
             <p><a href="https://github.com/tecrid/tecrid-specification" target="_blank" rel="noreferrer">Read the versioned TECRID specification and JSON Schemas ↗</a></p>
+            <p><a href="https://doi.org/10.5281/zenodo.22232196" target="_blank" rel="noreferrer">Cite the TECRID Specification v0.1.0 on Zenodo ↗</a></p>
             <p>The repository is the canonical starting point for labs, brands, suppliers, retailers, and certification programs. It includes role-specific setup, report reservation and finalization examples, connector profiles, signing utilities, and deployment-safe environment guidance. A versioned ZIP remains available for offline review.</p>
             <p><a href="/downloads/tecrid-connect.zip">Download the current ZIP snapshot →</a></p>
             <p>Outbound email is not yet a production claim. In-product notifications and controller receipts are live; email delivery still requires a configured sending provider and deliverability controls.</p>

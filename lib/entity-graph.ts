@@ -1,6 +1,9 @@
 export const TECRID_ORIGIN = "https://tecrid.com";
 export const TECRID_WEBSITE_ID = `${TECRID_ORIGIN}/#website`;
 export const TECRID_SERVICE_ID = `${TECRID_ORIGIN}/#service`;
+export const TECRID_SPECIFICATION_DOI = "10.5281/zenodo.22232196";
+export const TECRID_SPECIFICATION_DOI_URL = `https://doi.org/${TECRID_SPECIFICATION_DOI}`;
+export const TECRID_SPECIFICATION_REPOSITORY_URL = "https://github.com/tecrid/tecrid-specification";
 
 export const ICS_ORIGIN = "https://contaminantstandards.com";
 export const ICS_ORGANIZATION_ID = `${ICS_ORIGIN}/#organization`;
