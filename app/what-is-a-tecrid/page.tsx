@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SAMPLE_TECRID } from "../../lib/sample-tecrid";
 import { ProductFooter, ProductNav } from "../site-nav";
+import { ICS_ORGANIZATION_ID, TECRID_WEBSITE_ID } from "../../lib/entity-graph";
 
 const canonicalUrl = "https://tecrid.com/what-is-a-tecrid";
 const definition = "A TECRID is a permanent identifier for a laboratory-issued Test Evidence Credential: a structured digital record of what was tested, what the laboratory reported, who issued it, and whether the record has changed.";
@@ -61,8 +62,8 @@ const jsonLd = {
       description: definition,
       dateModified: "2026-08-29",
       about: { "@id": `${canonicalUrl}#term` },
-      isPartOf: { "@type": "WebSite", "@id": "https://tecrid.com/#website", name: "TECRID · TEC Registry", url: "https://tecrid.com" },
-      publisher: { "@type": "Organization", "@id": "https://tecrid.com/#ics", name: "Institute of Contaminant Standards", url: "https://contaminantstandards.com" },
+      isPartOf: { "@type": "WebSite", "@id": TECRID_WEBSITE_ID, name: "TECRID · TEC Registry", url: "https://tecrid.com" },
+      publisher: { "@type": "Organization", "@id": ICS_ORGANIZATION_ID, name: "Institute of Contaminant Standards", url: "https://contaminantstandards.com" },
     },
     {
       "@type": "FAQPage",

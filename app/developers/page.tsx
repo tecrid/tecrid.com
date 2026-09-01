@@ -1,10 +1,32 @@
 import type { Metadata } from "next";
 import { ProductFooter, ProductNav } from "../site-nav";
+import {
+  ICS_ORGANIZATION_ID,
+  TECRID_SERVICE_ID,
+  TECRID_WEBSITE_ID,
+} from "../../lib/entity-graph";
 
 export const metadata: Metadata = {
   title: "TECRID API and Integration",
   description: "Integrate TECRID with a LIMS, brand portal, retailer system, or certification program through the implemented v1 API and agent-guided connector.",
   alternates: { canonical: "https://tecrid.com/developers" },
+};
+
+const developersJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "@id": "https://tecrid.com/developers#documentation",
+  name: "TECRID API and Integration",
+  headline: "TECRID API and Integration",
+  description: "Implemented v1 API documentation for issuing, resolving, correcting, revoking, and routing TECRID laboratory evidence records.",
+  url: "https://tecrid.com/developers",
+  inLanguage: "en",
+  isAccessibleForFree: true,
+  publisher: { "@id": ICS_ORGANIZATION_ID },
+  isPartOf: { "@id": TECRID_WEBSITE_ID },
+  about: { "@id": TECRID_SERVICE_ID },
+  dependencies: "TECRID Connect",
+  codeRepository: "https://github.com/tecrid/tecrid-connect",
 };
 
 const credentialBody = `{
@@ -115,6 +137,7 @@ export default function DevelopersPage() {
   return (
     <main className="product-page developers-page">
       <ProductNav compact />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(developersJsonLd).replaceAll("<", "\\u003c") }} />
       <section className="product-hero api-hero">
         <p className="section-kicker light">TEC Registry API · v1</p>
         <h1>Canonicalize. Sign.<br />Issue. Resolve.</h1>
@@ -289,6 +312,9 @@ Content-Type: application/json
             <h2>Start with a report-release hook, not a LIMS replacement.</h2>
             <p>The TECRID Connect starter includes configuration profiles for LabWare, LabVantage, and STARLIMS plus generic JSON and CSV. These profiles map each system&apos;s release event and report-template fields to the same reserve/finalize protocol. They are implementation starters, not vendor-certified integrations.</p>
             <p><a className="button-dark" href="https://github.com/tecrid/tecrid-connect">Open the public TECRID Connect repository ↗</a></p>
+            <p><a href="https://github.com/tecrid/tecrid-specification" target="_blank" rel="noreferrer">Read the versioned TECRID specification and JSON Schemas ↗</a></p>
+            <p><a href="https://doi.org/10.5281/zenodo.22232196" target="_blank" rel="noreferrer">Cite the TECRID Specification v0.1.0 on Zenodo ↗</a></p>
+            <p><a href="https://doi.org/10.5281/zenodo.22232195" target="_blank" rel="noreferrer">Reference the TECRID Specification across all versions ↗</a></p>
             <p>The repository is the canonical starting point for labs, brands, suppliers, retailers, and certification programs. It includes role-specific setup, report reservation and finalization examples, connector profiles, signing utilities, and deployment-safe environment guidance. A versioned ZIP remains available for offline review.</p>
             <p><a href="/downloads/tecrid-connect.zip">Download the current ZIP snapshot →</a></p>
             <p>Outbound email is not yet a production claim. In-product notifications and controller receipts are live; email delivery still requires a configured sending provider and deliverability controls.</p>

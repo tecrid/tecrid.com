@@ -33,6 +33,11 @@ test("renders the TEC Registry public product", async () => {
   assert.match(html, /Look up a TECRID/);
   assert.match(html, /Try the sample TECRID/);
   assert.match(html, /Institute of Contaminant Standards/);
+  assert.match(html, /https:\/\/contaminantstandards\.com\/#organization/);
+  assert.match(html, /https:\/\/contaminantstandards\.com\/people\/karen-pendergrass#person/);
+  assert.match(html, /https:\/\/orcid\.org\/0000-0002-2348-7259/);
+  assert.match(html, /https:\/\/tecrid\.com\/#service/);
+  assert.doesNotMatch(html, /https:\/\/tecrid\.com\/#ics/);
   assert.match(html, /<meta name="google-site-verification" content="1NWO0uv6B0GJqNBADyugLLo1W4d9dXlJ5T9nEide21Y"/i);
   assert.doesNotMatch(html, /codex-preview|loading skeleton|react-loading-skeleton/i);
 });
@@ -205,6 +210,8 @@ test("renders pricing and API documentation", async () => {
   assert.match(developers, /TECRID Connect/);
   assert.match(developers, /POST \/api\/v1\/credentials/);
   assert.match(developers, /Bearer keys/);
+  assert.match(developers, /https:\/\/tecrid\.com\/developers#documentation/);
+  assert.match(developers, /github\.com\/tecrid\/tecrid-specification/);
 });
 
 test("publishes privacy boundaries that match controlled TECRID workflows", async () => {
@@ -680,4 +687,37 @@ test("wires recipient-bound evidence codes, opt-in participants, and safe result
   const developerHtml = await developers.text();
   assert.match(developerHtml, /POST \/api\/v1\/share-codes\/redeem/);
   assert.match(developerHtml, /github\.com\/tecrid\/tecrid-connect/);
+});
+
+test("gives authenticated organizations a role-aware workspace shell and a real settings destination", async () => {
+  const [layout, sidebar, dashboard, settings, application] = await Promise.all([
+    readFile(new URL("../app/dashboard/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/workspace-sidebar.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/settings/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/issuer-application.tsx", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(layout, /getChatGPTUser/);
+  assert.match(layout, /getDashboardData/);
+  assert.match(layout, /WorkspaceSidebar/);
+  assert.match(sidebar, /usePathname/);
+  assert.match(sidebar, /aria-current/);
+  assert.match(sidebar, /Laboratory launch/);
+  for (const destination of [
+    "/dashboard/sharing",
+    "/dashboard/lab-defense",
+    "/dashboard/certification",
+    "/dashboard/evidence-routing",
+    "/dashboard/insights",
+    "/dashboard/reports/new",
+    "/dashboard/credentials/new",
+    "/dashboard/settings",
+  ]) assert.match(sidebar, new RegExp(destination.replaceAll("/", "\\/")));
+
+  assert.match(dashboard, /className="dashboard-workflow-card sharing-card" href="\/dashboard\/sharing"/);
+  assert.match(dashboard, /className="dashboard-workflow-card insights-card" href="\/dashboard\/insights"/);
+  assert.match(settings, /robots: \{ index: false/);
+  assert.match(settings, /ApiKeyPanel/);
+  assert.match(application, /id="laboratory-verification"/);
 });
