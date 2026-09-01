@@ -33,6 +33,11 @@ test("renders the TEC Registry public product", async () => {
   assert.match(html, /Look up a TECRID/);
   assert.match(html, /Try the sample TECRID/);
   assert.match(html, /Institute of Contaminant Standards/);
+  assert.match(html, /https:\/\/contaminantstandards\.com\/#organization/);
+  assert.match(html, /https:\/\/contaminantstandards\.com\/people\/karen-pendergrass#person/);
+  assert.match(html, /https:\/\/orcid\.org\/0000-0002-2348-7259/);
+  assert.match(html, /https:\/\/tecrid\.com\/#service/);
+  assert.doesNotMatch(html, /https:\/\/tecrid\.com\/#ics/);
   assert.match(html, /<meta name="google-site-verification" content="1NWO0uv6B0GJqNBADyugLLo1W4d9dXlJ5T9nEide21Y"/i);
   assert.doesNotMatch(html, /codex-preview|loading skeleton|react-loading-skeleton/i);
 });
@@ -205,6 +210,8 @@ test("renders pricing and API documentation", async () => {
   assert.match(developers, /TECRID Connect/);
   assert.match(developers, /POST \/api\/v1\/credentials/);
   assert.match(developers, /Bearer keys/);
+  assert.match(developers, /https:\/\/tecrid\.com\/developers#documentation/);
+  assert.match(developers, /github\.com\/tecrid\/tecrid-specification/);
 });
 
 test("publishes privacy boundaries that match controlled TECRID workflows", async () => {
