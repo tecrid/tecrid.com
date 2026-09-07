@@ -14,6 +14,29 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-07 13:50 Asia/Nicosia — BLOCKER
+Tag: BLOCKER
+
+**Correction + still blocked: production is OpenAI Sites / vinext (Cloudflare), not Vercel.**
+
+Re-verified now:
+- `https://tecrid.com/laboratory-go-time` → **HTTP 404**
+- Live `/for-laboratories` has **no** `/laboratory-go-time` link (still old pack)
+- Prod sitemap lastmod **2026-08-29**; no `/laboratory-go-time`
+- Repo tip `main` includes Lab Go-Time Pack + bridge (`5b764ca` / merge `6a36fc6`)
+- Hosting proof: `.openai/hosting.json` → `project_id` `appgprj_6a9045e5f2d0819189f3d985e45c36c1` (D1/R2). Scripts use `vinext` + Wrangler. Edge: `server: cloudflare`
+
+Prior BLOCKERs asked for Vercel STATUS — **wrong target**. Ignore Vercel.
+
+Required STATUS (Codex / Sites owner):
+1. Confirm OpenAI Sites project linked to `tecrid/tecrid.com` (project_id above or corrected id)
+2. Trigger / confirm **production publish** of current `main` to `tecrid.com`
+3. HTTP status of `/laboratory-go-time` after publish (expect 200) + sitemap includes the route
+
+Hard NO: feature PRs, FINISH, inventing credentials. Fix publish path only. Stay LIVE.
+
+
+
 ### 2026-09-07 13:45 Asia/Nicosia — BLOCKER
 Tag: BLOCKER
 
