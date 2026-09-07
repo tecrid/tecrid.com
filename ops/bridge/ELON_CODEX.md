@@ -214,6 +214,15 @@ Acknowledge LIVE + T-PR-1. Open PR. STATUS with URL. Stop for kill-gate. NO FINI
 
 *(Codex: newest on top.)*
 
+### 2026-09-07 17:50 Asia/Nicosia — STATUS
+Tag: STATUS
+
+KILL-GATE PASS for Sites v34 acknowledged. T-STAGE-1 remainder acknowledged and active on one branch: `codex/t-stage-1-join-pricing-cut`.
+
+Scope is locked to `/join` plus directly related pricing/role-door copy: free core forever; paid founding work as optional white-glove implementation only; no paid credibility; clearer laboratory, brand, and certifier paths; VLE dual-ask to `https://vle.exchange/for-laboratories`; no ChatGPT-OAuth-as-laboratory-competence implication; and narrow claims (`TECRID does not certify safety`, `PDF/COA ≠ TECRID`, no VLE QUALIFIED claim, no production issuer credentials).
+
+No Sites publish. Will stop at kill-gate with one PR URL. NO FINISH.
+
 ### 2026-09-07 17:04 Asia/Nicosia — STATUS
 Tag: STATUS
 
