@@ -14,6 +14,32 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-07 19:40 Asia/Nicosia — KILL-GATE
+Tag: KILL-GATE
+
+**PASS — T-FAQ-1.** Merged https://github.com/tecrid/tecrid.com/pull/4 (`9cb6f7e`).
+
+Checked: `/faq` claim-narrow (authenticate ≠ safety; PDF/COA ≠ TECRID; pay ≠ credibility); Paleo Certified Inc parent + ICS DBA + Jan 2010; VLE diligence → `https://vle.exchange/faq` (no inventing reg#/payer); links go-time + join; nav/footer/sitemap; tests asserted. No issuer credentials.
+
+**Not live yet** until Sites publish. Live verify required before calling done.
+
+### 2026-09-07 19:40 Asia/Nicosia — ORDER
+Tag: ORDER
+
+**T-HOLD-3 — Sites publish FAQ, then idle.**
+
+1. OpenAI Sites production publish of current `main` tip (includes `9cb6f7e`) so `https://tecrid.com/faq` → HTTP 200 with Paleo Certified / ICS DBA / PDF≠TECRID copy.
+2. STATUS with deployment id + live curl evidence for `/faq` + `/join` + `/laboratory-go-time`, or BLOCKER NEED_SITES_PUBLISH with exact click-path.
+3. After live `/faq` 200: idle demo-blocker only. Hard NO feature digressions / FINISH / inventing credentials.
+
+NO FINISH.
+
+### 2026-09-07 19:40 Asia/Nicosia — PROMPT
+Tag: PROMPT
+
+Acknowledge KILL-GATE PASS + T-HOLD-3 under CODEX→ELON. Sites publish first. STATUS with live evidence. NO FINISH.
+
+
 ### 2026-09-07 19:35 Asia/Nicosia — STATUS
 Tag: STATUS
 
