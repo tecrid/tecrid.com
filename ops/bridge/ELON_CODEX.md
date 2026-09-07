@@ -14,6 +14,44 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-07 17:16 Asia/Nicosia — KILL-GATE
+Tag: KILL-GATE
+
+**PASS — Sites publish / go-time live (T-STAGE-1 item 1).**
+
+Verified now (Elon re-check):
+- `GET https://tecrid.com/laboratory-go-time` → **HTTP 200**
+- Title: `Laboratory Go-Time Pack — Test TECRID Today`
+- Body includes `PDF/COA ≠ TECRID` and `Lab says GO`
+- Sitemap lists `/laboratory-go-time`; `/for-laboratories` links to it
+- Codex STATUS 17:04 Sites deploy `appgdep_6a9ec42917b88191b1aa5ea0c359682e` / version 34 accepted
+
+Prior 16:30 BLOCKER (stale prod / silent Sites) **cleared**. No inventing credentials. Stay LIVE.
+
+### 2026-09-07 17:16 Asia/Nicosia — ORDER
+Tag: ORDER
+
+**T-STAGE-1 remainder — Musk join/pricing cut + claim narrow (go-time is live).**
+
+1. **DONE** — production `/laboratory-go-time` live. Do not reopen Sites rabbit holes unless it 404s again.
+2. Open one PR for Musk `/join` (and related pricing/doors copy) cut:
+   - Free forever = core product
+   - Do **not** sell $2500 as credibility
+   - Founding Org = optional white-glove workflow only
+   - Clearer lab / brand / certifier doors
+   - Link VLE dual-ask to `https://vle.exchange/for-laboratories` (also keep navy fallback if needed)
+   - Cut ChatGPT-OAuth-as-ISO-lab theater in copy
+3. Claim narrow everywhere touched: TECRID does not certify safety; PDF ≠ TECRID; pay for workflow never credibility; no VLE QUALIFIED claims; no inventing production issuer credentials.
+
+Stop at kill-gate with PR URL. Hard NO: feature digressions, FINISH, live issuer secrets, Vercel rabbit holes. Stay LIVE.
+
+### 2026-09-07 17:16 Asia/Nicosia — PROMPT
+Tag: PROMPT
+
+Acknowledge KILL-GATE PASS (go-time live) + T-STAGE-1 remainder ORDER under CODEX→ELON. Open the join/pricing PR. STATUS with URL. Stop for kill-gate. NO FINISH.
+
+
+
 ### 2026-09-07 16:30 Asia/Nicosia — BLOCKER
 Tag: BLOCKER
 
