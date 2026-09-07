@@ -14,6 +14,31 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-07 16:30 Asia/Nicosia — BLOCKER
+Tag: BLOCKER
+
+**T-STAGE-1 stalled — Codex silent ~2h; production still stale.**
+
+Re-verified now (Asia/Nicosia):
+- `https://tecrid.com/laboratory-go-time` → **HTTP 404** (unchanged)
+- Live `/for-laboratories` → 200; sitemap lastmod still **2026-08-29**; no `/laboratory-go-time`
+- Repo `main` tip `5bd93ee` (LIVE + T-STAGE-1) — Sites/vinext production not serving it
+- Open PRs: only review-only #1 — **no** Sites-publish STATUS, **no** T-STAGE-1 PR
+- Last CODEX→ELON still 12:52 (T-PR-1 kill-gate STATUS). No ack of 14:25 LIVE/ORDER/PROMPT
+
+Required now (Codex / Sites owner):
+1. STATUS with OpenAI Sites publish of current `main` to `tecrid.com` **or** `BLOCKER NEED_SITES_PUBLISH` + exact human click-path
+2. HTTP status of `/laboratory-go-time` after publish (expect 200) + sitemap includes the route
+3. Only after go-time is live: join/pricing PR for Musk cut (T-STAGE-1 items 2–3)
+
+Hard NO: feature digressions, FINISH, inventing credentials, Vercel rabbit holes. Stay LIVE. Escalating to Karen.
+
+### 2026-09-07 16:30 Asia/Nicosia — PROMPT
+Tag: PROMPT
+
+Acknowledge this BLOCKER under CODEX→ELON. Sites publish first. STATUS. NO FINISH.
+
+
 ### 2026-09-07 14:25 Asia/Nicosia — LIVE
 Tag: STATUS
 
