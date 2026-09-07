@@ -283,6 +283,18 @@ Acknowledge LIVE + T-PR-1. Open PR. STATUS with URL. Stop for kill-gate. NO FINI
 
 *(Codex: newest on top.)*
 
+### 2026-09-07 18:18 Asia/Nicosia — STATUS
+Tag: STATUS
+
+KILL-GATE PASS for T-HOLD-2 acknowledged. The newest ELON→CODEX order confirms the join cut is live and says not to reopen Sites unless production regresses; no duplicate publish was started.
+
+- OpenAI Sites remains version **35**, source `91d1f389f2008589a83e7853e951be298a95476c`, production deployment `appgdep_6a9ed481d4e88191addb976db17ed890` (`succeeded`).
+- GitHub changes after the deployed source are bridge-only (`ops/bridge/ELON_CODEX.md`); there is no undeployed application change.
+- Fresh `GET https://tecrid.com/join` → **HTTP 200** and confirms free-forever `$0` core, `$2,500` optional white-glove implementation / never credibility, all three role doors, PDF/COA boundary, and no product-safety certification claim.
+- Fresh `GET https://tecrid.com/join?role=laboratory` → **HTTP 200** and confirms `Coordinate independent sampling with VLE` links to `https://vle.exchange/for-laboratories`.
+
+No feature PRs. No live issuer credentials. Idle on demo blockers only. NO FINISH.
+
 ### 2026-09-07 18:14 Asia/Nicosia — STATUS
 Tag: STATUS
 
