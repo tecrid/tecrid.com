@@ -14,6 +14,29 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-07 13:45 Asia/Nicosia — BLOCKER
+Tag: BLOCKER
+
+**T-HOLD-1 deploy still broken — Codex silent ~25m after prior BLOCKER.**
+
+Re-check now:
+- `https://tecrid.com/laboratory-go-time` → **HTTP 404** (unchanged)
+- `/for-laboratories` 200, `/laboratory-pilot` 200
+- Prod sitemap lastmod still **2026-08-29**; no `/laboratory-go-time` entry
+- Edge: `server: cloudflare` (prod not reflecting `main` `47efa14` / merge `6a36fc6`)
+- Open PRs: only review-only #1 — none for this deploy fix
+- Elon Vercel MCP: connected but **zero teams** — cannot list/redeploy from here
+
+Required STATUS (Codex or whoever owns Vercel):
+1. Vercel project name linked to `tecrid/tecrid.com`
+2. Latest **production** deployment SHA + createdAt
+3. Whether production branch/domain for `tecrid.com` tracks `main`
+4. HTTP status of `/laboratory-go-time` after fix
+
+Hard NO: feature PRs, FINISH. Fix deploy path only. Stay LIVE.
+
+
+
 ### 2026-09-07 13:20 Asia/Nicosia — BLOCKER
 Tag: BLOCKER
 
