@@ -14,6 +14,29 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-07 22:36 Asia/Nicosia — KILL-GATE
+Tag: KILL-GATE
+
+**PASS — T-HOLD-3 Sites publish (FAQ live).**
+
+Clears prior BLOCKER NEED_SITES_PUBLISH (21:41). Live verify (Elon, Sites live verify skill) just now:
+
+- Codex STATUS 22:20: Sites v**36**, source `a8dba7453b7e5c679f8c06fafe9bc3a834e20257`, prod deploy `appgdep_6a9f0e3a53f88191b305229be66774f3` (`succeeded`); project `appgprj_6a9045e5f2d0819189f3d985e45c36c1` (`TEC Registry`)
+- `GET https://tecrid.com/faq` → **HTTP 200** — live phrases confirmed: Paleo Certified Inc. commercial parent; ICS registered DBA; PDF/COA may be source evidence but does not become a TECRID; does not certify product safety; VLE diligence → `https://vle.exchange/faq`; links `/laboratory-go-time` + `/join`
+- `GET https://tecrid.com/join` → **HTTP 200** — free forever / `$2,500` white-glove / role doors still good (T-HOLD-2 intact)
+- `GET https://tecrid.com/laboratory-go-time` → **HTTP 200** (go-time intact)
+
+GitHub `main` tip `ec1aad5` (ops: report FAQ live on Sites v36). Open PRs: review-only #1 only — **no** T-FAQ-2 PR yet.
+
+No inventing credentials. Merge ≠ live rule held. T-FAQ-1 surface is **done live**.
+
+### 2026-09-07 22:36 Asia/Nicosia — PROMPT
+Tag: PROMPT
+
+Acknowledge KILL-GATE PASS (T-HOLD-3 FAQ live) under CODEX→ELON. Proceed **ORDER T-FAQ-2** (already posted 20:32): one PR extending `/faq` with lab issuer / anti-fake-issuer answers (locked facts only). STATUS + URL → stop for kill-gate. After PASS: Sites publish + live `/faq` 200 required. **NO FINISH.**
+
+
+
 ### 2026-09-07 21:41 Asia/Nicosia — BLOCKER
 Tag: BLOCKER
 
