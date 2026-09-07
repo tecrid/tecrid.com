@@ -17,7 +17,7 @@ export function ProductNav({ compact = false }: { compact?: boolean }) {
         </details>
         <details className="nav-group">
           <summary>For organizations <span>⌄</span></summary>
-          <div><a href="/for-laboratories">Laboratories</a><a href="/laboratory-value">Why laboratories join</a><a href="/laboratory-pilot">Laboratory pilot</a><a href="/for-brands">Brands &amp; suppliers</a><a href="/for-certifiers-retailers">Certifiers &amp; retailers</a></div>
+          <div><a href="/for-laboratories">Laboratories</a><a href="/laboratory-go-time">Lab go-time pack</a><a href="/laboratory-value">Why laboratories join</a><a href="/laboratory-pilot">Laboratory pilot</a><a href="/for-brands">Brands &amp; suppliers</a><a href="/for-certifiers-retailers">Certifiers &amp; retailers</a></div>
         </details>
         <details className="nav-group">
           <summary>Use TECRID <span>⌄</span></summary>
@@ -25,7 +25,7 @@ export function ProductNav({ compact = false }: { compact?: boolean }) {
         </details>
         <a href="/dashboard">Dashboard</a>
         <a className="nav-cta nav-cta-link" href="/join">Join the registry</a>
-        <details className="nav-mobile-menu"><summary aria-label="Open site navigation">Menu</summary><div><a href="/what-is-a-tecrid">What is a TECRID?</a><a href="/why">Why TECRID</a><a href="/for-laboratories">For laboratories</a><a href="/laboratory-value">Why laboratories join</a><a href="/laboratory-pilot">Laboratory pilot</a><a href="/for-brands">For brands</a><a href="/for-certifiers-retailers">For certifiers &amp; retailers</a><a href="/verify">Verify</a><a href="/participants">Participants</a><a href="/sandbox">Sandbox</a><a href="/integrate">Agent-guided setup</a><a href="/developers">API</a><a href="/dashboard">Dashboard</a></div></details>
+        <details className="nav-mobile-menu"><summary aria-label="Open site navigation">Menu</summary><div><a href="/what-is-a-tecrid">What is a TECRID?</a><a href="/why">Why TECRID</a><a href="/for-laboratories">For laboratories</a><a href="/laboratory-go-time">Lab go-time pack</a><a href="/laboratory-value">Why laboratories join</a><a href="/laboratory-pilot">Laboratory pilot</a><a href="/for-brands">For brands</a><a href="/for-certifiers-retailers">For certifiers &amp; retailers</a><a href="/verify">Verify</a><a href="/participants">Participants</a><a href="/sandbox">Sandbox</a><a href="/integrate">Agent-guided setup</a><a href="/developers">API</a><a href="/dashboard">Dashboard</a></div></details>
       </div>
     </nav>
   );
@@ -42,6 +42,7 @@ export function ProductFooter() {
         <a href="/verify">Verify report</a>
         <a href="/what-is-a-tecrid">What is a TECRID?</a>
         <a href="/for-laboratories">For laboratories</a>
+        <a href="/laboratory-go-time">Lab go-time pack</a>
         <a href="/laboratory-value">Laboratory one-pager</a>
         <a href="/laboratory-pilot">Laboratory pilot</a>
         <a href="/for-brands">For brands</a>

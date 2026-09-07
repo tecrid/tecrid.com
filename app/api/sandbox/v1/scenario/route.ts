@@ -1,4 +1,5 @@
 import { authenticateSandboxApiRequest, SandboxInputError } from "../../../../../lib/sandbox";
+import { VLE_SANDBOX_SAMPLE_CODE, VLE_SANDBOX_TECRID } from "../../../../../lib/vle-sandbox-evidence";
 
 export const dynamic = "force-dynamic";
 
@@ -25,8 +26,8 @@ function scenario(stage: Stage, persistent = false, routing: RoutingState = {}) 
     persistent,
     scenarioId: "SBX-AVO-260812",
     stage,
-    identifier: stage === "issued" ? "SBX·NORTHSTAR-26-AVO8F2C1" : null,
-    sample: { name: "Refined avocado oil", lotNumber: "SI-AVO-260812", matrix: "Edible oil" },
+    identifier: stage === "issued" ? VLE_SANDBOX_TECRID : null,
+    sample: { name: "Refined avocado oil", sampleCode: VLE_SANDBOX_SAMPLE_CODE, lotNumber: "SI-AVO-260812", matrix: "Edible oil" },
     parties: { brand: "Atlas Pantry", laboratory: "Northstar Analytical", supplier: "Sierra Ingredients", retailer: "Market Square", certifier: "ICS Certification" },
     method: "ICP-MS + GC-FID fatty acid profile + sterol profile",
     sourceDocument: { reportNumber: "NS-260814-77", sha256: "8a4e90f2d51b48130ed83f516b1126cc208b51852e2be98f44de63b6c72bd140", public: false },
