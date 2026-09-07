@@ -213,7 +213,16 @@ test("renders pricing and API documentation", async () => {
   assert.match(join, /\$2,500/);
   assert.match(join, /buy\.stripe\.com/);
   assert.match(join, /first 10 historical reports/);
-  assert.match(join, /What happens next/);
+  assert.match(join, /The core registry.*is free\. Forever/s);
+  assert.match(join, /Core registry · all roles/);
+  assert.match(join, /Optional · white-glove implementation/);
+  assert.match(join, /Buy implementation work—not credibility/);
+  assert.match(join, /Laboratory.*Brand or supplier.*Certifier or retailer/s);
+  assert.match(join, /TECRID authenticates provenance; it does not certify product safety/);
+  assert.match(join, /A PDF or COA does not become a TECRID/);
+  assert.match(join, /vle\.exchange\/for-laboratories/);
+  assert.doesNotMatch(join, /Sign-in uses your ChatGPT identity/);
+  assert.doesNotMatch(join, /VLE QUALIFIED/);
   assert.match(join, /locked_prefilled_email/);
   assert.match(join, /client_reference_id/);
   assert.match(developers, /TEC Registry API/);

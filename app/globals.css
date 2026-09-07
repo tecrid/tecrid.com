@@ -410,6 +410,18 @@ td:first-child { display: flex; align-items: center; gap: 10px; color: var(--ink
 .participants-hero::after { content: "NET"; }
 .product-hero h1 { position: relative; z-index: 1; max-width: 1050px; margin: 30px 0 24px; font: 500 clamp(55px, 7vw, 102px)/.9 Georgia, serif; letter-spacing: -.055em; }
 .product-hero > p:last-of-type { position: relative; z-index: 1; max-width: 760px; margin: 0; color: rgba(255,255,255,.76); font-size: 19px; line-height: 1.6; }
+.join-role-doors { padding: 82px 7vw 0; background: #edf1fb; }
+.join-role-doors > header { padding-bottom: 42px; display: grid; grid-template-columns: .55fr 1fr; gap: 8vw; }
+.join-role-doors h2 { max-width: 720px; margin: 0 0 15px; font: 500 clamp(40px, 5vw, 68px)/.98 Georgia, serif; letter-spacing: -.05em; }
+.join-role-doors header div > p { max-width: 670px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+.join-role-door-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.join-role-door { min-height: 285px; padding: 28px 25px; display: flex; flex-direction: column; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: rgba(255,255,255,.32); transition: color .2s, background .2s; }
+.join-role-door:hover, .join-role-door.active { color: var(--blue); background: #fff; }
+.join-role-door.active { box-shadow: inset 0 4px 0 var(--blue); }
+.join-role-door > span { color: var(--blue); text-transform: uppercase; letter-spacing: .13em; font-size: 8px; font-weight: 800; }
+.join-role-door h3 { margin: 42px 0 13px; font: 500 27px/1.07 Georgia, serif; letter-spacing: -.035em; }
+.join-role-door p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.65; }
+.join-role-door strong { margin-top: auto; padding-top: 26px; font-size: 10px; }
 .pricing-grid { padding: 90px 7vw 105px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .price-card { padding: 42px; border: 1px solid var(--line); }
 .pricing-grid .free-card { background: #ece8df; }
@@ -1896,7 +1908,8 @@ td:first-child { display: flex; align-items: center; gap: 10px; color: var(--ink
   .free-intro { display: block; }
   .free-intro > p:last-child { margin-top: 25px; }
   .ics-monogram { display: none; }
-  .pricing-grid, .purchase-clarity, .founding-boundaries, .independence-callout, .record-boundary { grid-template-columns: 1fr; }
+  .pricing-grid, .purchase-clarity, .founding-boundaries, .independence-callout, .record-boundary, .join-role-doors > header { grid-template-columns: 1fr; }
+  .join-role-door-grid { grid-template-columns: 1fr; }
   .founding-boundaries .not-included { grid-column: 1; }
   .post-checkout-sequence, .founding-delivery-strip { grid-template-columns: 1fr 1fr; }
   .post-checkout-sequence article:nth-child(2), .founding-delivery-strip article:nth-child(2) { border-right: 1px solid var(--line); }
@@ -2022,6 +2035,7 @@ td:first-child { display: flex; align-items: center; gap: 10px; color: var(--ink
   .product-hero, .dashboard-header, .form-page-header, .record-page-hero { padding-left: 22px; padding-right: 22px; }
   .product-hero h1 { font-size: 55px; }
   .pricing-grid, .dashboard-shell, .dashboard-onboarding, .credential-form, .api-layout { padding-left: 22px; padding-right: 22px; }
+  .join-role-doors { padding: 66px 22px 0; }
   .pricing-grid { grid-template-columns: 1fr; padding-top: 55px; padding-bottom: 70px; }
   .price-card { padding: 29px 22px; }
   .purchase-clarity, .founding-boundaries, .independence-callout, .record-boundary { padding: 76px 22px; }
