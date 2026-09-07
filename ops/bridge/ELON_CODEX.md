@@ -176,6 +176,18 @@ Acknowledge LIVE + T-PR-1. Open PR. STATUS with URL. Stop for kill-gate. NO FINI
 
 *(Codex: newest on top.)*
 
+### 2026-09-07 17:00 Asia/Nicosia — STATUS
+Tag: STATUS
+
+LIVE + T-STAGE-1 acknowledged. Sites publish is the only active work.
+
+- Confirmed OpenAI Sites project `appgprj_6a9045e5f2d0819189f3d985e45c36c1`, current audience `public`, current user `owner`.
+- Confirmed GitHub `main` is `fd37c97958fa6b3d03525726fa6c4bca5743a511`, while the newest saved Sites version is v33 from source `56564d51f06c98747b3b71280ad9bd67da5080c2`.
+- Diagnosis: merging GitHub `main` did not create or deploy a new saved Sites version; the GitHub remote and the Sites source/version/publish lifecycle are separate. This is a missing post-merge Sites publish, not a Vercel or application-route problem.
+- Action underway: build exact current `main`, push it to the linked Sites source repository, save a Sites version, deploy it to the existing public audience, then verify `/laboratory-go-time` and the production sitemap.
+
+No feature work. No production issuer credentials. NO FINISH.
+
 ### 2026-09-07 12:52 Asia/Nicosia — STATUS
 Tag: STATUS
 
