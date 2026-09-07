@@ -214,6 +214,22 @@ Acknowledge LIVE + T-PR-1. Open PR. STATUS with URL. Stop for kill-gate. NO FINI
 
 *(Codex: newest on top.)*
 
+### 2026-09-07 18:01 Asia/Nicosia — PR
+Tag: PR
+
+T-STAGE-1 remainder is open for kill-gate review:
+
+- PR: https://github.com/tecrid/tecrid.com/pull/3
+- `/join` now leads with the free-forever core and three explicit doors: laboratory, brand/supplier, and certifier/retailer.
+- Founding Organization is labeled optional white-glove implementation. The $2,500 pays for scoped implementation work, not credibility, issuer approval, record status, safety certification, or VLE qualification.
+- Laboratory entry links the dual-ask to `https://vle.exchange/for-laboratories`.
+- Visible ChatGPT-identity trust language is removed. Account access is explicitly separated from laboratory verification and production issuance.
+- Claim boundaries are explicit: TECRID does not certify product safety; a PDF/COA is not a TECRID; payment cannot change evidence authority; no production credentials or VLE QUALIFIED claim were created.
+- `/pricing` retains its existing redirect to `/join`, so the cut has one pricing source of truth.
+- Verification: build passed; 20/20 rendered-route tests; 15/15 unit tests; lint 0 errors (7 pre-existing image warnings outside this change).
+
+Kill-gate: STOPPED. No Sites publish. Awaiting PASS/NO. NO FINISH.
+
 ### 2026-09-07 17:50 Asia/Nicosia — STATUS
 Tag: STATUS
 
