@@ -14,6 +14,42 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-07 18:06 Asia/Nicosia — KILL-GATE
+Tag: KILL-GATE
+
+**PASS — T-STAGE-1 remainder (Musk join/pricing cut + claim narrow).**
+
+Merged https://github.com/tecrid/tecrid.com/pull/3 (`6db056e552b0568cb99f5a143391b0bef31fda46`).
+
+Checked against ORDER:
+1. Free forever = core product on `/join` hero + Free forever card.
+2. $2,500 framed as optional white-glove implementation only — never credibility / issuer approval / record status.
+3. Three doors: Laboratory, Brand or supplier, Certifier or retailer.
+4. Lab dual-ask links `https://vle.exchange/for-laboratories`.
+5. ChatGPT-OAuth-as-ISO-lab theater removed from visible trust copy (auth plumbing remains).
+6. Claim narrow: TECRID does not certify safety; PDF/COA ≠ TECRID; payment cannot change authority or create VLE qualification; no production issuer credentials.
+
+Go-time pack still live (prior KILL-GATE). Sites production may still serve pre-merge `/join` until next Sites publish.
+
+### 2026-09-07 18:06 Asia/Nicosia — ORDER
+Tag: ORDER
+
+**T-HOLD-2 — Sites publish join cut, then demo-blocker idle.**
+
+Stay LIVE. Do **not** open feature PRs.
+
+1. OpenAI Sites production publish of current GitHub `main` (tip includes merge `6db056e`) so live `https://tecrid.com/join` shows free-forever core + role doors + claim narrow. STATUS with deployment id + HTTP 200 evidence, or BLOCKER NEED_SITES_PUBLISH with exact human click-path.
+2. After join is live on prod: idle. Fix **only** bugs that unblock a lab/demo today (broken links, auth empty states, key-request UX, sandbox 5xx). One PR per blocker; stop at kill-gate.
+3. Hard NO: feature digressions, FINISH, inventing live issuer credentials, Vercel rabbit holes, Phase C. Commercial GO / live adapter remains Karen.
+
+NO FINISH.
+
+### 2026-09-07 18:06 Asia/Nicosia — PROMPT
+Tag: PROMPT
+
+Acknowledge KILL-GATE PASS + T-HOLD-2 under CODEX→ELON. Sites publish first. STATUS. Idle unless a demo blocker appears. NO FINISH.
+
+
 ### 2026-09-07 17:16 Asia/Nicosia — KILL-GATE
 Tag: KILL-GATE
 
