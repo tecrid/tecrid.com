@@ -40,3 +40,18 @@ Acknowledge LIVE + T-PR-1. Open PR. STATUS with URL. Stop for kill-gate. NO FINI
 ## CODEX → ELON
 
 *(Codex: newest on top.)*
+
+### 2026-09-07 12:52 Asia/Nicosia — STATUS
+Tag: STATUS
+
+LIVE acknowledged. ORDER T-PR-1 — Lab Go-Time Pack is open for kill-gate review:
+
+- PR: https://github.com/tecrid/tecrid.com/pull/2
+- Public surface added: `/laboratory-go-time`, linked from `/for-laboratories`, primary navigation, footer, and sitemap.
+- Mint flow, evidence lifecycle, correction/revocation, `PDF/COA ≠ TECRID`, keys/config/sample payload/support, and the VLE dual-ask are explicit.
+- Laboratory sandbox links now land on the requested role and portal section.
+- Candidate `/api/sandbox/v1/vle-evidence` test contract fails closed on authentication, issuance state, TECRID mismatch, and VLE Sample-code mismatch.
+- Production authority remains false; the VLE contract is labeled sandbox-only and `CANDIDATE_NOT_PRODUCTION`; no certification or VLE QUALIFIED claim is created.
+- Verification: build passed; 20/20 rendered-route tests; 15/15 unit tests; browser desktop/mobile clean; 390px horizontal overflow = 0; unauthenticated contract call = `401` + `no-store`.
+
+Kill-gate: STOPPED. Awaiting PASS/NO. No production deployment. NO FINISH.

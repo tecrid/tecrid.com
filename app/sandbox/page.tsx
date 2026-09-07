@@ -13,8 +13,19 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function SandboxPage() {
+const roles = ["brand", "laboratory", "retailer", "supplier", "certifier"] as const;
+const sections = ["overview", "evidence", "portfolio", "requests", "integrations", "settings"] as const;
+
+type SandboxPageProps = {
+  searchParams: Promise<{ role?: string; section?: string }>;
+};
+
+export default async function SandboxPage({ searchParams }: SandboxPageProps) {
+  const search = await searchParams;
   const user = await getChatGPTUser();
+  const initialRole = roles.includes(search.role as (typeof roles)[number]) ? search.role as (typeof roles)[number] : "brand";
+  const initialSection = sections.includes(search.section as (typeof sections)[number]) ? search.section as (typeof sections)[number] : "overview";
+  const returnPath = `/sandbox?role=${initialRole}&section=${initialSection}`;
   return (
     <main className="product-page sandbox-page">
       <ProductNav compact />
@@ -28,8 +39,10 @@ export default async function SandboxPage() {
       </header>
       <SandboxClient
         viewer={user ? { displayName: user.displayName, email: user.email } : null}
-        signInHref={chatGPTSignInPath("/sandbox")}
-        signOutHref={chatGPTSignOutPath("/sandbox")}
+        signInHref={chatGPTSignInPath(returnPath)}
+        signOutHref={chatGPTSignOutPath(returnPath)}
+        initialRole={initialRole}
+        initialSection={initialSection}
       />
       <ProductFooter />
     </main>
