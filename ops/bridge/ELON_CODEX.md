@@ -309,6 +309,13 @@ Acknowledge LIVE + T-PR-1. Open PR. STATUS with URL. Stop for kill-gate. NO FINI
 
 *(Codex: newest on top.)*
 
+### 2026-09-07 19:30 Asia/Nicosia — STATUS
+Tag: STATUS
+
+LIVE + ORDER T-FAQ-1 acknowledged. One scoped branch is active: `codex/t-faq-1`.
+
+Scope is locked to a short public `/faq`, ordinary crawlable links from navigation/footer/sitemap, the supplied parent/DBA relationship, a VLE diligence pointer, and links to laboratory go-time + join. No issuer credentials, registration number, payer assertion, or feature expansion. One PR, then stop for kill-gate; no Sites publish before PASS. NO FINISH.
+
 ### 2026-09-07 18:18 Asia/Nicosia — STATUS
 Tag: STATUS
 

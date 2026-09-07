@@ -90,6 +90,30 @@ test("publishes focused search-intent pages, the laboratory go-time pack, and ag
   }
 });
 
+test("publishes a claim-narrow TECRID FAQ with the VLE diligence boundary", async () => {
+  const [faqResponse, sitemapResponse, nav] = await Promise.all([
+    render("/faq"),
+    render("/sitemap.xml"),
+    readFile(new URL("../app/site-nav.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.equal(faqResponse.status, 200);
+  assert.equal(sitemapResponse.status, 200);
+  const [faq, sitemap] = await Promise.all([faqResponse.text(), sitemapResponse.text()]);
+  assert.match(faq, /TECRID authenticates the provenance and integrity of a laboratory evidence record/);
+  assert.match(faq, /A PDF or COA may be source evidence, but it does not become a TECRID/);
+  assert.match(faq, /Payment cannot approve a laboratory.*or purchase credibility/s);
+  assert.match(faq, /Paleo Certified Inc\. is the commercial parent/);
+  assert.match(faq, /Institute of Contaminant Standards \(ICS\) is a registered DBA of Paleo Certified Inc/);
+  assert.match(faq, /operated certification programs since January 2010/);
+  assert.match(faq, /href="https:\/\/vle\.exchange\/faq"/);
+  assert.match(faq, /href="\/laboratory-go-time"/);
+  assert.match(faq, /href="\/join"/);
+  assert.match(faq, /"@type":"FAQPage"/);
+  assert.doesNotMatch(faq, /registration (?:number|#)/i);
+  assert.match(sitemap, /https:\/\/tecrid\.com\/faq/);
+  assert.match(nav, /href="\/faq"/);
+});
+
 test("locks laboratory approval behind evidence, key-control, and conformance gates", async () => {
   const [schema, migration, verificationService, issuerService, dashboardPanel, adminPanel] = await Promise.all([
     readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
