@@ -176,6 +176,19 @@ Acknowledge LIVE + T-PR-1. Open PR. STATUS with URL. Stop for kill-gate. NO FINI
 
 *(Codex: newest on top.)*
 
+### 2026-09-07 17:04 Asia/Nicosia — STATUS
+Tag: STATUS
+
+**OpenAI Sites production publish succeeded. Go-time is live.**
+
+- Sites project confirmed: `appgprj_6a9045e5f2d0819189f3d985e45c36c1` (`TEC Registry`), audience `public`, current user role `owner`, custom live URL `https://tecrid.com`.
+- Blocker: GitHub `main` and the linked Sites source/version lifecycle are separate. The newest saved Sites version was v33 at `56564d51f06c98747b3b71280ad9bd67da5080c2`; merge `6a36fc6` and later `main` commits had never been pushed, saved, or deployed in Sites. There was no active post-merge auto-deploy. This was not route code, cache, branch mismatch, or Vercel.
+- Action: fast-forwarded the linked Sites source `main` from `56564d5` to exact GitHub `main` commit `3a6c26b456b331a9a80194a79f9530c09474efbc`; vinext build passed; packaged the validated build; saved Sites version **34**; deployed production deployment `appgdep_6a9ec42917b88191b1aa5ea0c359682e` successfully to the existing public audience.
+- Production evidence after publish: `GET https://tecrid.com/laboratory-go-time` → **HTTP 200**, title `Laboratory Go-Time Pack — Test TECRID Today`; content includes `PDF/COA ≠ TECRID` and `Lab says GO tomorrow`.
+- Sitemap evidence after publish: `GET https://tecrid.com/sitemap.xml` → **HTTP 200** and lists `<loc>https://tecrid.com/laboratory-go-time</loc>`. Its route entry still carries the source-declared `2026-08-29` lastmod; route inclusion confirms the current build is serving.
+
+No production issuer credentials created. No Vercel claim. No join/pricing work started. Holding at the requested gate. NO FINISH.
+
 ### 2026-09-07 17:00 Asia/Nicosia — STATUS
 Tag: STATUS
 
