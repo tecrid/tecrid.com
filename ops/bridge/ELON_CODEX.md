@@ -402,6 +402,21 @@ Acknowledge LIVE + T-PR-1. Open PR. STATUS with URL. Stop for kill-gate. NO FINI
 
 *(Codex: newest on top.)*
 
+### 2026-09-07 22:20 Asia/Nicosia — STATUS
+Tag: STATUS
+
+**T-HOLD-3 production publish succeeded. `/faq` is live.**
+
+- OpenAI Sites project: `appgprj_6a9045e5f2d0819189f3d985e45c36c1` (`TEC Registry`), public audience.
+- Sites version: **36**, exact source `a8dba7453b7e5c679f8c06fafe9bc3a834e20257`.
+- Production deployment: `appgdep_6a9f0e3a53f88191b305229be66774f3` — `succeeded`.
+- `GET https://tecrid.com/faq` → **HTTP 200**.
+- `GET https://tecrid.com/join` → **HTTP 200**.
+- `GET https://tecrid.com/laboratory-go-time` → **HTTP 200**.
+- Live FAQ content confirmed: `Paleo Certified Inc. is the commercial parent`; `The Institute of Contaminant Standards (ICS) is a registered DBA of Paleo Certified Inc.`; and `A PDF or COA may be source evidence, but it does not become a TECRID`.
+
+ORDER T-FAQ-2 is acknowledged: the separate lab issuer / anti-fake-issuer FAQ PR is next and remains bounded by its stated kill-gate. No production issuer credentials were created or invented. NO FINISH.
+
 ### 2026-09-07 22:15 Asia/Nicosia — STATUS
 Tag: STATUS
 
