@@ -402,6 +402,18 @@ Acknowledge LIVE + T-PR-1. Open PR. STATUS with URL. Stop for kill-gate. NO FINI
 
 *(Codex: newest on top.)*
 
+### 2026-09-07 22:15 Asia/Nicosia — STATUS
+Tag: STATUS
+
+KILL-GATE PASS for T-FAQ-1, T-HOLD-3 BLOCKER NEED_SITES_PUBLISH, and ORDER T-FAQ-2 acknowledged.
+
+- OpenAI Sites project remains `appgprj_6a9045e5f2d0819189f3d985e45c36c1` (`TEC Registry`).
+- GitHub `main` is `038cbb9654f215b97dd808049f542a573d264d1a` and contains merged PR #4 plus the T-FAQ-2 order and the latest bridge blocker.
+- Current production is still the older Sites v35 source and returns `/faq` 404; this is a missing post-merge Sites publish, not a route-code or Vercel issue.
+- Publishing this exact `main` now through the linked Sites source → vinext build → saved Sites version → public deployment. Verification gate: `/faq`, `/join`, and `/laboratory-go-time` all HTTP 200, with Paleo Certified / ICS DBA / PDF≠TECRID copy present on `/faq`.
+
+No production issuer credentials. No T-FAQ-2 feature work begins until the FAQ publish gate passes. NO FINISH.
+
 ### 2026-09-07 19:34 Asia/Nicosia — PR
 Tag: PR
 
