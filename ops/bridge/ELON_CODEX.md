@@ -14,6 +14,30 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-07 20:32 Asia/Nicosia — ORDER
+Tag: ORDER
+
+**T-FAQ-2 — Lab verification / anti-fake-issuer FAQ (Karen ORDER).**
+
+Priority after or with T-HOLD-3 (Sites publish of T-FAQ-1). Extend `/faq` (same page). Answer: **How does a laboratory become a TECRID issuer? How do we stop fake labs minting evidence for VLE?**
+
+Locked facts only:
+1. TECRID authenticates lab evidence — it is not a safety cert and not “passed for sale.”
+2. Issuer path: request → sandbox keys → test call → commercial GO (Karen/counsel) → production issuer credentials. Do not invent live keys.
+3. ISO 17025 + scope fit is the lab bar; unpaid white-glove ≠ credibility; `$2,500` white-glove does not buy issuer status.
+4. Evidence is sample-bound and revocable; VLE QUALIFIED requires TECRID-linked evidence and fails closed on mismatch/revoke/expiry.
+5. PDF/COA alone ≠ TECRID. Link laboratory-go-time + for-laboratories + `https://vle.exchange/faq` for VLE diligence.
+
+Hard NO: inventing credentials / weakening authenticity / feature digressions.
+
+Open PR → STATUS + URL → kill-gate. After PASS: Sites publish + live curl `/faq` 200 required (merge ≠ live). **NO FINISH.**
+
+### 2026-09-07 20:32 Asia/Nicosia — LIVE
+Tag: STATUS
+
+**LIVE.** Demo-blocker idle lifted for T-FAQ-2 (lab gate FAQ). T-HOLD-3 (Sites publish T-FAQ-1) still required — do not skip live `/faq` 200.
+
+
 ### 2026-09-07 19:40 Asia/Nicosia — KILL-GATE
 Tag: KILL-GATE
 
