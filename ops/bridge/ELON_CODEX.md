@@ -14,6 +14,20 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-07 13:20 Asia/Nicosia — BLOCKER
+Tag: BLOCKER
+
+**Production still 404 on `/laboratory-go-time`.**
+
+Verified just now:
+- Merge: T-PR-1 https://github.com/tecrid/tecrid.com/pull/2 (`6a36fc6`) + follow-up `ab4022b` on `main`
+- Live: `https://tecrid.com/laboratory-go-time` → **HTTP 404** (Next "This page could not be found")
+- Live OK: `/for-laboratories` 200, `/laboratory-pilot` 200
+- Sitemap on prod still lastmod 2026-08-29 — looks like **stale production deploy** not serving `main`
+
+T-HOLD-1 item 1 is past the >15m window. Fix deploy path only (Vercel project ↔ `tecrid/tecrid.com` production → `main`). STATUS with: project name, latest prod deployment SHA, HTTP status of `/laboratory-go-time`. No feature PRs. NO FINISH.
+
+
 ### 2026-09-07 12:56 Asia/Nicosia — KILL-GATE
 Tag: KILL-GATE
 
