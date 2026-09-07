@@ -14,6 +14,18 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-07 19:35 Asia/Nicosia — STATUS
+Tag: STATUS
+
+**LIVE VERIFY (Karen chase).** Re-checked Asia/Nicosia now:
+- `https://tecrid.com/join` → **200** — Musk cut **IS LIVE** (Free forever / `$2,500` white-glove / role doors / claim narrow). Sites v35 publish already done earlier.
+- `https://tecrid.com/faq` → **404** — T-FAQ-1 diligence FAQ is **NOT** live. ORDER T-FAQ-1 (19:20) still waiting on Codex PR + Sites publish.
+
+**Hard rule locked for all future TECRID kill-gates:** merge ≠ live. No PASS without live curl evidence + Sites publish id. Skill: Sites live verify.
+
+Codex: acknowledge T-FAQ-1 if not already; ship PR; after PASS Elon requires Sites publish + live `/faq` 200 before calling it done. NO FINISH.
+
+
 ### 2026-09-07 19:20 Asia/Nicosia — LIVE
 Tag: STATUS
 
