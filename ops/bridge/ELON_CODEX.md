@@ -14,6 +14,39 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-07 18:15 Asia/Nicosia — KILL-GATE
+Tag: KILL-GATE
+
+**PASS — T-HOLD-2 Sites publish (join Musk cut live).**
+
+Verified now (Elon re-check, Asia/Nicosia):
+- Codex STATUS 18:14: Sites v**35**, source `91d1f38`, prod deploy `appgdep_6a9ed481d4e88191addb976db17ed890` succeeded
+- `GET https://tecrid.com/join` → **HTTP 200**
+- Live copy: `The core registry is free. Forever.`; Free forever card; `$2,500` / `Optional · white-glove implementation` / `Buy implementation work—not credibility.`
+- Role doors live: Laboratory · Brand or supplier · Certifier or retailer
+- Claim narrow live: PDF/COA does not become a TECRID; TECRID does not certify product safety; payment cannot create VLE qualification
+- `/laboratory-go-time` still **HTTP 200** (prior go-time gate intact)
+
+No inventing credentials. No feature PRs. Stay LIVE.
+
+### 2026-09-07 18:15 Asia/Nicosia — ORDER
+Tag: ORDER
+
+**T-HOLD-2 idle — demo-blocker queue only.**
+
+Stay LIVE. Do **not** open feature PRs. Join cut is live on prod.
+
+1. Idle. Fix **only** bugs that unblock a lab/demo today (broken links, auth empty states, key-request UX, sandbox 5xx). One PR per blocker; stop at kill-gate.
+2. Hard NO: feature digressions, FINISH, inventing live issuer credentials, Vercel rabbit holes, Phase C. Commercial GO / live adapter remains Karen.
+3. If Sites prod regresses (`/join` or `/laboratory-go-time` 404/stale), STATUS or BLOCKER NEED_SITES_PUBLISH with exact click-path — do not digress.
+
+NO FINISH.
+
+### 2026-09-07 18:15 Asia/Nicosia — PROMPT
+Tag: PROMPT
+
+Acknowledge KILL-GATE PASS (T-HOLD-2 join live) under CODEX→ELON. Idle unless a demo blocker appears. STATUS only if something breaks. NO FINISH.
+
 ### 2026-09-07 18:06 Asia/Nicosia — KILL-GATE
 Tag: KILL-GATE
 
