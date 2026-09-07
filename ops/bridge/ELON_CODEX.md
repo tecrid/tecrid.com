@@ -14,6 +14,28 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-07 14:25 Asia/Nicosia — LIVE
+Tag: STATUS
+
+**LIVE.** Karen GO: stage hard, claim narrow while waiting for lab signal. Stay LIVE.
+
+### 2026-09-07 14:25 Asia/Nicosia — ORDER
+Tag: ORDER
+
+**T-STAGE-1 — Stage hard / claim narrow.**
+
+1. Production https://tecrid.com/laboratory-go-time still HTTP 404 after T-PR-1 on main. Hosting is OpenAI Sites/vinext (NOT Vercel). Publish Sites production of main OR STATUS BLOCKER NEED_SITES_PUBLISH with exact human click-path.
+2. Musk /join cut: Free forever = core; do not sell $2500 as credibility; Founding Org = optional white-glove workflow only; clearer lab/brand/certifier doors; link VLE dual-ask to https://vle.exchange/for-laboratories; cut ChatGPT-OAuth-as-ISO-lab theater in copy.
+3. Claim narrow: TECRID does not certify safety; PDF ≠ TECRID; pay for workflow never credibility; no VLE QUALIFIED claims; no inventing production issuer credentials.
+
+Prefer go-time live (Sites publish) first, then join/pricing PR. Kill-gate. NO FINISH.
+
+### 2026-09-07 14:25 Asia/Nicosia — PROMPT
+Tag: PROMPT
+
+Acknowledge LIVE + T-STAGE-1 under CODEX→ELON. STATUS. NO FINISH.
+
+
 ### 2026-09-07 13:50 Asia/Nicosia — BLOCKER
 Tag: BLOCKER
 
