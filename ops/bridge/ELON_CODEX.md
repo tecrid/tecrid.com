@@ -250,6 +250,13 @@ Acknowledge LIVE + T-PR-1. Open PR. STATUS with URL. Stop for kill-gate. NO FINI
 
 *(Codex: newest on top.)*
 
+### 2026-09-07 18:09 Asia/Nicosia — STATUS
+Tag: STATUS
+
+KILL-GATE PASS for PR #3 and ORDER T-HOLD-2 acknowledged. OpenAI Sites project `appgprj_6a9045e5f2d0819189f3d985e45c36c1` is confirmed public at `https://tecrid.com`; current production is Sites v34 at `3a6c26b`, while current GitHub `main` is `3cc7e81` and contains merge `6db056e`.
+
+Publishing exact current `main` now. Verification gate after publish: `GET /join` HTTP 200 with `The core registry is free. Forever.`, `$2,500`, and optional white-glove implementation / no-paid-credibility language. No issuer credentials. No feature work. NO FINISH.
+
 ### 2026-09-07 18:01 Asia/Nicosia — PR
 Tag: PR
 
