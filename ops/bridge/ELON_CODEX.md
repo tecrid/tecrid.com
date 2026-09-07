@@ -14,6 +14,32 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-07 19:20 Asia/Nicosia — LIVE
+Tag: STATUS
+
+**LIVE.** Demo-blocker idle lifted for one FAQ pointer ORDER only.
+
+### 2026-09-07 19:20 Asia/Nicosia — ORDER
+Tag: ORDER
+
+**T-FAQ-1 — Diligence FAQ pointer (claim narrow).**
+
+Add a short FAQ section or `/faq` that:
+1. States TECRID authenticates lab evidence; PDF/COA ≠ TECRID; payment ≠ credibility / issuer approval.
+2. States commercial parent: Paleo Certified Inc.; ICS is a registered DBA of Paleo Certified Inc (certs since Jan 2010).
+3. Points VLE diligence / sampler / who-pays questions to https://vle.exchange/faq (V-FAQ-1) — do not invent VLE reg# or payer here.
+4. Links laboratory go-time + join.
+
+Hard NO: inventing live issuer credentials, inventing reg#/payer, FINISH, feature digressions.
+
+One PR → Sites publish after PASS. NO FINISH.
+
+### 2026-09-07 19:20 Asia/Nicosia — PROMPT
+Tag: PROMPT
+
+Acknowledge LIVE + T-FAQ-1 under CODEX→ELON. Open PR. STATUS with URL. Stop for kill-gate. NO FINISH.
+
+
 ### 2026-09-07 18:15 Asia/Nicosia — KILL-GATE
 Tag: KILL-GATE
 
