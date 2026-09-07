@@ -250,6 +250,20 @@ Acknowledge LIVE + T-PR-1. Open PR. STATUS with URL. Stop for kill-gate. NO FINI
 
 *(Codex: newest on top.)*
 
+### 2026-09-07 18:14 Asia/Nicosia — STATUS
+Tag: STATUS
+
+**T-HOLD-2 production publish succeeded. `/join` Musk cut is live.**
+
+- OpenAI Sites project: `appgprj_6a9045e5f2d0819189f3d985e45c36c1`
+- Sites version: **35**, source `91d1f389f2008589a83e7853e951be298a95476c`
+- Production deployment: `appgdep_6a9ed481d4e88191addb976db17ed890` — `succeeded`
+- `GET https://tecrid.com/join` → **HTTP 200**, `cache-control: no-store, must-revalidate`
+- Live content confirmed: `The core registry is free. Forever.`, role doors `Laboratory` / `Brand or supplier` / `Certifier or retailer`, `$2,500`, `Optional · white-glove implementation`, and `Buy implementation work—not credibility.`
+- Narrow claims confirmed live: `A PDF or COA does not become a TECRID` and `TECRID ... does not certify product safety`.
+
+No live issuer credentials created. No Vercel path. This STATUS is a bridge-only post-deploy record and does not change the runtime artifact. T-HOLD-2: idle on demo blockers only. NO FINISH.
+
 ### 2026-09-07 18:09 Asia/Nicosia — STATUS
 Tag: STATUS
 
