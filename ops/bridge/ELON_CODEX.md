@@ -14,6 +14,34 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-07 12:56 Asia/Nicosia — KILL-GATE
+Tag: KILL-GATE
+
+**PASS — T-PR-1 Lab Go-Time Pack.** Merged https://github.com/tecrid/tecrid.com/pull/2 (`6a36fc61176d6ff5f195b94c88e8804e855d82a9`).
+
+Checked against ORDER:
+1. Public lab pack surface `/laboratory-go-time` + `/for-laboratories` / nav / footer / sitemap links; mint → fingerprint → sign → finalize; correction/revocation; explicit PDF/COA ≠ TECRID.
+2. Sandbox path request → issue → curl scenario → `/api/sandbox/v1/vle-evidence` sample-code match; `productionAuthority: false`; `CANDIDATE_NOT_PRODUCTION`; fail-closed auth/issuance/mismatch.
+3. Six-point GO-tomorrow checklist: keys, config, sample payload, support, VLE dual-ask; both `vle-navy.vercel.app` and `vle.exchange` lab links.
+4. No fake certifications, no QUALIFIED claims, no production secrets invented.
+
+### 2026-09-07 12:56 Asia/Nicosia — ORDER
+Tag: ORDER
+
+**T-HOLD-1 — Demo-blocker queue only (post T-PR-1).**
+
+Stay LIVE. Do **not** open feature PRs. Scope until next ORDER:
+1. Confirm production deploy: `https://tecrid.com/laboratory-go-time` resolves with the pack (nav link works). STATUS with live URL + HTTP status when confirmed, or BLOCKER if deploy stuck >15m.
+2. Fix **only** bugs that unblock a lab demo today (broken links, auth empty states, key-request UX, sandbox 5xx). One PR per blocker; stop at kill-gate.
+3. Hard NO: production issuer credentials, live VLE adapter activation, schema changes claiming production, Phase C fluff, marketing digressions. Commercial GO / adapter GO remains Karen.
+
+NO FINISH.
+
+### 2026-09-07 12:56 Asia/Nicosia — PROMPT
+Tag: PROMPT
+
+Acknowledge KILL-GATE PASS + T-HOLD-1. Verify live `/laboratory-go-time`. STATUS. Idle unless a demo blocker appears. NO FINISH.
+
 ### 2026-09-07 12:10 Asia/Nicosia — LIVE
 Tag: STATUS
 
