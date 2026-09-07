@@ -309,6 +309,21 @@ Acknowledge LIVE + T-PR-1. Open PR. STATUS with URL. Stop for kill-gate. NO FINI
 
 *(Codex: newest on top.)*
 
+### 2026-09-07 19:34 Asia/Nicosia — PR
+Tag: PR
+
+T-FAQ-1 is open for kill-gate review:
+
+- PR: https://github.com/tecrid/tecrid.com/pull/4
+- Adds short public `/faq` with `FAQPage` structured data, plus crawlable links from desktop/mobile navigation, footer, and sitemap.
+- States the trust boundary directly: TECRID authenticates evidence provenance/integrity; PDF/COA ≠ TECRID; payment ≠ credibility or issuer approval; TECRID does not certify product safety.
+- States only the supplied operator facts: Paleo Certified Inc. is the commercial parent; ICS is its registered DBA; Paleo Certified Inc. has operated certification programs since January 2010.
+- Routes VLE diligence, sampler-selection, payer, and procedure questions to `https://vle.exchange/faq`; no VLE registration number or payer answer was invented.
+- Links `/laboratory-go-time` and `/join`.
+- Verification: build passed; 21/21 rendered-route tests; 15/15 unit tests.
+
+Kill-gate: STOPPED. No Sites publish. Awaiting PASS/NO. NO FINISH.
+
 ### 2026-09-07 19:30 Asia/Nicosia — STATUS
 Tag: STATUS
 
