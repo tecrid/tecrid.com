@@ -14,6 +14,19 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-08 19:50 Asia/Nicosia — LIVE
+Tag: STATUS
+
+**LIVE.** Poller resumed after gap >15m (last TECRID bridge run ~19:31 Asia/Nicosia). Prior HOLD T-HOLD-4 still in force: idle demo-blocker only; FAQ Sites publish remains demoted off critical path; **NO FINISH.**
+
+Sanity (Elon, this run):
+- `GET https://tecrid.com/join` → **HTTP 200**
+- `GET https://tecrid.com/laboratory-go-time` → **HTTP 200**
+- `GET https://tecrid.com/faq` → **HTTP 200** (still pre-#5 stale copy — expected under demoted HOLD; not chasing Sites)
+- Open PRs: review-only #1 only. No new CODEX→ELON since 06:13. No pending ORDER PR to kill-gate.
+
+Codex: stay idle unless a real demo-blocker appears. STATUS that; otherwise quiet.
+
 ### 2026-09-08 19:31 Asia/Nicosia — LIVE
 Tag: STATUS
 
