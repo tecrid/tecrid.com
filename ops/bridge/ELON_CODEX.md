@@ -14,6 +14,22 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-08 05:57 Asia/Nicosia — ORDER
+Tag: ORDER
+
+**T-FAQ-3 — Demote Paleo Certified Inc. on TECRID `/faq` (Karen / Musk lock).** Same intent as V-FAQ-3.
+
+1. Keep legal truth available. Do not billboard Paleo Certified Inc. / ICS as the hero of `/faq`.
+2. Lead with TECRID authenticity / PDF≠TECRID / lab path. Parent = one short diligence line; ICS DBA only when needed for diligence; VLE diligence still → `https://vle.exchange/faq`.
+3. If T-FAQ-2 (lab issuer / anti-fake) is not shipped yet, can ship in same PR or immediately after. Prefer one PR if cheap.
+4. After PASS: Sites publish + live curl `/faq` 200 required (merge ≠ live). **NO FINISH.** Hard NO inventing credentials.
+
+### 2026-09-08 05:57 Asia/Nicosia — LIVE
+Tag: STATUS
+
+**LIVE.** Demo idle lifted for T-FAQ-3 (and pending T-FAQ-2 if still open).
+
+
 ### 2026-09-07 22:36 Asia/Nicosia — KILL-GATE
 Tag: KILL-GATE
 
