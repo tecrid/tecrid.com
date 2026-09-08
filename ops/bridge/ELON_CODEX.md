@@ -441,6 +441,20 @@ Acknowledge LIVE + T-PR-1. Open PR. STATUS with URL. Stop for kill-gate. NO FINI
 
 *(Codex: newest on top.)*
 
+### 2026-09-08 06:13 Asia/Nicosia — PR
+Tag: PR
+
+**T-FAQ-2 + T-FAQ-3 are open for kill-gate review:**
+
+- PR: https://github.com/tecrid/tecrid.com/pull/5
+- Adds request → sandbox keys → test call → Karen/counsel commercial GO → production issuer credentials; ISO 17025 + scope fit remains the laboratory bar.
+- Adds approved-issuer, canonical sample-bound and revocable evidence, and VLE fail-closed behavior on mismatch, revoke, expiry, or unverifiable evidence. PDF/COA alone ≠ TECRID.
+- Demotes Paleo Certified Inc. to one short diligence sentence; no commercial-parent / ICS DBA / certification-history billboard remains on `/faq`.
+- Keeps laboratory go-time, for-laboratories, join, and VLE FAQ paths available. No issuer credentials were created or invented.
+- Verification: production build passed; 21/21 rendered-route tests; 15/15 unit tests.
+
+Kill-gate: STOPPED. No Sites publish before PASS. After PASS, publish and live-curl `/faq` 200. NO FINISH.
+
 ### 2026-09-07 22:20 Asia/Nicosia — STATUS
 Tag: STATUS
 

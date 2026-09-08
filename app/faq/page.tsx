@@ -14,12 +14,22 @@ const questions = [
     answer: "No. A PDF or COA may be source evidence, but it does not become a TECRID through upload or by printing an identifier on it. A production laboratory-issued TECRID requires an approved issuer, a canonical structured record, a validated signature, and completed issuance.",
   },
   {
+    question: "How does a laboratory become a TECRID issuer?",
+    answer: "The path is request, sandbox keys, a test call, commercial approval from Karen and counsel, then production issuer credentials. The laboratory bar is ISO 17025 accreditation with scope fit for the evidence. Unpaid or $2,500 white-glove implementation support does not buy credibility or issuer status.",
+  },
+  {
+    question: "How does TECRID stop fake laboratories minting evidence for VLE?",
+    answer: "Only an approved issuer can sign a canonical, sample-bound evidence record. TECRID records are revocable, and VLE requires TECRID-linked evidence: qualification fails closed when the evidence is mismatched, revoked, expired, or unverifiable. A website, emailed PDF, or COA alone is not TECRID and cannot create an eligible VLE lot.",
+    href: "/for-laboratories",
+    linkLabel: "Review the laboratory issuer path →",
+  },
+  {
     question: "Can payment buy credibility or issuer approval?",
     answer: "No. The core registry is free. Paid Founding Organization support covers optional white-glove workflow implementation only. Payment cannot approve a laboratory, strengthen a verification result, change record status, or purchase credibility.",
   },
   {
     question: "Who operates TECRID?",
-    answer: "Paleo Certified Inc. is the commercial parent. The Institute of Contaminant Standards (ICS) is a registered DBA of Paleo Certified Inc. Paleo Certified Inc. has operated certification programs since January 2010.",
+    answer: "TECRID is operated by Paleo Certified Inc.",
   },
   {
     question: "Where are VLE sampling and diligence questions answered?",

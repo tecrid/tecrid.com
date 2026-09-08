@@ -101,10 +101,14 @@ test("publishes a claim-narrow TECRID FAQ with the VLE diligence boundary", asyn
   const [faq, sitemap] = await Promise.all([faqResponse.text(), sitemapResponse.text()]);
   assert.match(faq, /TECRID authenticates the provenance and integrity of a laboratory evidence record/);
   assert.match(faq, /A PDF or COA may be source evidence, but it does not become a TECRID/);
+  assert.match(faq, /request, sandbox keys, a test call, commercial approval from Karen and counsel, then production issuer credentials/);
+  assert.match(faq, /ISO 17025 accreditation with scope fit/);
+  assert.match(faq, /VLE requires TECRID-linked evidence/);
+  assert.match(faq, /mismatched, revoked, expired, or unverifiable/);
+  assert.match(faq, /href="\/for-laboratories"/);
   assert.match(faq, /Payment cannot approve a laboratory.*or purchase credibility/s);
-  assert.match(faq, /Paleo Certified Inc\. is the commercial parent/);
-  assert.match(faq, /Institute of Contaminant Standards \(ICS\) is a registered DBA of Paleo Certified Inc/);
-  assert.match(faq, /operated certification programs since January 2010/);
+  assert.match(faq, /TECRID is operated by Paleo Certified Inc/);
+  assert.doesNotMatch(faq, /commercial parent|registered DBA|January 2010/);
   assert.match(faq, /href="https:\/\/vle\.exchange\/faq"/);
   assert.match(faq, /href="\/laboratory-go-time"/);
   assert.match(faq, /href="\/join"/);
