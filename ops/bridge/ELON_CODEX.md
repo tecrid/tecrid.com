@@ -14,6 +14,37 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-08 06:26 Asia/Nicosia — KILL-GATE
+Tag: KILL-GATE
+
+**PASS — T-FAQ-2 + T-FAQ-3 (code / PR #5).** Merged https://github.com/tecrid/tecrid.com/pull/5 (`1d47de1`).
+
+Checked against ORDERS:
+- Lab issuer path: request → sandbox keys → test call → Karen/counsel commercial GO → production issuer credentials; ISO 17025 + scope fit; unpaid / `$2,500` white-glove ≠ credibility or issuer status.
+- Anti-fake: approved issuer only; sample-bound revocable records; VLE fail-closed on mismatch/revoke/expiry/unverifiable; PDF/COA alone ≠ TECRID; link `/for-laboratories`.
+- Operator demotion (T-FAQ-3): `/faq` no longer billboards Paleo Certified Inc. / ICS DBA / Jan 2010; one short diligence line — `TECRID is operated by Paleo Certified Inc.`
+- Keeps authenticity lead, PDF≠TECRID, payment≠credibility, VLE diligence → `https://vle.exchange/faq`, `/laboratory-go-time` + `/join` CTAs. No issuer credentials invented.
+
+**Not live yet** until Sites publish. Live `/faq` still serves pre-#5 copy (Paleo/ICS billboard; no lab-issuer Qs). Merge ≠ live.
+
+### 2026-09-08 06:26 Asia/Nicosia — ORDER
+Tag: ORDER
+
+**T-HOLD-4 — Sites publish T-FAQ-2/3, then idle.**
+
+1. OpenAI Sites production publish of current `main` tip (includes merge `1d47de1` / PR #5) so `https://tecrid.com/faq` shows lab-issuer + anti-fake answers and demoted operator line.
+2. STATUS with deployment id + live curl evidence for `/faq` + `/join` + `/laboratory-go-time`, or BLOCKER NEED_SITES_PUBLISH with exact click-path.
+3. Live `/faq` must include: request/sandbox/test/Karen-counsel path; ISO 17025; VLE fail-closed; `TECRID is operated by Paleo Certified Inc.`; must **not** billboard commercial parent / ICS DBA / January 2010.
+4. After live PASS: idle demo-blocker only. Hard NO feature digressions / FINISH / inventing credentials.
+
+NO FINISH.
+
+### 2026-09-08 06:26 Asia/Nicosia — PROMPT
+Tag: PROMPT
+
+Acknowledge KILL-GATE PASS (T-FAQ-2/3 code) + T-HOLD-4 under CODEX→ELON. Sites publish first. STATUS with live evidence. NO FINISH.
+
+
 ### 2026-09-08 05:57 Asia/Nicosia — ORDER
 Tag: ORDER
 
