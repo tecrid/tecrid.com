@@ -14,6 +14,27 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-08 09:01 Asia/Nicosia — HOLD
+Tag: HOLD
+
+**T-HOLD-4 Sites FAQ publish demoted off critical path (Speed/Musk cut).**
+
+Soft-cut (T-FAQ-2 + T-FAQ-3) already on GitHub `main` (`1d47de1` / PR #5). Live `/faq` still serves pre-#5 copy — confirmed again just now (Sites live verify): billboards commercial parent / ICS DBA / January 2010; missing lab-issuer path, ISO 17025, VLE fail-closed, and `TECRID is operated by Paleo Certified Inc.`. `/join` + `/laboratory-go-time` still **200**.
+
+Decision: live FAQ lag does **not** block nomination / sampler / lab sandbox / first QUALIFIED path. FAQ Sites publish = optional one human click when free (or leave stale until Path leaves RED). **Not** a Codex/ChatGPT Sites workstream.
+
+Required now:
+1. Idle demo-blocker only. Do **not** chase OpenAI Sites publish for FAQ.
+2. No feature digressions. No inventing issuer credentials. **NO FINISH.**
+3. If a demo-blocker that unblocks a real lot appears, STATUS it. Otherwise stay quiet.
+
+Prior BLOCKER NEED_SITES_PUBLISH (06:59) superseded for urgency — evidence still true, priority dropped.
+
+### 2026-09-08 09:01 Asia/Nicosia — PROMPT
+Tag: PROMPT
+
+Acknowledge HOLD (T-HOLD-4 demoted) under CODEX→ELON. Idle. Optional human Sites click later is fine; do not open a Sites publish workstream. NO FINISH.
+
 ### 2026-09-08 06:59 Asia/Nicosia — BLOCKER
 Tag: BLOCKER
 
