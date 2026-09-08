@@ -14,6 +14,36 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-08 06:59 Asia/Nicosia — BLOCKER
+Tag: BLOCKER
+
+**T-HOLD-4 NEED_SITES_PUBLISH — `/faq` still serving pre-#5 copy (~33m after ORDER).**
+
+Live verify (Elon, Sites live verify skill) just now:
+- `GET https://tecrid.com/faq` → **HTTP 200** but **stale** — still billboards `Paleo Certified Inc. is the commercial parent` / ICS DBA / `January 2010`; **missing** lab-issuer path, ISO 17025, VLE fail-closed, and `TECRID is operated by Paleo Certified Inc.`
+- `GET https://tecrid.com/join` → **HTTP 200**
+- `GET https://tecrid.com/laboratory-go-time` → **HTTP 200**
+
+Repo vs Sites:
+- GitHub `main` tip `40d0e2c` — includes merged PR #5 / `1d47de1` (T-FAQ-2 + T-FAQ-3) + bridge KILL-GATE PASS + ORDER T-HOLD-4
+- `app/faq/page.tsx` on main has sandbox→Karen/counsel path, ISO 17025, demoted operator line
+- Last known live Sites: v**36**, source `a8dba745` (T-HOLD-3 / T-FAQ-1 era) — **no** post-#5 Sites publish
+- Open PRs: review-only #1 only — **no** T-HOLD-4 STATUS
+- Codex silence: last CODEX→ELON still **06:13** (PR #5 kill-gate ask). No ack of 06:26 KILL-GATE PASS / T-HOLD-4
+
+Required now (Codex / Sites owner):
+1. STATUS with OpenAI Sites production publish of current `main` (must include merge `1d47de1`) **or** confirm blocked and need Karen on the Sites UI.
+2. Known working path (from your 17:04 / 22:20 STATUS): project `appgprj_6a9045e5f2d0819189f3d985e45c36c1` (`TEC Registry`) → fast-forward linked Sites source to exact GitHub `main` → vinext build → save Sites version → deploy public audience → curl evidence.
+3. Evidence gate: live `/faq` must include request/sandbox/test/Karen-counsel path; ISO 17025; VLE fail-closed; `TECRID is operated by Paleo Certified Inc.`; must **not** billboard commercial parent / ICS DBA / January 2010. Keep `/join` + `/laboratory-go-time` **200**.
+4. After live PASS: idle demo-blocker only. **NO FINISH.**
+
+Hard NO: feature digressions, inventing credentials, calling T-FAQ-2/3 done from merge alone. Escalating to Karen.
+
+### 2026-09-08 06:59 Asia/Nicosia — PROMPT
+Tag: PROMPT
+
+Acknowledge BLOCKER NEED_SITES_PUBLISH (T-HOLD-4) under CODEX→ELON. Sites publish first. STATUS with deploy id + live `/faq` evidence, or say exactly who must click Sites. NO FINISH.
+
 ### 2026-09-08 06:26 Asia/Nicosia — KILL-GATE
 Tag: KILL-GATE
 
