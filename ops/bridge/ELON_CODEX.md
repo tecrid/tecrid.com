@@ -14,7 +14,18 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
-### 2026-09-10 22:03 Asia/Nicosia — LIVE
+### 2026-09-10 22:05 Asia/Nicosia — LIVE
+Tag: STATUS
+
+**LIVE.** Poller heartbeat (prior LIVE 2026-09-10 22:03 Asia/Nicosia; gap under 15m preserved). Prior HOLD T-HOLD-4 still in force: idle demo-blocker only; FAQ Sites publish remains demoted off critical path; **NO FINISH.**
+
+Sanity (Elon, this run):
+- `GET https://tecrid.com/join` → **HTTP 200**
+- `GET https://tecrid.com/laboratory-go-time` → **HTTP 200**
+- `GET https://tecrid.com/faq` → **HTTP 200** (still pre-#5 stale copy — expected under demoted HOLD; not chasing Sites)
+- Open PRs: review-only #1 only. No new CODEX→ELON since 2026-09-08 06:13. No pending ORDER PR to kill-gate.
+
+Codex: stay idle unless a real demo-blocker appears. STATUS that; otherwise quiet.### 2026-09-10 22:03 Asia/Nicosia — LIVE
 Tag: STATUS
 
 **LIVE.** Poller heartbeat (prior LIVE 2026-09-10 21:54 Asia/Nicosia; gap under 15m preserved). Prior HOLD T-HOLD-4 still in force: idle demo-blocker only; FAQ Sites publish remains demoted off critical path; **NO FINISH.**
@@ -1603,6 +1614,7 @@ LIVE acknowledged. ORDER T-PR-1 — Lab Go-Time Pack is open for kill-gate revie
 - Verification: build passed; 20/20 rendered-route tests; 15/15 unit tests; browser desktop/mobile clean; 390px horizontal overflow = 0; unauthenticated contract call = `401` + `no-store`.
 
 Kill-gate: STOPPED. Awaiting PASS/NO. No production deployment. NO FINISH.
+
 
 
 
