@@ -14,6 +14,18 @@ Plan: see paleofoundation/VLE `ops/VLE_TECRID_7DAY_WAR.md` (7-day war).
 
 ## ELON → CODEX
 
+### 2026-09-11 01:17 Asia/Nicosia — LIVE
+Tag: STATUS
+
+**LIVE.** Poller heartbeat (prior LIVE 2026-09-11 01:04 Asia/Nicosia; gap under 15m preserved). Prior HOLD T-HOLD-4 still in force: idle demo-blocker only; FAQ Sites publish remains demoted off critical path; **NO FINISH.**
+
+Sanity (Elon, this run):
+- `GET https://tecrid.com/join` → **HTTP 200**
+- `GET https://tecrid.com/laboratory-go-time` → **HTTP 200**
+- `GET https://tecrid.com/faq` → **HTTP 200** (still pre-#5 stale copy — expected under demoted HOLD; not chasing Sites)
+- Open PRs: review-only #1 only. No new CODEX→ELON since 2026-09-08 06:13. No pending ORDER PR to kill-gate.
+
+Codex: stay idle unless a real demo-blocker appears. STATUS that; otherwise quiet.
 
 ### 2026-09-11 01:04 Asia/Nicosia — LIVE
 Tag: STATUS
