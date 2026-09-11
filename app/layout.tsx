@@ -2,6 +2,14 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import {
+  ICS_ORGANIZATION_ID,
+  TECRID_SERVICE_ID,
+  TECRID_WEBSITE_ID,
+  icsOrganization,
+  karenPerson,
+  tecridService,
+} from "../lib/entity-graph";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,20 +30,17 @@ const siteIdentity = {
   "@graph": [
     {
       "@type": "WebSite",
-      "@id": "https://tecrid.com/#website",
+      "@id": TECRID_WEBSITE_ID,
       url: "https://tecrid.com",
       name: "TECRID",
       alternateName: "TEC Registry",
       description,
-      publisher: { "@id": "https://tecrid.com/#ics" },
+      publisher: { "@id": ICS_ORGANIZATION_ID },
+      about: { "@id": TECRID_SERVICE_ID },
     },
-    {
-      "@type": "Organization",
-      "@id": "https://tecrid.com/#ics",
-      name: "Institute of Contaminant Standards",
-      url: "https://contaminantstandards.com",
-      brand: { "@type": "Brand", name: "TECRID", alternateName: "TEC Registry" },
-    },
+    icsOrganization,
+    karenPerson,
+    tecridService,
   ],
 };
 
@@ -53,6 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
     authors: [{ name: "Institute of Contaminant Standards", url: "https://contaminantstandards.com" }],
     creator: "Institute of Contaminant Standards",
     publisher: "Institute of Contaminant Standards",
+    alternates: { canonical: "https://tecrid.com/" },
     verification: {
       google: "1NWO0uv6B0GJqNBADyugLLo1W4d9dXlJ5T9nEide21Y",
     },

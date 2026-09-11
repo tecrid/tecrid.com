@@ -7,7 +7,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${origin}/`, lastModified, changeFrequency: "weekly", priority: 1 },
     { url: `${origin}/what-is-a-tecrid`, lastModified, changeFrequency: "monthly", priority: 1 },
+    { url: `${origin}/faq`, lastModified: new Date("2026-09-07T00:00:00.000Z"), changeFrequency: "monthly", priority: 0.9 },
     { url: `${origin}/for-laboratories`, lastModified, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${origin}/laboratory-go-time`, lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: `${origin}/laboratory-value`, lastModified, changeFrequency: "monthly", priority: 0.9 },
     { url: `${origin}/laboratory-pilot`, lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: `${origin}/for-brands`, lastModified, changeFrequency: "monthly", priority: 0.8 },

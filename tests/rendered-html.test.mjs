@@ -33,14 +33,20 @@ test("renders the TEC Registry public product", async () => {
   assert.match(html, /Look up a TECRID/);
   assert.match(html, /Try the sample TECRID/);
   assert.match(html, /Institute of Contaminant Standards/);
+  assert.match(html, /https:\/\/contaminantstandards\.com\/#organization/);
+  assert.match(html, /https:\/\/contaminantstandards\.com\/people\/karen-pendergrass#person/);
+  assert.match(html, /https:\/\/orcid\.org\/0000-0002-2348-7259/);
+  assert.match(html, /https:\/\/tecrid\.com\/#service/);
+  assert.doesNotMatch(html, /https:\/\/tecrid\.com\/#ics/);
   assert.match(html, /<meta name="google-site-verification" content="1NWO0uv6B0GJqNBADyugLLo1W4d9dXlJ5T9nEide21Y"/i);
   assert.doesNotMatch(html, /codex-preview|loading skeleton|react-loading-skeleton/i);
 });
 
-test("publishes focused search-intent pages, the laboratory one-pager, and agent-guided setup", async () => {
-  const [homeResponse, labsResponse, valueResponse, pilotResponse, brandsResponse, recipientsResponse, integrateResponse, sitemapResponse, nav] = await Promise.all([
+test("publishes focused search-intent pages, the laboratory go-time pack, and agent-guided setup", async () => {
+  const [homeResponse, labsResponse, goTimeResponse, valueResponse, pilotResponse, brandsResponse, recipientsResponse, integrateResponse, sitemapResponse, nav] = await Promise.all([
     render("/"),
     render("/for-laboratories"),
+    render("/laboratory-go-time"),
     render("/laboratory-value"),
     render("/laboratory-pilot"),
     render("/for-brands"),
@@ -49,9 +55,9 @@ test("publishes focused search-intent pages, the laboratory one-pager, and agent
     render("/sitemap.xml"),
     readFile(new URL("../app/site-nav.tsx", import.meta.url), "utf8"),
   ]);
-  for (const response of [homeResponse, labsResponse, valueResponse, pilotResponse, brandsResponse, recipientsResponse, integrateResponse, sitemapResponse]) assert.equal(response.status, 200);
-  const [home, labs, value, pilot, brands, recipients, integrate, sitemap] = await Promise.all([
-    homeResponse.text(), labsResponse.text(), valueResponse.text(), pilotResponse.text(), brandsResponse.text(), recipientsResponse.text(), integrateResponse.text(), sitemapResponse.text(),
+  for (const response of [homeResponse, labsResponse, goTimeResponse, valueResponse, pilotResponse, brandsResponse, recipientsResponse, integrateResponse, sitemapResponse]) assert.equal(response.status, 200);
+  const [home, labs, goTime, value, pilot, brands, recipients, integrate, sitemap] = await Promise.all([
+    homeResponse.text(), labsResponse.text(), goTimeResponse.text(), valueResponse.text(), pilotResponse.text(), brandsResponse.text(), recipientsResponse.text(), integrateResponse.text(), sitemapResponse.text(),
   ]);
   assert.match(home, /persistent identifier and verification record for laboratory reports/i);
   assert.match(home, /Certificate of Analysis authentication/i);
@@ -59,6 +65,16 @@ test("publishes focused search-intent pages, the laboratory one-pager, and agent
   assert.match(home, /Founding laboratory pilot/);
   assert.match(labs, /Stop answering the same report question twice/);
   assert.match(labs, /laboratory report verification/i);
+  assert.match(labs, /PDF or Certificate of Analysis is a document—not a TECRID/);
+  assert.match(goTime, /If your laboratory says GO tomorrow/);
+  assert.match(goTime, /PDF\/COA ≠ TECRID/);
+  assert.match(goTime, /TECRID_SANDBOX_KEY/);
+  assert.match(goTime, /VLE-SAMPLE-AVO-260812-A/);
+  assert.match(goTime, /SHA256_OF_FINAL_TECRID_MARKED_PDF/);
+  assert.match(goTime, /contract is sandbox-only today/);
+  assert.match(goTime, /VLE QUALIFIED is a separate deterministic outcome/);
+  assert.match(goTime, /vle-navy\.vercel\.app\/for-laboratories/);
+  assert.match(goTime, /vle\.exchange\/for-laboratories/);
   assert.match(value, /Protect the report after it leaves the laboratory/);
   assert.match(value, /The laboratory keeps paying for a report it already finished/);
   assert.match(pilot, /Five production gates/);
@@ -68,10 +84,38 @@ test("publishes focused search-intent pages, the laboratory one-pager, and agent
   assert.match(integrate, /Open the repo/);
   assert.match(integrate, /TECRID-INTEGRATION-REPORT\.md/);
   assert.match(integrate, /Human approval still controls identity, secrets, deployment, and production writes/);
-  for (const path of ["for-laboratories", "laboratory-value", "laboratory-pilot", "for-brands", "for-certifiers-retailers", "integrate"]) {
+  for (const path of ["for-laboratories", "laboratory-go-time", "laboratory-value", "laboratory-pilot", "for-brands", "for-certifiers-retailers", "integrate"]) {
     assert.match(sitemap, new RegExp(`https:\\/\\/tecrid\\.com\\/${path}`));
     assert.match(nav, new RegExp(`href="\\/${path}`));
   }
+});
+
+test("publishes a claim-narrow TECRID FAQ with the VLE diligence boundary", async () => {
+  const [faqResponse, sitemapResponse, nav] = await Promise.all([
+    render("/faq"),
+    render("/sitemap.xml"),
+    readFile(new URL("../app/site-nav.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.equal(faqResponse.status, 200);
+  assert.equal(sitemapResponse.status, 200);
+  const [faq, sitemap] = await Promise.all([faqResponse.text(), sitemapResponse.text()]);
+  assert.match(faq, /TECRID authenticates the provenance and integrity of a laboratory evidence record/);
+  assert.match(faq, /A PDF or COA may be source evidence, but it does not become a TECRID/);
+  assert.match(faq, /request, sandbox keys, a test call, commercial approval from Karen and counsel, then production issuer credentials/);
+  assert.match(faq, /ISO 17025 accreditation with scope fit/);
+  assert.match(faq, /VLE requires TECRID-linked evidence/);
+  assert.match(faq, /mismatched, revoked, expired, or unverifiable/);
+  assert.match(faq, /href="\/for-laboratories"/);
+  assert.match(faq, /Payment cannot approve a laboratory.*or purchase credibility/s);
+  assert.match(faq, /TECRID is operated by Paleo Certified Inc/);
+  assert.doesNotMatch(faq, /commercial parent|registered DBA|January 2010/);
+  assert.match(faq, /href="https:\/\/vle\.exchange\/faq"/);
+  assert.match(faq, /href="\/laboratory-go-time"/);
+  assert.match(faq, /href="\/join"/);
+  assert.match(faq, /"@type":"FAQPage"/);
+  assert.doesNotMatch(faq, /registration (?:number|#)/i);
+  assert.match(sitemap, /https:\/\/tecrid\.com\/faq/);
+  assert.match(nav, /href="\/faq"/);
 });
 
 test("locks laboratory approval behind evidence, key-control, and conformance gates", async () => {
@@ -197,7 +241,16 @@ test("renders pricing and API documentation", async () => {
   assert.match(join, /\$2,500/);
   assert.match(join, /buy\.stripe\.com/);
   assert.match(join, /first 10 historical reports/);
-  assert.match(join, /What happens next/);
+  assert.match(join, /The core registry.*is free\. Forever/s);
+  assert.match(join, /Core registry · all roles/);
+  assert.match(join, /Optional · white-glove implementation/);
+  assert.match(join, /Buy implementation work—not credibility/);
+  assert.match(join, /Laboratory.*Brand or supplier.*Certifier or retailer/s);
+  assert.match(join, /TECRID authenticates provenance; it does not certify product safety/);
+  assert.match(join, /A PDF or COA does not become a TECRID/);
+  assert.match(join, /vle\.exchange\/for-laboratories/);
+  assert.doesNotMatch(join, /Sign-in uses your ChatGPT identity/);
+  assert.doesNotMatch(join, /VLE QUALIFIED/);
   assert.match(join, /locked_prefilled_email/);
   assert.match(join, /client_reference_id/);
   assert.match(developers, /TEC Registry API/);
@@ -205,6 +258,8 @@ test("renders pricing and API documentation", async () => {
   assert.match(developers, /TECRID Connect/);
   assert.match(developers, /POST \/api\/v1\/credentials/);
   assert.match(developers, /Bearer keys/);
+  assert.match(developers, /https:\/\/tecrid\.com\/developers#documentation/);
+  assert.match(developers, /github\.com\/tecrid\/tecrid-specification/);
 });
 
 test("publishes privacy boundaries that match controlled TECRID workflows", async () => {
@@ -377,9 +432,12 @@ test("renders an isolated fictional lab and two complete dummy findings", async 
 });
 
 test("renders a multi-party portal with personal sandbox and API-key boundaries", async () => {
-  const [response, route, page, sessionRoute, keyRoute, schema, migration] = await Promise.all([
+  const [response, laboratoryResponse, route, vleRoute, vleContract, page, sessionRoute, keyRoute, schema, migration] = await Promise.all([
     render("/sandbox"),
+    render("/sandbox?role=laboratory&section=integrations"),
     readFile(new URL("../app/api/sandbox/v1/scenario/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/sandbox/v1/vle-evidence/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/vle-sandbox-evidence.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/sandbox/sandbox-client.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/api/sandbox/session/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/sandbox/keys/route.ts", import.meta.url), "utf8"),
@@ -387,7 +445,9 @@ test("renders a multi-party portal with personal sandbox and API-key boundaries"
     readFile(new URL("../drizzle/0006_dark_micromacro.sql", import.meta.url), "utf8"),
   ]);
   assert.equal(response.status, 200);
+  assert.equal(laboratoryResponse.status, 200);
   const html = await response.text();
+  const laboratoryHtml = await laboratoryResponse.text();
   assert.match(html, /Run the workflow from every side/);
   assert.match(html, /Atlas Pantry/);
   assert.match(html, /Northstar Analytical/);
@@ -399,10 +459,19 @@ test("renders a multi-party portal with personal sandbox and API-key boundaries"
   assert.match(html, /API &amp; integrations/);
   assert.match(html, /Organization settings/);
   assert.match(html, /Sign in to preserve progress/);
+  assert.match(laboratoryHtml, /initialRole[^\n]+laboratory/);
+  assert.match(laboratoryHtml, /initialSection[^\n]+integrations/);
   assert.match(route, /authenticateSandboxApiRequest/);
   assert.match(route, /productionAuthority: false/);
   assert.match(page, /tec_sandbox_/);
+  assert.match(page, /vle-evidence\?tecridId/);
   assert.match(page, /Only its one-way hash is stored/);
+  assert.match(vleRoute, /sandbox_api_key_required/);
+  assert.match(vleRoute, /buildVleSandboxEvidence/);
+  assert.match(vleContract, /expectedSampleCode !== VLE_SANDBOX_SAMPLE_CODE/);
+  assert.match(vleContract, /CANDIDATE_NOT_PRODUCTION/);
+  assert.match(vleContract, /productionAuthority: false/);
+  assert.match(vleContract, /doesNotProve/);
   assert.match(sessionRoute, /getChatGPTUser/);
   assert.match(keyRoute, /createSandboxApiKey/);
   assert.match(schema, /sandboxSessions/);
@@ -680,4 +749,37 @@ test("wires recipient-bound evidence codes, opt-in participants, and safe result
   const developerHtml = await developers.text();
   assert.match(developerHtml, /POST \/api\/v1\/share-codes\/redeem/);
   assert.match(developerHtml, /github\.com\/tecrid\/tecrid-connect/);
+});
+
+test("gives authenticated organizations a role-aware workspace shell and a real settings destination", async () => {
+  const [layout, sidebar, dashboard, settings, application] = await Promise.all([
+    readFile(new URL("../app/dashboard/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/workspace-sidebar.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/settings/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/issuer-application.tsx", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(layout, /getChatGPTUser/);
+  assert.match(layout, /getDashboardData/);
+  assert.match(layout, /WorkspaceSidebar/);
+  assert.match(sidebar, /usePathname/);
+  assert.match(sidebar, /aria-current/);
+  assert.match(sidebar, /Laboratory launch/);
+  for (const destination of [
+    "/dashboard/sharing",
+    "/dashboard/lab-defense",
+    "/dashboard/certification",
+    "/dashboard/evidence-routing",
+    "/dashboard/insights",
+    "/dashboard/reports/new",
+    "/dashboard/credentials/new",
+    "/dashboard/settings",
+  ]) assert.match(sidebar, new RegExp(destination.replaceAll("/", "\\/")));
+
+  assert.match(dashboard, /className="dashboard-workflow-card sharing-card" href="\/dashboard\/sharing"/);
+  assert.match(dashboard, /className="dashboard-workflow-card insights-card" href="\/dashboard\/insights"/);
+  assert.match(settings, /robots: \{ index: false/);
+  assert.match(settings, /ApiKeyPanel/);
+  assert.match(application, /id="laboratory-verification"/);
 });
