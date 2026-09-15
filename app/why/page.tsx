@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { ProductFooter, ProductNav } from "../site-nav";
+import { EvidenceValue } from "../evidence-value";
 
 export const metadata: Metadata = {
   title: "Why TEC exists — TEC Registry",
   description:
-    "The documented case for verifiable, machine-readable laboratory evidence—and why TEC Registry is free at the edges.",
+    "Replace PDF trust with checkable, issuer-signed laboratory evidence. Free core verification, with commercial paths through VLE QUALIFIED and HMTc certification.",
 };
 
 const sources = [
@@ -66,10 +67,11 @@ export default function WhyTec() {
       <header className="why-hero">
         <div className="why-hero-copy">
           <p className="eyebrow"><span /> Why TEC exists</p>
-          <h1>The result travels.<br />Its provenance should too.</h1>
+          <h1>A PDF travels.<br />Proof should travel with it.</h1>
           <p>
-            Laboratory evidence routinely crosses organizational boundaries as a PDF. The documented problem is not simply that a file can be forged. It is that the receiver cannot reliably establish its source, integrity, context, or current status without doing the verification again.
+            An unverifiable COA makes every recipient start again. Counsel and retailers spend time reconciling folders of PDFs, matching lots, chasing the issuing laboratory, and locating corrections. Replace that PDF trust and discovery friction with checkable, issuer-signed evidence whose source, integrity, and current status can be verified.
           </p>
+          <div className="sell-hero-actions"><a href="https://vle.exchange/for-suppliers">Explore VLE QUALIFIED ↗</a><a href="https://heavymetalcertified.com/apply">Apply for HMTc certification ↗</a></div>
         </div>
         <aside className="problem-statement">
           <span>The infrastructure gap</span>
@@ -85,6 +87,13 @@ export default function WhyTec() {
         <div><strong>COA reliability</strong><span>Recurring enforcement concern</span></div>
         <div><strong>Digital exchange</strong><span>Active standards work</span></div>
         <div><strong>Market demand</strong><span>To be proven by pilots</span></div>
+      </section>
+
+      <EvidenceValue />
+
+      <section className="lab-value-sell" aria-labelledby="lab-value-sell-title">
+        <div><p className="section-kicker">For the issuing laboratory</p><h2 id="lab-value-sell-title">Issue once. Fewer phone calls.<br />More sealed volume.</h2></div>
+        <div><p>Every “did you issue this?” call puts your team back on a report it already finished. Issue a signed record once, let authorized recipients check it, and keep corrections attached to the same identifier.</p><p>VLE connects laboratory evidence to sealed samples and recorded custody. As buyers request TECRID-linked evidence, your laboratory gains a path to more testing of independently sealed samples. Pilots must establish the actual time saved and volume gained.</p><a href="/for-laboratories">See the laboratory path →</a></div>
       </section>
 
       <section className="evidence-section" id="evidence" aria-labelledby="evidence-title">
@@ -154,56 +163,6 @@ export default function WhyTec() {
           <div><dt>TEC Protocol</dt><dd>The open technical and governance standard</dd></div>
           <div><dt>ICS</dt><dd>The standards steward and public-interest home</dd></div>
         </dl>
-      </section>
-
-      <section className="free-section" id="free-network" aria-labelledby="free-title">
-        <div className="free-intro">
-          <p className="section-kicker light">Free at the edges</p>
-          <h2 id="free-title">Verification cannot become valuable until it becomes ubiquitous.</h2>
-          <p>
-            TEC Registry follows a network strategy: remove the tollbooths from verification, then build paid services around the activity the open registry creates.
-          </p>
-        </div>
-
-        <div className="network-orbit" aria-label="TEC Registry flywheel">
-          <div className="orbit-ring ring-one" />
-          <div className="orbit-ring ring-two" />
-          <span className="orbit-node node-labs">Labs issue</span>
-          <span className="orbit-node node-brands">Brands share</span>
-          <span className="orbit-node node-buyers">Buyers require</span>
-          <span className="orbit-node node-data">Evidence improves</span>
-          <div className="orbit-core"><strong>TEC</strong><small>Free verification</small></div>
-        </div>
-
-        <div className="economics-grid">
-          <article className="free-card">
-            <p>Free, by principle</p>
-            <h3>The network utility</h3>
-            <ul>
-              <li>Public resolution and verification</li>
-              <li>Draft-protocol TEC issuance tooling</li>
-              <li>The open credential specification</li>
-              <li>Basic issuer and correction history</li>
-              <li>A reasonable public API</li>
-            </ul>
-          </article>
-          <article className="paid-card">
-            <p>Paid, by value</p>
-            <h3>The enterprise operating layer</h3>
-            <ul>
-              <li>Laboratory and LIMS integrations</li>
-              <li>Supplier and testing-program management</li>
-              <li>Retailer procurement policy engines</li>
-              <li>Monitoring, alerts, and private workflows</li>
-              <li>Bulk APIs, analytics, and service guarantees</li>
-            </ul>
-          </article>
-        </div>
-
-        <blockquote className="free-principle">
-          <span>Founding principle 01</span>
-          <p>Evidence may be confidential. Verification must never be paywalled.</p>
-        </blockquote>
       </section>
 
       <section className="ingredient-integrity-section" aria-labelledby="ingredient-integrity-title">
