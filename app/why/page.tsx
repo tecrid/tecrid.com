@@ -3,6 +3,7 @@ import { ProductFooter, ProductNav } from "../site-nav";
 import { EvidenceValue } from "../evidence-value";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "https://tecrid.com/why" },
   title: "Why TEC exists — TEC Registry",
   description:
     "Replace PDF trust with checkable, issuer-signed laboratory evidence. Free core verification, with commercial paths through VLE QUALIFIED and HMTc certification.",

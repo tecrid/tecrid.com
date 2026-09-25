@@ -6,6 +6,7 @@ import { ProductFooter, ProductNav } from "../site-nav";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "https://tecrid.com/join" },
   title: "Join TECRID",
   description: "Create a free TECRID workspace. Optional Founding Organization support pays for white-glove implementation—not verification or credibility.",
 };

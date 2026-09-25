@@ -783,3 +783,25 @@ test("gives authenticated organizations a role-aware workspace shell and a real 
   assert.match(settings, /ApiKeyPanel/);
   assert.match(application, /id="laboratory-verification"/);
 });
+
+test("public marketing pages declare their own self-referencing canonical", async () => {
+  // Rendered: pages that do not need the D1 binding in the local Node harness.
+  const paths = ["/why", "/verify", "/submit-report", "/privacy"];
+  const responses = await Promise.all(paths.map((path) => render(path)));
+  for (const [index, response] of responses.entries()) {
+    const path = paths[index];
+    assert.equal(response.status, 200, path);
+    const html = await response.text();
+    const canonicals = [...html.matchAll(/<link rel="canonical" href="([^"]+)"/g)].map((match) => match[1]);
+    assert.deepEqual(canonicals, [`https://tecrid.com${path}`], path);
+  }
+  // D1-backed pages (cloudflare: imports cannot load under plain Node): assert the declared metadata.
+  for (const path of ["/issuers", "/participants", "/join"]) {
+    const source = await readFile(new URL(`../app${path}/page.tsx`, import.meta.url), "utf8");
+    assert.ok(source.includes(`alternates: { canonical: "https://tecrid.com${path}" }`), path);
+  }
+  const home = await (await render("/")).text();
+  assert.match(home, /<link rel="canonical" href="https:\/\/tecrid\.com\/?"/);
+  const sitemap = await (await render("/sitemap.xml")).text();
+  assert.doesNotMatch(sitemap, /https:\/\/tecrid\.com\/pricing/);
+});

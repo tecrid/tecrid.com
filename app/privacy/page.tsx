@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ProductFooter, ProductNav } from "../site-nav";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "https://tecrid.com/privacy" },
   title: "TECRID Privacy & Data Governance — TEC Registry",
   description: "How the Institute of Contaminant Standards protects, uses, shares, and governs data in TECRID.",
 };

@@ -13,6 +13,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${portfolio.organization.name} disclosures — TEC Registry`,
     description: `Public production-aggregate analytical disclosures published by ${portfolio.organization.name}.`,
+    alternates: { canonical: `https://tecrid.com/disclosures/${encodeURIComponent(decodeURIComponent(organizationSlug))}` },
   };
 }
 

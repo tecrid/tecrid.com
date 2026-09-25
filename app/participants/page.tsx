@@ -4,6 +4,7 @@ import { ProductFooter, ProductNav } from "../site-nav";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
+  alternates: { canonical: "https://tecrid.com/participants" },
   title: "TECRID participants — TEC Registry",
   description: "Organizations that have chosen to make their TECRID participation discoverable.",
 };
