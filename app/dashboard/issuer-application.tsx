@@ -273,7 +273,7 @@ export function IssuerApplicationPanel({
 
   if (issuerStatus === "verified") {
     return (
-      <section className="dashboard-panel issuer-application-panel verified-issuer-panel">
+      <section className="dashboard-panel issuer-application-panel verified-issuer-panel" id="laboratory-verification">
         <div className="panel-heading">
           <div><p className="section-kicker">Issuance authority</p><h2>ICS verified issuer</h2></div>
           <span className="verified-pill"><i /> Active</span>
@@ -296,7 +296,7 @@ export function IssuerApplicationPanel({
     ];
     const keyComplete = checkByType.get("key_control")?.status === "passed" && checkByType.get("conformance")?.status === "passed";
     return (
-      <section className="dashboard-panel issuer-application-panel">
+      <section className="dashboard-panel issuer-application-panel" id="laboratory-verification">
         <div className="panel-heading">
           <div><p className="section-kicker">Issuer application</p><h2>Review status</h2></div>
           <span className="record-status record-draft">{application.status}</span>
@@ -346,7 +346,7 @@ export function IssuerApplicationPanel({
   }
 
   return (
-    <section className="dashboard-panel issuer-application-panel">
+    <section className="dashboard-panel issuer-application-panel" id="laboratory-verification">
       <div className="panel-heading">
         <div><p className="section-kicker">Issuer application</p><h2>{canResubmit ? "Submit a replacement application" : "Request laboratory issuance authority"}</h2></div>
         <span className="record-status record-draft">{canResubmit ? application.status.replaceAll("_", " ") : "Not submitted"}</span>

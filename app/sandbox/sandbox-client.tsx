@@ -50,11 +50,11 @@ function StagePill({ stage }: { stage: Stage }) {
   return <span className={`sandbox-status sandbox-status-${stage}`}>{stageTitle[stage]}</span>;
 }
 
-export function SandboxClient({ viewer, signInHref, signOutHref }: { viewer: Viewer; signInHref: string; signOutHref: string }) {
-  const [role, setRole] = useState<Role>("brand");
+export function SandboxClient({ viewer, signInHref, signOutHref, initialRole = "brand", initialSection = "overview" }: { viewer: Viewer; signInHref: string; signOutHref: string; initialRole?: Role; initialSection?: PortalSection }) {
+  const [role, setRole] = useState<Role>(initialRole);
   const [stage, setStage] = useState<Stage>("submitted");
   const [mode, setMode] = useState<Mode>("portal");
-  const [portalSection, setPortalSection] = useState<PortalSection>("overview");
+  const [portalSection, setPortalSection] = useState<PortalSection>(initialSection);
   const [pending, setPending] = useState(false);
   const [persistent, setPersistent] = useState(false);
   const [activeSandboxKey, setActiveSandboxKey] = useState<string | null>(null);
@@ -425,8 +425,10 @@ function ApiSettings({ viewer, signInHref, onNewKey, openConsole }: { viewer: Vi
         <div className="sandbox-endpoint-card">
           <span>Sandbox base URL</span><code>https://tecrid.com/api/sandbox/v1</code>
           <span>Authorization</span><code>Bearer tec_sandbox_…</code>
+          <span>VLE contract test</span><code>/vle-evidence?tecridId=…&amp;expectedSampleCode=…</code>
           <span>Environment boundary</span><strong>Persistent test state · no production authority</strong>
           <button type="button" onClick={openConsole}>Open API console →</button>
+          <a href="/laboratory-go-time">Open lab go-time pack ↗</a>
         </div>
       </div>
     </section>

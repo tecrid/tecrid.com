@@ -4,6 +4,7 @@ import { ProductFooter, ProductNav } from "../site-nav";
 import { VerificationClient } from "./verification-client";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "https://tecrid.com/verify" },
   title: "Verify a laboratory report — TEC Registry",
   description: "Check a TECRID or compare a local PDF fingerprint with the public registry.",
 };
