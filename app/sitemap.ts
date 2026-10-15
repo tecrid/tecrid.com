@@ -22,7 +22,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${origin}/badge`, lastModified, changeFrequency: "monthly", priority: 0.7 },
     { url: `${origin}/submit-report`, lastModified, changeFrequency: "monthly", priority: 0.7 },
     { url: `${origin}/join`, lastModified, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${origin}/pricing`, lastModified, changeFrequency: "monthly", priority: 0.6 },
     { url: `${origin}/privacy`, lastModified, changeFrequency: "yearly", priority: 0.5 },
     { url: `${origin}/integrate`, lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: `${origin}/developers`, lastModified, changeFrequency: "monthly", priority: 0.6 },

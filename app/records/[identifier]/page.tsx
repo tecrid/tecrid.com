@@ -49,6 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description,
+    alternates: { canonical: `https://tecrid.com/records/${encodeURIComponent(record.credential.identifier)}` },
     openGraph: { title, description, type: "article", images: [] },
     twitter: { card: "summary", title, description, images: [] },
   };
