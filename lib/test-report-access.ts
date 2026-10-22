@@ -1,9 +1,10 @@
+import {privateFetch} from './private-fetch';
 import {env} from 'cloudflare:workers';
 import {getEmailUser} from './email-auth';
 import {sampleLabReference} from './sample-lab';
 export const privateReportHeaders={'Cache-Control':'private, no-store, max-age=0','Vary':'Cookie','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'};
 const failure=(error:string,status:number)=>Response.json({error},{status,headers:privateReportHeaders});
-export async function protectedTestReport(request:Request,identifier:string,kind:'results'|'pdf',transport:typeof fetch=fetch){
+export async function protectedTestReport(request:Request,identifier:string,kind:'results'|'pdf',transport:typeof fetch=privateFetch){
  const report=sampleLabReference(identifier);if(!report)return failure('Unknown test report.',404);
  // Only the validated email session supplies identity. Ignore bearer keys and client identity headers.
  let user;try{user=await getEmailUser(request.headers);}catch{return failure('Unable to verify your session. Please sign in again.',401);}
