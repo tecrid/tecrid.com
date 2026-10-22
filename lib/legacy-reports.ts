@@ -261,6 +261,8 @@ async function createLegacyReportForOrganization(
   const releasedAt = normalizeDate(form.get("releasedAt"));
 
   const sourceSha256 = await sha256Bytes(bytes);
+  const expectedHash = form.get("expectedSourceSha256");
+  if (expectedHash && expectedHash !== sourceSha256) throw new TecInputError("The PDF fingerprint does not match the prepared draft. Select the original document or reconcile the changed version.");
   const [duplicate] = await db
     .select({ id: legacyReports.id })
     .from(legacyReports)
@@ -649,6 +651,7 @@ export async function flagLegacyReportDiscrepancy(
   if (!bundle?.membership || bundle.report.issuerOrganizationId !== bundle.membership.organization.id) {
     throw new TecAuthorizationError("Only the claiming laboratory can flag this transcription.");
   }
+  if (["issued", "declined", "withdrawn"].includes(bundle.report.status)) throw new TecInputError("This report is closed; use a signed credential revision for issued records.");
   const note = normalizeText(noteValue, 1200);
   if (!note) throw new TecInputError("Describe the discrepancy that the submitter must resolve.");
   const updatedAt = now();
@@ -679,6 +682,7 @@ export async function declineLegacyReport(
   if (user.email.toLowerCase() !== bundle.report.confirmationEmail.toLowerCase()) {
     throw new TecAuthorizationError("Only the invited laboratory contact can decline this request.");
   }
+  if (["issued", "declined", "withdrawn"].includes(bundle.report.status)) throw new TecInputError("This report is closed; use a signed credential revision for issued records.");
   const note = normalizeText(noteValue, 1200);
   if (!note) throw new TecInputError("A decline reason is required.");
   const declinedAt = now();
@@ -779,8 +783,10 @@ export async function issueLegacyReport(
   user: ChatGPTUser,
   token: string,
   proofValue: unknown,
+  publicDisclosureAuthorized = false,
 ) {
   const bundle = await requireIssuingLaboratory(user, token);
+  if (!publicDisclosureAuthorized) throw new TecInputError("Confirm authority to publish the transcribed findings publicly. The original PDF remains private.");
   const db = getDb();
   const [existing] = await db
     .select({ identifier: credentials.identifier })
@@ -832,7 +838,7 @@ export async function issueLegacyReport(
       bundle.membership!.organization.id,
       user.userId,
       "report.confirmed_and_issued",
-      { tecrid: credential.identifier, sourceSha256: bundle.report.sourceSha256 },
+      { tecrid: credential.identifier, sourceSha256: bundle.report.sourceSha256, publicDisclosureAuthorized: true },
     ),
   ]);
   return { tecrid: credential.identifier, status: "issued", idempotent: false };

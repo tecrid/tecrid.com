@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   if (!user) return Response.json({ error: "Sign in is required." }, { status: 401 });
   try {
     const payload = await request.json();
-    const key = await createApiKey(user, payload.label);
+    const key = await createApiKey(user, payload.label, payload.scopes);
     return Response.json({ key }, { status: 201 });
   } catch (error) {
     return errorResponse(error);

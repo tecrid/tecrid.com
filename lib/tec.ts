@@ -1,3 +1,4 @@
+import { apiRequestScope, normalizeApiScopes } from "./api-scopes";
 import { and, asc, desc, eq, isNull, or } from "drizzle-orm";
 import { env } from "cloudflare:workers";
 import { getDb } from "../db";
@@ -586,6 +587,7 @@ export async function getDashboardData(userId: string) {
     .select({
       id: apiKeys.id,
       label: apiKeys.label,
+      scopes: apiKeys.scopes,
       keyPrefix: apiKeys.keyPrefix,
       lastFour: apiKeys.lastFour,
       createdAt: apiKeys.createdAt,
@@ -919,10 +921,12 @@ export async function reviewIssuerApplication(
   };
 }
 
-export async function createApiKey(user: ChatGPTUser, labelValue: unknown) {
+export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scopesValue?: unknown) {
   const membership = await getOrganizationForUser(user.userId);
   if (!membership) throw new TecAuthorizationError("Complete organization setup first.");
 
+  let scopes: string[];
+  try { scopes = normalizeApiScopes(scopesValue); } catch { throw new TecInputError("Choose valid API permissions."); }
   const label = normalizeText(labelValue, 60) || "Default key";
   const secret = randomCharacters(42).toLowerCase();
   const plainTextKey = `tec_live_${secret}`;
@@ -935,6 +939,7 @@ export async function createApiKey(user: ChatGPTUser, labelValue: unknown) {
     id,
     organizationId: membership.organization.id,
     label,
+    scopes: JSON.stringify(scopes),
     keyPrefix: plainTextKey.slice(0, 13),
     keyHash,
     lastFour: plainTextKey.slice(-4),
@@ -952,7 +957,7 @@ export async function createApiKey(user: ChatGPTUser, labelValue: unknown) {
     createdAt,
   });
 
-  return { id, plainTextKey, label, createdAt };
+  return { id, plainTextKey, label, scopes, createdAt };
 }
 
 export async function revokeApiKey(user: ChatGPTUser, keyIdValue: unknown) {
@@ -1002,6 +1007,12 @@ export async function authenticateApiRequest(request: Request) {
     .where(and(eq(apiKeys.keyHash, keyHash), isNull(apiKeys.revokedAt)))
     .limit(1);
   if (!record) throw new TecAuthorizationError("The TEC API key is invalid or revoked.");
+
+  const scopes: string[] = JSON.parse(record.key.scopes);
+  const requiredScope = apiRequestScope(request);
+  if (!scopes.includes("*") && (!requiredScope || !scopes.includes(requiredScope))) {
+    throw new TecAuthorizationError("This API key does not permit this operation.");
+  }
 
   await db
     .update(apiKeys)

@@ -63,6 +63,7 @@ export const apiKeys = sqliteTable(
       .notNull()
       .references(() => organizations.id, { onDelete: "cascade" }),
     label: text("label").notNull(),
+    scopes: text("scopes").notNull().default("[\"*\"]"),
     keyPrefix: text("key_prefix").notNull(),
     keyHash: text("key_hash").notNull(),
     lastFour: text("last_four").notNull(),
@@ -996,6 +997,8 @@ export const reportReservations = sqliteTable(
     productName: text("product_name").notNull(),
     productSku: text("product_sku").notNull(),
     laboratoryReportNumber: text("laboratory_report_number"),
+    idempotencyKey: text("idempotency_key"),
+    requestHash: text("request_hash"),
     sourceSystem: text("source_system").notNull().default("generic"),
     status: text("status").notNull().default("reserved"),
     expiresAt: text("expires_at").notNull(),
@@ -1007,6 +1010,7 @@ export const reportReservations = sqliteTable(
     finalizedAt: text("finalized_at"),
   },
   (table) => [
+    uniqueIndex("idx_report_reservations_idempotency").on(table.laboratoryOrganizationId, table.idempotencyKey),
     uniqueIndex("idx_report_reservations_identifier").on(table.identifier),
     uniqueIndex("idx_report_reservations_finalized_credential").on(
       table.finalizedCredentialIdentifier,
@@ -1210,3 +1214,15 @@ export const laboratoryInvitations = sqliteTable(
     ),
   ],
 );
+
+// Personal sandbox proofs are never rows in the production credentials table.
+export const sampleLabProofs = sqliteTable("sample_lab_proofs", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  testIdentifier: text("test_identifier").notNull(),
+  canonicalPayload: text("canonical_payload").notNull(),
+  payloadHash: text("payload_hash").notNull(),
+  publicKeyJwk: text("public_key_jwk").notNull(),
+  signature: text("signature").notNull(),
+  createdAt: text("created_at").notNull(),
+}, table => [uniqueIndex("idx_sample_lab_user_report").on(table.userId, table.testIdentifier)]);

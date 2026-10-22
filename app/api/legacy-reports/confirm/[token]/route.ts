@@ -29,7 +29,7 @@ export async function POST(request: Request, { params }: RouteContext) {
           : action === "decline"
             ? await declineLegacyReport(user, decoded, body.note)
             : action === "issue"
-              ? await issueLegacyReport(user, decoded, body.proof)
+              ? await issueLegacyReport(user, decoded, body.proof, body.publicDisclosureAuthorized === true)
               : (() => {
                   throw new TecInputError("Choose claim, discrepancy, decline, or issue.");
                 })();

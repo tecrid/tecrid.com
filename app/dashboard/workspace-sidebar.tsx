@@ -46,6 +46,7 @@ export function WorkspaceSidebar({ organization, progress, user, signOutHref }: 
 
   const primary = laboratory ? [
     ["/dashboard", "Overview"],
+    ["/dashboard/issuance", "Report issuance"],
     ["/dashboard/credentials/new", "Issue a credential"],
     ["/dashboard/lab-defense", "Verification desk"],
     ["/dashboard/insights", "Evidence insights"],

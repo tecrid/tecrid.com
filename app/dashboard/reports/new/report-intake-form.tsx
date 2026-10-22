@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type ResultRow = {
   analyte: string;
@@ -21,6 +21,8 @@ const emptyResult = (): ResultRow => ({
 });
 
 export function LegacyReportIntakeForm() {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [expectedHash, setExpectedHash] = useState("");
   const [rows, setRows] = useState<ResultRow[]>([emptyResult()]);
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
@@ -29,6 +31,22 @@ export function LegacyReportIntakeForm() {
     sourceSha256: string;
     confirmationPath: string;
   }>(null);
+
+  async function importDraft(file?: File) {
+    if (!file) return;
+    try {
+      const draft = JSON.parse(await file.text());
+      if (draft.format !== "tecrid-legacy-draft-v1" || !Array.isArray(draft.results) || !draft.results.length || draft.results.length > 100) throw new Error("Invalid draft format.");
+      const fields = ["laboratoryName", "sampleName", "lotNumber", "reportNumber", "orderNumber", "matrix", "method", "collectedAt", "receivedAt", "testedAt", "releasedAt"];
+      for (const name of fields) {
+        const input = formRef.current?.elements.namedItem(name);
+        if (input instanceof HTMLInputElement) input.value = typeof draft[name] === "string" ? draft[name] : "";
+      }
+      setRows(draft.results.map((row: Record<string, unknown>) => Object.fromEntries(Object.keys(emptyResult()).map(key => [key, typeof row[key] === "string" ? row[key] : ""])) as ResultRow));
+      setExpectedHash(typeof draft.sourceSha256 === "string" ? draft.sourceSha256 : "");
+      setMessage("Draft loaded locally. Compare every field with the original PDF, choose the authorized laboratory contact, and confirm intake authority. " + (draft.reviewNote || ""));
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Draft import failed."); }
+  }
 
   function updateRow(index: number, field: keyof ResultRow, value: string) {
     setRows((current) => current.map((row, rowIndex) =>
@@ -51,12 +69,15 @@ export function LegacyReportIntakeForm() {
       return setMessage("The PDF must be 20 MB or smaller.");
     }
     form.set("results", JSON.stringify(rows));
+    if (expectedHash) form.set("expectedSourceSha256", expectedHash);
+    try {
     const response = await fetch("/api/legacy-reports", { method: "POST", body: form });
     const body = await response.json();
     setPending(false);
     if (!response.ok) return setMessage(body.error ?? "Private intake failed.");
     setCreated(body.report);
     setMessage("Private intake created. Copy the secure laboratory link before leaving this page.");
+    } catch { setMessage("Submission response unavailable. Check your private reports before retrying; the source fingerprint prevents duplicate intake."); } finally { setPending(false); }
   }
 
   async function copyInvite() {
@@ -88,7 +109,8 @@ export function LegacyReportIntakeForm() {
   }
 
   return (
-    <form className="legacy-intake-form" onSubmit={submit}>
+    <form ref={formRef} className="legacy-intake-form" onSubmit={submit}>
+      <fieldset><legend>Load a prepared draft</legend><label>Local JSON draft<input type="file" accept="application/json,.json" onChange={event => importDraft(event.target.files?.[0])} /></label><p>Import is editable and does not submit or issue anything. The original PDF must match the draft fingerprint.</p>{expectedHash ? <code>sha256:{expectedHash}</code> : null}</fieldset>
       <div className="intake-form-intro">
         <p className="section-kicker">Source first</p>
         <h2>Private document and exact transcription</h2>

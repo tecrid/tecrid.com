@@ -1,9 +1,12 @@
+import { sampleLabReference } from "../../../../../lib/sample-lab";
 import { isSampleTecrid, sampleCredentialDocument } from "../../../../../lib/sample-tecrid";
 
 type RouteContext = { params: Promise<{ identifier: string }> };
 
 export async function GET(_request: Request, { params }: RouteContext) {
   const { identifier } = await params;
+  const reference = sampleLabReference(identifier);
+  if(reference) return Response.json(reference,{headers:{"cache-control":"no-store","x-tecrid-sandbox":"true"}});
   if (isSampleTecrid(identifier)) {
     return Response.json(sampleCredentialDocument(), {
       headers: {

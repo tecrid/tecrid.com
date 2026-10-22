@@ -7,6 +7,7 @@ import {
   reportReservations,
 } from "../db/schema";
 import {
+  canonicalizeCredential,
   createCredential,
   generateTecridIdentifier,
   getCredential,
@@ -86,6 +87,27 @@ export async function reserveReportTecrid(
     }
   }
 
+  const idempotencyKey = clean(input.idempotencyKey, 160) || null;
+  if (input.idempotencyKey && (typeof input.idempotencyKey !== "string" || input.idempotencyKey.length > 160)) {
+    throw new TecInputError("idempotencyKey must be a string of at most 160 characters.");
+  }
+  const requestHash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify({
+    productName, productSku, laboratoryReportNumber, sourceSystem,
+    routingAuthorizationId: routing?.authorization.id ?? null,
+  })))), byte => byte.toString(16).padStart(2, "0")).join("");
+  const db = getDb();
+  async function replay() {
+    if (!idempotencyKey) return null;
+    const [prior] = await db.select().from(reportReservations).where(and(
+      eq(reportReservations.laboratoryOrganizationId, organization.id),
+      eq(reportReservations.idempotencyKey, idempotencyKey),
+    )).limit(1);
+    if (!prior) return null;
+    if (prior.requestHash !== requestHash) throw new TecInputError("Idempotency key already belongs to a different report request.");
+    return reservationDocument(prior);
+  }
+  const prior = await replay();
+  if (prior) return prior;
   const requestedHours = Number(input.expiresInHours);
   const expiresInHours = Number.isFinite(requestedHours)
     ? Math.max(1, Math.min(168, Math.round(requestedHours)))
@@ -94,7 +116,6 @@ export async function reserveReportTecrid(
   const identifier = generateTecridIdentifier(organization.issuerCode);
   const createdAt = new Date().toISOString();
   const expiresAt = new Date(Date.now() + expiresInHours * 3_600_000).toISOString();
-  const db = getDb();
   const reservation = {
     id,
     identifier,
@@ -105,10 +126,13 @@ export async function reserveReportTecrid(
     productSku,
     laboratoryReportNumber,
     sourceSystem,
+    idempotencyKey,
+    requestHash,
     status: "reserved",
     expiresAt,
     createdAt,
   };
+  try {
   await db.batch([
     db.insert(reportReservations).values(reservation),
     db.insert(auditEvents).values({
@@ -122,6 +146,11 @@ export async function reserveReportTecrid(
       createdAt,
     }),
   ]);
+  } catch (error) {
+    const concurrent = await replay();
+    if (concurrent) return concurrent;
+    throw error;
+  }
   if (reservation.controllerOrganizationId) {
     await db.insert(organizationNotifications).values({
       id: crypto.randomUUID(),
@@ -183,6 +212,9 @@ export async function finalizeReportTecrid(
   reservationIdValue: unknown,
   input: Record<string, unknown>,
 ) {
+  if (organization.organizationType !== "laboratory" || organization.issuerStatus !== "verified") {
+    throw new TecAuthorizationError("Only a currently verified laboratory can finalize a report.");
+  }
   const reservationId = clean(reservationIdValue, 120);
   const db = getDb();
   const [reservation] = await db
@@ -194,10 +226,19 @@ export async function finalizeReportTecrid(
     ))
     .limit(1);
   if (!reservation) throw new TecAuthorizationError("Report reservation not found for this laboratory.");
-  if (reservation.status === "finalized" && reservation.finalizedCredentialIdentifier) {
-    const existing = await getCredential(reservation.finalizedCredentialIdentifier);
+  // Recover a Worker interruption after the atomic credential insert but before
+  // the reservation marker update. Never create a second credential.
+  const existing = await getCredential(reservation.identifier);
+  if (existing) {
+    if (existing.credential.organizationId !== organization.id ||
+        existing.credential.signedPayload !== canonicalizeCredential(input).canonicalPayload) {
+      throw new TecInputError("This reservation was already issued with different content.");
+    }
+    if (reservation.status !== "finalized") {
+      await db.update(reportReservations).set({status: "finalized", finalizedCredentialIdentifier: reservation.identifier, finalizedAt: existing.credential.issuedAt}).where(eq(reportReservations.id, reservation.id));
+    }
     return {
-      reservation: reservationDocument(reservation),
+      reservation: reservationDocument({...reservation, status: "finalized", finalizedCredentialIdentifier: reservation.identifier, finalizedAt: existing.credential.issuedAt}),
       credential: existing ? { tecrid: existing.credential.identifier, status: existing.credential.status, fingerprint: existing.credential.fingerprint } : null,
       idempotent: true,
     };
