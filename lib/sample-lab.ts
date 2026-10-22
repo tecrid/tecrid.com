@@ -1,4 +1,5 @@
 import reports from "./sample-lab-reports.json";
+import reportDetails from "./sample-lab-report-details.json";
 
 export const sampleLabReports = reports;
 export const SAMPLE_LAB_NAME = "TECRID Sample Laboratory";
@@ -12,6 +13,8 @@ export function sampleLabReference(identifier: string) {
   if (!report) return null;
   return {
     ...report,
+    reportDetails: reportDetails[report.reportNumber as keyof typeof reportDetails],
+    resultsAccess: {state: "controlled", url: `https://vle.exchange/reports/ll-${report.reportNumber}`},
     schemaVersion: "tecrid-sample-lab/1",
     sandbox: true,
     productionAuthority: false,

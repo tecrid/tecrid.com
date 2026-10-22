@@ -805,3 +805,15 @@ test("public marketing pages declare their own self-referencing canonical", asyn
   const sitemap = await (await render("/sitemap.xml")).text();
   assert.doesNotMatch(sitemap, /https:\/\/tecrid\.com\/pricing/);
 });
+
+test("all eight Kasandrinos report views expose source metadata while keeping findings gated", async () => {
+ const reports=JSON.parse(await readFile(new URL('../lib/sample-lab-reports.json',import.meta.url),'utf8'));
+ const details=JSON.parse(await readFile(new URL('../lib/sample-lab-report-details.json',import.meta.url),'utf8'));
+ for(const r of reports){
+  const response=await render('/records/'+encodeURIComponent(r.testIdentifier));assert.equal(response.status,200);
+  const html=await response.text();assert.match(html,/Actual report\. Test TECRID\./);assert(html.includes(r.reportNumber));assert(html.includes(details[r.reportNumber].method));assert(html.includes('Order '+details[r.reportNumber].orderNumber)||html.includes(details[r.reportNumber].orderNumber));assert(html.includes('https://vle.exchange/reports/ll-'+r.reportNumber));assert.match(html,/Not signed by Light Labs/);assert.match(html,/Protected · open original report/);
+  assert.doesNotMatch(html,/cindy@|lev@|cdn\.shopify\.com|In-spec|<td[^>]*>ND<\/td>/);
+  assert.deepEqual(Object.keys(details[r.reportNumber]).sort(),['analytes','assay','customer','location','method','orderNumber','receivedAt','servingSize','sourceBytes','sourcePageCount','sourceSha256'].sort());
+ }
+ assert.equal(details['43297'].analytes.length,1);assert.equal(details['43296'].analytes.length,23);
+});

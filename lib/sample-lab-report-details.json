@@ -1,0 +1,158 @@
+{
+  "43295": {
+    "customer": "Kasandrinos",
+    "orderNumber": "2485",
+    "receivedAt": "2026-01-26",
+    "assay": "Glyphosate / AMPA",
+    "method": "LC-MS/MS / LLMTDC",
+    "location": "In-house",
+    "servingSize": "13.5 grams",
+    "analytes": [
+      "Glyphosate",
+      "AMPA"
+    ],
+    "sourcePageCount": 1,
+    "sourceBytes": 728686,
+    "sourceSha256": "8f703f25f845c0ac5dc5a1667ab07ed3d6df1eccf3272bcb7bfa4a62f7660bfa"
+  },
+  "43296": {
+    "customer": "Kasandrinos",
+    "orderNumber": "2485",
+    "receivedAt": "2026-01-26",
+    "assay": "Phthalates",
+    "method": "GC-MS/MS",
+    "location": "In-house",
+    "servingSize": "13.5 grams",
+    "analytes": [
+      "Dimethyl phthalate",
+      "Diethyl phthalate",
+      "Diallyl phthalate",
+      "Diisobutyl phthalate",
+      "Dibutyl phthalate",
+      "Bis (2-methoxyethyl) phthalate",
+      "Bis (4-methyl-2-pentyl) phthalate",
+      "Bis (2-ethoxyethyl) phthalate",
+      "Dipentyl phthalate",
+      "Dihexyl phthalate",
+      "Benzylbutyl phthalate",
+      "Diethylhexyl Adipate",
+      "Bis (2-n-butoxyethyl) phthalate",
+      "Dicyclohexyl phthalate",
+      "Bis (2-ethylhexyl) phthalate",
+      "Diphenylphthalate",
+      "Di-n-octylphthalate",
+      "Di(2-ethylhexyl) Terephthalate",
+      "Diisodecyl Adipate",
+      "Diisononyl 1,2-cyclohexanedicarboxylic acid",
+      "Diisononyl ortho phthalate",
+      "Diisodecyl Phthalate",
+      "Dinonyl phthalate"
+    ],
+    "sourcePageCount": 1,
+    "sourceBytes": 727765,
+    "sourceSha256": "d0e6c1ae12e57a8f03d1ab7bae9f9a189711caf60d274af549d5365981793f89"
+  },
+  "43297": {
+    "customer": "Kasandrinos",
+    "orderNumber": "2485",
+    "receivedAt": "2026-01-26",
+    "assay": "Aluminum",
+    "method": "ICPMS",
+    "location": "In-house",
+    "servingSize": "13.5 grams",
+    "analytes": [
+      "Aluminum"
+    ],
+    "sourcePageCount": 1,
+    "sourceBytes": 29505,
+    "sourceSha256": "c71803964c7b5b60979d47cd581c0913aedf30222021fc8e08920b2a187fcd42"
+  },
+  "43298": {
+    "customer": "Kasandrinos",
+    "orderNumber": "2485",
+    "receivedAt": "2026-01-26",
+    "assay": "Heavy Metals",
+    "method": "LLMTDA",
+    "location": "In-house",
+    "servingSize": "13.5 grams",
+    "analytes": [
+      "Arsenic",
+      "Cadmium",
+      "Lead",
+      "Mercury"
+    ],
+    "sourcePageCount": 1,
+    "sourceBytes": 728157,
+    "sourceSha256": "186b06972f3b5b79bdcf1cd78e057f2d4f271e3644d6d33695f6e4fd9842bbe9"
+  },
+  "43299": {
+    "customer": "Kasandrinos",
+    "orderNumber": "2485",
+    "receivedAt": "2026-01-26",
+    "assay": "Bisphenol A (BPA) / Bisphenol S (BPS)",
+    "method": "LC-MS/MS / LLMTDB",
+    "location": "In-house",
+    "servingSize": "13.5 grams",
+    "analytes": [
+      "Bisphenol A (BPA)",
+      "Bisphenol S (BPS)",
+      "Bisphenol F (BPF)"
+    ],
+    "sourcePageCount": 1,
+    "sourceBytes": 727584,
+    "sourceSha256": "211bafbde330bc1d40ef5c98c09627145e4189260e80427c953969c52cffc10b"
+  },
+  "43300": {
+    "customer": "Kasandrinos",
+    "orderNumber": "2485",
+    "receivedAt": "2026-01-26",
+    "assay": "Heavy Metals",
+    "method": "LLMTDA",
+    "location": "In-house",
+    "servingSize": "13.5 grams",
+    "analytes": [
+      "Arsenic",
+      "Cadmium",
+      "Lead",
+      "Mercury"
+    ],
+    "sourcePageCount": 1,
+    "sourceBytes": 728168,
+    "sourceSha256": "e32fea364b0b7161922d43c98cde73431733096cc08495c4e5019dd2fd055e49"
+  },
+  "43301": {
+    "customer": "Kasandrinos",
+    "orderNumber": "2485",
+    "receivedAt": "2026-01-26",
+    "assay": "Heavy Metals",
+    "method": "LLMTDA",
+    "location": "In-house",
+    "servingSize": "13.5 grams",
+    "analytes": [
+      "Arsenic",
+      "Cadmium",
+      "Lead",
+      "Mercury"
+    ],
+    "sourcePageCount": 1,
+    "sourceBytes": 728166,
+    "sourceSha256": "49befe05ecd78ab5528ad730e075f079358db126eb534530e98fceaac777abc2"
+  },
+  "43302": {
+    "customer": "Kasandrinos",
+    "orderNumber": "2485",
+    "receivedAt": "2026-01-26",
+    "assay": "Bisphenol A (BPA) / Bisphenol S (BPS)",
+    "method": "LC-MS/MS / LLMTDB",
+    "location": "In-house",
+    "servingSize": "13.5 grams",
+    "analytes": [
+      "Bisphenol A (BPA)",
+      "Bisphenol S (BPS)",
+      "Bisphenol F (BPF)"
+    ],
+    "sourcePageCount": 1,
+    "sourceBytes": 727567,
+    "sourceSha256": "c70f43dab461300136a4483deeb18670c6c2f15f994f4505df96641cf7f07e43"
+  }
+}
