@@ -1252,3 +1252,12 @@ export const rateLimit=sqliteTable('auth_rate_limit',{
  id:text('id').primaryKey(),key:text('key').notNull().unique(),count:integer('count').notNull(),lastRequest:integer('last_request',{mode:'number'}).notNull(),
 });
 
+
+export const testReportImports = sqliteTable("test_report_imports", {
+ identifier: text("identifier").primaryKey(), reportNumber: text("report_number").notNull(),
+ sourceSha256: text("source_sha256").notNull(), documentUrl: text("document_url").notNull(),
+ sourceOrganizationId: text("source_organization_id").notNull().references(()=>organizations.id),
+ controllerOrganizationId: text("controller_organization_id").notNull().references(()=>organizations.id),
+ status: text("status").notNull().default("test_pending_approval"),
+ createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});

@@ -4,7 +4,7 @@ import { Miniflare } from "miniflare";
 import { readFileSync, readdirSync } from "node:fs";
 import { env } from "./support/cloudflare-env";
 import { getDb } from "../db";
-import { organizations, organizationMembers, reportReservations } from "../db/schema";
+import { organizations, organizationMembers, reportReservations, testReportImports, participantProfiles } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { canonicalizeCredential, canonicalizeCredentialRevision, createCredentialRevision, createCredential, getCredential, publicCredentialDocument, createApiKey, authenticateApiRequest, submitIssuerApplication, reviewIssuerApplication } from "../lib/tec";
 import { createIssuerKeyChallenge, verifyIssuerKeyChallenge, reviewIssuerVerificationCheck } from "../lib/issuer-verification";
@@ -113,4 +113,15 @@ describe("personal sample laboratory",()=>{
   await expect(verifySampleLabProof(canonical,{...jwk,d:"never-upload-a-private-key"},signature)).rejects.toThrow(/private key/);
   expect(await getCredential(r.testIdentifier)).toBeNull();
  });
+});
+
+it("imports eight gated test references without granting profile ownership or issuance",async()=>{
+ const imports=await getDb().select().from(testReportImports);expect(imports).toHaveLength(8);
+ for(const report of sampleLabReports){const row=imports.find(r=>r.identifier===report.testIdentifier)!;expect(row.sourceSha256).toBe(report.sourceSha256);expect(row.documentUrl).toBe(sampleLabReference(report.testIdentifier)!.documentUrl);expect(row.status).toBe("test_pending_approval");}
+ for(const id of ["org_test_kasandrinos","org_test_light_labs"]){
+ const [org]=await getDb().select().from(organizations).where(eq(organizations.id,id));expect(org.issuerStatus).toBe("pending");expect(org.issuerPublicKeyJwk).toBeNull();
+ expect(await getDb().select().from(organizationMembers).where(eq(organizationMembers.organizationId,id))).toHaveLength(0);
+ const [profile]=await getDb().select().from(participantProfiles).where(eq(participantProfiles.organizationId,id));expect(profile.registryVerified).toBe(false);expect(profile.participationStatus).toBe("test_pending_approval");
+ await expect(reserveReportTecrid(org,{productName:"X",productSku:"X"})).rejects.toThrow();
+ }
 });

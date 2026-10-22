@@ -127,6 +127,13 @@
       "when": 1792669954530,
       "tag": "0017_shiny_morgan_stark",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1792678718229,
+      "tag": "0018_massive_tyger_tiger",
+      "breakpoints": true
     }
   ]
 }

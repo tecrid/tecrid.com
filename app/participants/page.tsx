@@ -25,9 +25,9 @@ export default async function ParticipantsPage() {
     <main className="product-page participants-page">
       <ProductNav />
       <header className="product-hero participants-hero">
-        <p className="section-kicker light">Opt-in network directory</p>
+        <p className="section-kicker light">Network profiles and test pilots</p>
         <h1>Participants,<br />with roles made explicit.</h1>
-        <p>Organizations appear here only when they choose to be discoverable. An integration pilot is not a laboratory endorsement, and a participant profile does not grant access to private evidence.</p>
+        <p>Participant listings are opt-in; operator-prepared test profiles are explicitly marked and await organization approval. An integration pilot is not a laboratory endorsement, and a participant profile does not grant access to private evidence.</p>
       </header>
       <section className="participants-shell">
         <div className="participants-head"><div><p className="section-kicker">Public participants</p><h2>{participants.length} organization{participants.length === 1 ? "" : "s"}</h2></div><div className="participants-head-actions"><a href="/badge">Use the TECRID badge →</a><a className="button-dark" href="/dashboard/sharing">Manage your listing →</a></div></div>
@@ -36,7 +36,7 @@ export default async function ParticipantsPage() {
             <div><span>{TYPE_LABELS[organization.organizationType] ?? organization.organizationType.replaceAll("_", " ")}</span><code>{organization.issuerCode}</code></div>
             <h2>{profile.displayName}</h2>
             <p>{profile.summary}</p>
-            <dl><div><dt>Network status</dt><dd>{profile.participationStatus.replaceAll("_", " ")}</dd></div><div><dt>Registry identity</dt><dd>{profile.registryVerified ? "Operator verified" : "Account supplied"}</dd></div><div><dt>Evidence visibility</dt><dd>Private unless separately granted</dd></div></dl>
+            <dl><div><dt>Network status</dt><dd>{profile.participationStatus.replaceAll("_", " ")}</dd></div><div><dt>Registry identity</dt><dd>{profile.registryVerified ? "Operator verified" : profile.participationStatus === "test_pending_approval" ? "Unclaimed test profile" : "Account supplied"}</dd></div><div><dt>Evidence visibility</dt><dd>Private unless separately granted</dd></div></dl>
             <div className="participant-card-actions"><a href={`/participants/${encodeURIComponent(organization.issuerCode)}`}>View TECRID profile →</a>{profile.website ? <a href={profile.website} target="_blank" rel="noreferrer">Website ↗</a> : null}</div>
           </article>)}
         </div>
