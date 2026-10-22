@@ -65,6 +65,7 @@ export function OrganizationOnboarding({ email }: { email: string }) {
 type KeySummary = {
   id: string;
   label: string;
+  scopes?: string;
   keyPrefix: string;
   lastFour: string;
   createdAt: string;
@@ -85,7 +86,7 @@ export function ApiKeyPanel({ keys }: { keys: KeySummary[] }) {
     const response = await fetch("/api/keys", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ label: form.get("label") }),
+      body: JSON.stringify({ label: form.get("label"), scopes: JSON.parse(String(form.get("scopes"))) }),
     });
     const body = await response.json();
     setPending(false);
@@ -132,6 +133,12 @@ export function ApiKeyPanel({ keys }: { keys: KeySummary[] }) {
       ) : null}
       <form className="key-form" onSubmit={createKey}>
         <input name="label" aria-label="API key label" placeholder="Production LIMS" maxLength={60} />
+        <select name="scopes" aria-label="API key permissions" defaultValue='["read"]'>
+          <option value='["read"]'>Read only</option>
+          <option value='["read","reports:write","credentials:write"]'>Laboratory report connector</option>
+          <option value='["read","legacy:write"]'>Private report intake</option>
+          <option value='["*"]'>All organization operations</option>
+        </select>
         <button type="submit" disabled={pending}>{pending ? "Creating…" : "Create API key"}</button>
       </form>
       <p className="form-message" role="status">{message}</p>
@@ -139,7 +146,7 @@ export function ApiKeyPanel({ keys }: { keys: KeySummary[] }) {
         {keys.length ? keys.map((key) => (
           <div key={key.id}>
             <span className={`key-state ${key.revokedAt ? "revoked" : ""}`}>{key.revokedAt ? "Revoked" : "Active"}</span>
-            <strong>{key.label}</strong>
+            <strong>{key.label} · {key.scopes ? JSON.parse(key.scopes).join(", ") : "Legacy access"}</strong>
             <code>{key.keyPrefix}••••••{key.lastFour}</code>
             <small>Created {new Date(key.createdAt).toLocaleDateString()} · {key.lastUsedAt ? `Last used ${new Date(key.lastUsedAt).toLocaleDateString()}` : "Never used"}</small>
             {!key.revokedAt ? <button type="button" disabled={pending} onClick={() => revokeKey(key.id)}>Revoke</button> : <span />}

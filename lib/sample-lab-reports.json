@@ -1,0 +1,90 @@
+[
+  {
+    "testIdentifier": "SBX\u00b7TECRID-KAS-43295-8F703F25",
+    "reportNumber": "43295",
+    "sourceIssuer": "Light Labs",
+    "sampleName": "Olive Oil 250ml Bottle",
+    "lotNumber": "227 K/B",
+    "testedAt": "2026-01-28",
+    "releasedAt": "2026-01-28",
+    "sourceSha256": "8f703f25f845c0ac5dc5a1667ab07ed3d6df1eccf3272bcb7bfa4a62f7660bfa",
+    "sourceFilename": "Glyphosate_AMPA_EVOO.pdf"
+  },
+  {
+    "testIdentifier": "SBX\u00b7TECRID-KAS-43296-D0E6C1AE",
+    "reportNumber": "43296",
+    "sourceIssuer": "Light Labs",
+    "sampleName": "Olive Oil 250ml Bottle",
+    "lotNumber": "227 K/B",
+    "testedAt": "2026-01-29",
+    "releasedAt": "2026-01-29",
+    "sourceSha256": "d0e6c1ae12e57a8f03d1ab7bae9f9a189711caf60d274af549d5365981793f89",
+    "sourceFilename": "Phathalates_Testing_EVOO.pdf"
+  },
+  {
+    "testIdentifier": "SBX\u00b7TECRID-KAS-43297-C7180396",
+    "reportNumber": "43297",
+    "sourceIssuer": "Light Labs",
+    "sampleName": "Olive Oil 3L Can",
+    "lotNumber": "228 K/B",
+    "testedAt": "2026-01-29",
+    "releasedAt": "2026-01-29",
+    "sourceSha256": "c71803964c7b5b60979d47cd581c0913aedf30222021fc8e08920b2a187fcd42",
+    "sourceFilename": "Aluminum_-_3L_Can.pdf"
+  },
+  {
+    "testIdentifier": "SBX\u00b7TECRID-KAS-43298-186B0697",
+    "reportNumber": "43298",
+    "sourceIssuer": "Light Labs",
+    "sampleName": "Olive Oil 3L Can",
+    "lotNumber": "228 K/B",
+    "testedAt": "2026-01-27",
+    "releasedAt": "2026-01-27",
+    "sourceSha256": "186b06972f3b5b79bdcf1cd78e057f2d4f271e3644d6d33695f6e4fd9842bbe9",
+    "sourceFilename": "Heavy_Metals_-_3L_Can.pdf"
+  },
+  {
+    "testIdentifier": "SBX\u00b7TECRID-KAS-43299-211BAFBD",
+    "reportNumber": "43299",
+    "sourceIssuer": "Light Labs",
+    "sampleName": "Olive Oil 3L Bag in a Box",
+    "lotNumber": "195 K/B",
+    "testedAt": "2026-01-29",
+    "releasedAt": "2026-01-29",
+    "sourceSha256": "211bafbde330bc1d40ef5c98c09627145e4189260e80427c953969c52cffc10b",
+    "sourceFilename": "BPA_1_3L_Bag_in_a_Box.pdf"
+  },
+  {
+    "testIdentifier": "SBX\u00b7TECRID-KAS-43300-E32FEA36",
+    "reportNumber": "43300",
+    "sourceIssuer": "Light Labs",
+    "sampleName": "Olive Oil 3L Bag in a Box",
+    "lotNumber": "195 K/B",
+    "testedAt": "2026-01-27",
+    "releasedAt": "2026-01-27",
+    "sourceSha256": "e32fea364b0b7161922d43c98cde73431733096cc08495c4e5019dd2fd055e49",
+    "sourceFilename": "Heavy_Metals_-_3L_Bag_in_a_Box.pdf"
+  },
+  {
+    "testIdentifier": "SBX\u00b7TECRID-KAS-43301-49BEFE05",
+    "reportNumber": "43301",
+    "sourceIssuer": "Light Labs",
+    "sampleName": "Olive Oil 250ml Bottle",
+    "lotNumber": "227 K/B",
+    "testedAt": "2026-01-27",
+    "releasedAt": "2026-01-27",
+    "sourceSha256": "49befe05ecd78ab5528ad730e075f079358db126eb534530e98fceaac777abc2",
+    "sourceFilename": "Heavy_Metal_Testing_EVOO.pdf"
+  },
+  {
+    "testIdentifier": "SBX\u00b7TECRID-KAS-43302-C70F43DA",
+    "reportNumber": "43302",
+    "sourceIssuer": "Light Labs",
+    "sampleName": "Olive Oil 3L Can",
+    "lotNumber": "228 K/B",
+    "testedAt": "2026-01-28",
+    "releasedAt": "2026-01-28",
+    "sourceSha256": "c70f43dab461300136a4483deeb18670c6c2f15f994f4505df96641cf7f07e43",
+    "sourceFilename": "BPA_-_3_L_Can.pdf"
+  }
+]

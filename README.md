@@ -1,5 +1,10 @@
 # TEC Registry
 
+## Light Labs pilot
+
+Start with [the Light Labs quick-start guide](integration/light-labs/START-HERE.md) for the eight-report sandbox, existing-PDF issuance, and future report automation. Test IDs are not production credentials.
+
+
 TEC Registry is an Institute of Contaminant Standards initiative for permanent,
 publicly resolvable laboratory evidence records. A Test Evidence Credential
 (TEC) receives a TEC Record Identifier (TECRID), an issuer signature, a registry

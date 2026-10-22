@@ -97,6 +97,7 @@ export function LegacyConfirmationControls({
   issuerStatus: string | null;
   issuedCredentialIdentifier: string | null;
 }) {
+  const [publicDisclosureAuthorized, setPublicDisclosureAuthorized] = useState(false);
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
   const [note, setNote] = useState("");
@@ -119,6 +120,7 @@ export function LegacyConfirmationControls({
   }
 
   async function signAndIssue() {
+    if (!publicDisclosureAuthorized) return setMessage("Confirm public disclosure authority before signing.");
     if (!keyFile || !passphrase) return setMessage("Choose your encrypted issuer key file and enter its passphrase.");
     setPending(true);
     setMessage("Preparing the canonical payload…");
@@ -141,6 +143,7 @@ export function LegacyConfirmationControls({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           action: "issue",
+          publicDisclosureAuthorized,
           proof: {
             keyId: canonical.keyId,
             algorithm: "Ed25519",
@@ -213,7 +216,8 @@ export function LegacyConfirmationControls({
         <label>Encrypted TECRID issuer key<input type="file" accept="application/json,.json" onChange={(event) => setKeyFile(event.target.files?.[0] ?? null)} /></label>
         <label>Key passphrase<input type="password" autoComplete="current-password" value={passphrase} onChange={(event) => setPassphrase(event.target.value)} /></label>
       </div>
-      <button className="button-dark" type="button" disabled={pending || !keyFile || !passphrase} onClick={signAndIssue}>{pending ? "Working…" : "Confirm, sign, and issue TECRID →"}</button>
+      <label className="attestation-check"><input type="checkbox" checked={publicDisclosureAuthorized} onChange={event => setPublicDisclosureAuthorized(event.target.checked)} /><span>I reviewed the original report and am authorized to publish these findings, sample and lot details publicly. The original PDF stays private. If disclosure must be restricted, stop and use the controlled routing workflow.</span></label>
+      <button className="button-dark" type="button" disabled={pending || !keyFile || !passphrase || !publicDisclosureAuthorized} onClick={signAndIssue}>{pending ? "Working…" : "Confirm, sign, and issue TECRID →"}</button>
       <div className="discrepancy-control">
         <label className="decision-note">If anything differs, describe it<textarea value={note} onChange={(event) => setNote(event.target.value)} rows={3} placeholder="The tested date, unit, qualifier, sample identity, or another field differs from our canonical record." /></label>
         <button type="button" disabled={pending || !note} onClick={() => action("discrepancy", note)}>Flag discrepancy and lock issuance</button>
