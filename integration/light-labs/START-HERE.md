@@ -2,6 +2,12 @@
 
 This package is ready for an integration pilot. It is not a completed installation in Light Labs’ LIMS and does not grant issuer approval. Node.js 22.13+ is required. The standalone scripts have no npm dependencies.
 
+## Sign in and create your lab profile
+
+Go to https://tecrid.com/sign-in and enter your work email. Open the single-use link within 10 minutes. No ChatGPT account or password is required. In the dashboard, create your laboratory profile, then complete issuer onboarding at https://tecrid.com/dashboard/issuance. Email verification does not grant production issuance approval; identity, scope and signing-key review are separate.
+
+Existing ChatGPT users can still use their original sign-in option; email accounts are separate and are not automatically merged. See [work-email setup and operations](../../docs/WORK-EMAIL-SIGN-IN.md).
+
 ## 1. Try the eight-report sandbox
 
 Open https://tecrid.com/sample-lab, sign in with your own account, and choose **Run the eight-report API test**. This exercises local signing and server verification with a temporary test key. No Light Labs account approval is required.
