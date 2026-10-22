@@ -5,6 +5,8 @@ import {getEmailUser} from "../lib/email-auth";
 import {onboardOrganization,submitIssuerApplication} from "../lib/tec";
 import {upsertParticipantProfile} from "../lib/sharing";
 import {reserveReportTecrid} from "../lib/report-issuance";
+import {protectedTestReport} from "../lib/test-report-access";
+import {sampleLabReports} from "../lib/sample-lab";
 import {safeReturnPath} from "../lib/auth-return-path";
 import assert from 'node:assert/strict';
 import {readFileSync,readdirSync} from 'node:fs';
@@ -30,6 +32,10 @@ r=await auth.handler(new Request(link));assert(new URL(r.headers.get('location')
 // No recipient allowlist: an unrelated supplier email creates a separate verified identity.
 const supplierLink=await send('supplier@independent-ingredients.test');assert.equal(mail.at(-1).email,'supplier@independent-ingredients.test');
 r=await auth.handler(new Request(supplierLink,{headers:{'cf-connecting-ip':'192.0.2.210'}}));assert.equal(r.status,302);const supplierCookie=r.headers.getSetCookie().map(v=>v.split(';')[0]).join('; ');const supplierSession=await auth.api.getSession({headers:new Headers({cookie:supplierCookie})});assert.equal(supplierSession.user.email,'supplier@independent-ingredients.test');assert.equal(supplierSession.user.emailVerified,true);assert.notEqual(supplierSession.user.id,s.user.id);assert.equal((await auth.api.getSession({headers:new Headers({cookie})})).user.email,'buyer@company.test');
+const report=sampleLabReports[0];let protectedCalls=0;
+const reportTransport=async(_url,options)=>{protectedCalls++;const body=JSON.parse(options.body);assert.equal(body.actor.email,'buyer@company.test');assert.equal(body.actor.emailVerified,true);return Response.json({reportNumber:report.reportNumber,sourceSha256:report.sourceSha256,sandbox:true,productionAuthority:false,reviewStatus:'UNAPPROVED_TRANSCRIPTION',results:[{analyte:'Synthetic',resultText:'ND'}]});};
+assert.equal((await protectedTestReport(new Request('https://tecrid.test/api/test-reports/id/results',{headers:{cookie}}),report.testIdentifier,'results',reportTransport)).status,200);assert.equal(protectedCalls,1);
+assert.equal((await protectedTestReport(new Request('https://tecrid.test/api/test-reports/id/results',{headers:{cookie:'tecrid.session_token=forged'}}),report.testIdentifier,'results',reportTransport)).status,401);assert.equal(protectedCalls,1);
 const principal=await getEmailUser(new Headers({cookie}));assert(principal.userId.startsWith('email:'));
 const membership=await onboardOrganization(principal,{name:'Synthetic email lab',organizationType:'laboratory',website:'https://example.test'});assert.equal(membership.organization.issuerStatus,'pending');
 await upsertParticipantProfile(principal,{displayName:'Synthetic email lab',website:'https://example.test',summary:'Isolated test profile',isPublic:true});
@@ -41,6 +47,7 @@ assert.equal(safeReturnPath('//evil.test'),'/dashboard');assert.equal(safeReturn
 const expired=await send('expired@company.test');await db.prepare('UPDATE auth_verification SET expires_at=0').run();r=await auth.handler(new Request(expired));assert(new URL(r.headers.get('location')).searchParams.has('error'));
 r=await call('sign-out',{},cookie,'https://evil.test');assert.equal(r.status,403);assert(await auth.api.getSession({headers:new Headers({cookie})}));
 r=await call('sign-out',{},cookie);assert.equal(r.status,200);assert.equal(await auth.api.getSession({headers:new Headers({cookie})}),null);
+assert.equal((await protectedTestReport(new Request('https://tecrid.test/api/test-reports/id/results',{headers:{cookie}}),report.testIdentifier,'results',reportTransport)).status,401);assert.equal(protectedCalls,1);
 r=await call('sign-in/magic-link',{email:'redirect@company.test',callbackURL:'https://evil.test'});assert.equal(r.status,403);
 // Use one IP for these requests to check the persisted limiter.
 for(let i=0;i<4;i++){ip=100;r=await call('sign-in/magic-link',{email:'limited@company.test',callbackURL:'/'});}assert.equal(r.status,429);

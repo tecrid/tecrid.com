@@ -11,3 +11,11 @@ The VLE service-only POST `/api/tecrid-report-import` accepts the existing TECRI
 Production conversion requires independently verified organization ownership, laboratory approval, signing-key proof, report disclosure approval and issuance. Preserve the SBX references as test history; never relabel them as signed production credentials.
 
 Validation: issuance-backend tests check all eight import mappings, absent memberships/keys and blocked production reservations. VLE `tests/report-gate.mjs` checks each report destination, anonymous/non-buyer UI and unsafe return-path rejection. Live import verifies all eight exact originals in private storage. An account holder must complete the real-mailbox PDF-open check.
+
+## Signed-in results on TECRID
+
+The public report page passes only analyte names and the test identifier to the results component. It fetches `/api/test-reports/<encoded identifier>/results` with the current TECRID cookie. The server validates a verified work-email session, then sends that server-derived identity to the fixed VLE report service using the existing private service credential. Browser-supplied emails, roles and sandbox keys do not authorize this route. The original PDF is served by the similarly protected `/document` route.
+
+VLE evaluates its existing company-email buyer policy (including its existing owner exception) for every request. No new access comes from the test profiles. The service restricts delivery to the eight fixed source-bound reports, logs the viewer and report access, and returns private/no-store responses. TECRID checks report number, source fingerprint and TEST flags before returning values. Public resolver JSON remains empty of results.
+
+Unapproved source transcriptions are stored only in private VLE R2 under the original PDF fingerprint, uploaded through the service-authenticated fixed-eight import endpoint. They include exact source result strings, LOQs and printed limits/status without interpreting ND or NR as zero or inventing missing fields. Original PDFs remain unchanged and authoritative. No real result transcriptions or credentials belong in GitHub. These TEST transcriptions do not grant Light Labs approval, signature or production authority.
