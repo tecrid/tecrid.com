@@ -14,7 +14,7 @@ export function sampleLabReference(identifier: string) {
   return {
     ...report,
     reportDetails: reportDetails[report.reportNumber as keyof typeof reportDetails],
-    resultsAccess: {state: "controlled", url: `https://vle.exchange/reports/ll-${report.reportNumber}`},
+    resultsAccess: {state: "controlled", url: `https://tecrid.com/api/test-reports/${encodeURIComponent(report.testIdentifier)}/results`},
     schemaVersion: "tecrid-sample-lab/1",
     sandbox: true,
     productionAuthority: false,
@@ -26,7 +26,8 @@ export function sampleLabReference(identifier: string) {
     jsonUrl: `https://tecrid.com/api/v1/credentials/${encodeURIComponent(report.testIdentifier)}`,
     vleDisplayLabel: "TEST identifier · Light Labs confirmation pending",
     documentUrl: `https://vle.exchange/reports/ll-${report.reportNumber}`,
-    documentAccess: "VLE verified company-email brand-buyer session required",
+    documentAccess: "Verified TECRID work-email session and company-email buyer permission required; VLE sign-in is also available at documentUrl",
+    authenticatedDocumentUrl: `https://tecrid.com/api/test-reports/${encodeURIComponent(report.testIdentifier)}/document`,
     sourceProfileUrl: "https://tecrid.com/participants/LLTEST",
     controllerProfileUrl: "https://tecrid.com/participants/KASTEST",
     vleSamplingId: null,

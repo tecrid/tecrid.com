@@ -1,3 +1,4 @@
+import {ProtectedResults} from "./protected-results";
 import {sampleLabReference, sampleLabReports} from "../../lib/sample-lab";
 import {ProductNav,ProductFooter} from "../site-nav";
 
@@ -23,16 +24,11 @@ export function SampleLabReferencePage({identifier}:{identifier:string}){
     <article><span>Laboratory references</span><strong>Report / test {record.reportNumber}</strong><small>Order {detail.orderNumber} · {detail.location}</small></article>
     <article><span>Method as printed</span><strong>{detail.method}</strong><small>Reported serving size: {detail.servingSize}</small></article>
    </div>
-   <section className="public-results kas-controlled-panel" aria-labelledby="report-panel-title">
-    <div className="results-note"><h2 id="report-panel-title">Analytical panel</h2><span>Controlled findings</span></div>
-    <p>Analyte names identify the panel. Results, quantitation limits, specifications and laboratory status remain in the protected original PDF. No pass/fail interpretation is added by TECRID.</p>
-    <div className="kas-panel-scroll"><table><thead><tr><th>Analyte in the report</th><th>Result / LOQ / specification</th><th>TECRID confirmation</th></tr></thead><tbody>{detail.analytes.map(analyte=><tr key={analyte}><td><strong>{analyte}</strong></td><td>Protected · open original report</td><td>Pending Light Labs approval</td></tr>)}</tbody></table></div>
-    <a className="button-dark" href={record.documentUrl}>Sign in to view results and original PDF →</a>
-   </section>
+   <ProtectedResults identifier={record.testIdentifier} analytes={detail.analytes}/>
    <section className="source-document-register kas-source-register" aria-label="Original report and provenance">
-    <div><span>Original certificate of analysis</span><strong><a href={record.documentUrl}>Open protected original report ↗</a></strong><small>{detail.sourcePageCount} page · {(detail.sourceBytes/1024).toFixed(0)} KB · unchanged PDF</small><small>{record.sourceFilename}</small></div>
+    <div><span>Original certificate of analysis</span><strong><a href="#report-panel-title">View results and original PDF ↗</a></strong><small>{detail.sourcePageCount} page · {(detail.sourceBytes/1024).toFixed(0)} KB · unchanged PDF</small><small>{record.sourceFilename}</small></div>
     <div><span>Original PDF fingerprint</span><code>sha256:{record.sourceSha256}</code><small>Exact bytes checked during private import. A matching fingerprint is not a laboratory signature.</small></div>
-    <div><span>Document access</span><strong>VLE company-email buyer gate</strong><small>VLE checks access on every PDF request and records document opens. A public test ID or TECRID sign-in alone does not grant access.</small></div>
+    <div><span>Document access</span><strong>Authorized work-email access</strong><small>Sign in to TECRID to request access. The report service checks buyer permission on every results and PDF request and records access.</small></div>
    </section>
    <div className="provenance-register">
     <div><span>Prepared for</span><strong><a href={record.controllerProfileUrl}>Kasandrinos · TEST profile ↗</a></strong><small>Profile ownership and approval pending</small></div>
