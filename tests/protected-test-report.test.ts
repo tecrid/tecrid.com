@@ -15,7 +15,7 @@ it('forwards only verified session identity and retains TEST fields privately',a
  const transport=vi.fn(async(_url:any,options:any)=>{const body=JSON.parse(options.body);expect(body.actor).toEqual({...identity.user,emailVerified:true});expect(body.reportNumber).toBe(report.reportNumber);return Response.json({reportNumber:report.reportNumber,sourceSha256:report.sourceSha256,sandbox:true,productionAuthority:false,reviewStatus:'UNAPPROVED_TRANSCRIPTION',results:[{analyte:'Synthetic',resultText:'ND'}]});});
  const r=await protectedTestReport(new Request('https://tecrid.com/api/test-reports/id/results'),report.testIdentifier,'results',transport);expect(r.status).toBe(200);expect((await r.json()).productionAuthority).toBe(false);expect(r.headers.get('vary')).toBe('Cookie');
 });
-it('denies non-buyers, rejects mismatched source data and checks PDF fingerprint',async()=>{
+it('denies recipients without grants, rejects mismatched source data and checks PDF fingerprint',async()=>{
  identity.user={userId:'email:id',email:'someone@gmail.com'};const req=new Request('https://tecrid.com/api/test-reports/id/results');
  expect((await protectedTestReport(req,report.testIdentifier,'results',async()=>new Response(null,{status:403}))).status).toBe(403);
  expect((await protectedTestReport(req,report.testIdentifier,'results',async()=>Response.json({reportNumber:'wrong',results:[]}))).status).toBe(502);

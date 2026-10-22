@@ -1,3 +1,4 @@
+import {KasandrinosWorkspaceLink} from "./kasandrinos/workspace";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireChatGPTUser, chatGPTSignOutPath } from "../chatgpt-auth";
@@ -44,6 +45,7 @@ export default async function DashboardPage() {
         {data ? <span className="workspace-code">Issuer code <strong>{data.organization.issuerCode}</strong></span> : null}
       </header>
 
+      <KasandrinosWorkspaceLink/>
       {!data ? (
         <section className="dashboard-onboarding"><OrganizationOnboarding email={user.email} /></section>
       ) : (

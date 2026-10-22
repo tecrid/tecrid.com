@@ -26,7 +26,7 @@ export function sampleLabReference(identifier: string) {
     jsonUrl: `https://tecrid.com/api/v1/credentials/${encodeURIComponent(report.testIdentifier)}`,
     vleDisplayLabel: "TEST identifier · Light Labs confirmation pending",
     documentUrl: `https://vle.exchange/reports/ll-${report.reportNumber}`,
-    documentAccess: "Verified TECRID work-email session and company-email buyer permission required; VLE sign-in is also available at documentUrl",
+    documentAccess: "Verified email and an active Kasandrinos grant for this report and scope required. Kasandrinos team owners and administrators manage TEST access at /dashboard/kasandrinos.",
     authenticatedDocumentUrl: `https://tecrid.com/api/test-reports/${encodeURIComponent(report.testIdentifier)}/document`,
     sourceProfileUrl: "https://tecrid.com/participants/LLTEST",
     controllerProfileUrl: "https://tecrid.com/participants/KASTEST",
