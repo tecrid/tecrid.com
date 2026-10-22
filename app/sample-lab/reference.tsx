@@ -31,7 +31,7 @@ export function SampleLabReferencePage({identifier}:{identifier:string}){
     <div><span>Document access</span><strong>Authorized work-email access</strong><small>Sign in to TECRID to request access. The report service checks buyer permission on every results and PDF request and records access.</small></div>
    </section>
    <div className="provenance-register">
-    <div><span>Prepared for</span><strong><a href={record.controllerProfileUrl}>Kasandrinos · TEST profile ↗</a></strong><small>Profile ownership and approval pending</small></div>
+    <div><span>Prepared for</span><strong><a href={record.controllerProfileUrl}>Kasandrinos · TEST profile ↗</a></strong><small>TEST access managed by the Kasandrinos VLE team</small></div>
     <div><span>Source-report approval</span><strong>Lab Director section in original PDF</strong><small>Historical report approval is separate from approval of this TECRID.</small></div>
     <div><span>TECRID issuer proof</span><strong>Not signed by Light Labs</strong><small>Production authority: none · test transport proofs are not issuer signatures</small></div>
     <div><span>Machine-readable reference</span><a href={record.jsonUrl}>Open JSON reference ↗</a><small>TEST status, report metadata and gated document link; no analytical values</small></div>

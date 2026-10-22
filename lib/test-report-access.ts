@@ -11,7 +11,7 @@ export async function protectedTestReport(request:Request,identifier:string,kind
  const secret=(env as any).TECRID_EMAIL_RELAY_SECRET;if(!secret)return failure('Report access is temporarily unavailable.',503);
  try{
   const response=await transport('https://vle.exchange/api/tecrid-report-access',{method:'POST',redirect:'error',signal:AbortSignal.timeout(20000),headers:{authorization:`Bearer ${secret}`,'content-type':'application/json'},body:JSON.stringify({reportNumber:report.reportNumber,kind,actor:{userId:user.userId,email:user.email,emailVerified:true}})});
-  if(!response.ok)return failure(response.status===403?'This account does not have company-email buyer access.':'The protected report is temporarily unavailable.',response.status===403?403:503);
+  if(!response.ok)return failure(response.status===403?'Kasandrinos approval is required for this report and scope.':'The protected report is temporarily unavailable.',response.status===403?403:503);
   if(kind==='pdf'){
    if(!response.headers.get('content-type')?.includes('application/pdf')||response.headers.get('x-report-sha256')!==report.sourceSha256)return failure('Report integrity check failed.',502);
    return new Response(response.body,{headers:{...privateReportHeaders,'Content-Type':'application/pdf','Content-Disposition':`inline; filename="Kasandrinos-TEST-${report.reportNumber}.pdf"`,'X-Report-SHA256':report.sourceSha256,'X-TECRID-Sandbox':'true'}});

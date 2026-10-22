@@ -811,7 +811,7 @@ test("all eight Kasandrinos report views expose source metadata while keeping fi
  const details=JSON.parse(await readFile(new URL('../lib/sample-lab-report-details.json',import.meta.url),'utf8'));
  for(const r of reports){
   const response=await render('/records/'+encodeURIComponent(r.testIdentifier));assert.equal(response.status,200);
-  const html=await response.text();assert.match(html,/Actual report\. Test TECRID\./);assert(html.includes(r.reportNumber));assert(html.includes(details[r.reportNumber].method));assert(html.includes('Order '+details[r.reportNumber].orderNumber)||html.includes(details[r.reportNumber].orderNumber));assert.match(html,/report-panel-title/);assert.match(html,/Not signed by Light Labs/);assert.match(html,/Protected · sign in to view/);
+  const html=await response.text();assert.match(html,/Actual report\. Test TECRID\./);assert(html.includes(r.reportNumber));assert(html.includes(details[r.reportNumber].method));assert(html.includes('Order '+details[r.reportNumber].orderNumber)||html.includes(details[r.reportNumber].orderNumber));assert.match(html,/report-panel-title/);assert.match(html,/Not signed by Light Labs/);assert.match(html,/Protected · Kasandrinos approval required/);
   assert.doesNotMatch(html,/cindy@|lev@|cdn\.shopify\.com|In-spec|<td[^>]*>ND<\/td>/);
   assert.deepEqual(Object.keys(details[r.reportNumber]).sort(),['analytes','assay','customer','location','method','orderNumber','receivedAt','servingSize','sourceBytes','sourcePageCount','sourceSha256'].sort());
  }
