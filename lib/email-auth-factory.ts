@@ -1,10 +1,11 @@
+import {privateFetch} from './private-fetch';
 import { betterAuth } from 'better-auth';
 import { magicLink } from 'better-auth/plugins';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 
 // The factory also allows isolated tests to substitute email transport, never a
 // production route or environment flag that can bypass mailbox verification.
-export function createEmailAuth(db:any, schema:any, config:{secret:string;baseURL:string;relaySecret:string;relayURL:string}, transport:typeof fetch=fetch){
+export function createEmailAuth(db:any, schema:any, config:{secret:string;baseURL:string;relaySecret:string;relayURL:string}, transport:typeof fetch=privateFetch){
  if(!config.secret || config.secret.length<32)throw Error('Email authentication is not configured.');
  return betterAuth({
   appName:'TECRID',baseURL:config.baseURL,basePath:'/api/auth',secret:config.secret,
