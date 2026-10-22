@@ -120,7 +120,7 @@ export default function PrivacyPage() {
             <p className="policy-number">06 / When data is disclosed</p>
             <h2>Disclosure follows instruction, infrastructure necessity, or law.</h2>
             <p>ICS may disclose the minimum necessary data to: a recipient expressly authorized through TECRID; personnel and contractors with a need to operate or secure the service and confidentiality duties; identity, hosting, storage, security, communications, support, and payment service providers acting under contract; professional advisers; or authorities when legally required.</p>
-            <p>Current service categories may include work-email sign-in delivery through Resend (using the shared VLE sending service), optional ChatGPT/OpenAI identity and application services, Cloudflare network, compute and storage infrastructure, and Stripe payment services. Those providers process information under their own terms and contractual roles. ICS does not sell personal information or confidential evidence and does not share it for cross-context behavioral advertising.</p>
+            <p>Current service categories may include work-email sign-in delivery through Resend (using the shared VLE sending service), hosting and application services, Cloudflare network, compute and storage infrastructure, and Stripe payment services. Those providers process information under their own terms and contractual roles. ICS does not sell personal information or confidential evidence and does not share it for cross-context behavioral advertising.</p>
           </section>
 
           <section id="legal">

@@ -46,7 +46,7 @@ const siteIdentity = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "tec-registry.kmfp.chatgpt.site";
+  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "tecrid.com";
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.includes("localhost") ? "http" : "https");
   const image = `${protocol}://${host}/og.png`;
 
