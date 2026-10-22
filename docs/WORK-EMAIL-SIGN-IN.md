@@ -1,8 +1,8 @@
 # Work-email sign-in
 
-Start at https://tecrid.com/sign-in. Enter a work email and open its one-use link within 10 minutes. No ChatGPT account or password is required. New users reach the existing organization setup: choose Laboratory, create the workspace, then use Profile & settings and Laboratory issuance to complete onboarding. Mailbox verification does not grant issuer approval.
+Start at https://tecrid.com/sign-in. Enter a work email and open its one-use link within 10 minutes. No password is required. New users reach the existing organization setup: choose Laboratory, create the workspace, then use Profile & settings and Laboratory issuance to complete onboarding. Mailbox verification does not grant issuer approval.
 
-Existing ChatGPT users can expand “Already use ChatGPT sign-in?” to access their existing workspace. Work-email identities use a separate `email:` namespace and are not merged by email with existing platform accounts. Account consolidation requires a separately authorized migration; never change ownership based on an unverified address.
+Work-email identities use a separate `email:` namespace. Existing legacy workspaces are not automatically merged by email. Account consolidation requires a separately authorized migration; never change ownership based on an unverified address.
 
 ## Operations
 
