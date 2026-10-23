@@ -4,7 +4,7 @@ import {getEmailUser} from './email-auth';
 import {sampleLabReference} from './sample-lab';
 export const privateReportHeaders={'Cache-Control':'private, no-store, max-age=0','Vary':'Cookie','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'};
 const failure=(error:string,status:number)=>Response.json({error},{status,headers:privateReportHeaders});
-export async function protectedTestReport(request:Request,identifier:string,kind:'results'|'pdf',transport:typeof fetch=privateFetch){
+export async function protectedTestReport(request:Request,identifier:string,kind:'card'|'results'|'pdf',transport:typeof fetch=privateFetch){
  const report=sampleLabReference(identifier);if(!report)return failure('Unknown test report.',404);
  // Only the validated email session supplies identity. Ignore bearer keys and client identity headers.
  let user;try{user=await getEmailUser(request.headers);}catch{return failure('Unable to verify your session. Please sign in again.',401);}
@@ -18,6 +18,6 @@ export async function protectedTestReport(request:Request,identifier:string,kind
    return new Response(response.body,{headers:{...privateReportHeaders,'Content-Type':'application/pdf','Content-Disposition':`inline; filename="Kasandrinos-TEST-${report.reportNumber}.pdf"`,'X-Report-SHA256':report.sourceSha256,'X-TECRID-Sandbox':'true'}});
   }
   const data=await response.json();if(data.reportNumber!==report.reportNumber||data.sourceSha256!==report.sourceSha256||data.sandbox!==true||data.productionAuthority!==false||data.reviewStatus!=='UNAPPROVED_TRANSCRIPTION'||!Array.isArray(data.results))return failure('Report integrity check failed.',502);
-  return Response.json(data,{headers:{...privateReportHeaders,'X-TECRID-Sandbox':'true'}});
+  return Response.json(kind==='card'?{...data,card:{identifier:report.testIdentifier,controller:report.reportDetails.customer,laboratory:report.sourceIssuer,sample:report.sampleName,lot:report.lotNumber,assay:report.reportDetails.assay,method:report.reportDetails.method,receivedAt:report.reportDetails.receivedAt,testedAt:report.testedAt,releasedAt:report.releasedAt,sourceFilename:report.sourceFilename,sourceSha256:report.sourceSha256,approval:'Pending Light Labs approval and signature'}}:data,{headers:{...privateReportHeaders,'X-TECRID-Sandbox':'true'}});
  }catch{return failure('The protected report is temporarily unavailable. Please retry.',503);}
 }
