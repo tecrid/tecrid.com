@@ -19,3 +19,6 @@ it('forwards verified session identity, overriding client actor claims, and pres
 it('retains stale-write conflicts and fails closed when the permissions service is unavailable',async()=>{
  identity.user={userId:'email:owner',email:'owner@company.test'};const req=new Request('https://tecrid.com/api/kasandrinos-test');expect((await kasandrinosTestWorkspace(req,async()=>Response.json({error:'Refresh'},{status:409}))).status).toBe(409);expect((await kasandrinosTestWorkspace(req,async()=>{throw Error();})).status).toBe(503);
 });
+it('forwards an opaque review-request ID only through a verified session',async()=>{
+ identity.user={userId:'email:owner',email:'owner@company.test'};const id='12345678-1234-4234-8234-123456789abc';const transport=vi.fn(async(_url:any,o:any)=>{expect(JSON.parse(o.body)).toMatchObject({action:'workspace',requestId:id,actor:{email:identity.user.email,emailVerified:true}});return Response.json({sandbox:true,productionAuthority:false});});expect((await kasandrinosTestWorkspace(new Request('https://tecrid.com/api/kasandrinos-test?request='+id),transport)).status).toBe(200);
+});
