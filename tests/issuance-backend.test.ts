@@ -117,7 +117,7 @@ describe("personal sample laboratory",()=>{
 
 it("imports eight gated test references without granting profile ownership or issuance",async()=>{
  const imports=await getDb().select().from(testReportImports);expect(imports).toHaveLength(8);
- for(const report of sampleLabReports){const row=imports.find(r=>r.identifier===report.testIdentifier)!;expect(row.sourceSha256).toBe(report.sourceSha256);expect(row.documentUrl).toBe(sampleLabReference(report.testIdentifier)!.documentUrl);expect(row.status).toBe("test_pending_approval");}
+ for(const report of sampleLabReports){const row=imports.find(r=>r.identifier===report.testIdentifier)!;expect(row.sourceSha256).toBe(report.sourceSha256);expect(row.documentUrl).toBe(`https://vle.exchange/reports/ll-${report.reportNumber}`);expect(row.status).toBe("test_pending_approval");}
  for(const id of ["org_test_kasandrinos","org_test_light_labs"]){
  const [org]=await getDb().select().from(organizations).where(eq(organizations.id,id));expect(org.issuerStatus).toBe("pending");expect(org.issuerPublicKeyJwk).toBeNull();
  expect(await getDb().select().from(organizationMembers).where(eq(organizationMembers.organizationId,id))).toHaveLength(0);

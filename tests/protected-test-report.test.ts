@@ -13,7 +13,7 @@ it('denies anonymous, spoofed identities and sandbox keys without calling report
 it('forwards only verified session identity and retains TEST fields privately',async()=>{
  identity.user={userId:'email:verified-id',email:'buyer@company.test'};
  const transport=vi.fn(async(_url:any,options:any)=>{const body=JSON.parse(options.body);expect(body.actor).toEqual({...identity.user,emailVerified:true});expect(body.reportNumber).toBe(report.reportNumber);return Response.json({reportNumber:report.reportNumber,sourceSha256:report.sourceSha256,sandbox:true,productionAuthority:false,reviewStatus:'UNAPPROVED_TRANSCRIPTION',results:[{analyte:'Synthetic',resultText:'ND'}]});});
- const r=await protectedTestReport(new Request('https://tecrid.com/api/test-reports/id/results'),report.testIdentifier,'results',transport);expect(r.status).toBe(200);expect((await r.json()).productionAuthority).toBe(false);expect(r.headers.get('vary')).toBe('Cookie');
+ const r=await protectedTestReport(new Request('https://tecrid.com/api/test-reports/id/results'),report.testIdentifier,'card',transport);expect(r.status).toBe(200);const data=await r.json();expect(data.productionAuthority).toBe(false);expect(data.card.identifier).toBe(report.testIdentifier);expect(data.card.sourceSha256).toBe(report.sourceSha256);expect(data.card.method).toBeTruthy();expect(data).not.toHaveProperty('authenticatedDocumentUrl');expect(r.headers.get('vary')).toBe('Cookie');
 });
 it('denies recipients without grants, rejects mismatched source data and checks PDF fingerprint',async()=>{
  identity.user={userId:'email:id',email:'someone@gmail.com'};const req=new Request('https://tecrid.com/api/test-reports/id/results');
