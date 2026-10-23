@@ -8,6 +8,8 @@ export async function kasandrinosTestWorkspace(request:Request,transport:typeof 
  let user;try{user=await getEmailUser(request.headers);}catch{return failure('Please sign in again.',401);}
  if(!user)return failure('Sign in with your work email.',401);
  let input:any={action:'workspace'};
+ const requestId=new URL(request.url).searchParams.get('request');
+ if(requestId&&/^[a-f0-9-]{36}$/.test(requestId))input.requestId=requestId;
  if(request.method==='POST'){
   try{const text=await request.text();if(text.length>10000)return failure('Request too large.',413);input=JSON.parse(text);}catch{return failure('Invalid request.',400);}
   if(!['grant','revoke','decline','request','status'].includes(input.action))return failure('Unknown permission action.',400);

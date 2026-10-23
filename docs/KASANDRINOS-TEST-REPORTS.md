@@ -22,7 +22,7 @@ Controller steps:
 
 1. Sign in with the exact email in the existing Kasandrinos VLE owner/admin membership. Review that membership in VLE Account & team if access is missing.
 2. Enter a recipient's exact email, select one or all eight TEST reports, and approve **results**, **original PDF**, or both. Optionally set an expiry date in UTC. No invitation email is sent; share the record URL through your usual channel.
-3. Review pending requests in **Access requests and permissions**. Approve the requested scope, decline it, or choose **Edit scope** to narrow it before saving.
+3. New requests email the configured Kasandrinos contact, `karen@paleofoundation.com`, with the requester, report and requested scope. Follow **Review request · approve or decline**; sign in with an authorized owner/admin email and confirm the decision. Opening or scanning the email link never changes permissions. You can also review pending requests in **Access requests and permissions**. Approve the requested scope, decline it, or choose **Edit scope** to narrow it before saving.
 4. Choose **Revoke both** to block future result and PDF requests on TECRID and direct VLE PDF endpoints. Previously downloaded documents cannot be recalled. Owner/admin viewing and management follow VLE membership; revoke those roles in VLE Account & team.
 5. Review **Permission history** for the verified actor, recipient, report, action and time. Refresh before retrying a conflicting edit.
 
@@ -37,3 +37,14 @@ Production conversion requires independently verified organization ownership, la
 ## Validation
 
 VLE `tests/tecrid-report-service.mjs` exercises all eight reports, owner/admin access, no company-domain default, recipient requests, separate result/PDF scope, expiry, bulk grant/revoke, stale edits, role revocation and audit history. TECRID proxy tests reject forged identities and cross-origin writes; real isolated email-session tests verify management access ends on sign-out; rendered component tests exercise request, approve and revoke controls. Issuance tests preserve the absent signing keys and blocked production reservations. A live account holder must complete the mailbox sign-in walkthrough.
+
+
+## Request email delivery
+
+New request events and notification outbox rows commit together in VLE migration `0008_kas_access_notifications`. Only new request cycles send mail; repeating an already-pending request does not send another email. The destination is fixed to the requested Kasandrinos contact in server code, never a browser-supplied address. Emails are marked TEST and contain metadata plus an opaque review link, with no results, PDF attachment, sign-in token or approval capability.
+
+The existing VLE provider/sender attempts delivery immediately after the request is saved. Leases and a stable provider idempotency key suppress competing sends. Failures remain queued with backoff, and the Worker retries due items on subsequent report-permission API activity, including workspace refreshes, new requests and VLE bootstrap activity. There is no unattended retry timer. The installation migration queues one fixed TEST delivery-check email that creates no access request or grant. A request resolved before delivery is cancelled in the queue. The workspace shows sent/queued state on current pending requests.
+
+The service-only `/api/tecrid-request-notification` accepts only `delivery-test`, requires the existing private service credential, and sends fixed TEST check content to the same contact at most once per UTC day. It creates no access request and changes no permissions. It accepts no arbitrary recipient or email body and returns only delivery status. Never put service credentials in URLs, GitHub or browser forms.
+
+VLE `tests/kasandrinos-request-notifications.mjs` validates the transactional outbox, fixed recipient, all scopes, TEST copy, protected request targeting, duplicate/concurrent send suppression, provider failure/backoff/retry, resolved-request cancellation and service-only test delivery. TECRID tests verify review targets survive sign-in and email links cannot approve or decline without a deliberate signed-in action.

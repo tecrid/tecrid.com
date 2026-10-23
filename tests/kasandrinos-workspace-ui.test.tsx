@@ -2,7 +2,7 @@ import React from 'react';
 import {it,expect,vi,afterEach} from 'vitest';
 import {render,screen,cleanup,fireEvent,waitFor} from '@testing-library/react';
 import {KasandrinosTestWorkspace} from '../app/dashboard/kasandrinos/workspace';
-afterEach(()=>{cleanup();vi.unstubAllGlobals();});
+afterEach(()=>{cleanup();vi.unstubAllGlobals();window.history.replaceState(null,'','/');});
 const report={reportNumber:'43301',identifier:'SBX·TECRID-KAS-43301-49BEFE05',title:'Synthetic report',sample:'Synthetic oil',lotNumbers:['TEST'],canReadResults:true,canReadPdf:true,status:'controller'};
 const workspace={sandbox:true,productionAuthority:false,canManage:true,role:'owner',email:'controller@company.test',reports:[report],permissions:[{report_number:'43301',recipient_email:'recipient@company.test',status:'pending',results_access:0,pdf_access:0,requested_results:1,requested_pdf:1,expires_at:null,revision:1,updated_at:'2026-01-01'}],events:[]};
 it('shows email sign-in and no permission controls for an anonymous user',async()=>{vi.stubGlobal('fetch',vi.fn(async()=>new Response(null,{status:401})));render(<KasandrinosTestWorkspace/>);await screen.findByText('Sign in to this workspace →');expect(screen.queryByText('Approve TEST access →')).toBeNull();});
@@ -11,4 +11,11 @@ it('approves a pending recipient scope with its revision, then revokes both scop
  let state=structuredClone(workspace);const calls:any[]=[];
  vi.stubGlobal('fetch',vi.fn(async(_url:any,o:any)=>{if(o?.method==='POST'){const input=JSON.parse(o.body);calls.push(input);state={...state,permissions:state.permissions.map(p=>({...p,status:input.action==='grant'?'active':'revoked',revision:p.revision+1,results_access:input.action==='grant'?1:0,pdf_access:input.action==='grant'?1:0}))};return Response.json({ok:true});}return Response.json(state);}));
  render(<KasandrinosTestWorkspace/>);fireEvent.click(await screen.findByText('Approve requested scope'));await screen.findByText('Requested TEST access approved.');expect(calls[0]).toEqual({action:'grant',email:'recipient@company.test',reports:[{reportNumber:'43301',revision:1}],results:true,pdf:true});fireEvent.click(screen.getByText('Revoke both'));await screen.findByText('Access revoked for results and PDFs on TECRID and VLE.');expect(calls[1].reports[0].revision).toBe(2);expect(calls[1].action).toBe('revoke');
+});
+it('preserves the notification target through work-email sign-in',async()=>{
+ const id='12345678-1234-4234-8234-123456789abc';window.history.replaceState(null,'','/dashboard/kasandrinos?request='+id+'#review-request');vi.stubGlobal('fetch',vi.fn(async(url)=>{expect(String(url)).toContain('?request='+id);return new Response(null,{status:401});}));render(<KasandrinosTestWorkspace/>);const link=await screen.findByText('Sign in to this workspace →');expect(decodeURIComponent(link.getAttribute('href')!)).toContain('/dashboard/kasandrinos?request='+id+'#review-request');
+});
+it('opens an email request read-only and requires a signed-in explicit decline',async()=>{
+ const id='12345678-1234-4234-8234-123456789abc';window.history.replaceState(null,'','/dashboard/kasandrinos?request='+id+'#review-request');let state={...structuredClone(workspace),notificationEmail:'karen@paleofoundation.com',targetRequest:{id,report_number:'43301',requester_email:'recipient@company.test',request_revision:1,status:'pending',revision:1}};const writes:any[]=[];
+ vi.stubGlobal('fetch',vi.fn(async(_u:any,o:any)=>{if(o?.method==='POST'){const d=JSON.parse(o.body);writes.push(d);state={...state,targetRequest:{...state.targetRequest,status:'declined',revision:2},permissions:state.permissions.map(p=>({...p,status:'declined',revision:2}))};return Response.json({ok:true});}return Response.json(state);}));render(<KasandrinosTestWorkspace/>);await screen.findByText('Review this access request.');expect(writes).toEqual([]);fireEvent.click(screen.getByText('Decline this request'));await screen.findByText('Request declined.');expect(writes[0]).toMatchObject({action:'decline',email:'recipient@company.test',reports:[{reportNumber:'43301',revision:1}]});await screen.findByText(/This request has already been reviewed or replaced/);
 });
