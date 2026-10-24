@@ -178,8 +178,16 @@ a { color: inherit; text-decoration: none; }
 .nav-cta:hover { background: var(--ink); color: white; }
 
 .hero { min-height: 650px; padding: 72px 7vw 0; background: var(--blue); color: white; position: relative; overflow: hidden; }
-.hero.sell-hero { padding-bottom: 100px; }
-.sell-hero-note { position: relative; z-index: 1; max-width: 740px; margin: 24px 0 0; color: white; font-size: 1rem; line-height: 1.6; }
+.hero.sell-hero { min-height: max(650px, calc(100svh - 76px)); padding-bottom: 72px; }
+.home-evidence-context { display: grid; grid-template-columns: 1.35fr 1fr; gap: 32px 7vw; padding: 76px 7vw; border-bottom: 1px solid var(--line); }
+.home-evidence-context h2 { margin: 0 0 20px; font: 500 clamp(32px, 3.5vw, 46px)/1.08 Georgia, serif; letter-spacing: -.035em; }
+.home-evidence-context p { margin: 0 0 20px; color: var(--muted); font-size: 1rem; line-height: 1.65; }
+.home-evidence-context .section-kicker { color: var(--blue); font-size: .875rem; }
+.home-evidence-context .evidence-principles { margin-bottom: 0; font-size: .875rem; }
+.home-commercial-paths { align-self: center; padding-left: 30px; border-left: 1px solid var(--line); }
+.home-commercial-paths p { color: var(--ink); }
+.home-commercial-paths a { display: block; width: fit-content; margin-top: 16px; padding-bottom: 6px; border-bottom: 1px solid currentColor; color: var(--blue); font-size: .9375rem; font-weight: 650; line-height: 1.5; }
+.home-evidence-context .evidence-keywords { grid-column: 1 / -1; margin: 0; padding-top: 24px; border-top: 1px solid var(--line); font-size: .875rem; letter-spacing: .04em; text-transform: uppercase; }
 .sell-hero-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 12px 28px; margin-top: 22px; }
 .sell-hero-actions a { padding: 10px 0; border-bottom: 1px solid var(--mint); color: var(--mint); font-size: .9375rem; font-weight: 650; line-height: 1.5; }
 .sell-hero-actions a:hover { color: white; }
@@ -205,16 +213,18 @@ a { color: inherit; text-decoration: none; }
 .lab-value-sell p:not(.section-kicker) { margin: 0 0 20px; color: var(--muted); font-size: 1rem; line-height: 1.65; }
 .lab-value-sell a { color: var(--blue); font-size: 1rem; font-weight: 650; }
 @media (max-width: 1000px) {
+  .home-evidence-context { grid-template-columns: 1fr; }
+  .home-commercial-paths { padding: 24px 0 0; border-left: 0; border-top: 1px solid var(--line); }
   .evidence-value-intro, .lab-value-sell { grid-template-columns: 1fr; }
   .evidence-value-grid { grid-template-columns: 1fr; }
   .evidence-value-grid article + article { border-left: 0; border-top: 1px solid var(--line); }
   .lab-value-sell { gap: 28px; }
 }
 @media (max-width: 600px) {
+  .home-evidence-context { padding: 64px 22px; }
   .evidence-value, .lab-value-sell { padding: 64px 22px; }
   .evidence-value-grid article { padding: 26px 22px; }
   .hero.sell-hero { padding-bottom: 36px; }
-  .hero.sell-hero .hero-proof { position: static; height: auto; min-height: 62px; margin-top: 32px; flex-wrap: wrap; gap: 12px; padding-top: 18px; }
   .sell-hero-actions { flex-direction: column; align-items: flex-start; }
 }
 .hero::after { content: "TEC"; position: absolute; right: -1vw; top: 18px; color: rgba(255,255,255,.055); font: 900 clamp(180px, 29vw, 440px)/.85 Arial, sans-serif; letter-spacing: -.1em; pointer-events: none; }
