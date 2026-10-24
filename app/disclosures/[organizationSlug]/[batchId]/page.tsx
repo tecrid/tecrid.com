@@ -13,6 +13,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${record.product.name} · ${record.batch.batchCode} — Analytical disclosure`,
     description: `Published production-aggregate results for ${record.product.name}, ${record.batch.batchCode}.`,
+    alternates: { canonical: `https://tecrid.com/disclosures/${encodeURIComponent(decodeURIComponent(organizationSlug))}/${encodeURIComponent(decodeURIComponent(batchId))}` },
   };
 }
 

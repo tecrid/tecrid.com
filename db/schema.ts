@@ -63,6 +63,7 @@ export const apiKeys = sqliteTable(
       .notNull()
       .references(() => organizations.id, { onDelete: "cascade" }),
     label: text("label").notNull(),
+    scopes: text("scopes").notNull().default("[\"*\"]"),
     keyPrefix: text("key_prefix").notNull(),
     keyHash: text("key_hash").notNull(),
     lastFour: text("last_four").notNull(),
@@ -996,6 +997,8 @@ export const reportReservations = sqliteTable(
     productName: text("product_name").notNull(),
     productSku: text("product_sku").notNull(),
     laboratoryReportNumber: text("laboratory_report_number"),
+    idempotencyKey: text("idempotency_key"),
+    requestHash: text("request_hash"),
     sourceSystem: text("source_system").notNull().default("generic"),
     status: text("status").notNull().default("reserved"),
     expiresAt: text("expires_at").notNull(),
@@ -1007,6 +1010,7 @@ export const reportReservations = sqliteTable(
     finalizedAt: text("finalized_at"),
   },
   (table) => [
+    uniqueIndex("idx_report_reservations_idempotency").on(table.laboratoryOrganizationId, table.idempotencyKey),
     uniqueIndex("idx_report_reservations_identifier").on(table.identifier),
     uniqueIndex("idx_report_reservations_finalized_credential").on(
       table.finalizedCredentialIdentifier,
@@ -1210,3 +1214,50 @@ export const laboratoryInvitations = sqliteTable(
     ),
   ],
 );
+
+// Personal sandbox proofs are never rows in the production credentials table.
+export const sampleLabProofs = sqliteTable("sample_lab_proofs", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  testIdentifier: text("test_identifier").notNull(),
+  canonicalPayload: text("canonical_payload").notNull(),
+  payloadHash: text("payload_hash").notNull(),
+  publicKeyJwk: text("public_key_jwk").notNull(),
+  signature: text("signature").notNull(),
+  createdAt: text("created_at").notNull(),
+}, table => [uniqueIndex("idx_sample_lab_user_report").on(table.userId, table.testIdentifier)]);
+
+// Work-email authentication; separate from laboratory issuance authority.
+export const user=sqliteTable('auth_user',{
+ id:text('id').primaryKey(),name:text('name').notNull(),email:text('email').notNull().unique(),
+ emailVerified:integer('email_verified',{mode:'boolean'}).notNull().default(false),image:text('image'),
+ createdAt:integer('created_at',{mode:'timestamp_ms'}).notNull(),updatedAt:integer('updated_at',{mode:'timestamp_ms'}).notNull(),
+});
+export const session=sqliteTable('auth_session',{
+ id:text('id').primaryKey(),expiresAt:integer('expires_at',{mode:'timestamp_ms'}).notNull(),token:text('token').notNull().unique(),
+ createdAt:integer('created_at',{mode:'timestamp_ms'}).notNull(),updatedAt:integer('updated_at',{mode:'timestamp_ms'}).notNull(),
+ ipAddress:text('ip_address'),userAgent:text('user_agent'),userId:text('user_id').notNull().references(()=>user.id,{onDelete:'cascade'}),
+});
+export const account=sqliteTable('auth_account',{
+ id:text('id').primaryKey(),accountId:text('account_id').notNull(),providerId:text('provider_id').notNull(),userId:text('user_id').notNull().references(()=>user.id,{onDelete:'cascade'}),
+ accessToken:text('access_token'),refreshToken:text('refresh_token'),idToken:text('id_token'),
+ accessTokenExpiresAt:integer('access_token_expires_at',{mode:'timestamp_ms'}),refreshTokenExpiresAt:integer('refresh_token_expires_at',{mode:'timestamp_ms'}),scope:text('scope'),password:text('password'),
+ createdAt:integer('created_at',{mode:'timestamp_ms'}).notNull(),updatedAt:integer('updated_at',{mode:'timestamp_ms'}).notNull(),
+});
+export const verification=sqliteTable('auth_verification',{
+ id:text('id').primaryKey(),identifier:text('identifier').notNull(),value:text('value').notNull(),expiresAt:integer('expires_at',{mode:'timestamp_ms'}).notNull(),
+ createdAt:integer('created_at',{mode:'timestamp_ms'}).notNull(),updatedAt:integer('updated_at',{mode:'timestamp_ms'}).notNull(),
+});
+export const rateLimit=sqliteTable('auth_rate_limit',{
+ id:text('id').primaryKey(),key:text('key').notNull().unique(),count:integer('count').notNull(),lastRequest:integer('last_request',{mode:'number'}).notNull(),
+});
+
+
+export const testReportImports = sqliteTable("test_report_imports", {
+ identifier: text("identifier").primaryKey(), reportNumber: text("report_number").notNull(),
+ sourceSha256: text("source_sha256").notNull(), documentUrl: text("document_url").notNull(),
+ sourceOrganizationId: text("source_organization_id").notNull().references(()=>organizations.id),
+ controllerOrganizationId: text("controller_organization_id").notNull().references(()=>organizations.id),
+ status: text("status").notNull().default("test_pending_approval"),
+ createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});

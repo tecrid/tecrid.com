@@ -1,3 +1,5 @@
+import { sampleLabReference } from "../../../lib/sample-lab";
+import { SampleLabReferencePage } from "../../sample-lab/reference";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
@@ -16,6 +18,7 @@ type PageProps = { params: Promise<{ identifier: string }> };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { identifier } = await params;
+  if (sampleLabReference(identifier)) return {title: `${identifier} — TEST reference`, robots:{index:false,follow:false}};
   if (isSampleTecrid(identifier)) {
     return {
       title: `${SAMPLE_TECRID} — Resolver sample`,
@@ -49,6 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description,
+    alternates: { canonical: `https://tecrid.com/records/${encodeURIComponent(record.credential.identifier)}` },
     openGraph: { title, description, type: "article", images: [] },
     twitter: { card: "summary", title, description, images: [] },
   };
@@ -56,6 +60,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function RecordPage({ params }: PageProps) {
   const { identifier } = await params;
+  if (sampleLabReference(identifier)) return <SampleLabReferencePage identifier={identifier} />;
   if (isSampleTecrid(identifier)) return <SampleRecordPage />;
   const { getCredential, publicCredentialDocument } = await import("../../../lib/tec");
   const record = await getCredential(decodeURIComponent(identifier));

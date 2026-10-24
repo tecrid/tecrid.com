@@ -5,6 +5,7 @@ import { ProductFooter, ProductNav } from "../site-nav";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "https://tecrid.com/issuers" },
   title: "Verified laboratory issuers — TEC Registry",
   description: "Inspect the laboratories authorized by ICS to issue signed public TEC records.",
   openGraph: { title: "Verified laboratory issuers — TEC Registry", description: "The public TEC issuer register.", images: [] },

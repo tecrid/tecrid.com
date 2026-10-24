@@ -2,6 +2,7 @@ import {
   authenticateApiRequest,
   createCredentialRevision,
   getCredential,
+  publicCredentialDocument,
   TecAuthorizationError,
   TecInputError,
 } from "../../../../../../lib/tec";
@@ -17,7 +18,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
       { status: 404 },
     );
   }
-  return Response.json({ tecrid: record.credential.identifier, versions: record.versions });
+  return Response.json({ tecrid: record.credential.identifier, versions: publicCredentialDocument(record).versions }, { headers: { "cache-control": "no-store" } });
 }
 
 export async function POST(request: Request, { params }: RouteContext) {

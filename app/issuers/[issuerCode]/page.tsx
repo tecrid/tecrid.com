@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!issuer) return { title: "Issuer not found — TEC Registry", openGraph: { images: [] }, twitter: { images: [] } };
   const title = `${issuer.name} — TEC issuer register`;
   const description = `Public issuance status and reviewed scope for TEC issuer ${issuer.issuerCode}.`;
-  return { title, description, openGraph: { title, description, images: [] }, twitter: { title, description, images: [] } };
+  return { title, description, alternates: { canonical: `https://tecrid.com/issuers/${encodeURIComponent(issuer.issuerCode)}` }, openGraph: { title, description, images: [] }, twitter: { title, description, images: [] } };
 }
 
 export default async function IssuerPage({ params }: PageProps) {

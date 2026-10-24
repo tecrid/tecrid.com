@@ -4,6 +4,7 @@ import { ProductFooter, ProductNav } from "../site-nav";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
+  alternates: { canonical: "https://tecrid.com/submit-report" },
   title: "Submit an existing lab report — TEC Registry",
   description:
     "Place an existing laboratory PDF into private TECRID intake and request confirmation from the laboratory that issued it.",
