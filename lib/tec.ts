@@ -952,6 +952,7 @@ export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scope
 
   let scopes: string[];
   try { scopes = normalizeApiScopes(scopesValue); } catch { throw new TecInputError("Choose valid API permissions."); }
+  if (scopes.some(scope => scope !== "read") && (membership.organization.organizationType !== "laboratory" || membership.organization.issuerStatus !== "verified")) throw new TecAuthorizationError("Production write permissions require an ICS-verified laboratory.");
   const label = normalizeText(labelValue, 60) || "Default key";
   const secret = randomCharacters(42).toLowerCase();
   const plainTextKey = `tec_live_${secret}`;
@@ -1034,7 +1035,7 @@ export async function authenticateApiRequest(request: Request) {
 
   const scopes: string[] = JSON.parse(record.key.scopes);
   const requiredScope = apiRequestScope(request);
-  if (!scopes.includes("*") && (!requiredScope || !scopes.includes(requiredScope))) {
+  if (!requiredScope || (requiredScope !== "read" && (record.organization.organizationType !== "laboratory" || record.organization.issuerStatus !== "verified")) || (!scopes.includes("*") && !scopes.includes(requiredScope))) {
     throw new TecAuthorizationError("This API key does not permit this operation.");
   }
 
