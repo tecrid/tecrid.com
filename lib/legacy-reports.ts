@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, gte, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, or, sql } from "drizzle-orm";
 import { env } from "cloudflare:workers";
 import { getDb } from "../db";
 import {
@@ -14,6 +14,7 @@ import {
   canonicalizeCredential,
   createCredential,
   getOrganizationForUser,
+  requireOrganizationAdmin,
   isIcsAdmin,
   TecAuthorizationError,
   TecInputError,
@@ -21,6 +22,8 @@ import {
   type CredentialResultInput,
 } from "./tec";
 
+export const LEGACY_CONFIRMATION_TTL_MS = 24 * 60 * 60 * 1000;
+const CONFIRMATION_STATES = new Set(["awaiting_lab_claim", "needs_submitter_correction", "ready_for_signature", "awaiting_issuer_verification", "issued"]);
 const MAX_PDF_BYTES = 20 * 1024 * 1024;
 
 type LegacyResultInput = CredentialResultInput;
@@ -449,6 +452,31 @@ export async function getLegacyReportForUser(user: ChatGPTUser, reportIdValue: s
   return { ...bundle, membership };
 }
 
+async function confirmationIsCurrent(report: typeof legacyReports.$inferSelect) {
+  if (!CONFIRMATION_STATES.has(report.status)) return false;
+  const events = await getDb().select().from(auditEvents).where(and(eq(auditEvents.entityId, report.id), or(eq(auditEvents.eventType, "legacy_report.confirmation_rotated"), eq(auditEvents.eventType, "legacy_report.confirmation_revoked"))));
+  const matching = events.find(event => { try { return JSON.parse(event.payload || "{}").tokenHash === report.confirmationTokenHash; } catch { return false; } });
+  if ((events.length && !matching) || matching?.eventType === "legacy_report.confirmation_revoked") return false;
+  const date = matching?.createdAt || report.createdAt;
+  const issuedAt = Date.parse(/^\d{4}-\d{2}-\d{2} \d{2}:/.test(date) ? date.replace(" ", "T") + "Z" : date);
+  const age = Date.now() - issuedAt;
+  return Number.isFinite(issuedAt) && age >= 0 && age < LEGACY_CONFIRMATION_TTL_MS;
+}
+
+export async function manageLegacyConfirmation(user: ChatGPTUser, reportId: string, action: unknown) {
+  if (action !== "rotate" && action !== "revoke") throw new TecInputError("Choose rotate or revoke.");
+  const membership = await requireOrganizationAdmin(user);
+  const [report] = await getDb().select().from(legacyReports).where(eq(legacyReports.id, reportId)).limit(1);
+  if (!report || ![report.submittingOrganizationId, report.issuerOrganizationId].includes(membership.organization.id)) throw new TecAuthorizationError("Report confirmation management is restricted to its organization administrators.");
+  if (action === "rotate" && !CONFIRMATION_STATES.has(report.status)) throw new TecAuthorizationError("This report workflow is closed.");
+  const token = randomToken(), tokenHash = await sha256Text(token), at = now();
+  try { await getDb().batch([
+    getDb().update(legacyReports).set({confirmationTokenHash:tokenHash,confirmationTokenLastFour:token.slice(-4),updatedAt:at}).where(and(eq(legacyReports.id,report.id),eq(legacyReports.confirmationTokenHash,report.confirmationTokenHash))),
+    getDb().insert(auditEvents).values({id:crypto.randomUUID(),organizationId:membership.organization.id,actorUserId:user.userId,eventType:action === "rotate" ? "legacy_report.confirmation_rotated" : "legacy_report.confirmation_revoked",entityType:"legacy_report",entityId:sql`(SELECT id FROM legacy_reports WHERE id=${report.id} AND confirmation_token_hash=${tokenHash})`,payload:JSON.stringify({tokenHash,ttlSeconds:LEGACY_CONFIRMATION_TTL_MS/1000}),createdAt:at}),
+  ]); } catch { throw new LegacyReportConflictError("The confirmation link changed. Refresh before retrying."); }
+  return action === "rotate" ? {id:report.id,confirmationPath:`/confirm/${token}`,expiresAt:new Date(Date.parse(at)+LEGACY_CONFIRMATION_TTL_MS).toISOString()} : {id:report.id,revoked:true};
+}
+
 async function getLegacyReportForToken(user: ChatGPTUser, tokenValue: string) {
   const token = normalizeText(tokenValue, 180);
   if (!token) return null;
@@ -459,7 +487,7 @@ async function getLegacyReportForToken(user: ChatGPTUser, tokenValue: string) {
     .from(legacyReports)
     .where(eq(legacyReports.confirmationTokenHash, tokenHash))
     .limit(1);
-  if (!report) return null;
+  if (!report || !await confirmationIsCurrent(report)) return null;
   const bundle = await getLegacyReportBundle(report.id);
   if (!bundle) return null;
   const membership = await getOrganizationForUser(user.userId);
