@@ -1,0 +1,28 @@
+
+ RUN  v4.1.11 /Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/security-tecrid
+
+ ❯ tests/security-auth-logging.test.ts (1 test | 1 failed) 1665ms
+   × authentication rejection logs do not echo user-controlled origin data 38ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/security-auth-logging.test.ts > authentication rejection logs do not echo user-controlled origin data
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/security-auth-logging.test.ts:9:899
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  14:49:25
+   Duration  2.93s (transform 229ms, setup 0ms, import 1.10s, tests 1.66s, environment 0ms)
+
