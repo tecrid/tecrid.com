@@ -1,7 +1,7 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
 import type { ChatGPTUser } from "../app/chatgpt-auth";
 import { getDb } from "../db";
-import { sandboxApiKeys, sandboxSessions } from "../db/schema";
+import { auditEvents, sandboxApiKeys, sandboxSessions } from "../db/schema";
 
 export const sandboxStages = ["submitted", "claimed", "confirmed", "issued"] as const;
 export type SandboxStage = (typeof sandboxStages)[number];
@@ -202,7 +202,10 @@ export async function createSandboxApiKey(user: ChatGPTUser, labelValue: unknown
     lastFour: plainTextKey.slice(-4),
     createdAt,
   };
-  await db.insert(sandboxApiKeys).values(key);
+  await db.batch([
+    db.insert(sandboxApiKeys).values(key),
+    db.insert(auditEvents).values({id:`sandbox_key_created:${key.id}`,actorUserId:user.userId,eventType:"sandbox_api_key.created",entityType:"sandbox_api_key",entityId:key.id,payload:JSON.stringify({environment:"sandbox"}),createdAt}),
+  ]);
   return {
     id: key.id,
     label,
@@ -232,10 +235,10 @@ export async function revokeSandboxApiKey(user: ChatGPTUser, keyIdValue: unknown
     .limit(1);
   if (!key) throw new SandboxInputError("Active sandbox API key not found.");
   const revokedAt = now();
-  await db
-    .update(sandboxApiKeys)
-    .set({ revokedAt })
-    .where(eq(sandboxApiKeys.id, keyId));
+  await db.batch([
+    db.update(sandboxApiKeys).set({revokedAt}).where(and(eq(sandboxApiKeys.id,keyId),isNull(sandboxApiKeys.revokedAt))),
+    db.insert(auditEvents).values({id:`sandbox_key_revoked:${keyId}`,actorUserId:user.userId,eventType:"sandbox_api_key.revoked",entityType:"sandbox_api_key",entityId:keyId,payload:JSON.stringify({environment:"sandbox"}),createdAt:revokedAt}),
+  ]);
   return { id: keyId, revokedAt };
 }
 
