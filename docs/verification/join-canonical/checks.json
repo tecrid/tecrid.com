@@ -1,0 +1,19 @@
+{
+  "order": "J7 / HI-009",
+  "base": "ef946aba6d7a8f24fe2a4f91630d2733afe80ec2",
+  "findings": "Current main already declares the join self-canonical and excludes pricing from sitemap. The remaining bug redirects pricing to home instead of join.",
+  "changes": [
+    "Worker 301 redirects /pricing, /pricing/ and query variants to /join",
+    "Component fallback uses /join",
+    "Rendered canonical test now includes actual /join HTML, plus sitemap join presence and pricing absence"
+  ],
+  "checks": {
+    "build": "PASS",
+    "unit": "73/73 in 20 files PASS",
+    "rendered": "29/29 PASS",
+    "application_lint": "PASS",
+    "test_lint": "3 unchanged inherited unused-variable errors, checked against origin/main; no new errors",
+    "whitespace": "PASS"
+  },
+  "publication": "Draft only, no merge, deploy, DNS, secrets or production data."
+}

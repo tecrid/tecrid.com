@@ -39,7 +39,7 @@ const worker = {
     }
 
     if (url.pathname === "/pricing" || url.pathname === "/pricing/") {
-      return Response.redirect(new URL("/", url).href, 301);
+      return Response.redirect(new URL("/join", url).href, 301);
     }
 
     if (url.pathname === "/_vinext/image") {
