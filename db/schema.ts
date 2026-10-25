@@ -21,6 +21,9 @@ export const organizations = sqliteTable(
     ownerEmail: text("owner_email").notNull(),
     issuerCode: text("issuer_code").notNull(),
     issuerStatus: text("issuer_status").notNull().default("pending"),
+    identityStatus: text("identity_status").notNull().default("unreviewed"),
+    termsAcceptedAt: text("terms_accepted_at"),
+    termsVersion: text("terms_version"),
     issuerPublicKeyJwk: text("issuer_public_key_jwk"),
     issuerKeyId: text("issuer_key_id"),
     issuerKeyAlgorithm: text("issuer_key_algorithm"),
@@ -1324,3 +1327,13 @@ export const credentialRoutingJobs = sqliteTable("credential_routing_jobs", {
   nextAttemptAt: text("next_attempt_at").notNull(),
   completedAt: text("completed_at"),
 }, table => [uniqueIndex("idx_credential_routing_jobs_credential_authorization").on(table.credentialIdentifier, table.authorizationId), index("idx_credential_routing_jobs_due").on(table.status, table.nextAttemptAt)]);
+
+
+export const deliveryPolicy = sqliteTable("delivery_policy", {
+  id: text("id").primaryKey(),
+  termsVersion: text("terms_version").notNull().default(""),
+  termsUrl: text("terms_url").notNull().default(""),
+  termsRequired: integer("terms_required", { mode: "boolean" }).notNull().default(false),
+  updatedAt: text("updated_at").notNull(),
+  updatedByUserId: text("updated_by_user_id"),
+});
