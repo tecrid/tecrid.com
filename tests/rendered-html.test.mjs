@@ -20,11 +20,11 @@ async function render(path = "/") {
   );
 }
 
-test("pricing permanently redirects home without rendering a page", async () => {
+test("pricing permanently redirects to join without rendering a duplicate page", async () => {
   for (const path of ["/pricing", "/pricing/", "/pricing?source=old-link"]) {
     const response = await render(path);
     assert.equal(response.status, 301);
-    assert.equal(response.headers.get("location"), "http://localhost/");
+    assert.equal(response.headers.get("location"), "http://localhost/join");
     assert.equal(await response.text(), "");
   }
   const home = await render("/");
@@ -813,7 +813,7 @@ test("gives authenticated organizations a role-aware workspace shell and a real 
 
 test("public marketing pages declare their own self-referencing canonical", async () => {
   // Rendered: pages that do not need the D1 binding in the local Node harness.
-  const paths = ["/why", "/verify", "/submit-report", "/privacy"];
+  const paths = ["/why", "/verify", "/submit-report", "/privacy", "/join"];
   const responses = await Promise.all(paths.map((path) => render(path)));
   for (const [index, response] of responses.entries()) {
     const path = paths[index];
@@ -831,6 +831,7 @@ test("public marketing pages declare their own self-referencing canonical", asyn
   assert.match(home, /<link rel="canonical" href="https:\/\/tecrid\.com\/?"/);
   const sitemap = await (await render("/sitemap.xml")).text();
   assert.doesNotMatch(sitemap, /https:\/\/tecrid\.com\/pricing/);
+  assert.match(sitemap, /<loc>https:\/\/tecrid\.com\/join<\/loc>/);
 });
 
 test("all eight Kasandrinos report views expose source metadata while keeping findings gated", async () => {
