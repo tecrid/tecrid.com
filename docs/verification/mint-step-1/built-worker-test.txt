@@ -1,0 +1,17 @@
+
+> tec-registry@0.1.0 test:unit
+> vitest run tests/notification-workerd.test.ts --reporter=verbose
+
+
+ RUN  v4.1.11 /Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/tecrid
+
+stdout | tests/notification-workerd.test.ts > requires the worker secret and sends decryptable Web Push in the built Cloudflare Worker
+PUSH_PAYLOAD_PROOF {"eventId":"notification:worker-push","event":"laboratory_report.received","sku":null,"url":"https://tecrid.com/dashboard/evidence-routing"}
+
+ ✓ tests/notification-workerd.test.ts > requires the worker secret and sends decryptable Web Push in the built Cloudflare Worker 43ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  08:18:41
+   Duration  2.11s (transform 130ms, setup 0ms, import 633ms, tests 1.33s, environment 0ms)
+

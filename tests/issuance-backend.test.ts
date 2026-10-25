@@ -4,7 +4,7 @@ import { Miniflare } from "miniflare";
 import { readFileSync, readdirSync } from "node:fs";
 import { env } from "./support/cloudflare-env";
 import { getDb } from "../db";
-import { organizations, organizationMembers, reportReservations, testReportImports, participantProfiles } from "../db/schema";
+import { organizations, organizationMembers, reportReservations, testReportImports, participantProfiles, notificationOutbox } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { canonicalizeCredential, canonicalizeCredentialRevision, createCredentialRevision, createCredential, getCredential, publicCredentialDocument, createApiKey, authenticateApiRequest, submitIssuerApplication, reviewIssuerApplication, onboardOrganization, completeWorkspaceDetails } from "../lib/tec";
 import { createIssuerKeyChallenge, verifyIssuerKeyChallenge, reviewIssuerVerificationCheck } from "../lib/issuer-verification";
@@ -99,11 +99,14 @@ describe("isolated real backend with D1/R2 and Ed25519",()=>{
   expect(record!.results.map(r=>r.resultText)).toEqual(["ND","NR"]);expect(record!.results.every(r=>r.numericValue===null)).toBe(true);
   expect(record!.credential.issuedAt).not.toBe(payload.testedAt);
   const notices=await env.DB.prepare("SELECT id FROM organization_notifications WHERE event_type='credential.issued' AND entity_id=?").bind(a.tecrid).all();expect(notices.results).toHaveLength(1);
+  expect((await getDb().select().from(notificationOutbox).where(eq(notificationOutbox.entityId,a.tecrid))).some(e=>e.eventType==="credential.issued")).toBe(true);
   for(const action of ["correct","revoke"]) {
    const change={...payload,action,reason:"Synthetic revision check"};const canonical=await canonicalizeCredentialRevision(lab,a.tecrid,change);
    await createCredentialRevision(lab,null,a.tecrid,{...change,proof:await sign(canonical.canonicalPayload)});
   }
   const revoked=await getCredential(a.tecrid);expect(revoked!.credential.status).toBe("revoked");expect(revoked!.versions).toHaveLength(3);expect(revoked!.integrity.issuerSignatureVerified).toBe(true);
+  const events=await getDb().select().from(notificationOutbox).where(eq(notificationOutbox.entityId,a.tecrid));
+  expect(events.map(e=>e.eventType)).toEqual(expect.arrayContaining(["credential.issued","credential.corrected","credential.revoked"]));
  });
  it("redacts controlled findings from resolver AND version history",async()=>{
   const input={...payload,visibility:"controlled" as const};const proof=await sign(canonicalizeCredential(input).canonicalPayload);
@@ -123,7 +126,9 @@ describe("isolated real backend with D1/R2 and Ed25519",()=>{
   const original=await getLegacyDocument(brandUser,made.id);expect(await original!.object.text()).toBe("%PDF-1.7 synthetic test only");
   const token=made.confirmationPath.split("/").pop()!;
   await expect(claimLegacyReport({...user,email:"wrong@example.test"},token)).rejects.toThrow();
-  await claimLegacyReport(user,token);const canonical=await getLegacySigningPayload(user,token);const proof=await sign(canonical.canonicalPayload);
+  await claimLegacyReport(user,token);
+  expect((await getDb().select().from(notificationOutbox).where(eq(notificationOutbox.entityId,made.id))).some(e=>e.eventType==="credential.claimed")).toBe(true);
+  const canonical=await getLegacySigningPayload(user,token);const proof=await sign(canonical.canonicalPayload);
   await expect(issueLegacyReport(user,token,proof)).rejects.toThrow(/publish/);
   const issued=await issueLegacyReport(user,token,proof,true);expect((await issueLegacyReport(user,token,proof,true)).tecrid).toBe(issued.tecrid);
   const record=await getCredential(issued.tecrid);expect(record!.credential.testedAt).toBe(payload.testedAt);expect(record!.credential.sourceDocumentHash).toBe(made.sourceSha256);

@@ -2753,3 +2753,17 @@ td:first-child { display: flex; align-items: center; gap: 10px; color: var(--ink
 
 /* The protected credential is an in-browser card, not a file unlock. */
 .tecrid-digital-card{border:2px solid #203e35;border-radius:16px;overflow:hidden;background:#f8faf6;padding:28px;margin:28px 0;scroll-margin-top:30px}.tecrid-digital-card.is-locked{border-style:dashed}.tecrid-card-state{padding:12px 16px;background:#e1ebe1;border-radius:8px;font-weight:700;margin:16px 0}.tecrid-card-identity{padding:16px 0;border-bottom:1px solid #ced8cd}.tecrid-card-identity h3{font-size:28px;margin:8px 0}.tecrid-card-identity code,.tecrid-card-proof code{overflow-wrap:anywhere;font-size:12px}.tecrid-card-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding:20px 0}.tecrid-card-facts dt{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#55655b}.tecrid-card-facts dd{margin:6px 0 0;font-weight:600;overflow-wrap:anywhere}.tecrid-card-proof{border-top:1px solid #ced8cd;margin-top:20px;padding-top:20px}.tecrid-digital-card caption{text-align:left;font-weight:700;padding:12px 0}@media(max-width:700px){.tecrid-card-facts{grid-template-columns:1fr 1fr}.tecrid-digital-card{padding:18px}.tecrid-card-identity h3{font-size:23px}}
+
+.notification-settings { display:grid; gap:1rem; margin:1.5rem; }
+.notification-settings form { display:grid; gap:.75rem; border-top:1px solid #cbd5e1; padding-top:1rem; }
+.notification-settings label { display:grid; gap:.3rem; }
+.notification-settings input { padding:.75rem; border:1px solid #64748b; border-radius:.35rem; color:#123; background:#fff; }
+.notification-settings button { padding:.7rem 1rem; border-radius:.35rem; border:1px solid currentColor; cursor:pointer; }
+.notification-settings button:disabled { opacity:.5; cursor:wait; }
+.notification-settings li { margin:.75rem 0; }
+.notification-settings li button { margin:.25rem; }
+.notification-settings pre { overflow:auto; max-width:100%; }
+.notification-log { overflow:auto; max-width:100%; }
+.notification-log table { border-collapse:collapse; width:100%; }
+.notification-log th,.notification-log td { text-align:left; padding:.75rem; border-bottom:1px solid #cbd5e1; vertical-align:top; }
+.notification-log small { display:block; overflow-wrap:anywhere; }

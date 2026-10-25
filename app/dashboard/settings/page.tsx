@@ -46,6 +46,11 @@ export default async function DashboardSettingsPage() {
 
         <ProfileSettingsForm organization={{ name: data.organization.name, code: data.organization.issuerCode, website: data.organization.website }} profile={profile} />
 
+        <section className="settings-integration-card">
+          <div><h2>Notifications</h2><p>Choose where your organization receives alerts.</p></div>
+          <a href="/dashboard/notifications">Phone, email and webhooks</a>
+        </section>
+
         <ApiKeyPanel keys={data.keys} />
 
         <section className="settings-integration-card">

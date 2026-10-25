@@ -1,0 +1,12 @@
+
+> tec-registry@0.1.0 test:unit
+> vitest run --maxWorkers=2
+
+
+ RUN  v4.1.11 /Users/kmfp/Documents/Codex/2026-10-25/you-are-conductor-the-single-codex/work/tecrid
+
+
+ Test Files  24 passed (24)
+      Tests  84 passed (84)
+   Start at  18:52:24
+   Duration  18.21s (transform 955ms, setup 0ms, import 6.49s, tests 19.20s, environment 6.35s)

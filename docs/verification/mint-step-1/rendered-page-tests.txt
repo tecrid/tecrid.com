@@ -1,0 +1,31 @@
+✔ renders the TEC Registry public product (141.849875ms)
+✔ publishes focused search-intent pages, the laboratory go-time pack, and agent-guided setup (203.824375ms)
+✔ publishes a claim-narrow TECRID FAQ with the VLE diligence boundary (33.976834ms)
+✔ locks laboratory approval behind evidence, key-control, and conformance gates (1.101625ms)
+✔ defines TECRID for people, search engines, and AI answer systems (69.918458ms)
+✔ publishes a portable, minification-safe TECRID identity mark and email-signature workflow (24.912834ms)
+✔ renders pricing and API documentation (25.75225ms)
+✔ publishes privacy boundaries that match controlled TECRID workflows (28.900208ms)
+✔ keeps durable infrastructure, proof enforcement, and production metadata wired (2.062417ms)
+✔ explains and exposes the honest historical-report intake path (26.594917ms)
+✔ resolves a reserved sample TECRID without asserting laboratory authority (68.188166ms)
+✔ renders an isolated fictional lab and two complete dummy findings (61.469542ms)
+✔ renders a multi-party portal with personal sandbox and API-key boundaries (43.440333ms)
+✔ wires controller-gated evidence routing for certifiers, retailers, and government (26.815792ms)
+✔ wires two-pass report marking, controller receipts, legacy API intake, and source-linked insights (29.360917ms)
+✔ renders the disclosure-operations wedge as workflow rather than an unproven savings claim (22.121333ms)
+✔ wires durable disclosure intake, publication gates, public JSON, and honest authority labels (1.216375ms)
+✔ renders public verification and an honest laboratory dispute demonstration (41.966959ms)
+✔ wires append-only certification intake by share link, CSV, and scoped API (23.877958ms)
+✔ wires recipient-bound evidence codes, opt-in participants, and safe result projection (22.675541ms)
+✔ gives authenticated organizations a role-aware workspace shell and a real settings destination (0.557917ms)
+✔ public marketing pages declare their own self-referencing canonical (114.119208ms)
+✔ all eight Kasandrinos report views expose source metadata while keeping findings gated (172.393834ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1310.434667

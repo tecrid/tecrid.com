@@ -1,0 +1,43 @@
+// @vitest-environment node
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { Miniflare } from "miniflare";
+import { readdirSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { createECDH } from "node:crypto";
+import { createRequire } from "node:module";
+import webPush from "web-push";
+import { env } from "./support/cloudflare-env";
+import { getDb } from "../db";
+import { organizations, organizationMembers, organizationNotifications } from "../db/schema";
+import { saveNotificationChannel } from "../lib/notification-delivery";
+const ece = createRequire(import.meta.url)("http_ece");
+const calls: { url: string; headers: Headers; body: Uint8Array }[] = [];
+const receiver = createECDH("prime256v1"); receiver.generateKeys();
+const auth = Buffer.alloc(16, 4);
+const user = { userId: "worker-notify", email: "worker@example.test", displayName: "Fixture", fullName: "Fixture" };
+let mf: Miniflare;
+beforeAll(async () => {
+ const vapid = webPush.generateVAPIDKeys();
+ const bindings = { TECRID_CHANNEL_SECRET: Buffer.alloc(32, 3).toString("base64url"), TECRID_DELIVERY_ENABLED: "true", TECRID_DELIVERY_WORKER_SECRET: "isolated-worker-secret", TECRID_VAPID_PUBLIC_KEY: vapid.publicKey, TECRID_VAPID_PRIVATE_KEY: vapid.privateKey, TECRID_VAPID_SUBJECT: "mailto:fixture@example.org" };
+ mf = new Miniflare({ modulesRoot: resolve("dist/server"), modules: [{ type: "ESModule", path: resolve("dist/server/index.js") }, ...readdirSync("dist/server", { recursive: true }).filter((file): file is string => typeof file === "string" && file.endsWith(".js") && file !== "index.js").map(file => ({ type: "ESModule" as const, path: resolve("dist/server", file) }))], compatibilityDate: "2026-05-22", compatibilityFlags: ["nodejs_compat"], d1Databases: ["DB"], bindings, outboundService: async (request: Request) => { calls.push({ url: request.url, headers: request.headers, body: new Uint8Array(await request.arrayBuffer()) }); return new Response(null, { status: 201 }); } });
+ env.DB = await mf.getD1Database("DB"); Object.assign(env, bindings);
+ for (const file of readdirSync("drizzle").filter(x => x.endsWith(".sql")).sort()) for (const statement of readFileSync(`drizzle/${file}`, "utf8").split("--> statement-breakpoint").filter(x => x.trim())) await env.DB.prepare(statement).run();
+ await getDb().insert(organizations).values({ id: user.userId, name: "Fixture", slug: user.userId, organizationType: "brand", ownerUserId: user.userId, ownerEmail: user.email, issuerCode: "WORKER" });
+ await getDb().insert(organizationMembers).values({ organizationId: user.userId, userId: user.userId, email: user.email, role: "owner" });
+ await saveNotificationChannel(user, { kind: "push", label: "Isolated phone", subscription: { endpoint: "https://web.push.apple.com/FixtureOnly", keys: { p256dh: receiver.getPublicKey().toString("base64url"), auth: auth.toString("base64url") } } });
+ await getDb().insert(organizationNotifications).values({ id: "worker-push", organizationId: user.userId, eventType: "laboratory_report.received", title: "SENSITIVE", body: "SENSITIVE", entityId: "fixture", entityType: "credential", actionPath: "/dashboard/evidence-routing", createdAt: new Date().toISOString() });
+}, 60000);
+afterAll(async () => { await mf?.dispose(); });
+it("requires the worker secret and sends decryptable Web Push in the built Cloudflare Worker", async () => {
+ const denied = await mf.dispatchFetch("https://tecrid.com/api/internal/notification-worker", { method: "POST" });
+ expect(denied.status).toBe(403);
+ const response = await mf.dispatchFetch("https://tecrid.com/api/internal/notification-worker", { method: "POST", headers: { authorization: "Bearer isolated-worker-secret" } });
+ expect(response.status).toBe(200);
+ expect(await response.json()).toEqual({ enabled: true, processed: 1 });
+ expect(calls).toHaveLength(1);
+ expect(calls[0].headers.get("authorization")).toMatch(/^vapid /);
+ const plain = ece.decrypt(Buffer.from(calls[0].body), { version: "aes128gcm", privateKey: receiver, authSecret: auth });
+ const payload = JSON.parse(plain.toString());
+ expect(payload).toEqual({ eventId: "notification:worker-push", event: "laboratory_report.received", sku: null, url: "https://tecrid.com/dashboard/evidence-routing" });
+ console.info("PUSH_PAYLOAD_PROOF " + plain.toString());
+}, 30000);
