@@ -1,0 +1,51 @@
+{
+  "producerBlob": "7d17a38712923077234b5c184f7e0c0206e22e9b",
+  "consumerBlob": "099f0bef24405e2eff54eef85665eb8f046994c2",
+  "checks": [
+    {
+      "name": "current producer schema is rejected with 422",
+      "passed": true
+    },
+    {
+      "name": "notification-only schema is rejected with 422",
+      "passed": true
+    },
+    {
+      "name": "ASCII synthetic consumer control is accepted",
+      "passed": true
+    },
+    {
+      "name": "native middle-dot TECRID is rejected with 400",
+      "passed": true
+    },
+    {
+      "name": "native lifecycle event ID is rejected with 400",
+      "passed": true
+    },
+    {
+      "name": "missing signed originating supplier is rejected with 400",
+      "passed": true
+    },
+    {
+      "name": "missing public-status consent is rejected with 403",
+      "passed": true
+    },
+    {
+      "name": "missing program is rejected with 400",
+      "passed": true
+    },
+    {
+      "name": "missing explicit downstream scope is rejected with 400",
+      "passed": true
+    },
+    {
+      "name": "HMAC-valid producer body still fails schema with 422",
+      "passed": true
+    }
+  ],
+  "passed": 10,
+  "failed": 0,
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "note": "Passing checks characterize incompatibility; they do not claim end-to-end delivery."
+}

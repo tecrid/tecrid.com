@@ -1,5 +1,7 @@
 # VLE recipient webhook contract
 
+**Review blocker:** this document describes the existing `tecrid.delivery/1` producer. It does not yet implement the accepted `vle-evidence/1` consumer contract. See [the field-by-field alignment audit and ASK](verification/mint-contract-alignment/README.md). The receiver must stay off.
+
 Order TECRID-MINT-TO-PHONE-1, step 4. VLE registers a `marketplace` organization. Its identity must be verified, and the controlling brand or supplier must approve the recipient's grant and select it in a laboratory standing authorization. The configurable terms gate applies when enabled. Register an organization webhook in `/dashboard/notifications`; an operator must approve the exact HTTPS hostname. Save the secret when shown once. No VLE endpoint is implemented in this PR.
 
 ## Envelope
