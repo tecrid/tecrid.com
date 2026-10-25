@@ -73,6 +73,7 @@ export function WorkspaceSidebar({ organization, progress, user, signOutHref }: 
     ...(organization.plan === "founding" ? [["/dashboard/founding", "Founding launch"]] : []),
     ["/dashboard/settings", "Profile & settings"],
     ["/dashboard/notifications", "Phone, email and webhooks"],
+    ["/dashboard/organization-access", "Recipient access status"],
   ];
 
   const menu = (

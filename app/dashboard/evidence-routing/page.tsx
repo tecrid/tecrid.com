@@ -1,3 +1,4 @@
+import { grantDeliveryGate } from "../../../lib/organization-access";
 import type { Metadata } from "next";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { listEvidenceRoutingForUser } from "../../../lib/evidence-routing";
@@ -22,14 +23,15 @@ export default async function EvidenceRoutingPage() {
     direction: request.controllerOrganizationId === organizationId ? "inbound" : "outbound",
     analytes: request.analyteScopeJson ? JSON.parse(request.analyteScopeJson) as string[] : [],
   }));
-  const grants = data.grants.map((grant) => ({
+  const grants = await Promise.all(data.grants.map(async (grant) => ({
+    gate: await grantDeliveryGate(grant),
     ...grant,
     controllerName: name(grant.controllerOrganizationId),
     recipientName: name(grant.recipientOrganizationId),
     recipientCode: code(grant.recipientOrganizationId),
     isController: grant.controllerOrganizationId === organizationId,
     analytes: grant.analyteScopeJson ? JSON.parse(grant.analyteScopeJson) as string[] : [],
-  }));
+  })));
   const deliveries = data.deliveries.map((delivery) => {
     const snapshot = JSON.parse(delivery.snapshotJson) as {
       subject?: { sampleName?: string };

@@ -457,8 +457,9 @@ export async function deliverCredentialWithAuthorization(
     controllerReceipt = { id: receiptId, snapshotFingerprint, created: true };
   }
   for (const grant of authorizationRecord.grants) {
-    const [existing] = await db.select({ id: evidenceDeliveries.id }).from(evidenceDeliveries).where(and(eq(evidenceDeliveries.grantId, grant.id), eq(evidenceDeliveries.credentialIdentifier, record.credential.identifier))).limit(1);
+    const [existing] = await db.select({ id: evidenceDeliveries.id }).from(evidenceDeliveries).where(and(eq(evidenceDeliveries.grantId, grant.id), ...(grant.deliveryMode === "one_time" ? [] : [eq(evidenceDeliveries.credentialIdentifier, record.credential.identifier)]))).limit(1);
     if (existing) continue;
+    if (!(await (await import("./organization-access")).grantDeliveryGate(grant)).ungated) continue;
     const snapshotJson = JSON.stringify(documentForGrant(record, grant));
     const snapshotFingerprint = await sha256(snapshotJson);
     const deliveryId = crypto.randomUUID();
@@ -501,7 +502,6 @@ export async function deliverCredentialWithAuthorization(
       entityId: deliveryId,
       createdAt: deliveredAt,
     }),
-    ...(grant.deliveryMode === "one_time" ? [db.update(evidenceAccessGrants).set({ status: "fulfilled" }).where(eq(evidenceAccessGrants.id, grant.id))] : []),
     ]);
     delivered.push({ recipientOrganizationId: grant.recipientOrganizationId, grantId: grant.id, accessLevel: grant.accessLevel, snapshotFingerprint });
   }

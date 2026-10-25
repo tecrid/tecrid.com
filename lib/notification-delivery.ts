@@ -153,7 +153,7 @@ export async function processNotificationOutbox(options: { testEventId?: string;
       ]);
     }
   }
-  const due = and(lte(notificationDeliveries.nextAttemptAt, stamp), or(eq(notificationDeliveries.status, "queued"), eq(notificationDeliveries.status, "retry"), and(eq(notificationDeliveries.status, "sending"), lte(notificationDeliveries.leaseUntil, stamp))), options.testEventId ? eq(notificationDeliveries.eventId, options.testEventId) : undefined);
+  const due = and(lte(notificationDeliveries.nextAttemptAt, stamp), or(eq(notificationDeliveries.status, "queued"), eq(notificationDeliveries.status, "retry"), eq(notificationDeliveries.status, "blocked"), and(eq(notificationDeliveries.status, "sending"), lte(notificationDeliveries.leaseUntil, stamp))), options.testEventId ? eq(notificationDeliveries.eventId, options.testEventId) : undefined);
   const jobs = await db.select().from(notificationDeliveries).where(due).limit(20);
   let processed = 0;
   // Bounded parallel dispatch keeps a slow endpoint from delaying every phone.
@@ -166,6 +166,11 @@ export async function processNotificationOutbox(options: { testEventId?: string;
     const ownedLease = and(eq(notificationDeliveries.id, job.id), eq(notificationDeliveries.leaseToken, leaseToken));
     if (!channel?.active || !event || channel.organizationId !== event.organizationId) {
       await db.update(notificationDeliveries).set({ status: "canceled", leaseUntil: null, leaseToken: null }).where(ownedLease);
+      return;
+    }
+    const gate = await (await import("./organization-access")).recipientEventGate(event);
+    if (!gate.ungated) {
+      await db.update(notificationDeliveries).set({ status: "blocked", attempts: sql`${notificationDeliveries.attempts} - 1`, nextAttemptAt: new Date(at + 15_000).toISOString(), lastError: gate.reasons.join(" "), leaseUntil: null, leaseToken: null }).where(ownedLease);
       return;
     }
     let statusCode: number | null = null;

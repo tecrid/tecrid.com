@@ -1,0 +1,13 @@
+
+> tec-registry@0.1.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.11 /Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/tecrid
+
+
+ Test Files  20 passed (20)
+      Tests  80 passed (80)
+   Start at  08:44:14
+   Duration  17.52s (transform 4.43s, setup 0ms, import 18.55s, tests 70.49s, environment 11.39s)
+
