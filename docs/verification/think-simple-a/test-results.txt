@@ -1,0 +1,226 @@
+
+> tec-registry@0.1.0 test
+> npm run build && npm run test:rendered && npm run test:unit
+
+
+> tec-registry@0.1.0 build
+> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build
+
+
+  vinext build  (Vite 8.0.13)
+
+[1/5] analyze client references...
+[2Ktransforming...✓ 1261 modules transformed.
+rendering chunks...
+✓ built in 1.63s
+[2/5] analyze server references...
+[2Ktransforming...✓ 161 modules transformed.
+rendering chunks...
+✓ built in 234ms
+[3/5] build rsc environment...
+[2Ktransforming...✓ 1259 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 1.62s
+[4/5] build client environment...
+[2Ktransforming...✓ 165 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 491ms
+[5/5] build ssr environment...
+[2Ktransforming...✓ 162 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 431ms
+[0m
+  Route (app)
+  ┌ ? /                                                           
+  ├ ƒ /admin/founding                                             
+  ├ ƒ /admin/issuers                                              
+  ├ ƒ /admin/reports                                              
+  ├ λ /api/admin/issuer-applications/:applicationId               
+  ├ λ /api/admin/issuer-applications/:applicationId/checks        
+  ├ λ /api/auth/:path+                                            
+  ├ λ /api/certification/intakes/:intakeId/manifest               
+  ├ λ /api/certification/programs                                 
+  ├ λ /api/certification/submit/:token                            
+  ├ λ /api/credentials                                            
+  ├ λ /api/disclosures/:batchId/publish                           
+  ├ λ /api/disclosures/import                                     
+  ├ λ /api/disputes                                               
+  ├ λ /api/disputes/:caseId/manifest                              
+  ├ λ /api/email-signout                                          
+  ├ λ /api/evidence-routing/authorizations                        
+  ├ λ /api/evidence-routing/authorizations/:authorizationId/revoke
+  ├ λ /api/evidence-routing/grants/:grantId/revoke                
+  ├ λ /api/evidence-routing/requests                              
+  ├ λ /api/evidence-routing/requests/:requestId/response          
+  ├ λ /api/evidence-sharing/codes                                 
+  ├ λ /api/evidence-sharing/codes/:codeId/revoke                  
+  ├ λ /api/founding-onboarding                                    
+  ├ λ /api/integrations/vle/notifications                         
+  ├ λ /api/issuer-application                                     
+  ├ λ /api/issuer-application/evidence                            
+  ├ λ /api/issuer-application/evidence/:documentId                
+  ├ λ /api/issuer-application/key-challenge                       
+  ├ λ /api/issuer-application/key-challenge/verify                
+  ├ λ /api/kasandrinos-test                                       
+  ├ λ /api/keys                                                   
+  ├ λ /api/laboratory-invitations                                 
+  ├ λ /api/legacy-reports                                         
+  ├ λ /api/legacy-reports/:reportId                               
+  ├ λ /api/legacy-reports/:reportId/document                      
+  ├ λ /api/legacy-reports/confirm/:token                          
+  ├ λ /api/legacy-reports/confirm/:token/canonical                
+  ├ λ /api/notifications                                          
+  ├ λ /api/onboarding                                             
+  ├ λ /api/participant-profile                                    
+  ├ λ /api/public/disclosures/:organizationSlug                   
+  ├ λ /api/public/disclosures/:organizationSlug/:batchId          
+  ├ λ /api/sandbox/keys                                           
+  ├ λ /api/sandbox/lab/reports                                    
+  ├ λ /api/sandbox/lab/reports/:identifier                        
+  ├ λ /api/sandbox/session                                        
+  ├ λ /api/sandbox/v1/scenario                                    
+  ├ λ /api/sandbox/v1/vle-evidence                                
+  ├ λ /api/stripe/webhook                                         
+  ├ λ /api/test-reports/:identifier/card                          
+  ├ λ /api/test-reports/:identifier/document                      
+  ├ λ /api/test-reports/:identifier/results                       
+  ├ λ /api/v1/certification/submissions                           
+  ├ λ /api/v1/credentials                                         
+  ├ λ /api/v1/credentials/:identifier                             
+  ├ λ /api/v1/credentials/:identifier/canonicalize                
+  ├ λ /api/v1/credentials/:identifier/versions                    
+  ├ λ /api/v1/credentials/canonicalize                            
+  ├ λ /api/v1/health                                              
+  ├ λ /api/v1/insights                                            
+  ├ λ /api/v1/issuers/:issuerCode                                 
+  ├ λ /api/v1/legacy-reports                                      
+  ├ λ /api/v1/report-reservations                                 
+  ├ λ /api/v1/report-reservations/:reservationId/finalize         
+  ├ λ /api/v1/routing/deliveries                                  
+  ├ λ /api/v1/share-codes/redeem                                  
+  ├ λ /api/verification/check                                     
+  ├ λ /api/workspace-details                                      
+  ├ ? /badge                                                      
+  ├ ƒ /certify/:token                                             
+  ├ ƒ /confirm/:token                                             
+  ├ ƒ /dashboard                                                  
+  ├ ƒ /dashboard/certification                                    
+  ├ ƒ /dashboard/certification/:intakeId                          
+  ├ ƒ /dashboard/credentials/new                                  
+  ├ ƒ /dashboard/disclosures                                      
+  ├ ƒ /dashboard/evidence-routing                                 
+  ├ ƒ /dashboard/founding                                         
+  ├ ƒ /dashboard/insights                                         
+  ├ ƒ /dashboard/issuance                                         
+  ├ ƒ /dashboard/kasandrinos                                      
+  ├ ƒ /dashboard/lab-defense                                      
+  ├ ƒ /dashboard/lab-defense/:caseId                              
+  ├ ƒ /dashboard/laboratory                                       
+  ├ ƒ /dashboard/reports/:reportId                                
+  ├ ƒ /dashboard/reports/new                                      
+  ├ ƒ /dashboard/settings                                         
+  ├ ƒ /dashboard/setup                                            
+  ├ ƒ /dashboard/sharing                                          
+  ├ ? /demo                                                       
+  ├ ? /demo/avocado-oil                                           
+  ├ ? /demo/disclosure-operations                                 
+  ├ ? /demo/heavy-metals                                          
+  ├ ? /demo/lab                                                   
+  ├ ? /demo/lab-defense                                           
+  ├ ? /developers                                                 
+  ├ ƒ /disclosures/:organizationSlug                              
+  ├ ƒ /disclosures/:organizationSlug/:batchId                     
+  ├ ? /faq                                                        
+  ├ ? /for-brands                                                 
+  ├ ? /for-certifiers-retailers                                   
+  ├ ? /for-laboratories                                           
+  ├ ? /integrate                                                  
+  ├ ƒ /issuers                                                    
+  ├ ƒ /issuers/:issuerCode                                        
+  ├ ƒ /join                                                       
+  ├ ƒ /join/success                                               
+  ├ ? /laboratory-go-time                                         
+  ├ ? /laboratory-pilot                                           
+  ├ ? /laboratory-value                                           
+  ├ ƒ /notifications                                              
+  ├ ƒ /participants                                               
+  ├ ƒ /participants/:issuerCode                                   
+  ├ ? /pricing                                                    
+  ├ ? /privacy                                                    
+  ├ ƒ /records/:identifier                                        
+  ├ ƒ /sample-lab                                                 
+  ├ ƒ /sandbox                                                    
+  ├ ƒ /sign-in                                                    
+  ├ ƒ /sign-out                                                   
+  ├ ? /standard                                                   
+  ├ ƒ /submit-report                                              
+  ├ ƒ /verification/receipts/:receiptId                           
+  ├ ? /verify                                                     
+  ├ ƒ /welcome                                                    
+  ├ ? /what-is-a-tecrid                                           
+  └ ? /why                                                        
+
+  λ API  ƒ Dynamic  ? Unknown
+
+  ? Some routes could not be classified. vinext currently uses static analysis
+    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.
+    Automatic classification will be improved in a future release.
+
+  Build complete. Run `vinext start` to start the production server.
+
+
+> tec-registry@0.1.0 test:rendered
+> node --import ./tests/support/register-worker-env.mjs --test tests/rendered-html.test.mjs tests/www-redirect.test.mjs
+
+✔ keeps the thin homepage hero content-sized and omits editor UI for anonymous visitors (1328.088834ms)
+✔ renders the TEC Registry public product (28.340666ms)
+✔ publishes focused search-intent pages, the laboratory go-time pack, and agent-guided setup (225.995125ms)
+✔ publishes a claim-narrow TECRID FAQ with the VLE diligence boundary (40.15825ms)
+✔ locks laboratory approval behind evidence, key-control, and conformance gates (1.813583ms)
+✔ defines TECRID for people, search engines, and AI answer systems (78.423542ms)
+✔ publishes a portable, minification-safe TECRID identity mark and email-signature workflow (26.888333ms)
+✔ renders email-first free signup and API documentation (29.848959ms)
+✔ publishes privacy boundaries that match controlled TECRID workflows (27.284416ms)
+✔ keeps durable infrastructure, proof enforcement, and production metadata wired (1.74625ms)
+✔ explains and exposes the honest historical-report intake path (25.304ms)
+✔ resolves a reserved sample TECRID without asserting laboratory authority (78.284125ms)
+✔ renders an isolated fictional lab and two complete dummy findings (73.080167ms)
+✔ renders a multi-party portal with personal sandbox and API-key boundaries (47.939209ms)
+✔ wires controller-gated evidence routing for certifiers, retailers, and government (41.444708ms)
+✔ wires two-pass report marking, controller receipts, legacy API intake, and source-linked insights (38.576708ms)
+✔ renders the disclosure-operations wedge as workflow rather than an unproven savings claim (25.340541ms)
+✔ wires durable disclosure intake, publication gates, public JSON, and honest authority labels (1.002ms)
+✔ renders public verification and an honest laboratory dispute demonstration (49.039834ms)
+✔ wires append-only certification intake by share link, CSV, and scoped API (26.906125ms)
+✔ wires recipient-bound evidence codes, opt-in participants, and safe result projection (26.115875ms)
+✔ gives authenticated organizations a role-aware workspace shell and a real settings destination (0.83575ms)
+✔ public marketing pages declare their own self-referencing canonical (133.725625ms)
+✔ all eight Kasandrinos report views expose source metadata while keeping findings gated (212.35825ms)
+✔ www redirects / before routing (33.684542ms)
+✔ www redirects /faq?source=www&value=a%2Fb before routing (0.362875ms)
+✔ www redirects /api/v1/records?x=1&x=2 before routing (0.204541ms)
+✔ www redirects /_vinext/image?url=%2Flogo.png&w=640 before routing (0.189708ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2739.553791
+
+> tec-registry@0.1.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.11 /Users/kmfp/Documents/ChatGPT/TECRID/think-simple-tecrid-a
+
+
+ Test Files  20 passed (20)
+      Tests  72 passed (72)
+   Start at  10:22:32
+   Duration  5.50s (transform 1.90s, setup 0ms, import 9.76s, tests 15.73s, environment 8.84s)
+

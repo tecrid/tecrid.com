@@ -27,7 +27,7 @@ afterEach(cleanup);
 
 describe("laboratory verification progress", () => {
   it.each([
-    ["submitted", "ICS review in progress"],
+    ["submitted", "We're verifying your lab, usually 1 business day"],
     ["needs_information", "Update verification application"],
     ["rejected", "Submit a replacement application"],
   ])("renders the %s dashboard action", async (applicationStatus, expected) => {
@@ -56,6 +56,8 @@ describe("laboratory verification progress", () => {
       user={{ displayName: "Lab User", email: "lab@example.com" }}
       signOutHref="/signout"
     />);
-    assert.ok(screen.getAllByRole("link", { name: expected }).length >= 1);
+    const navigation = screen.getByRole("navigation", { name: "Workspace navigation" });
+    assert.deepEqual([...navigation.querySelectorAll("a")].map(link => link.textContent), ["Home", "Issue", "Approvals", "Settings"]);
+    assert.equal(navigation.querySelectorAll("a").length, 4);
   });
 });

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { SAMPLE_TECRID } from "../lib/sample-tecrid";
+import { RolePicker } from "./role-picker";
 import { ProductFooter, ProductNav } from "./site-nav";
-import { EvidenceValue } from "./evidence-value";
 
 const results = [
   { analyte: "Lead", symbol: "Pb", result: "42", unit: "µg/kg", loq: "10" },
@@ -58,6 +58,8 @@ export default function Home() {
 
       </section>
 
+      <RolePicker />
+
       <section className="home-evidence-context" aria-labelledby="home-definition-title">
         <div>
           <p className="section-kicker">The permanent reference</p>
@@ -65,15 +67,9 @@ export default function Home() {
           <p>A <strong>TECRID</strong>—Test Evidence Credential Record Identifier—is a persistent identifier and verification record for laboratory reports, with access governed by the record’s disclosure settings.</p>
           <p className="evidence-principles">Issuer signature required · Versions preserved · Visibility controlled</p>
         </div>
-        <div className="home-commercial-paths">
-          <p>Free core trust. Commercial value through VLE QUALIFIED and HMTc certification.</p>
-          <a href="https://vle.exchange/for-suppliers">Explore VLE QUALIFIED ↗</a>
-          <a href="https://heavymetalcertified.com/apply">Apply for HMTc certification ↗</a>
-        </div>
         <p className="evidence-keywords">Verifiable laboratory reports · Certificate of Analysis authentication · Contaminant testing records · Secure evidence sharing</p>
       </section>
 
-      <EvidenceValue />
 
       <section className="protocol-section home-protocol" id="how-it-works" aria-labelledby="protocol-title">
         <div className="protocol-intro">
@@ -87,16 +83,6 @@ export default function Home() {
           <li><span>02</span><div><strong>The registry verifies</strong><p>The API verifies the laboratory’s Ed25519 signature against its reviewed key, assigns the TECRID, and preserves the version fingerprint.</p></div></li>
           <li><span>03</span><div><strong>The evidence resolves</strong><p>Brands, certifiers, retailers, regulators, and the public see only the record and fields they are authorized to receive.</p></div></li>
         </ol>
-      </section>
-
-      <section className="home-audience-section" aria-labelledby="audience-title">
-        <div className="home-audience-intro"><p className="section-kicker">Who TECRID serves</p><h2 id="audience-title">One evidence layer.<br />Four different jobs.</h2><p>TECRID reduces repeated document handling without pretending that every participant needs the same view or authority.</p></div>
-        <div className="home-audience-grid">
-          <a href="/for-laboratories"><span>Laboratories</span><h3>Issue once. Fewer phone calls. More sealed volume.</h3><p>Give customers a signed record they can reuse, so your team spends less time confirming PDFs. As buyers request TECRID-linked evidence, your laboratory gains a path to more testing of independently sealed samples. Pilots must establish the volume gained.</p><strong>For laboratories →</strong></a>
-          <a href="/for-brands"><span>Brands &amp; suppliers</span><h3>Replace scattered COAs with a governed portfolio.</h3><p>Organize laboratory evidence by SKU and lot, review trends, and control who receives private findings.</p><strong>For brands →</strong></a>
-          <a href="/for-certifiers-retailers"><span>Counsel, certifiers &amp; retailers</span><h3>Stop reconciling folders of PDFs.</h3><p>Reduce discovery friction: resolve the issuer, lot, current status, and correction history from one scoped record.</p><strong>For evidence recipients →</strong></a>
-          <a href="/developers"><span>Technology teams</span><h3>Connect LIMS, portals, and procurement systems.</h3><p>Canonicalize, sign, issue, resolve, route, and monitor evidence through the implemented API.</p><strong>Build with TECRID →</strong></a>
-        </div>
       </section>
 
       <section className="record-section" id="record" aria-labelledby="record-title">
@@ -119,11 +105,6 @@ export default function Home() {
       <section className="boundary-section" aria-labelledby="boundary-title">
         <div><p className="section-kicker">Trust boundaries</p><h2 id="boundary-title">What TECRID proves—and what it does not.</h2><a className="boundary-evidence-link" href="/why">Read the documented case for TECRID →</a></div>
         <div className="boundary-grid"><article><span>TECRID authenticates</span><p>Which registered laboratory signed a record, what that record contained at issuance, its current status, and its visible amendment history. A PDF or COA alone is not a TECRID.</p></article><article><span>TECRID controls disclosure</span><p>A record may be private, recipient-controlled, or public. A TECRID cannot be compelled into public visibility by another participant.</p></article><article><span>TECRID does not certify safety</span><p>It does not replace ISO/IEC 17025 accreditation, representative sampling, sound analytical methods, regulatory judgment, or expert interpretation.</p></article></div>
-      </section>
-
-      <section className="cta-section founding-pilot-cta">
-        <div><p className="section-kicker light">Founding laboratory pilot</p><h2>Help make laboratory evidence easier to trust and reuse.</h2><p>Verification and the controlled pilot are free. Public issuance begins only after identity, scope, key-control, and conformance gates pass.</p></div>
-        <div className="pilot-cta-actions"><a href="/laboratory-pilot">Review pilot requirements <span aria-hidden="true">↗</span></a><a href="/join?role=laboratory">Create a laboratory workspace <span aria-hidden="true">↗</span></a></div>
       </section>
 
       <ProductFooter />

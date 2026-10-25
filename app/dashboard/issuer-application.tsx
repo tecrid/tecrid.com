@@ -44,6 +44,7 @@ export function IssuerApplicationPanel({
   documents: EvidenceSummary[];
   checks: CheckSummary[];
 }) {
+  const [step, setStep] = useState(0);
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
   const [keyId, setKeyId] = useState("");
@@ -242,7 +243,11 @@ export function IssuerApplicationPanel({
     event.preventDefault();
     setPending(true);
     setMessage("");
+    const fieldsets = [...event.currentTarget.querySelectorAll("fieldset")];
+    const invalidStep = fieldsets.findIndex(group => [...group.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>("input, textarea, select")].some(field => !field.checkValidity()));
+    if (invalidStep !== -1) { setStep(invalidStep); setPending(false); setMessage("Complete the required details in this step."); return; }
     const form = new FormData(event.currentTarget);
+    try {
     const response = await fetch("/api/issuer-application", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -269,6 +274,7 @@ export function IssuerApplicationPanel({
     if (!response.ok) return setMessage(body.error ?? "Application failed.");
     setMessage("Application recorded. Reloading your workspace…");
     window.location.reload();
+    } catch { setPending(false); setMessage("We could not send your application. Your details are still here. Try again."); }
   }
 
   if (issuerStatus === "verified") {
@@ -353,26 +359,31 @@ export function IssuerApplicationPanel({
       </div>
       {canResubmit ? <div className="review-boundary"><strong>ICS requested a new application.</strong><span>{application.reviewNote || "Correct the application and submit the complete replacement record below."}</span></div> : null}
       <p className="panel-copy">ICS reviews the laboratory’s legal identity, analytical scope, accreditation evidence, responsible contact, and signing-key control. Approval applies only to the recorded scope.</p>
-      <form className="issuer-application-form" onSubmit={submit}>
+      <form className="issuer-application-form" onSubmit={submit} noValidate>
+        <p className="issuer-step-label">Step {step + 1} of 4: {["Your lab", "Accreditation", "Scope and contact", "Signing and confirmation"][step]}</p>
+        <fieldset hidden={step !== 0}>
         <label>Laboratory legal name<input name="legalName" required /></label>
         <label>Physical laboratory address<textarea name="laboratoryAddress" required rows={3} /></label>
         <div className="form-pair">
           <label>Laboratory website<input name="laboratoryWebsite" type="url" required placeholder="https://laboratory.example" /></label>
           <label>Your authority role<input name="authorityRole" required placeholder="Quality director, laboratory manager…" /></label>
         </div>
+        </fieldset><fieldset hidden={step !== 1}>
         <label>Accreditation status<select name="accreditationStatus" defaultValue="accredited" required><option value="accredited">Accredited for at least part of the requested scope</option><option value="in_process">Accreditation in process</option><option value="not_accredited">Not accredited — submit comparable competence evidence</option></select></label>
         <div className="form-pair">
           <label>Accreditation body<input name="accreditationBody" placeholder="Optional if not accredited" /></label>
           <label>Accreditation number<input name="accreditationNumber" /></label>
         </div>
         <label>Public accreditation record URL<input name="accreditationUrl" type="url" placeholder="https://…" /></label>
+        </fieldset><fieldset hidden={step !== 2}>
         <label>Requested issuance scope<textarea name="scopeSummary" required rows={4} placeholder="Matrices, analyte families, authenticity claims, exclusions…" /></label>
         <label>Method families<textarea name="methodFamilies" required rows={3} placeholder="ICP-MS, GC-FID sterol profile, LC-MS/MS…" /></label>
         <div className="form-pair">
           <label>Responsible contact<input name="contactName" required /></label>
           <label>Contact email<input name="contactEmail" type="email" required /></label>
         </div>
-        <details className="signing-key-details">
+        </fieldset><fieldset hidden={step !== 3}>
+        <details className="signing-key-details" open>
           <summary>Issuer signing key <span>required before approval</span></summary>
           <p>Submit only an Ed25519 public JWK. Never paste a private key. The registry verifies key control separately.</p>
           <div className="browser-key-generator">
@@ -386,7 +397,7 @@ export function IssuerApplicationPanel({
         </details>
         <label className="attestation-check"><input name="attested" type="checkbox" required /><span>I attest that this application is accurate and that payment has no bearing on the review outcome.</span></label>
         <p className="collection-notice">Application materials are restricted to issuer verification, registry integrity, support, and legal obligations; submitting them does not create a public laboratory profile. Review <a href="/privacy" target="_blank">Privacy &amp; Data Governance ↗</a>.</p>
-        <button className="button-dark" type="submit" disabled={pending}>{pending ? "Submitting…" : "Submit for ICS review →"}</button>
+        </fieldset><div className="issuer-step-actions">{step > 0 ? <button type="button" onClick={() => setStep(step - 1)}>Back</button> : null}{step < 3 ? <button className="button-dark" type="button" onClick={(event) => { const fields = event.currentTarget.form!.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>("fieldset:not([hidden]) input, fieldset:not([hidden]) textarea, fieldset:not([hidden]) select"); if ([...fields].every(field => field.reportValidity())) setStep(step + 1); }}>Continue</button> : <button className="button-dark" type="submit" disabled={pending}>{pending ? "Submitting…" : "Submit for ICS review →"}</button>}</div>
         <p className="form-message" role="status">{message}</p>
       </form>
     </section>

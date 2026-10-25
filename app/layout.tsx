@@ -1,9 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "./mobile.css";
 import "./notifications.css";
+import { getChatGPTUser } from "./chatgpt-auth";
+import { getOrganizationForUser } from "../lib/tec";
+import { organizationRole, parseRole, ROLE_COOKIE } from "../lib/roles";
+import { RoleProvider } from "./role-context";
+import "./simple.css";
 import { NotificationProvider } from "./notification-center";
 import { MobileNavigation } from "./mobile-navigation";
 import {
@@ -101,18 +106,22 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getChatGPTUser();
+  const membership = user ? await getOrganizationForUser(user.userId) : null;
+  const preference = parseRole((await cookies()).get(ROLE_COOKIE)?.value) ?? "public";
+  const role = membership ? organizationRole(membership.organization.organizationType) : preference;
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteIdentity).replaceAll("<", "\\u003c") }} />
-        <NotificationProvider>{children}<MobileNavigation /></NotificationProvider>
+        <RoleProvider initialRole={role} signedIn={!!user} hasWorkspace={!!membership}><NotificationProvider>{children}<MobileNavigation /></NotificationProvider></RoleProvider>
       </body>
     </html>
   );

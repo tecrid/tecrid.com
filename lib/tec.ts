@@ -1,3 +1,4 @@
+import { parseRole, roles } from "./roles";
 import { apiRequestScope, normalizeApiScopes } from "./api-scopes";
 import { and, asc, desc, eq, isNull, or } from "drizzle-orm";
 import { env } from "cloudflare:workers";
@@ -483,13 +484,16 @@ export async function listFoundingOnboardingForAdmin(user: ChatGPTUser) {
 
 export async function onboardOrganization(
   user: ChatGPTUser,
-  input: { name?: unknown; organizationType?: unknown; website?: unknown },
+  input: { name?: unknown; organizationType?: unknown; website?: unknown; role?: unknown },
 ) {
   const existing = await getOrganizationForUser(user.userId);
   if (existing) return existing;
 
-  const name = normalizeText(input.name);
-  const organizationType = normalizeText(input.organizationType, 32).toLowerCase();
+  const selectedRole = parseRole(input.role);
+  if (input.role !== undefined && !selectedRole) throw new TecInputError("Choose who you are.");
+  const deferred = !!selectedRole && !normalizeText(input.name);
+  const name = deferred ? (selectedRole === "public" ? "Your TECRID account" : `Your ${roles.find(role => role.id === selectedRole)?.label.toLowerCase()} workspace`) : normalizeText(input.name);
+  const organizationType = selectedRole ? (selectedRole === "public" ? "other" : selectedRole) : normalizeText(input.organizationType, 32).toLowerCase();
   const website = normalizeText(input.website, 300) || null;
 
   if (name.length < 2) throw new TecInputError("Organization name is required.");
@@ -509,7 +513,7 @@ export async function onboardOrganization(
   const organizationId = `org_${crypto.randomUUID().replaceAll("-", "")}`;
   const createdAt = now();
   const issuerCode = issuerCodeFor(name);
-  const slug = `${slugify(name) || "organization"}-${randomCharacters(4).toLowerCase()}`;
+  const slug = `${deferred ? "setup-" : slugify(name) || "organization"}-${crypto.randomUUID().slice(0, 8)}`;
 
   await db.insert(organizations).values({
     id: organizationId,
@@ -1953,4 +1957,22 @@ export async function processStripeEvent(event: {
     processedAt: now(),
   });
   return { processed: false };
+}
+
+export async function completeWorkspaceDetails(user: ChatGPTUser, input: { name?: unknown; website?: unknown }) {
+  const membership = await getOrganizationForUser(user.userId);
+  if (!membership || membership.organization.ownerUserId !== user.userId) throw new TecAuthorizationError("Only the workspace owner can set these details.");
+  if (!membership.organization.slug.startsWith("setup--") || membership.organization.issuerStatus === "verified") throw new TecInputError("These details are already set. Contact ICS for legal identity changes.");
+  const name = normalizeText(input.name);
+  const website = normalizeText(input.website, 300) || null;
+  if (name.length < 2) throw new TecInputError("Enter your organization name.");
+  if (website) { try { const url = new URL(website); if (!["http:", "https:"].includes(url.protocol)) throw new Error(); } catch { throw new TecInputError("Enter a complete http or https website address."); } }
+  const db = getDb();
+  const updatedAt = now();
+  const slug = `${slugify(name) || "organization"}-${crypto.randomUUID().slice(0, 8)}`;
+  await db.batch([
+    db.update(organizations).set({ name, website, slug, updatedAt }).where(and(eq(organizations.id, membership.organization.id), eq(organizations.slug, membership.organization.slug))),
+    db.insert(auditEvents).values({ id: `evt_${crypto.randomUUID().replaceAll("-", "")}`, organizationId: membership.organization.id, actorUserId: user.userId, eventType: "organization.details_completed", entityType: "organization", entityId: membership.organization.id, payload: JSON.stringify({ name, website }), createdAt: updatedAt }),
+  ]);
+  return getOrganizationForUser(user.userId);
 }

@@ -15,6 +15,7 @@ export default async function NewLegacyReportPage() {
   const user = await requireChatGPTUser("/dashboard/reports/new");
   const membership = await getOrganizationForUser(user.userId);
   if (!membership) redirect("/dashboard");
+  if (membership.organization.slug.startsWith("setup--")) redirect("/dashboard/setup?return_to=/dashboard/reports/new");
   return (
     <main className="product-page">
       <ProductNav compact />
