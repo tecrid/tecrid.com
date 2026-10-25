@@ -76,7 +76,7 @@ describe("isolated real backend with D1/R2 and Ed25519",()=>{
   expect(events.map(e=>e.eventType)).toEqual(expect.arrayContaining(["credential.issued","credential.corrected","credential.revoked"]));
  });
  it("redacts controlled findings from resolver AND version history",async()=>{
-  const input={...payload,visibility:"controlled" as const};const proof=await sign(canonicalizeCredential(input).canonicalPayload);
+  const input={...payload,sourceDocument:{...payload.sourceDocument,sha256:"b".repeat(64)},visibility:"controlled" as const};const proof=await sign(canonicalizeCredential(input).canonicalPayload);
   await expect(createCredential(lab,null,{...input,proof})).rejects.toThrow();
   const made=await createCredential(lab,null,{...input,proof},{controlledRoutingAuthorized:true});
   const record=await getCredential(made.identifier);const document=publicCredentialDocument(record!);

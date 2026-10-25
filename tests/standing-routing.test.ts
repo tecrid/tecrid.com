@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { syntheticSourceDocument } from "./support/source-document";
 import { afterAll, beforeAll, expect, it } from "vitest";
 import { Miniflare } from "miniflare";
 import { readdirSync, readFileSync } from "node:fs";
@@ -14,7 +15,7 @@ const user = (id: string) => ({ userId: id, email: `${id}@example.test`, display
 const brand = user("standing-brand"), recipient = user("standing-recipient"), other = user("standing-other");
 let mf: Miniflare, privateKey: CryptoKey, lab: typeof organizations.$inferSelect, grantId: string, unselectedGrantId: string, authorizationId: string;
 const payload = { sampleName: "EXAMPLE ingredient", productSku: "EXAMPLE-SKU", lotNumber: "EXAMPLE-LOT", publish: true, visibility: "controlled", results: [{ analyte: "Lead", resultText: "1.23", numericValue: 1.23, unit: "ppb" }, { analyte: "Cadmium", resultText: "9.87", numericValue: 9.87, unit: "ppb" }] };
-async function issue(sku = payload.productSku, ingredientCode?: string) { const input = { ...payload, productSku: sku, ...(ingredientCode === undefined ? {} : { ingredientCode }) }; const canonical = canonicalizeCredential(input).canonicalPayload; return createCredential(lab, null, { ...input, proof: { keyId: "standing-test", algorithm: "Ed25519", signature: Buffer.from(await crypto.subtle.sign("Ed25519", privateKey, new TextEncoder().encode(canonical))).toString("base64url") } }); }
+async function issue(sku = payload.productSku, ingredientCode?: string) { const input = { ...payload, sourceDocument: syntheticSourceDocument(), productSku: sku, ...(ingredientCode === undefined ? {} : { ingredientCode }) }; const canonical = canonicalizeCredential(input).canonicalPayload; return createCredential(lab, null, { ...input, proof: { keyId: "standing-test", algorithm: "Ed25519", signature: Buffer.from(await crypto.subtle.sign("Ed25519", privateKey, new TextEncoder().encode(canonical))).toString("base64url") } }); }
 beforeAll(async () => {
  mf = new Miniflare({ modules: true, script: "export default {fetch(){return new Response('test')}}", compatibilityDate: "2026-05-22", d1Databases: ["DB"] }); env.DB = await mf.getD1Database("DB");
  for (const f of readdirSync("drizzle").filter(x => x.endsWith(".sql")).sort()) for (const s of readFileSync(`drizzle/${f}`, "utf8").split("--> statement-breakpoint").filter(x => x.trim())) await env.DB.prepare(s).run();
@@ -132,7 +133,7 @@ it("uses the most specific ingredient plus SKU rule separately for each brand", 
  expect(deliveries.some(d => d.grantId === sharedGrantA)).toBe(false);
 });
 it("rejects a tampered ingredientCode at signature verification", async () => {
- const input = { ...payload, visibility: "public", ingredientCode: "signed-source" };
+ const input = { ...payload, sourceDocument: syntheticSourceDocument(), visibility: "public", ingredientCode: "signed-source" };
  const canonical = canonicalizeCredential(input).canonicalPayload;
  const proof = { keyId: "standing-test", algorithm: "Ed25519", signature: Buffer.from(await crypto.subtle.sign("Ed25519", privateKey, new TextEncoder().encode(canonical))).toString("base64url") };
  await expect(createCredential(lab, null, { ...input, ingredientCode: "tampered-source", proof })).rejects.toThrow(/Issuer signature verification failed/);
@@ -151,10 +152,10 @@ it("supports controlled two-pass finalization without a routing token", async ()
 it("keeps other brands' standing delivery when a lab attaches one brand's explicit token", async () => {
  const token = await createRoutingAuthorization(brand, { laboratoryOrganizationCode: "LABSTANDING", productName: "RAW-SOURCE", productSku: "RAW-SOURCE" });
  const key = await createApiKey(user("standing-lab"), "isolated issuance", ["credentials:write"]);
- const input = { ...payload, productSku: "RAW-SOURCE", ingredientCode: "shared-cacao" };
+ const input = { ...payload, sourceDocument: syntheticSourceDocument(), productSku: "RAW-SOURCE", ingredientCode: "shared-cacao" };
  const canonical = canonicalizeCredential(input).canonicalPayload;
  const proof = { keyId: "standing-test", algorithm: "Ed25519", signature: Buffer.from(await crypto.subtle.sign("Ed25519", privateKey, new TextEncoder().encode(canonical))).toString("base64url") };
- const response = await issueViaApi(new Request("https://tecrid.com/api/v1/credentials", { method: "POST", headers: { authorization: `Bearer ${key.plainTextKey}`, "content-type": "application/json" }, body: JSON.stringify({ ...input, proof, routingToken: token.plainTextToken }) }));
+ const response = await issueViaApi(new Request("https://tecrid.com/api/v1/credentials", { method: "POST", headers: { authorization: `Bearer ${key.plainTextKey}`, "content-type": "application/json", "idempotency-key": "standing-api-issue" }, body: JSON.stringify({ ...input, proof, routingToken: token.plainTextToken }) }));
  expect(response.status).toBe(201);
  const body = await response.json();
  const deliveries = (await getDb().select().from(evidenceDeliveries)).filter(d => d.credentialIdentifier === body.credential.tecrid);
@@ -162,7 +163,7 @@ it("keeps other brands' standing delivery when a lab attaches one brand's explic
 });
 
 it("routes an ingredient-only signed credential without requiring a SKU", async () => {
- const input = { ...payload, productSku: undefined, ingredientCode: "shared-cacao" };
+ const input = { ...payload, sourceDocument: syntheticSourceDocument(), productSku: undefined, ingredientCode: "shared-cacao" };
  const canonical = canonicalizeCredential(input).canonicalPayload;
  const proof = { keyId: "standing-test", algorithm: "Ed25519", signature: Buffer.from(await crypto.subtle.sign("Ed25519", privateKey, new TextEncoder().encode(canonical))).toString("base64url") };
  const issued = await createCredential(lab, null, { ...input, proof }); await processStandingRoutingJobs();

@@ -19,7 +19,9 @@ function errorResponse(error: unknown) {
         code:
           status === 403
             ? "not_authorized"
-            : status === 400
+            : status === 409
+              ? "conflict"
+              : status === 400
               ? "invalid_request"
               : "internal_error",
         message: known ? error.message : "Credential operation failed.",
@@ -43,6 +45,7 @@ export async function POST(request: Request) {
   try {
     const { organization } = await authenticateApiRequest(request);
     const payload = await request.json() as Record<string, unknown>;
+    const idempotencyKey = payload.publish ? (await import("../../../../lib/issuance-safety")).issuanceKey(request.headers.get("idempotency-key")) : undefined;
     const routingToken = typeof payload.routingToken === "string" ? payload.routingToken : "";
     const routingAuthorization = routingToken
       ? await authorizeRoutingToken(routingToken, organization.id)
@@ -59,12 +62,12 @@ export async function POST(request: Request) {
       organization,
       null,
       payload,
-      { controlledRoutingAuthorized: Boolean(routingAuthorization), explicitRoutingControllerId: routingAuthorization?.authorization.controllerOrganizationId },
+      { idempotencyKey, controlledRoutingAuthorized: Boolean(routingAuthorization), explicitRoutingControllerId: routingAuthorization?.authorization.controllerOrganizationId },
     );
-    const routing = routingAuthorization && credential.status === "issued"
+    const routing = !credential.idempotent && routingAuthorization && credential.status === "issued"
       ? await deliverCredentialWithAuthorization(routingAuthorization, credential.identifier)
       : null;
-    return Response.json({ credential, routing }, { status: 201 });
+    return Response.json({ credential, routing }, { status: credential.idempotent ? 200 : 201 });
   } catch (error) {
     return errorResponse(error);
   }

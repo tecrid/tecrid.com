@@ -426,6 +426,7 @@ function ApiSettings({ viewer, signInHref, onNewKey, openConsole }: { viewer: Vi
           <span>Sandbox base URL</span><code>https://tecrid.com/api/sandbox/v1</code>
           <span>Authorization</span><code>Bearer tec_sandbox_…</code>
           <span>VLE contract test</span><code>/vle-evidence?tecridId=…&amp;expectedSampleCode=…</code>
+          <span>Signed sandbox registry</span><code>POST /credentials/canonicalize</code><code>POST /credentials</code><p>A laboratory workspace can issue signed test records using an Idempotency-Key and a public test key. Test records stay in the sandbox registry and produce no production notifications.</p>
           <span>Environment boundary</span><strong>Persistent test state · no production authority</strong>
           <button type="button" onClick={openConsole}>Open API console →</button>
           <a href="/laboratory-go-time">Open lab go-time pack ↗</a>

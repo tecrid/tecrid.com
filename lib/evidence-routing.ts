@@ -405,6 +405,9 @@ export async function deliverCredentialWithAuthorization(
   if (!record.integrity.issuerSignatureVerified || !record.integrity.fingerprintValid || !record.integrity.currentVersionConsistent) {
     throw new TecAuthorizationError("The TECRID did not pass the signature, fingerprint, and current-version gate.");
   }
+  const signed = JSON.parse(record.credential.signedPayload || "null");
+  const subject = signed?.type === "TestEvidenceCredentialRevision" ? signed.credential : signed;
+  if (record.credential.productSku && !subject?.lotNumber && !subject?.sourceDocument?.intakeId) throw new TecInputError("A routed SKU requires a signed lot or sample reference.");
   const deliveredAt = new Date().toISOString();
   const db = getDb();
   const delivered: Array<{ recipientOrganizationId: string; grantId: string; accessLevel: string; snapshotFingerprint: string }> = [];

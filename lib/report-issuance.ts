@@ -285,6 +285,7 @@ export async function finalizeReportTecrid(
   let credential;
   try {
     credential = await createCredential(organization, null, input, {
+      idempotencyKey: `reservation:${reservation.id}`,
       reservedIdentifier: reservation.identifier,
       controlledRoutingAuthorized: Boolean(routing),
       explicitRoutingControllerId: routing?.authorization.controllerOrganizationId,

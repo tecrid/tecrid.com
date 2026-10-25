@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { syntheticSourceDocument } from "./support/source-document";
 import { afterAll, beforeAll, expect, it } from "vitest";
 import { Miniflare } from "miniflare";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -23,7 +24,7 @@ const calls: { url: string; headers: Headers; body: Buffer; at: number }[] = [];
 const channels = new Map<string, Awaited<ReturnType<typeof saveNotificationChannel>>>();
 let proofEvidence: Record<string, unknown> = {};
 let mf: Miniflare, privateKey: CryptoKey, apiKey: string, identifier: string, pushEvent: string;
-const input = { sampleName: "SYNTHETIC sandbox lab flow", productSku: "FLOW-SKU", ingredientCode: "synthetic-cacao", lotNumber: "SYNTHETIC-LOT", publish: true, visibility: "controlled", results: [{ analyte: "Lead", resultText: "PRIVATE-LEAD-0.12", unit: "ppb" }, { analyte: "Cadmium", resultText: "PRIVATE-CADMIUM-9.99", unit: "ppb" }] };
+const input = { sourceDocument: syntheticSourceDocument(), sampleName: "SYNTHETIC sandbox lab flow", productSku: "FLOW-SKU", ingredientCode: "synthetic-cacao", lotNumber: "SYNTHETIC-LOT", publish: true, visibility: "controlled", results: [{ analyte: "Lead", resultText: "PRIVATE-LEAD-0.12", unit: "ppb" }, { analyte: "Cadmium", resultText: "PRIVATE-CADMIUM-9.99", unit: "ppb" }] };
 async function drain() { const result = await mf.dispatchFetch("https://tecrid.com/api/internal/notification-worker", { method: "POST", headers: { authorization: "Bearer isolated-flow-worker" } }); expect(result.status).toBe(200); await result.json(); }
 beforeAll(async () => {
  const vapid = webPush.generateVAPIDKeys();
@@ -51,7 +52,7 @@ afterAll(async () => { await mf?.dispose(); });
 it("issues through the built Worker and delivers push and both UNGATED webhooks under 60 seconds, with no GATED disclosure", async () => {
  const canonical = canonicalizeCredential(input).canonicalPayload;
  const proof = {keyId:"flow-key",algorithm:"Ed25519",signature:Buffer.from(await crypto.subtle.sign("Ed25519",privateKey,new TextEncoder().encode(canonical))).toString("base64url")};
- const result = await mf.dispatchFetch("https://tecrid.com/api/v1/credentials",{method:"POST",headers:{authorization:`Bearer ${apiKey}`,"content-type":"application/json"},body:JSON.stringify({...input,proof})});
+ const result = await mf.dispatchFetch("https://tecrid.com/api/v1/credentials",{method:"POST",headers:{authorization:`Bearer ${apiKey}`,"content-type":"application/json","idempotency-key":"synthetic-flow-issue"},body:JSON.stringify({...input,proof})});
  const responseBody = await result.json() as {credential:{tecrid:string}}; expect(result.status, JSON.stringify(responseBody)).toBe(201); identifier = responseBody.credential.tecrid;
  await drain();
  const until = Date.now()+15000;
