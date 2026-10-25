@@ -1,0 +1,6 @@
+{
+  "eventId": "notification:worker-push",
+  "event": "laboratory_report.received",
+  "sku": null,
+  "url": "https://tecrid.com/dashboard/evidence-routing"
+}

@@ -7,6 +7,7 @@ interface Env {
   DB: D1Database;
   DOCUMENTS: R2Bucket;
   ICS_ADMIN_EMAILS?: string;
+  TECRID_DELIVERY_ENABLED?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -28,6 +29,9 @@ interface ExecutionContext {
 // const imageConfig: ImageConfig = { dangerouslyAllowSVG: true };
 
 const worker = {
+  async scheduled(_event: unknown, _env: Env, ctx: ExecutionContext) {
+    ctx.waitUntil(import("../lib/notification-delivery").then(({ processNotificationOutbox }) => processNotificationOutbox()));
+  },
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
@@ -49,7 +53,11 @@ const worker = {
       }, allowedWidths);
     }
 
-    return handler.fetch(request, env, ctx);
+    const response = await handler.fetch(request, env, ctx);
+    if (env.TECRID_DELIVERY_ENABLED === "true" && response.ok && !url.pathname.startsWith("/api/internal/") && !["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+      ctx.waitUntil(import("../lib/notification-delivery").then(({ processNotificationOutbox }) => processNotificationOutbox()));
+    }
+    return response;
   },
 };
 

@@ -1267,3 +1267,42 @@ export const notificationReads = sqliteTable("notification_reads", {
  notificationId: text("notification_id").notNull().references(()=>organizationNotifications.id,{onDelete:"cascade"}),
  recipientEmail: text("recipient_email").notNull(), readAt: text("read_at").notNull(),
 }, table=>[primaryKey({columns:[table.notificationId,table.recipientEmail]})]);
+
+// Event metadata only. Findings remain in the existing grant-scoped registry.
+export const notificationOutbox = sqliteTable("notification_outbox", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  eventType: text("event_type").notNull(),
+  productSku: text("product_sku"),
+  entityId: text("entity_id").notNull(),
+  actionPath: text("action_path").notNull(),
+  occurredAt: text("occurred_at").notNull(),
+  expandedAt: text("expanded_at"),
+}, table => [index("idx_notification_outbox_pending").on(table.expandedAt, table.occurredAt)]);
+
+export const notificationChannels = sqliteTable("notification_channels", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  kind: text("kind").notNull(),
+  label: text("label").notNull(),
+  destinationHash: text("destination_hash").notNull(),
+  encryptedConfig: text("encrypted_config").notNull(),
+  active: integer("active", { mode: "boolean" }).notNull().default(true),
+  createdByUserId: text("created_by_user_id").notNull(),
+  createdAt: text("created_at").notNull(),
+}, table => [uniqueIndex("idx_notification_channel_destination").on(table.organizationId, table.kind, table.destinationHash)]);
+
+export const notificationDeliveries = sqliteTable("notification_deliveries", {
+  id: text("id").primaryKey(),
+  eventId: text("event_id").notNull().references(() => notificationOutbox.id, { onDelete: "cascade" }),
+  channelId: text("channel_id").notNull().references(() => notificationChannels.id, { onDelete: "cascade" }),
+  status: text("status").notNull().default("queued"),
+  attempts: integer("attempts").notNull().default(0),
+  nextAttemptAt: text("next_attempt_at").notNull(),
+  leaseUntil: text("lease_until"),
+  leaseToken: text("lease_token"),
+  deliveredAt: text("delivered_at"),
+  acknowledgedAt: text("acknowledged_at"),
+  lastStatusCode: integer("last_status_code"),
+  lastError: text("last_error"),
+}, table => [uniqueIndex("idx_notification_delivery_event_channel").on(table.eventId, table.channelId), index("idx_notification_delivery_due").on(table.status, table.nextAttemptAt)]);
