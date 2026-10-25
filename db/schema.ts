@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm";
+
 import {
   index,
   integer,
@@ -1365,3 +1366,22 @@ export const sandboxIssuanceIdempotency = sqliteTable("sandbox_issuance_idempote
   requestHash: text("request_hash").notNull(),
   credentialIdentifier: text("credential_identifier").notNull().references(() => sandboxRegistryCredentials.identifier),
 });
+
+// A reviewed mapping is separate from a laboratory's signed registry identity.
+export const marketplaceSupplierMappings = sqliteTable("marketplace_supplier_mappings", {
+ id: text("id").primaryKey(), supplierOrganizationId: text("supplier_organization_id").notNull(), recipientOrganizationId: text("recipient_organization_id").notNull(),
+ externalSupplierId: text("external_supplier_id").notNull(), active: integer("active", {mode:"boolean"}).notNull().default(true),
+ reviewedByUserId: text("reviewed_by_user_id").notNull(), reviewNote: text("review_note").notNull(), reviewedAt: text("reviewed_at").notNull(),
+},t=>[uniqueIndex("marketplace_mapping_pair").on(t.supplierOrganizationId,t.recipientOrganizationId)]);
+export const marketplaceGrantSettings = sqliteTable("marketplace_grant_settings", {
+ grantId:text("grant_id").primaryKey(), publicStatus:integer("public_status",{mode:"boolean"}).notNull().default(false), brandOrganizationIdsJson:text("brand_organization_ids_json").notNull().default("[]"),
+ supersedesGrantId:text("supersedes_grant_id"), updatedByUserId:text("updated_by_user_id").notNull(), updatedAt:text("updated_at").notNull(),
+});
+export const marketplaceStreamJobs = sqliteTable("marketplace_stream_jobs", {
+ id:integer("id").primaryKey({autoIncrement:true}), deliveryId:text("delivery_id").notNull(), cause:text("cause").notNull(), createdAt:text("created_at").notNull(), processedAt:text("processed_at"), heldReason:text("held_reason"),
+});
+export const marketplaceStreamEvents = sqliteTable("marketplace_stream_events", {
+ id:text("id").primaryKey(), jobId:integer("job_id").notNull().unique(), streamId:text("stream_id").notNull(), sequence:integer("sequence").notNull(),
+ credentialIdentifier:text("credential_identifier").notNull(), recipientOrganizationId:text("recipient_organization_id").notNull(), grantId:text("grant_id").notNull(), deliveryId:text("delivery_id").notNull(),
+ operation:text("operation").notNull(), semanticHash:text("semantic_hash").notNull(), bodyJson:text("body_json").notNull(), createdAt:text("created_at").notNull(),
+},t=>[uniqueIndex("marketplace_stream_sequence").on(t.streamId,t.sequence),index("marketplace_stream_grant").on(t.streamId,t.grantId,t.sequence)]);

@@ -71,6 +71,7 @@ export type SourceDocumentInput = {
 
 export type CredentialInput = {
   sampleName: string;
+  originatingSupplier?: string;
   ingredientCode?: string;
   productSku?: string;
   lotNumber?: string;
@@ -199,7 +200,7 @@ function normalizeProof(value: unknown): CredentialProofInput | undefined {
 function issuerPayload(input: CredentialInput) {
   return {
     type: "TestEvidenceCredential",
-    ...(input.ingredientCode ? { signatureVersion: "tec-credential/2", ingredientCode: input.ingredientCode } : {}),
+    ...(input.originatingSupplier ? { signatureVersion: "tec-credential/3", originatingSupplier: input.originatingSupplier, ...(input.ingredientCode ? { ingredientCode: input.ingredientCode } : {}) } : input.ingredientCode ? { signatureVersion: "tec-credential/2", ingredientCode: input.ingredientCode } : {}),
     sampleName: input.sampleName,
     productSku: input.productSku ?? null,
     lotNumber: input.lotNumber ?? null,
@@ -243,7 +244,7 @@ function revisionPayload(
 ) {
   return {
     type: "TestEvidenceCredentialRevision",
-    ...(input.ingredientCode ? { signatureVersion: "tec-credential/2" } : {}),
+    ...(input.originatingSupplier ? { signatureVersion: "tec-credential/3" } : input.ingredientCode ? { signatureVersion: "tec-credential/2" } : {}),
     tecrid: identifier,
     version,
     previousFingerprint,
@@ -1122,8 +1123,10 @@ function validateCredentialInput(value: unknown): CredentialInput {
 
   let ingredientCode: string | null;
   try { ingredientCode = optionalRoutingCode(input.ingredientCode); } catch { throw new TecInputError("ingredientCode must be a nonempty code of at most 120 characters when supplied."); }
+  if (input.originatingSupplier !== undefined && (typeof input.originatingSupplier !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,119}$/.test(input.originatingSupplier))) throw new TecInputError("originatingSupplier must be an exact TECRID organization ID.");
   return {
     sampleName,
+    ...(input.originatingSupplier ? { originatingSupplier: input.originatingSupplier } : {}),
     ...(ingredientCode ? { ingredientCode } : {}),
     productSku: normalizeText(input.productSku, 100).toUpperCase().replace(/\s+/g, "-") || undefined,
     lotNumber: normalizeText(input.lotNumber, 120) || undefined,
@@ -1400,7 +1403,7 @@ export async function getCredential(identifierValue: string, includeDraft = fals
   try {
     const signed = JSON.parse(currentVersion?.signedPayload || "null");
     const subject = signed?.type === "TestEvidenceCredentialRevision" ? signed.credential : signed;
-    signedScopeMatches = !!subject && (subject.productSku ?? null) === record.credential.productSku && (subject.ingredientCode ?? null) === record.credential.ingredientCode && (subject.lotNumber ?? null) === record.credential.lotNumber && (subject.sourceDocument?.sha256 ?? null) === record.credential.sourceDocumentHash && (!subject.ingredientCode || subject.signatureVersion === "tec-credential/2");
+    signedScopeMatches = !!subject && (subject.productSku ?? null) === record.credential.productSku && (subject.ingredientCode ?? null) === record.credential.ingredientCode && (subject.lotNumber ?? null) === record.credential.lotNumber && (subject.sourceDocument?.sha256 ?? null) === record.credential.sourceDocumentHash && (!subject.ingredientCode || ["tec-credential/2", "tec-credential/3"].includes(subject.signatureVersion)) && (!subject.originatingSupplier || subject.signatureVersion === "tec-credential/3");
   } catch { /* Corrupt or incompatible signed scope fails closed. */ }
   const currentVersionConsistent = Boolean(
     currentVersion &&
@@ -1429,6 +1432,8 @@ export function publicCredentialDocument(
   options: { includeControlledResults?: boolean } = {},
 ) {
   const { credential, issuer, results, versions, integrity } = record;
+  let supplierSubject: {originatingSupplier?: string; signatureVersion?: string} | null = null;
+  try { const signed = JSON.parse(credential.signedPayload || "null"); supplierSubject = signed?.type === "TestEvidenceCredentialRevision" ? signed.credential : signed; } catch { /* Invalid signed metadata is not projected. */ }
   const resultsControlled = credential.visibility === "controlled" && !options.includeControlledResults;
   return {
     schemaVersion: "tec-registry/1.0-draft",
@@ -1451,7 +1456,7 @@ export function publicCredentialDocument(
     subject: {
       sampleName: credential.sampleName,
       productSku: credential.productSku,
-      ...(credential.ingredientCode ? { ingredientCode: credential.ingredientCode, signatureVersion: "tec-credential/2" } : {}),
+      ...(supplierSubject?.signatureVersion === "tec-credential/3" && supplierSubject.originatingSupplier ? {originatingSupplier:supplierSubject.originatingSupplier,signatureVersion:"tec-credential/3",...(credential.ingredientCode ? {ingredientCode:credential.ingredientCode} : {})} : credential.ingredientCode ? { ingredientCode: credential.ingredientCode, signatureVersion: "tec-credential/2" } : {}),
       lotNumber: credential.lotNumber,
       matrix: credential.matrix,
       method: credential.method,
@@ -1568,6 +1573,7 @@ async function prepareCredentialRevision(
 
   const signedCurrent = JSON.parse(current.credential.signedPayload || "null");
   const signedSubject = signedCurrent?.type === "TestEvidenceCredentialRevision" ? signedCurrent.credential : signedCurrent;
+  if(signedSubject?.originatingSupplier && revision.originatingSupplier !== undefined && revision.originatingSupplier !== signedSubject.originatingSupplier)throw new TecInputError("A signed originating supplier cannot be changed by a revision.");
   const preservedSourceDocument = current.credential.sourceDocumentHash
     ? {
         sha256: current.credential.sourceDocumentHash,
@@ -1583,6 +1589,7 @@ async function prepareCredentialRevision(
     action === "revoke"
       ? ({
           sampleName: current.credential.sampleName,
+          originatingSupplier: signedSubject?.originatingSupplier,
           productSku: current.credential.productSku ?? undefined,
           ingredientCode: current.credential.ingredientCode ?? undefined,
           lotNumber: current.credential.lotNumber ?? undefined,
@@ -1609,6 +1616,7 @@ async function prepareCredentialRevision(
         } satisfies CredentialInput)
       : validateCredentialInput({
           ...revision,
+          originatingSupplier: signedSubject?.originatingSupplier ?? revision.originatingSupplier,
           productSku: current.credential.productSku ?? revision.productSku,
           ingredientCode: current.credential.ingredientCode ?? revision.ingredientCode,
           visibility: current.credential.visibility,

@@ -27,5 +27,5 @@ export async function evidenceFixture(){
  const proof={keyId:'security-fixture-key',algorithm:'Ed25519',signature:Buffer.from(await crypto.subtle.sign('Ed25519',pair.privateKey,new TextEncoder().encode(canonical))).toString('base64url')};
  const credential=await createCredential(laboratory,null,{...input,proof});
  await processStandingRoutingJobs();
- return {mf,brand,recipient,other,lab,laboratory,grantId,authorization,credential};
+ return {mf,brand,recipient,other,lab,laboratory,privateKey:pair.privateKey,grantId,authorization,credential};
 }

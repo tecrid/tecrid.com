@@ -110,7 +110,9 @@ export function retryDelay(attempt: number) {
 async function send(channel: Channel, event: Event, transport: typeof fetch) {
   const config = await openConfig(channel.encryptedConfig, channel.organizationId);
   const payload = notificationPayload(event, channel.kind === "push" ? channel.id : undefined);
-  const body = JSON.stringify(channel.kind === "webhook" ? await (await import("./recipient-webhook")).recipientWebhookPayload(event) : payload);
+  const stream = event.eventType === "marketplace.evidence" ? await (await import("./marketplace-stream")).marketplaceEventGate(event,channel.id) : null;
+  if(stream && stream.mode !== "allow") throw Error("Marketplace event is not ready.");
+  const body = stream?.mode === "allow" ? stream.body : JSON.stringify(channel.kind === "webhook" ? await (await import("./recipient-webhook")).recipientWebhookPayload(event) : payload);
   const common = { method: "POST", signal: AbortSignal.timeout(10_000) };
   if (channel.kind === "webhook") {
     const url = publicHttpsUrl(config.url);
@@ -142,13 +144,16 @@ async function send(channel: Channel, event: Event, transport: typeof fetch) {
 export async function processNotificationOutbox(options: { testEventId?: string; transport?: typeof fetch; at?: number } = {}) {
   if (!options.testEventId && settings().TECRID_DELIVERY_ENABLED !== "true") return { enabled: false, processed: 0 };
   if (!options.testEventId) await (await import("./evidence-routing")).processStandingRoutingJobs();
+  if (!options.testEventId) await (await import("./marketplace-stream")).processMarketplaceStreamJobs();
   const db = getDb();
   const at = options.at ?? Date.now();
   const stamp = new Date(at).toISOString();
   if (!options.testEventId) {
     const events = await db.select().from(notificationOutbox).where(isNull(notificationOutbox.expandedAt)).orderBy(asc(notificationOutbox.occurredAt)).limit(50);
     for (const event of events) {
-      const channels = await db.select().from(notificationChannels).where(and(eq(notificationChannels.organizationId, event.organizationId), eq(notificationChannels.active, true), lte(notificationChannels.createdAt, event.occurredAt)));
+      const candidates = await db.select().from(notificationChannels).where(and(eq(notificationChannels.organizationId, event.organizationId), eq(notificationChannels.active, true), lte(notificationChannels.createdAt, event.occurredAt)));
+      const allowed = await Promise.all(candidates.map(async channel => await (await import("./marketplace-stream")).marketplaceChannelFilter(event,channel.kind) ? channel : null));
+      const channels = allowed.filter((channel):channel is Channel => channel!==null);
       await db.batch([
         db.update(notificationOutbox).set({ expandedAt: stamp }).where(eq(notificationOutbox.id, event.id)),
         ...channels.map(channel => db.insert(notificationDeliveries).values({ id: `${event.id}:${channel.id}`, eventId: event.id, channelId: channel.id, nextAttemptAt: stamp }).onConflictDoNothing()),
@@ -170,7 +175,11 @@ export async function processNotificationOutbox(options: { testEventId?: string;
       await db.update(notificationDeliveries).set({ status: "canceled", leaseUntil: null, leaseToken: null }).where(ownedLease);
       return;
     }
-    const gate = await (await import("./organization-access")).recipientEventGate(event);
+    const streamGate = event.eventType === "marketplace.evidence" ? await (await import("./marketplace-stream")).marketplaceEventGate(event,channel.id) : null;
+    if(streamGate?.mode === "cancel"){
+      await db.update(notificationDeliveries).set({status:"canceled",lastError:streamGate.reason,leaseUntil:null,leaseToken:null}).where(ownedLease);return;
+    }
+    const gate = streamGate ? {ungated:streamGate.mode === "allow",reasons:streamGate.mode === "wait"?[streamGate.reason]:[]} : await (await import("./organization-access")).recipientEventGate(event);
     if (!gate.ungated) {
       await db.update(notificationDeliveries).set({ status: "blocked", attempts: sql`${notificationDeliveries.attempts} - 1`, nextAttemptAt: new Date(at + 15_000).toISOString(), lastError: gate.reasons.join(" "), leaseUntil: null, leaseToken: null }).where(ownedLease);
       return;

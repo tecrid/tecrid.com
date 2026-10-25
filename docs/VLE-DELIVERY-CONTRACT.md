@@ -1,6 +1,7 @@
-# VLE recipient webhook contract
+# Non-marketplace recipient webhook contract
 
-Order TECRID-MINT-TO-PHONE-1, step 4. VLE registers a `marketplace` organization. Its identity must be verified, and the controlling brand or supplier must approve the recipient's grant and select it in a laboratory standing authorization. The configurable terms gate applies when enabled. Register an organization webhook in `/dashboard/notifications`; an operator must approve the exact HTTPS hostname. Save the secret when shown once. No VLE endpoint is implemented in this PR.
+Certification bodies, retailers and government recipients retain the existing `tecrid.delivery/1` contract below. Marketplaces now require the separate [native VLE stream](VLE-EVIDENCE-STREAM.md), signed supplier identity and reviewed mapping. Old notification/delivery envelopes are not accepted as marketplace evidence. The receiver remains OFF pending the paired consumer repair and release review.
+
 
 ## Envelope
 

@@ -1,0 +1,182 @@
+
+> tec-registry@0.1.0 build
+> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build
+
+
+  vinext build  (Vite 8.0.13)
+
+[1/5] analyze client references...
+[2K
+transforming...✓ 1285 modules transformed.
+rendering chunks...
+✓ built in 1.73s
+[2/5] analyze server references...
+[2K
+transforming...✓ 162 modules transformed.
+rendering chunks...
+✓ built in 237ms
+[3/5] build rsc environment...
+[2K
+transforming...✓ 1342 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 1.79s
+[4/5] build client environment...
+[2K
+transforming...✓ 166 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 457ms
+[5/5] build ssr environment...
+[2K
+transforming...✓ 163 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 417ms
+[0m
+  Route (app)
+  ┌ ? /
+  ├ ƒ /admin/founding
+  ├ ƒ /admin/issuers
+  ├ ƒ /admin/reports
+  ├ λ /api/admin/issuer-applications/:applicationId
+  ├ λ /api/admin/issuer-applications/:applicationId/checks
+  ├ λ /api/auth/:path+
+  ├ λ /api/certification/intakes/:intakeId/manifest
+  ├ λ /api/certification/programs
+  ├ λ /api/certification/submit/:token
+  ├ λ /api/credentials
+  ├ λ /api/disclosures/:batchId/publish
+  ├ λ /api/disclosures/import
+  ├ λ /api/disputes
+  ├ λ /api/disputes/:caseId/manifest
+  ├ λ /api/email-signout
+  ├ λ /api/evidence-routing/authorizations
+  ├ λ /api/evidence-routing/authorizations/:authorizationId/revoke
+  ├ λ /api/evidence-routing/grants/:grantId/revoke
+  ├ λ /api/evidence-routing/requests
+  ├ λ /api/evidence-routing/requests/:requestId/response
+  ├ λ /api/evidence-sharing/codes
+  ├ λ /api/evidence-sharing/codes/:codeId/revoke
+  ├ λ /api/founding-onboarding
+  ├ λ /api/integrations/vle/notifications
+  ├ λ /api/internal/notification-worker
+  ├ λ /api/issuer-application
+  ├ λ /api/issuer-application/evidence
+  ├ λ /api/issuer-application/evidence/:documentId
+  ├ λ /api/issuer-application/key-challenge
+  ├ λ /api/issuer-application/key-challenge/verify
+  ├ λ /api/kasandrinos-test
+  ├ λ /api/keys
+  ├ λ /api/laboratory-invitations
+  ├ λ /api/legacy-reports
+  ├ λ /api/legacy-reports/:reportId
+  ├ λ /api/legacy-reports/:reportId/confirmation
+  ├ λ /api/legacy-reports/:reportId/document
+  ├ λ /api/legacy-reports/confirm/:token
+  ├ λ /api/legacy-reports/confirm/:token/canonical
+  ├ λ /api/marketplace/grants/:grantId/consent
+  ├ λ /api/marketplace/holds
+  ├ λ /api/marketplace/mappings
+  ├ λ /api/notification-acknowledgments
+  ├ λ /api/notification-channels
+  ├ λ /api/notifications
+  ├ λ /api/onboarding
+  ├ λ /api/organization-access
+  ├ λ /api/participant-profile
+  ├ λ /api/public/disclosures/:organizationSlug
+  ├ λ /api/public/disclosures/:organizationSlug/:batchId
+  ├ λ /api/sandbox/keys
+  ├ λ /api/sandbox/lab/reports
+  ├ λ /api/sandbox/lab/reports/:identifier
+  ├ λ /api/sandbox/session
+  ├ λ /api/sandbox/v1/credentials
+  ├ λ /api/sandbox/v1/credentials/:identifier
+  ├ λ /api/sandbox/v1/credentials/canonicalize
+  ├ λ /api/sandbox/v1/scenario
+  ├ λ /api/sandbox/v1/vle-evidence
+  ├ λ /api/stripe/webhook
+  ├ λ /api/test-reports/:identifier/card
+  ├ λ /api/test-reports/:identifier/document
+  ├ λ /api/test-reports/:identifier/results
+  ├ λ /api/v1/certification/submissions
+  ├ λ /api/v1/credentials
+  ├ λ /api/v1/credentials/:identifier
+  ├ λ /api/v1/credentials/:identifier/canonicalize
+  ├ λ /api/v1/credentials/:identifier/versions
+  ├ λ /api/v1/credentials/canonicalize
+  ├ λ /api/v1/health
+  ├ λ /api/v1/insights
+  ├ λ /api/v1/issuers/:issuerCode
+  ├ λ /api/v1/legacy-reports
+  ├ λ /api/v1/report-reservations
+  ├ λ /api/v1/report-reservations/:reservationId/finalize
+  ├ λ /api/v1/routing/deliveries
+  ├ λ /api/v1/share-codes/redeem
+  ├ λ /api/verification/check
+  ├ ? /badge
+  ├ ƒ /certify/:token
+  ├ ƒ /confirm/:token
+  ├ ƒ /dashboard
+  ├ ƒ /dashboard/certification
+  ├ ƒ /dashboard/certification/:intakeId
+  ├ ƒ /dashboard/credentials/new
+  ├ ƒ /dashboard/disclosures
+  ├ ƒ /dashboard/evidence-routing
+  ├ ƒ /dashboard/founding
+  ├ ƒ /dashboard/insights
+  ├ ƒ /dashboard/issuance
+  ├ ƒ /dashboard/kasandrinos
+  ├ ƒ /dashboard/lab-defense
+  ├ ƒ /dashboard/lab-defense/:caseId
+  ├ ƒ /dashboard/notifications
+  ├ ƒ /dashboard/organization-access
+  ├ ƒ /dashboard/reports/:reportId
+  ├ ƒ /dashboard/reports/new
+  ├ ƒ /dashboard/settings
+  ├ ƒ /dashboard/sharing
+  ├ ? /demo
+  ├ ? /demo/avocado-oil
+  ├ ? /demo/disclosure-operations
+  ├ ? /demo/heavy-metals
+  ├ ? /demo/lab
+  ├ ? /demo/lab-defense
+  ├ ? /developers
+  ├ ƒ /disclosures/:organizationSlug
+  ├ ƒ /disclosures/:organizationSlug/:batchId
+  ├ ? /faq
+  ├ ? /for-brands
+  ├ ? /for-certifiers-retailers
+  ├ ? /for-laboratories
+  ├ ? /integrate
+  ├ ƒ /issuers
+  ├ ƒ /issuers/:issuerCode
+  ├ ƒ /join
+  ├ ƒ /join/success
+  ├ ? /laboratory-go-time
+  ├ ? /laboratory-pilot
+  ├ ? /laboratory-value
+  ├ ƒ /notifications
+  ├ ƒ /participants
+  ├ ƒ /participants/:issuerCode
+  ├ ? /pricing
+  ├ ? /privacy
+  ├ ƒ /records/:identifier
+  ├ ƒ /sample-lab
+  ├ ƒ /sandbox
+  ├ ƒ /sign-in
+  ├ ƒ /sign-out
+  ├ ? /standard
+  ├ ƒ /submit-report
+  ├ ƒ /verification/receipts/:receiptId
+  ├ ? /verify
+  ├ ? /what-is-a-tecrid
+  └ ? /why
+
+  λ API  ƒ Dynamic  ? Unknown
+
+  ? Some routes could not be classified. vinext currently uses static analysis
+    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.
+    Automatic classification will be improved in a future release.
+
+  Build complete. Run `vinext start` to start the production server.

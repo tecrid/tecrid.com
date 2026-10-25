@@ -1,0 +1,8 @@
+
+ RUN  v4.1.11 /Users/kmfp/Documents/Codex/2026-10-25/you-are-conductor-the-single-codex/work/tecrid
+
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  19:37:47
+   Duration  11.26s (transform 538ms, setup 0ms, import 1.67s, tests 10.06s, environment 1.27s)

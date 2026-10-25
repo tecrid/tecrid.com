@@ -1,0 +1,70 @@
+{
+  "synthetic": true,
+  "tecrid": "TECRID·FLOWLAB-26-8CVAHFL9",
+  "pushMs": 153,
+  "certifierMs": 153,
+  "marketplaceMs": 168,
+  "pushPayload": {
+    "eventId": "notification:eec60353-bc65-428c-abc8-ef721ff05682",
+    "event": "laboratory_report.received",
+    "sku": "FLOW-SKU",
+    "url": "https://tecrid.com/dashboard/evidence-routing?notificationEvent=notification%3Aeec60353-bc65-428c-abc8-ef721ff05682&notificationChannel=7b9217fe-d6ea-4edb-9d6c-6f78c52b2d21#laboratory-reports"
+  },
+  "gatedSnapshotCount": 0,
+  "gatedNetworkCount": 0,
+  "timeline": {
+    "tecrid": "TECRID·FLOWLAB-26-8CVAHFL9",
+    "sku": "FLOW-SKU",
+    "mintedAt": "2026-10-25T17:40:18.430Z",
+    "events": [
+      {
+        "eventId": "vle:995467b2-ea79-4955-8de0-bde260d509ba",
+        "event": "credential.issued",
+        "destination": "SYNTHETIC flow-marketplace",
+        "kind": "webhook",
+        "status": "delivered",
+        "queuedAt": "2026-10-25T17:40:18.494Z",
+        "deliveredAt": "2026-10-25T17:40:18.599Z",
+        "acknowledgedAt": "2026-10-25T17:40:18.808Z",
+        "latencyMs": 169,
+        "target": "Under 60 seconds"
+      },
+      {
+        "eventId": "notification:a3c11610-db2f-4521-a56c-80063e41b958",
+        "event": "evidence_routing.delivered",
+        "destination": "SYNTHETIC flow-marketplace",
+        "kind": "No active channel",
+        "status": "queued",
+        "queuedAt": "2026-10-25T17:40:18.494Z",
+        "deliveredAt": null,
+        "acknowledgedAt": null,
+        "latencyMs": null,
+        "target": "Pending"
+      },
+      {
+        "eventId": "notification:93d66cfb-8196-4ffe-a931-cad852d41f42",
+        "event": "evidence_routing.delivered",
+        "destination": "SYNTHETIC flow-certifier",
+        "kind": "webhook",
+        "status": "delivered",
+        "queuedAt": "2026-10-25T17:40:18.494Z",
+        "deliveredAt": "2026-10-25T17:40:18.590Z",
+        "acknowledgedAt": "2026-10-25T17:40:18.738Z",
+        "latencyMs": 160,
+        "target": "Under 60 seconds"
+      },
+      {
+        "eventId": "notification:eec60353-bc65-428c-abc8-ef721ff05682",
+        "event": "laboratory_report.received",
+        "destination": "SYNTHETIC flow-brand",
+        "kind": "push",
+        "status": "delivered",
+        "queuedAt": "2026-10-25T17:40:18.494Z",
+        "deliveredAt": "2026-10-25T17:40:18.589Z",
+        "acknowledgedAt": "2026-10-25T17:40:18.862Z",
+        "latencyMs": 159,
+        "target": "Under 60 seconds"
+      }
+    ]
+  }
+}
