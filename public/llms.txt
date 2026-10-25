@@ -1,0 +1,16 @@
+# TECRID
+
+> TECRID provides digital testing records and public verification pages. The public site explains the record standard, verification model and integration contract.
+
+Interpret each record according to its program, issuer, version, current status and authorized scope. A laboratory result is not a product certification. TEST or sandbox examples are distinct from production records. Public verification metadata does not grant access to private reports or results.
+
+## Public documentation
+
+- [Home](https://tecrid.com/): TECRID overview.
+- [What is a TECRID?](https://tecrid.com/what-is-a-tecrid): Testing records and their purpose.
+- [The standard](https://tecrid.com/standard): The public record standard.
+- [Verify a record](https://tecrid.com/verify): Public verification entry point.
+- [Verification](https://tecrid.com/verification): How verification is presented.
+- [Developers](https://tecrid.com/developers): Published integration documentation.
+- [Frequently asked questions](https://tecrid.com/faq): Public questions and answers.
+- [Disclosures](https://tecrid.com/disclosures): Disclosures about the service.
