@@ -114,7 +114,8 @@ export async function createEvidenceRequest(user: ChatGPTUser, input: Record<str
   const id = crypto.randomUUID();
   const requestedAt = new Date().toISOString();
   const db = getDb();
-  await db.insert(evidenceRequests).values({
+  await db.batch([
+    db.insert(evidenceRequests).values({
     id,
     requesterOrganizationId: membership.organization.id,
     controllerOrganizationId: controller.id,
@@ -127,8 +128,8 @@ export async function createEvidenceRequest(user: ChatGPTUser, input: Record<str
     deliveryMode: scope.deliveryMode,
     requestedByUserId: user.userId,
     requestedAt,
-  });
-  await db.insert(auditEvents).values({
+  }),
+  db.insert(auditEvents).values({
     id: crypto.randomUUID(),
     organizationId: membership.organization.id,
     actorUserId: user.userId,
@@ -137,7 +138,14 @@ export async function createEvidenceRequest(user: ChatGPTUser, input: Record<str
     entityId: id,
     payload: JSON.stringify({ controllerOrganizationId: controller.id, productSku, ...scope }),
     createdAt: requestedAt,
-  });
+  }),
+  db.insert(organizationNotifications).values({
+    id: crypto.randomUUID(), organizationId: controller.id, eventType: "evidence_access.requested",
+    title: `Access request for ${productSku}`,
+    body: `${membership.organization.name} requested ${scope.accessLevel.replaceAll("_", " ")} access. Review the scope before approving.`,
+    actionPath: `/dashboard/evidence-routing#request-${id}`, entityType: "evidence_request", entityId: id, createdAt: requestedAt,
+  }),
+  ]);
   return { id, status: "pending", controller: controller.name, requestedAt };
 }
 
@@ -164,6 +172,11 @@ export async function respondToEvidenceRequest(user: ChatGPTUser, requestIdValue
   if (decision === "decline") {
     await db.batch([
       db.update(evidenceRequests).set({ status: "declined", respondedByUserId: user.userId, respondedAt }).where(eq(evidenceRequests.id, request.id)),
+      db.insert(organizationNotifications).values({
+        id: crypto.randomUUID(), organizationId: request.requesterOrganizationId, eventType: "evidence_access.declined",
+        title: `Access request declined for ${request.productSku}`, body: `${membership.organization.name} declined your evidence request.`,
+        actionPath: "/dashboard/evidence-routing", entityType: "evidence_request", entityId: request.id, createdAt: respondedAt,
+      }),
       db.insert(auditEvents).values({
         id: crypto.randomUUID(), organizationId: membership.organization.id, actorUserId: user.userId,
         eventType: "evidence_access.declined", entityType: "evidence_request", entityId: request.id,
@@ -204,6 +217,11 @@ export async function respondToEvidenceRequest(user: ChatGPTUser, requestIdValue
       deliveryMode: approved.deliveryMode,
       createdByUserId: user.userId,
       createdAt: respondedAt,
+    }),
+    db.insert(organizationNotifications).values({
+      id: crypto.randomUUID(), organizationId: request.requesterOrganizationId, eventType: "evidence_access.granted",
+      title: `Access approved for ${request.productSku}`, body: `${membership.organization.name} approved ${approved.accessLevel.replaceAll("_", " ")} access.`,
+      actionPath: "/dashboard/evidence-routing#recipient-deliveries", entityType: "evidence_grant", entityId: grantId, createdAt: respondedAt,
     }),
     db.insert(auditEvents).values({
       id: crypto.randomUUID(), organizationId: membership.organization.id, actorUserId: user.userId,

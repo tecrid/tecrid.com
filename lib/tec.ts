@@ -14,6 +14,7 @@ import {
   issuerApplications,
   issuerVerificationChecks,
   organizationMembers,
+  organizationNotifications,
   organizations,
 } from "../db/schema";
 import type { ChatGPTUser } from "../app/chatgpt-auth";
@@ -1245,6 +1246,11 @@ export async function createCredential(
     ...resultInserts,
     ...versionInserts,
     auditInsert,
+    ...(issued ? [db.insert(organizationNotifications).values({
+      id: crypto.randomUUID(), organizationId: organization.id, eventType: "credential.issued",
+      title: "New TECRID issued", body: `${identifier} has been signed and issued.`,
+      actionPath: `/records/${encodeURIComponent(identifier)}`, entityType: "credential", entityId: identifier, createdAt,
+    })] : []),
   ]);
 
   return {

@@ -39,27 +39,38 @@ export default function Home() {
       <ProductNav />
 
       <section className="hero sell-hero" id="top">
-        <div className="eyebrow"><span /> An open initiative of the Institute of Contaminant Standards</div>
+        <div className="eyebrow"><span /> An open initiative of ICS</div>
         <h1>Lab results that<br />you can verify.</h1>
         <p className="hero-copy">
-          Replace trust in unverifiable COAs and forwarded PDFs with checkable, issuer-signed evidence. A <strong>TECRID</strong>—Test Evidence Credential Record Identifier—is a persistent identifier and verification record for laboratory reports, with access governed by the record’s disclosure settings.
+          Replace trust in unverifiable COAs and forwarded PDFs with checkable, issuer-signed evidence.
         </p>
-        <p className="hero-context">Verifiable laboratory reports · Certificate of Analysis authentication · Contaminant testing records · Secure evidence sharing</p>
-        <p className="sell-hero-note">Free core trust. Commercial value through VLE QUALIFIED and HMTc certification.</p>
-        <div className="sell-hero-actions"><a href="https://vle.exchange/for-suppliers">Explore VLE QUALIFIED ↗</a><a href="https://heavymetalcertified.com/apply">Apply for HMTc certification ↗</a></div>
 
         <form className="lookup" onSubmit={lookup}>
           <label htmlFor="tec-lookup">Look up a TECRID</label>
           <div className="lookup-row">
-            <input id="tec-lookup" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="TECRID·LAB-00-000000" aria-describedby="lookup-message" autoComplete="off" />
+            <input id="tec-lookup" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="TECRID·LAB-00-000000" aria-describedby="lookup-message" autoComplete="off" autoCapitalize="characters" spellCheck={false} enterKeyHint="go" />
             <button type="submit">View record <span aria-hidden="true">↗</span></button>
           </div>
           <p id="lookup-message" className="lookup-message" aria-live="polite">
-            {message || <>See the complete resolution experience. <button type="button" onClick={() => { setQuery(SAMPLE_TECRID); setMessage(`Sample loaded: ${SAMPLE_TECRID}. Select View record.`); }}>Try the sample TECRID</button></>}
+            {message || <button type="button" onClick={() => { setQuery(SAMPLE_TECRID); setMessage(`Sample loaded: ${SAMPLE_TECRID}. Select View record.`); }}>Try the sample TECRID</button>}
           </p>
         </form>
 
-        <div className="hero-proof" aria-label="TECRID principles"><span>Issuer signature required</span><i /><span>Versions preserved</span><i /><span>Visibility controlled</span></div>
+      </section>
+
+      <section className="home-evidence-context" aria-labelledby="home-definition-title">
+        <div>
+          <p className="section-kicker">The permanent reference</p>
+          <h2 id="home-definition-title">What is a TECRID?</h2>
+          <p>A <strong>TECRID</strong>—Test Evidence Credential Record Identifier—is a persistent identifier and verification record for laboratory reports, with access governed by the record’s disclosure settings.</p>
+          <p className="evidence-principles">Issuer signature required · Versions preserved · Visibility controlled</p>
+        </div>
+        <div className="home-commercial-paths">
+          <p>Free core trust. Commercial value through VLE QUALIFIED and HMTc certification.</p>
+          <a href="https://vle.exchange/for-suppliers">Explore VLE QUALIFIED ↗</a>
+          <a href="https://heavymetalcertified.com/apply">Apply for HMTc certification ↗</a>
+        </div>
+        <p className="evidence-keywords">Verifiable laboratory reports · Certificate of Analysis authentication · Contaminant testing records · Secure evidence sharing</p>
       </section>
 
       <EvidenceValue />

@@ -20,6 +20,39 @@ async function render(path = "/") {
   );
 }
 
+test("keeps the thin homepage hero content-sized and omits editor UI for anonymous visitors", async () => {
+  const { JSDOM } = await import("jsdom");
+  const response = await render();
+  assert.equal(response.status, 200);
+  const dom = new JSDOM(await response.text(), { url: "https://tecrid.com/" });
+  const styles = dom.window.document.createElement("style");
+  styles.textContent = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  dom.window.document.head.append(styles);
+  const hero = dom.window.document.querySelector(".hero.sell-hero");
+  assert.ok(hero);
+  const computed = dom.window.getComputedStyle(hero);
+  assert.equal(computed.minHeight, "0px", "Homepage content must determine its height");
+  assert.equal(computed.paddingBottom, "56px", "Homepage should use the tighter live bottom spacing");
+  assert.ok(hero.querySelector("h1"));
+  assert.ok(hero.querySelector(".lookup input#tec-lookup"));
+  assert.match(hero.querySelector(".lookup button[type=submit]")?.textContent || "", /View record/);
+  assert.match(hero.querySelector("#lookup-message")?.textContent || "", /Try the sample TECRID/);
+  assert.ok(hero.lastElementChild.matches("form.lookup"), "No empty block should trail the lookup in the hero");
+  assert.deepEqual([...hero.children].map(element => element.tagName), ["DIV", "H1", "P", "FORM"]);
+  assert.equal(hero.querySelectorAll("h1").length, 1);
+  assert.equal(hero.querySelectorAll(".hero-copy").length, 1);
+  assert.doesNotMatch(hero.textContent || "", /persistent identifier|Commercial value through|Issuer signature required/);
+  assert.ok(hero.nextElementSibling.matches(".home-evidence-context"));
+  assert.match(hero.nextElementSibling.textContent || "", /with access governed by the record’s disclosure settings/);
+  assert.doesNotMatch(dom.window.document.body.textContent || "", /edit site/i);
+  for (const element of dom.window.document.querySelectorAll("[aria-label], [title], input[value]")) {
+    for (const attribute of ["aria-label", "title", "value"]) {
+      assert.doesNotMatch(element.getAttribute(attribute) || "", /edit site/i, "Anonymous controls must not expose an editor action");
+    }
+  }
+  dom.window.close();
+});
+
 test("renders the TEC Registry public product", async () => {
   const response = await render();
   assert.equal(response.status, 200);
@@ -31,6 +64,12 @@ test("renders the TEC Registry public product", async () => {
   assert.match(html, /TECRID/);
   assert.match(html, /Resolver sample/);
   assert.match(html, /Look up a TECRID/);
+  assert.match(html, /name="viewport" content="width=device-width, viewport-fit=cover, initial-scale=1"/);
+  assert.match(html, /rel="manifest" href="\/manifest.webmanifest"/);
+  assert.match(html, /name="apple-mobile-web-app-capable" content="yes"/);
+  assert.match(html, /name="apple-mobile-web-app-title" content="TECRID"/);
+  assert.match(html, /\/icons\/tecrid-180.png/);
+  assert.match(html, /aria-label="Mobile navigation"/);
   assert.match(html, /Try the sample TECRID/);
   assert.match(html, /Institute of Contaminant Standards/);
   assert.match(html, /https:\/\/contaminantstandards\.com\/#organization/);
@@ -211,7 +250,7 @@ test("publishes a portable, minification-safe TECRID identity mark and email-sig
   assert.match(html, /Email signature builder/);
   assert.match(html, /The badge is a link—not a blanket endorsement/);
   assert.match(html, /https:\/\/tecrid\.com\/participants\/PFND/);
-  assert.match(nav, /\/brand\/tecrid-logo\.png/);
+  assert.match(nav, /\/icons\/tecrid\.svg/);
   assert.match(nav, /href="\/badge"/);
   assert.match(sharingClient, /Copy email-signature HTML/);
   assert.match(sharingClient, /tecrid-profile-badge\.png/);

@@ -91,7 +91,7 @@ export function VerificationClient({ sampleTecrid, sampleFingerprint }: { sample
         <div className="verification-input-panel">
           <p className="section-kicker">Option 01</p><h2>Check a TECRID</h2>
           <label htmlFor="verify-tecrid">TECRID</label>
-          <input id="verify-tecrid" value={identifier} onChange={(event) => { setIdentifier(event.target.value); setFingerprint(""); setFilename(""); }} placeholder="TECRID·LAB-26-000001" />
+          <input id="verify-tecrid" autoComplete="off" autoCapitalize="characters" spellCheck={false} value={identifier} onChange={(event) => { setIdentifier(event.target.value); setFingerprint(""); setFilename(""); }} placeholder="TECRID·LAB-26-000001" />
           <div className="verification-actions"><button className="button-dark" type="button" disabled={busy || !identifier.trim()} onClick={() => void check({ identifier })}>{busy ? "Checking…" : "Verify TECRID"}</button><button className="button-outline" type="button" onClick={loadSample}>Load sample</button></div>
         </div>
         <div className="verification-input-panel file-panel">

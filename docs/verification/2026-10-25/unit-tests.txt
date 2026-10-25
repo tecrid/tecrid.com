@@ -1,0 +1,12 @@
+
+> tec-registry@0.1.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.11 /Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/tecrid-live-verification
+
+
+ Test Files  17 passed (17)
+      Tests  59 passed (59)
+   Start at  08:42:16
+   Duration  10.64s (transform 2.88s, setup 0ms, import 11.76s, tests 24.76s, environment 10.80s)

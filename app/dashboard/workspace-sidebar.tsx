@@ -68,6 +68,7 @@ export function WorkspaceSidebar({ organization, progress, user, signOutHref }: 
   ];
 
   const secondary = [
+    ["/notifications", "Notifications"],
     ...(laboratory || controller ? [["/dashboard/disclosures", "Disclosure operations"]] : []),
     ...(organization.plan === "founding" ? [["/dashboard/founding", "Founding launch"]] : []),
     ["/dashboard/settings", "Profile & settings"],
@@ -95,7 +96,7 @@ export function WorkspaceSidebar({ organization, progress, user, signOutHref }: 
 
   return <>
     <aside className="workspace-sidebar">
-      <Link className="workspace-sidebar-brand" href="/"><img src="/brand/tecrid-logo.png" width="34" height="34" alt="" /><span><strong>TEC Registry</strong><small>Organization workspace</small></span></Link>
+      <Link className="workspace-sidebar-brand" href="/"><img src="/icons/tecrid.svg" width="34" height="34" alt="" /><span><strong>TEC Registry</strong><small>Organization workspace</small></span></Link>
       <div className="workspace-identity"><span>{roleNames[organization.type] ?? "Organization"}</span><strong>{organization.name}</strong><code>{organization.code}</code></div>
       {menu}
       <footer><div><strong>{user.displayName}</strong><small>{user.email}</small></div><a href={signOutHref}>Sign out</a><Link href="/">View public site ↗</Link></footer>

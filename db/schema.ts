@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   index,
   integer,
+  primaryKey,
   real,
   sqliteTable,
   text,
@@ -1261,3 +1262,8 @@ export const testReportImports = sqliteTable("test_report_imports", {
  status: text("status").notNull().default("test_pending_approval"),
  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
+
+export const notificationReads = sqliteTable("notification_reads", {
+ notificationId: text("notification_id").notNull().references(()=>organizationNotifications.id,{onDelete:"cascade"}),
+ recipientEmail: text("recipient_email").notNull(), readAt: text("read_at").notNull(),
+}, table=>[primaryKey({columns:[table.notificationId,table.recipientEmail]})]);
