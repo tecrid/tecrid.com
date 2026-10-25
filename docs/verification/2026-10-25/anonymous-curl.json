@@ -1,0 +1,9 @@
+{
+  "url": "https://tecrid.com/",
+  "command": "curl -L --fail --silent --show-error https://tecrid.com/",
+  "cookies_sent": false,
+  "bytes": 43523,
+  "sha256": "c74cab9ca6573999d78ab838904be3e9e745123c0f9271eb9a6c2282a651df3b",
+  "edit_site_matches": 0,
+  "sample_path_present": true
+}

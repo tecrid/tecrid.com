@@ -1,0 +1,11 @@
+{
+  "main": "42c679d78130df53ed42121098b00a733b8ebab9",
+  "site_version": 56,
+  "source": "7f1817d61fd7ecee160e2c5be1333baf511d44ff",
+  "protected_sample_and_proof_sha256": "d1481906b653bc5b06800875b82c55f4e48dd10950c7b9e50858c0bfc95fd0c8",
+  "protected_sample_and_proof_byte_identical": true,
+  "homepage_files_byte_identical_to_live": [
+    "app/page.tsx",
+    "app/globals.css"
+  ]
+}

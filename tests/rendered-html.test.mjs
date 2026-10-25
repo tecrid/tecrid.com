@@ -20,6 +20,34 @@ async function render(path = "/") {
   );
 }
 
+test("keeps the thin homepage hero content-sized and omits editor UI for anonymous visitors", async () => {
+  const { JSDOM } = await import("jsdom");
+  const response = await render();
+  assert.equal(response.status, 200);
+  const dom = new JSDOM(await response.text(), { url: "https://tecrid.com/" });
+  const styles = dom.window.document.createElement("style");
+  styles.textContent = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  dom.window.document.head.append(styles);
+  const hero = dom.window.document.querySelector(".hero.sell-hero");
+  assert.ok(hero);
+  const computed = dom.window.getComputedStyle(hero);
+  assert.equal(computed.minHeight, "0px", "Homepage content must determine its height");
+  assert.equal(computed.paddingBottom, "56px", "Homepage should use the tighter live bottom spacing");
+  assert.ok(hero.querySelector("h1"));
+  assert.ok(hero.querySelector(".lookup input#tec-lookup"));
+  assert.match(hero.querySelector(".lookup button[type=submit]")?.textContent || "", /View record/);
+  assert.match(hero.querySelector("#lookup-message")?.textContent || "", /Try the sample TECRID/);
+  assert.ok(hero.lastElementChild.matches("form.lookup"), "No empty block should trail the lookup in the hero");
+  assert.deepEqual([...hero.children].map(element => element.tagName), ["DIV", "H1", "P", "FORM"]);
+  assert.equal(hero.querySelectorAll("h1").length, 1);
+  assert.equal(hero.querySelectorAll(".hero-copy").length, 1);
+  assert.doesNotMatch(hero.textContent || "", /persistent identifier|Commercial value through|Issuer signature required/);
+  assert.ok(hero.nextElementSibling.matches(".home-evidence-context"));
+  assert.match(hero.nextElementSibling.textContent || "", /with access governed by the record’s disclosure settings/);
+  assert.doesNotMatch(dom.window.document.body.textContent || "", /edit site/i);
+  dom.window.close();
+});
+
 test("renders the TEC Registry public product", async () => {
   const response = await render();
   assert.equal(response.status, 200);

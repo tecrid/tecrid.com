@@ -1,0 +1,15 @@
+{
+  "editSite": false,
+  "height": 720,
+  "heroBottom": 673.625,
+  "heroChildren": [
+    "DIV",
+    "H1",
+    "P",
+    "FORM"
+  ],
+  "heroMinHeight": "0px",
+  "heroPaddingBottom": "56px",
+  "overflow": false,
+  "width": 1280
+}
