@@ -1,9 +1,11 @@
-import { and, desc, eq, or } from "drizzle-orm";
+import { optionalRoutingCode, routingCode } from "./routing-codes";
+import { and, desc, eq, lte, or } from "drizzle-orm";
 import type { ChatGPTUser } from "../app/chatgpt-auth";
 import { getDb } from "../db";
 import {
   auditEvents,
   controllerEvidenceReceipts,
+  credentialRoutingJobs,
   evidenceAccessGrants,
   evidenceDeliveries,
   evidenceRequests,
@@ -252,48 +254,41 @@ export async function revokeEvidenceGrant(user: ChatGPTUser, grantIdValue: unkno
 
 export async function createRoutingAuthorization(user: ChatGPTUser, input: Record<string, unknown>) {
   const membership = await requireMembership(user);
-  if (!CONTROLLER_TYPES.has(membership.organization.organizationType)) {
-    throw new TecAuthorizationError("Only a brand or ingredient supplier can authorize laboratory routing.");
-  }
+  if (!CONTROLLER_TYPES.has(membership.organization.organizationType)) throw new TecAuthorizationError("Only a brand or ingredient supplier can authorize laboratory routing.");
+  if (input.authorizationKind && !["standing", "token"].includes(String(input.authorizationKind))) throw new TecInputError("Choose standing authorization or routing token.");
+  const standing = input.authorizationKind === "standing";
   const laboratory = await organizationByCode(input.laboratoryOrganizationCode);
-  if (laboratory.organizationType !== "laboratory" || laboratory.issuerStatus !== "verified") {
-    throw new TecInputError("Routing tokens may be issued only to an ICS-verified laboratory workspace.");
-  }
+  if (laboratory.organizationType !== "laboratory" || laboratory.issuerStatus !== "verified") throw new TecInputError("Choose an ICS-verified laboratory workspace.");
   const productName = clean(input.productName, 180);
-  const productSku = normalizeSku(input.productSku);
-  if (!productName || !productSku) throw new TecInputError("Product and SKU are required.");
+  let productSku: string | null, ingredientCode: string | null;
+  try {
+    productSku = standing ? (input.productSku === undefined ? null : routingCode(normalizeSku(input.productSku))) : normalizeSku(input.productSku);
+    ingredientCode = standing ? optionalRoutingCode(input.ingredientCode) : null;
+  } catch { throw new TecInputError("Codes must be nonempty strings when supplied."); }
+  if (!productName || (!productSku && !ingredientCode)) throw new TecInputError("A label and at least one SKU or ingredient code are required.");
   const db = getDb();
-  const grants = await db.select({ id: evidenceAccessGrants.id, productName: evidenceAccessGrants.productName }).from(evidenceAccessGrants).where(and(eq(evidenceAccessGrants.controllerOrganizationId, membership.organization.id), eq(evidenceAccessGrants.productSku, productSku), eq(evidenceAccessGrants.status, "active"))).limit(1);
-  if (grants.length && grants[0].productName.toLowerCase() !== productName.toLowerCase()) {
-    throw new TecInputError("The product name must match the active recipient grant for this SKU.");
+  const available = await db.select().from(evidenceAccessGrants).where(and(eq(evidenceAccessGrants.controllerOrganizationId, membership.organization.id), eq(evidenceAccessGrants.status, "active")));
+  let grantIds: string[] = [];
+  if (standing) {
+    if (!["owner", "admin"].includes(membership.role)) throw new TecAuthorizationError("Only an organization owner or administrator can create a standing authorization.");
+    grantIds = [...new Set((Array.isArray(input.grantIds) ? input.grantIds : String(input.grantIds || "").split(",")).map(id => clean(id, 100)).filter(Boolean))];
+    if (!grantIds.length || grantIds.length > 50) throw new TecInputError("Choose between one and 50 active recipient grants.");
+    if (grantIds.some(id => !available.some(grant => grant.id === id && (!productSku || routingCode(grant.productSku) === productSku)))) throw new TecAuthorizationError("Standing grants must be active, belong to this controller, and match any specified SKU.");
+  } else {
+    const grant = available.find(grant => grant.productSku === productSku);
+    if (grant && grant.productName.toLowerCase() !== productName.toLowerCase()) throw new TecInputError("The product name must match the active recipient grant for this SKU.");
   }
   const daysValue = Number(input.expiresInDays);
   const days = Number.isFinite(daysValue) ? Math.max(1, Math.min(365, Math.round(daysValue))) : 90;
   const plainTextToken = `tec_route_${randomToken(42)}`;
   const createdAt = new Date().toISOString();
-  const expiresAt = new Date(Date.now() + days * 86_400_000).toISOString();
+  const expiresAt = standing ? "9999-12-31T23:59:59.999Z" : new Date(Date.now() + days * 86_400_000).toISOString();
   const id = crypto.randomUUID();
   await db.batch([
-    db.insert(routingAuthorizations).values({
-      id,
-      controllerOrganizationId: membership.organization.id,
-      laboratoryOrganizationId: laboratory.id,
-      productName,
-      productSku,
-      tokenHash: await sha256(plainTextToken),
-      tokenPrefix: plainTextToken.slice(0, 16),
-      tokenLastFour: plainTextToken.slice(-4),
-      createdByUserId: user.userId,
-      createdAt,
-      expiresAt,
-    }),
-    db.insert(auditEvents).values({
-      id: crypto.randomUUID(), organizationId: membership.organization.id, actorUserId: user.userId,
-      eventType: "evidence_routing.authorized", entityType: "routing_authorization", entityId: id,
-      payload: JSON.stringify({ laboratoryOrganizationId: laboratory.id, productSku, expiresAt }), createdAt,
-    }),
+    db.insert(routingAuthorizations).values({ id, controllerOrganizationId: membership.organization.id, laboratoryOrganizationId: laboratory.id, productName, productSku: productSku ?? "", ingredientCode, authorizationKind: standing ? "standing" : "token", grantIdsJson: standing ? JSON.stringify(grantIds) : null, tokenHash: await sha256(plainTextToken), tokenPrefix: plainTextToken.slice(0, 16), tokenLastFour: plainTextToken.slice(-4), createdByUserId: user.userId, createdAt, expiresAt }),
+    db.insert(auditEvents).values({ id: crypto.randomUUID(), organizationId: membership.organization.id, actorUserId: user.userId, eventType: "evidence_routing.authorized", entityType: "routing_authorization", entityId: id, payload: JSON.stringify({ laboratoryOrganizationId: laboratory.id, productSku, ingredientCode, authorizationKind: standing ? "standing" : "token", grantIds, expiresAt: standing ? null : expiresAt }), createdAt }),
   ]);
-  return { id, plainTextToken, productName, productSku, laboratory: laboratory.name, createdAt, expiresAt };
+  return { id, plainTextToken: standing ? null : plainTextToken, authorizationKind: standing ? "standing" : "token", grantIds, productName, productSku, ingredientCode, laboratory: laboratory.name, createdAt, expiresAt: standing ? null : expiresAt };
 }
 
 export async function revokeRoutingAuthorization(user: ChatGPTUser, authorizationIdValue: unknown) {
@@ -324,12 +319,12 @@ export async function authorizeRoutingToken(tokenValue: unknown, laboratoryOrgan
     .innerJoin(organizations, eq(routingAuthorizations.controllerOrganizationId, organizations.id))
     .where(and(eq(routingAuthorizations.tokenHash, await sha256(token)), eq(routingAuthorizations.status, "active")))
     .limit(1);
-  if (!record || new Date(record.authorization.expiresAt).getTime() <= Date.now()) throw new TecAuthorizationError("The routing token is invalid, expired, or revoked.");
+  if (!record || (record.authorization.authorizationKind !== "standing" && new Date(record.authorization.expiresAt).getTime() <= Date.now())) throw new TecAuthorizationError("The routing token is invalid, expired, or revoked.");
   if (laboratoryOrganizationId && record.authorization.laboratoryOrganizationId !== laboratoryOrganizationId) {
     throw new TecAuthorizationError("This routing token was issued to a different laboratory.");
   }
-  const grants = await db.select().from(evidenceAccessGrants).where(and(eq(evidenceAccessGrants.controllerOrganizationId, record.authorization.controllerOrganizationId), eq(evidenceAccessGrants.productSku, record.authorization.productSku), eq(evidenceAccessGrants.status, "active")));
-  return { ...record, grants };
+  const grants = await db.select().from(evidenceAccessGrants).where(and(eq(evidenceAccessGrants.controllerOrganizationId, record.authorization.controllerOrganizationId), record.authorization.authorizationKind === "standing" ? undefined : eq(evidenceAccessGrants.productSku, record.authorization.productSku!), eq(evidenceAccessGrants.status, "active")));
+  return { ...record, grants: record.authorization.authorizationKind === "standing" ? grants.filter(grant => JSON.parse(record.authorization.grantIdsJson || "[]").includes(grant.id)) : grants };
 }
 
 export async function authorizeRoutingAuthorizationId(idValue: unknown, laboratoryOrganizationId?: string) {
@@ -342,7 +337,7 @@ export async function authorizeRoutingAuthorizationId(idValue: unknown, laborato
     .innerJoin(organizations, eq(routingAuthorizations.controllerOrganizationId, organizations.id))
     .where(and(eq(routingAuthorizations.id, id), eq(routingAuthorizations.status, "active")))
     .limit(1);
-  if (!record || new Date(record.authorization.expiresAt).getTime() <= Date.now()) {
+  if (!record || (record.authorization.authorizationKind !== "standing" && new Date(record.authorization.expiresAt).getTime() <= Date.now())) {
     throw new TecAuthorizationError("The routing authorization is invalid, expired, or revoked.");
   }
   if (laboratoryOrganizationId && record.authorization.laboratoryOrganizationId !== laboratoryOrganizationId) {
@@ -350,10 +345,10 @@ export async function authorizeRoutingAuthorizationId(idValue: unknown, laborato
   }
   const grants = await db.select().from(evidenceAccessGrants).where(and(
     eq(evidenceAccessGrants.controllerOrganizationId, record.authorization.controllerOrganizationId),
-    eq(evidenceAccessGrants.productSku, record.authorization.productSku),
+    record.authorization.authorizationKind === "standing" ? undefined : eq(evidenceAccessGrants.productSku, record.authorization.productSku!),
     eq(evidenceAccessGrants.status, "active"),
   ));
-  return { ...record, grants };
+  return { ...record, grants: record.authorization.authorizationKind === "standing" ? grants.filter(grant => JSON.parse(record.authorization.grantIdsJson || "[]").includes(grant.id)) : grants };
 }
 
 function withControlledPayloadsWithheld<T extends ReturnType<typeof publicCredentialDocument>>(document: T) {
@@ -397,13 +392,14 @@ export async function deliverCredentialWithAuthorization(
   authorizationRecord: Awaited<ReturnType<typeof authorizeRoutingToken>>,
   identifierValue: unknown,
 ) {
+  authorizationRecord = await authorizeRoutingAuthorizationId(authorizationRecord.authorization.id, authorizationRecord.authorization.laboratoryOrganizationId);
   const identifier = clean(identifierValue, 120);
   const record = await getCredential(identifier);
   if (!record || record.credential.status !== "issued") throw new TecInputError("Only a current issued TECRID can be routed.");
   if (record.issuer.id !== authorizationRecord.authorization.laboratoryOrganizationId) {
     throw new TecAuthorizationError("The TECRID was not issued by the laboratory named in this routing authorization.");
   }
-  if (record.credential.productSku !== authorizationRecord.authorization.productSku) {
+  if (authorizationRecord.authorization.authorizationKind === "standing" ? !standingAuthorizationMatches(authorizationRecord.authorization, record.credential) : record.credential.productSku !== authorizationRecord.authorization.productSku) {
     throw new TecAuthorizationError("The TECRID's signed productSku does not match this routing authorization.");
   }
   if (!record.integrity.issuerSignatureVerified || !record.integrity.fingerprintValid || !record.integrity.currentVersionConsistent) {
@@ -450,7 +446,7 @@ export async function deliverCredentialWithAuthorization(
         id: crypto.randomUUID(),
         organizationId: authorizationRecord.authorization.controllerOrganizationId,
         eventType: "laboratory_report.received",
-        title: `Laboratory TECRID received for ${authorizationRecord.authorization.productSku}`,
+        title: `Laboratory TECRID received for ${authorizationRecord.authorization.productSku || record.credential.productSku || authorizationRecord.authorization.ingredientCode}`,
         body: `${record.issuer.name} issued ${record.credential.identifier}. The signed findings are now in your evidence workspace.`,
         actionPath: "/dashboard/evidence-routing#laboratory-reports",
         entityType: "credential",
@@ -466,7 +462,7 @@ export async function deliverCredentialWithAuthorization(
     const snapshotJson = JSON.stringify(documentForGrant(record, grant));
     const snapshotFingerprint = await sha256(snapshotJson);
     const deliveryId = crypto.randomUUID();
-    await db.insert(evidenceDeliveries).values({
+    await db.batch([db.insert(evidenceDeliveries).values({
       id: deliveryId,
       grantId: grant.id,
       routingAuthorizationId: authorizationRecord.authorization.id,
@@ -478,8 +474,8 @@ export async function deliverCredentialWithAuthorization(
       snapshotJson,
       snapshotFingerprint,
       deliveredAt,
-    });
-    await db.insert(auditEvents).values({
+    }),
+    db.insert(auditEvents).values({
       id: crypto.randomUUID(),
       organizationId: grant.controllerOrganizationId,
       actorUserId: null,
@@ -493,21 +489,20 @@ export async function deliverCredentialWithAuthorization(
         snapshotFingerprint,
       }),
       createdAt: deliveredAt,
-    });
-    await db.insert(organizationNotifications).values({
+    }),
+    db.insert(organizationNotifications).values({
       id: crypto.randomUUID(),
       organizationId: grant.recipientOrganizationId,
       eventType: "evidence_routing.delivered",
-      title: `TECRID delivered for ${authorizationRecord.authorization.productSku}`,
+      title: `TECRID delivered for ${authorizationRecord.authorization.productSku || record.credential.productSku || authorizationRecord.authorization.ingredientCode}`,
       body: `${record.credential.identifier} was delivered under your approved ${grant.accessLevel.replaceAll("_", " ")} scope.`,
       actionPath: "/dashboard/evidence-routing#recipient-deliveries",
       entityType: "evidence_delivery",
       entityId: deliveryId,
       createdAt: deliveredAt,
-    });
-    if (grant.deliveryMode === "one_time") {
-      await db.update(evidenceAccessGrants).set({ status: "fulfilled" }).where(eq(evidenceAccessGrants.id, grant.id));
-    }
+    }),
+    ...(grant.deliveryMode === "one_time" ? [db.update(evidenceAccessGrants).set({ status: "fulfilled" }).where(eq(evidenceAccessGrants.id, grant.id))] : []),
+    ]);
     delivered.push({ recipientOrganizationId: grant.recipientOrganizationId, grantId: grant.id, accessLevel: grant.accessLevel, snapshotFingerprint });
   }
   await db.update(routingAuthorizations).set({ lastUsedAt: deliveredAt }).where(eq(routingAuthorizations.id, authorizationRecord.authorization.id));
@@ -560,4 +555,47 @@ export async function listEvidenceRoutingForUser(user: ChatGPTUser) {
   ]);
   const organizationMap = Object.fromEntries(directory.map((item) => [item.id, item]));
   return { membership, requests, grants, deliveries, controllerReceipts, authorizations, organizationMap };
+}
+
+
+export function standingAuthorizationMatches(authorization: { productSku: string | null; ingredientCode: string | null }, credential: { productSku?: string | null; ingredientCode?: string | null }) {
+  const ingredient = credential.ingredientCode ? routingCode(credential.ingredientCode) : null;
+  const sku = credential.productSku ? routingCode(credential.productSku) : null;
+  if (ingredient) return authorization.ingredientCode === ingredient && (!authorization.productSku || authorization.productSku === sku);
+  return !authorization.ingredientCode && !!authorization.productSku && authorization.productSku === sku;
+}
+
+export async function findStandingRoutingAuthorizations(laboratoryOrganizationId: string, skuValue: unknown, ingredientValue?: unknown) {
+  const subject = { productSku: typeof skuValue === "string" ? normalizeSku(skuValue) : null, ingredientCode: typeof ingredientValue === "string" ? ingredientValue : null };
+  const matches = await getDb().select().from(routingAuthorizations).where(and(eq(routingAuthorizations.laboratoryOrganizationId, laboratoryOrganizationId), eq(routingAuthorizations.authorizationKind, "standing"), eq(routingAuthorizations.status, "active")));
+  const byController = new Map<string, typeof matches[number]>();
+  for (const route of matches.filter(route => standingAuthorizationMatches(route, subject))) {
+    const previous = byController.get(route.controllerOrganizationId);
+    const rank = (route.ingredientCode ? 2 : 0) + (route.productSku ? 1 : 0);
+    const previousRank = previous ? (previous.ingredientCode ? 2 : 0) + (previous.productSku ? 1 : 0) : -1;
+    if (rank === previousRank) throw new TecAuthorizationError("Conflicting standing authorizations for the same controller and scope.");
+    if (rank > previousRank) byController.set(route.controllerOrganizationId, route);
+  }
+  return Promise.all([...byController.values()].map(route => authorizeRoutingAuthorizationId(route.id, laboratoryOrganizationId)));
+}
+
+export async function processStandingRoutingJobs(identifier?: string) {
+  const db = getDb();
+  const stamp = new Date().toISOString();
+  const jobs = await db.select().from(credentialRoutingJobs).where(and(
+    or(eq(credentialRoutingJobs.status, "queued"), eq(credentialRoutingJobs.status, "retry")),
+    lte(credentialRoutingJobs.nextAttemptAt, stamp),
+    identifier ? eq(credentialRoutingJobs.credentialIdentifier, identifier) : undefined,
+  )).limit(20);
+  for (const job of jobs) {
+    try {
+      const authorization = await authorizeRoutingAuthorizationId(job.authorizationId);
+      await deliverCredentialWithAuthorization(authorization, job.credentialIdentifier);
+      await db.update(credentialRoutingJobs).set({ status: "completed", completedAt: stamp, attempts: job.attempts + 1 }).where(eq(credentialRoutingJobs.id, job.id));
+    } catch (error) {
+      const canceled = error instanceof TecAuthorizationError || error instanceof TecInputError;
+      await db.update(credentialRoutingJobs).set({ status: canceled ? "canceled" : "retry", nextAttemptAt: new Date(Date.now() + Math.min(3600000, 5000 * 2 ** job.attempts)).toISOString(), attempts: job.attempts + 1 }).where(eq(credentialRoutingJobs.id, job.id));
+    }
+  }
+  return { processed: jobs.length };
 }

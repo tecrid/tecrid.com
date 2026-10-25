@@ -134,6 +134,7 @@ export const credentials = sqliteTable(
     status: text("status").notNull().default("draft"),
     sampleName: text("sample_name").notNull(),
     productSku: text("product_sku"),
+    ingredientCode: text("ingredient_code"),
     lotNumber: text("lot_number"),
     matrix: text("matrix"),
     method: text("method"),
@@ -912,8 +913,11 @@ export const routingAuthorizations = sqliteTable(
     laboratoryOrganizationId: text("laboratory_organization_id")
       .notNull()
       .references(() => organizations.id, { onDelete: "restrict" }),
+    authorizationKind: text("authorization_kind").notNull().default("token"),
+    grantIdsJson: text("grant_ids_json"),
     productName: text("product_name").notNull(),
     productSku: text("product_sku").notNull(),
+    ingredientCode: text("ingredient_code"),
     tokenHash: text("token_hash").notNull(),
     tokenPrefix: text("token_prefix").notNull(),
     tokenLastFour: text("token_last_four").notNull(),
@@ -927,6 +931,9 @@ export const routingAuthorizations = sqliteTable(
   },
   (table) => [
     uniqueIndex("idx_routing_authorizations_token_hash").on(table.tokenHash),
+    uniqueIndex("idx_standing_active_sku").on(table.controllerOrganizationId, table.laboratoryOrganizationId, table.productSku).where(sql`authorization_kind='standing' AND status='active' AND ingredient_code IS NULL`),
+    uniqueIndex("idx_standing_active_ingredient").on(table.controllerOrganizationId, table.laboratoryOrganizationId, table.ingredientCode).where(sql`authorization_kind='standing' AND status='active' AND product_sku=''`),
+    uniqueIndex("idx_standing_active_both").on(table.controllerOrganizationId, table.laboratoryOrganizationId, table.productSku, table.ingredientCode).where(sql`authorization_kind='standing' AND status='active' AND ingredient_code IS NOT NULL AND product_sku<>''`),
     index("idx_routing_authorizations_controller_sku").on(
       table.controllerOrganizationId,
       table.productSku,
@@ -1306,3 +1313,14 @@ export const notificationDeliveries = sqliteTable("notification_deliveries", {
   lastStatusCode: integer("last_status_code"),
   lastError: text("last_error"),
 }, table => [uniqueIndex("idx_notification_delivery_event_channel").on(table.eventId, table.channelId), index("idx_notification_delivery_due").on(table.status, table.nextAttemptAt)]);
+
+
+export const credentialRoutingJobs = sqliteTable("credential_routing_jobs", {
+  id: text("id").primaryKey(),
+  credentialIdentifier: text("credential_identifier").notNull().references(() => credentials.identifier, { onDelete: "cascade" }),
+  authorizationId: text("authorization_id").notNull().references(() => routingAuthorizations.id, { onDelete: "restrict" }),
+  status: text("status").notNull().default("queued"),
+  attempts: integer("attempts").notNull().default(0),
+  nextAttemptAt: text("next_attempt_at").notNull(),
+  completedAt: text("completed_at"),
+}, table => [uniqueIndex("idx_credential_routing_jobs_credential_authorization").on(table.credentialIdentifier, table.authorizationId), index("idx_credential_routing_jobs_due").on(table.status, table.nextAttemptAt)]);

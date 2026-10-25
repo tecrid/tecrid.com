@@ -18,6 +18,7 @@ import {
   authorizeRoutingAuthorizationId,
   authorizeRoutingToken,
   deliverCredentialWithAuthorization,
+  findStandingRoutingAuthorizations,
 } from "./evidence-routing";
 
 const SOURCE_SYSTEMS = new Set(["generic", "labware", "labvantage", "starlims"]);
@@ -270,7 +271,8 @@ export async function finalizeReportTecrid(
   const routing = reservation.routingAuthorizationId
     ? await authorizeRoutingAuthorizationId(reservation.routingAuthorizationId, organization.id)
     : null;
-  if (input.visibility === "controlled" && !routing) {
+  const standing = routing ? [] : await findStandingRoutingAuthorizations(organization.id, input.productSku, input.ingredientCode);
+  if (input.visibility === "controlled" && !routing && !standing.length) {
     throw new TecAuthorizationError("Controlled findings require a current brand-controlled routing authorization.");
   }
   const [claimed] = await db
@@ -285,6 +287,7 @@ export async function finalizeReportTecrid(
     credential = await createCredential(organization, null, input, {
       reservedIdentifier: reservation.identifier,
       controlledRoutingAuthorized: Boolean(routing),
+      explicitRoutingControllerId: routing?.authorization.controllerOrganizationId,
       issuanceBasis: "report_reservation",
     });
   } catch (error) {

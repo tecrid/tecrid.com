@@ -139,6 +139,7 @@ async function send(channel: Channel, event: Event, transport: typeof fetch) {
 
 export async function processNotificationOutbox(options: { testEventId?: string; transport?: typeof fetch; at?: number } = {}) {
   if (!options.testEventId && settings().TECRID_DELIVERY_ENABLED !== "true") return { enabled: false, processed: 0 };
+  if (!options.testEventId) await (await import("./evidence-routing")).processStandingRoutingJobs();
   const db = getDb();
   const at = options.at ?? Date.now();
   const stamp = new Date(at).toISOString();

@@ -1,0 +1,13 @@
+
+> tec-registry@0.1.0 test:unit
+> vitest run tests/standing-routing.test.ts
+
+
+ RUN  v4.1.11 /Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/tecrid
+
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  08:34:47
+   Duration  4.72s (transform 168ms, setup 0ms, import 739ms, tests 3.83s, environment 0ms)
+

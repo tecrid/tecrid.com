@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       organization,
       null,
       payload,
-      { controlledRoutingAuthorized: Boolean(routingAuthorization) },
+      { controlledRoutingAuthorized: Boolean(routingAuthorization), explicitRoutingControllerId: routingAuthorization?.authorization.controllerOrganizationId },
     );
     const routing = routingAuthorization && credential.status === "issued"
       ? await deliverCredentialWithAuthorization(routingAuthorization, credential.identifier)
