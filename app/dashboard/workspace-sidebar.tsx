@@ -12,7 +12,8 @@ const roleNames: Record<string, string> = {
   laboratory: "Testing laboratory",
   brand: "Brand or manufacturer",
   supplier: "Ingredient supplier",
-  retailer: "Retailer or marketplace",
+  retailer: "Retailer",
+  marketplace: "Marketplace",
   certification_body: "Certification body",
   government: "Government or regulator",
   consultant: "Consultant or auditor",
@@ -39,7 +40,7 @@ export function WorkspaceSidebar({ organization, progress, user, signOutHref }: 
   const pathname = usePathname();
   const laboratory = organization.type === "laboratory";
   const controller = ["brand", "supplier"].includes(organization.type);
-  const recipient = ["retailer", "certification_body", "government"].includes(organization.type);
+  const recipient = ["retailer", "certification_body", "government", "marketplace"].includes(organization.type);
   const verificationComplete = organization.issuerStatus === "verified";
   const verificationProgress = getVerificationProgress(organization.issuerStatus, progress.applicationStatus);
   const completed = [true, verificationComplete, progress.hasApiKey, progress.hasCredential].filter(Boolean).length;

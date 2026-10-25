@@ -14,7 +14,7 @@ export function EvidenceRoutingClient({ organization, requests, grants, deliveri
   const [standing, setStanding] = useState(true);
   const [newRoute, setNewRoute] = useState<{ plainTextToken: string; laboratory: string; productSku: string; expiresAt: string } | null>(null);
   const controller = ["brand", "supplier"].includes(organization.type);
-  const recipient = ["certification_body", "retailer", "government"].includes(organization.type);
+  const recipient = ["certification_body", "retailer", "government", "marketplace"].includes(organization.type);
 
   async function submitForm(event: React.FormEvent<HTMLFormElement>, endpoint: string) {
     event.preventDefault(); setBusy(true); setMessage("Saving the authorization decision…");
@@ -46,7 +46,7 @@ export function EvidenceRoutingClient({ organization, requests, grants, deliveri
     <p className="routing-message" aria-live="polite">{message}</p>
     <section className="routing-action-grid">
       <form className="routing-form request-form" onSubmit={(event) => void submitForm(event, "/api/evidence-routing/requests")}>
-        <div><p className="section-kicker">For certifiers, retailers, and government</p><h2>Request a TECRID evidence stream.</h2><p>{recipient ? "Ask the brand or supplier for only what your program needs. The controller may approve less, decline, or revoke future delivery." : "Requests originate from a certification body, retailer, or government workspace. This account can still review requests, grants, and deliveries in which it is a party."}</p></div>
+        <div><p className="section-kicker">For certifiers, retailers, marketplaces, and government</p><h2>Request a TECRID evidence stream.</h2><p>{recipient ? "Ask the brand or supplier for only what your program needs. The controller may approve less, decline, or revoke future delivery." : "Requests originate from a certification body, retailer, marketplace, or government workspace. This account can still review requests, grants, and deliveries in which it is a party."}</p></div>
         <label>Controller organization code<input name="controllerOrganizationCode" required placeholder="ATLAS7Q" /></label>
         <div className="form-pair"><label>Program or policy<input name="programName" required placeholder="Heavy Metal Tested & Certified" /></label><label>Purpose<input name="purpose" required placeholder="Annual SKU certification" /></label></div>
         <div className="form-pair"><label>Product<input name="productName" required placeholder="Cacao powder" /></label><label>SKU<input name="productSku" required placeholder="CACAO-12OZ" /></label></div>

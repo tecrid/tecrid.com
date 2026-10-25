@@ -9,6 +9,7 @@ type PageProps = { params: Promise<{ issuerCode: string }> };
 
 const TYPE_LABELS: Record<string, string> = {
   laboratory: "Laboratory", brand: "Brand", supplier: "Ingredient supplier", retailer: "Retailer",
+  marketplace: "Marketplace",
   certification_body: "Third-party certification", government: "Government", research: "Research organization",
 };
 
