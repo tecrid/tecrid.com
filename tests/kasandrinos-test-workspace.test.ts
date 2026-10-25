@@ -3,7 +3,7 @@ import {it,expect,vi,beforeEach} from 'vitest';
 import {env} from './support/cloudflare-env';
 const identity=vi.hoisted(()=>({user:null as any}));vi.mock('../lib/email-auth',()=>({getEmailUser:async()=>identity.user}));
 import {kasandrinosTestWorkspace} from '../lib/kasandrinos-test-workspace';
-beforeEach(()=>{identity.user=null;env.TECRID_EMAIL_RELAY_SECRET='synthetic-service-secret';});
+beforeEach(()=>{identity.user=null;env.TECRID_EMAIL_RELAY_SECRET='synthetic-service-secret';env.TECRID_REPORT_READ_SECRET='synthetic-read-'.repeat(4);env.TECRID_REPORT_PERMISSION_SECRET='synthetic-permission-'.repeat(4);env.TECRID_NOTIFICATION_SERVICE_SECRET='synthetic-notification-'.repeat(4);});
 it('blocks forged identity headers, sandbox keys and anonymous management',async()=>{
  const transport=vi.fn();const req=new Request('https://tecrid.com/api/kasandrinos-test',{headers:{'x-user-email':'karen@paleofoundation.com',authorization:'Bearer test-key'}});expect((await kasandrinosTestWorkspace(req,transport)).status).toBe(401);expect(transport).not.toHaveBeenCalled();
 });

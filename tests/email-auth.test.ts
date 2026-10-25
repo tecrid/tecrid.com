@@ -19,7 +19,7 @@ it('email login, mailbox isolation, onboarding, profile, security and production
 const mf=new Miniflare({modules:true,script:'export default {fetch(){return new Response("test")}}',d1Databases:['DB'],compatibilityDate:'2026-05-22'});
 try{
 const db=await mf.getD1Database('DB');
-env.DB=db;env.TECRID_AUTH_SECRET='local-test-only-'.repeat(4);env.TECRID_AUTH_URL='https://tecrid.test';env.TECRID_EMAIL_RELAY_SECRET='test-key';env.TECRID_EMAIL_RELAY_URL='https://relay.test/email';
+env.DB=db;env.TECRID_AUTH_SECRET='local-test-only-'.repeat(4);env.TECRID_AUTH_URL='https://tecrid.test';env.TECRID_EMAIL_RELAY_SECRET='test-key';env.TECRID_REPORT_READ_SECRET='synthetic-read-'.repeat(4);env.TECRID_REPORT_PERMISSION_SECRET='synthetic-permission-'.repeat(4);env.TECRID_NOTIFICATION_SERVICE_SECRET='synthetic-notification-'.repeat(4);env.TECRID_EMAIL_RELAY_URL='https://relay.test/email';
 for(const file of readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort())for(const sql of readFileSync(new URL('../drizzle/'+file,import.meta.url),'utf8').split('--> statement-breakpoint'))if(sql.trim())await db.prepare(sql).run();
 let mail=[],ip=1;
 const auth=createEmailAuth(drizzle(db,{schema}),schema,{secret:'local-test-only-'.repeat(4),baseURL:'https://tecrid.test',relaySecret:'test-key',relayURL:'https://relay.test/email'},async(url,options)=>{assert.equal(url,'https://relay.test/email');mail.push(JSON.parse(options.body));return Response.json({id:'test-message'});});

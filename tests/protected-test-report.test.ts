@@ -6,7 +6,7 @@ vi.mock('../lib/email-auth',()=>({getEmailUser:async()=>identity.user}));
 import {protectedTestReport} from '../lib/test-report-access';
 import {sampleLabReports} from '../lib/sample-lab';
 const report=sampleLabReports[0];
-beforeEach(()=>{identity.user=null;env.TECRID_EMAIL_RELAY_SECRET='test-service-secret';});
+beforeEach(()=>{identity.user=null;env.TECRID_EMAIL_RELAY_SECRET='test-service-secret';env.TECRID_REPORT_READ_SECRET='synthetic-read-'.repeat(4);env.TECRID_REPORT_PERMISSION_SECRET='synthetic-permission-'.repeat(4);env.TECRID_NOTIFICATION_SERVICE_SECRET='synthetic-notification-'.repeat(4);});
 it('denies anonymous, spoofed identities and sandbox keys without calling report service',async()=>{
  const transport=vi.fn();const r=await protectedTestReport(new Request('https://tecrid.com/api/test-reports/id/results',{headers:{'x-user-email':'buyer@company.test',authorization:'Bearer sandbox-key'}}),report.testIdentifier,'results',transport);expect(r.status).toBe(401);expect(transport).not.toHaveBeenCalled();expect(r.headers.get('cache-control')).toContain('no-store');
 });

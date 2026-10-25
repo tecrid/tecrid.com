@@ -1,0 +1,9 @@
+{
+  "protocol": "tecrid-service/1",
+  "moduleSha256": "7ccd6ae53583f89499bf4062f0b9f399a9b8590c8470f9ba22be55125bf87de5",
+  "crossRepositoryDirections": 2,
+  "accepted": 2,
+  "replayRejected": 2,
+  "externalCalls": 0,
+  "productionAccess": false
+}
