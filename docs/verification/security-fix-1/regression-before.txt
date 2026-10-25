@@ -19,9 +19,9 @@
 test at tests/security-abuse-budget.test.mjs:18:1
 ✖ a low global override cannot let one client exhaust the shared ceiling (734.663667ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   1 !== 2
-  
+
       at TestContext.<anonymous> (file:///Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/security-fix-1/tests/security-abuse-budget.test.mjs:21:9)
       at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
       at async Test.run (node:internal/test_runner/test:1208:7)
@@ -37,9 +37,9 @@ test at tests/security-abuse-budget.test.mjs:18:1
 test at tests/security-abuse-budget.test.mjs:26:1
 ✖ principal-denied requests do not spend the shared budget across IPs (953.751625ms)
   AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
-  
+
     assert.ok(await guardMutationRequest(mutation('192.0.2.30'),env) instanceof Request)
-  
+
       at TestContext.<anonymous> (file:///Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/security-fix-1/tests/security-abuse-budget.test.mjs:31:9)
       at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
       at async Test.run (node:internal/test_runner/test:1208:7)
@@ -55,9 +55,9 @@ test at tests/security-abuse-budget.test.mjs:26:1
 test at tests/security-abuse-worker.test.mjs:13:1
 ✖ one flooding client cannot deny another client access to mutation handlers (205.416958ms)
   AssertionError [ERR_ASSERTION]: fresh client must reach the authenticated handler
-  
+
   429 !== 401
-  
+
       at TestContext.<anonymous> (file:///Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/security-fix-1/tests/security-abuse-worker.test.mjs:24:29)
       at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
       at async Test.run (node:internal/test_runner/test:1208:7)

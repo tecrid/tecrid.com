@@ -1,0 +1,112 @@
+{
+  "18": {
+    "base": "8336d36aaee6fcece56e8aafac40368317e75a41",
+    "head": "9f107293b0773af9b9c56bef5816289e94b3cca3",
+    "main": "ef946aba6d7a8f24fe2a4f91630d2733afe80ec2",
+    "conflict_paths": [
+      "app/dashboard/workspace-sidebar.tsx"
+    ]
+  },
+  "20": {
+    "base": "8336d36aaee6fcece56e8aafac40368317e75a41",
+    "head": "f2d8704f30781875aa4853f46c9164c21799f4b8",
+    "main": "ef946aba6d7a8f24fe2a4f91630d2733afe80ec2",
+    "conflict_paths": [
+      "app/dashboard/workspace-sidebar.tsx",
+      "lib/tec.ts"
+    ]
+  },
+  "21": {
+    "base": "8336d36aaee6fcece56e8aafac40368317e75a41",
+    "head": "36f7837a72a4ed59e2e07c72c9b3ddcb845d9373",
+    "main": "ef946aba6d7a8f24fe2a4f91630d2733afe80ec2",
+    "conflict_paths": [
+      "app/dashboard/evidence-routing/page.tsx",
+      "app/dashboard/workspace-sidebar.tsx",
+      "lib/tec.ts"
+    ]
+  },
+  "22": {
+    "base": "8336d36aaee6fcece56e8aafac40368317e75a41",
+    "head": "6c686aa9552a373bb97b3de27f84829366fb1d45",
+    "main": "ef946aba6d7a8f24fe2a4f91630d2733afe80ec2",
+    "conflict_paths": [
+      "app/dashboard/dashboard-client.tsx",
+      "app/dashboard/evidence-routing/page.tsx",
+      "app/dashboard/workspace-sidebar.tsx",
+      "lib/tec.ts"
+    ]
+  },
+  "23": {
+    "base": "8336d36aaee6fcece56e8aafac40368317e75a41",
+    "head": "ba9267cdd92b32a99ca2dca184f12f77d7d8468e",
+    "main": "ef946aba6d7a8f24fe2a4f91630d2733afe80ec2",
+    "conflict_paths": [
+      "app/dashboard/dashboard-client.tsx",
+      "app/dashboard/evidence-routing/page.tsx",
+      "app/dashboard/page.tsx",
+      "app/dashboard/workspace-sidebar.tsx",
+      "lib/tec.ts"
+    ]
+  },
+  "24": {
+    "base": "8336d36aaee6fcece56e8aafac40368317e75a41",
+    "head": "cd4746531f1b25f7025fa979e2b5a5c020ba028b",
+    "main": "ef946aba6d7a8f24fe2a4f91630d2733afe80ec2",
+    "conflict_paths": [
+      "app/dashboard/dashboard-client.tsx",
+      "app/dashboard/evidence-routing/page.tsx",
+      "app/dashboard/page.tsx",
+      "app/dashboard/workspace-sidebar.tsx",
+      "lib/tec.ts"
+    ]
+  },
+  "26": {
+    "base": "8336d36aaee6fcece56e8aafac40368317e75a41",
+    "head": "7e0371d1afac8f2de9d30395150d4e92beef9e03",
+    "main": "ef946aba6d7a8f24fe2a4f91630d2733afe80ec2",
+    "conflict_paths": [
+      "app/dashboard/dashboard-client.tsx",
+      "app/dashboard/evidence-routing/page.tsx",
+      "app/dashboard/page.tsx",
+      "app/dashboard/workspace-sidebar.tsx",
+      "lib/tec.ts"
+    ]
+  },
+  "27": {
+    "base": "8336d36aaee6fcece56e8aafac40368317e75a41",
+    "head": "73bd55ca6f9e29ae55af291f2a36333d4c2318e8",
+    "main": "ef946aba6d7a8f24fe2a4f91630d2733afe80ec2",
+    "conflict_paths": [
+      "app/dashboard/dashboard-client.tsx",
+      "app/dashboard/evidence-routing/page.tsx",
+      "app/dashboard/page.tsx",
+      "app/dashboard/workspace-sidebar.tsx",
+      "lib/tec.ts"
+    ]
+  },
+  "33": {
+    "base": "8336d36aaee6fcece56e8aafac40368317e75a41",
+    "head": "5506227506404f1008a2cbbd1d63d5f821bbc45d",
+    "main": "ef946aba6d7a8f24fe2a4f91630d2733afe80ec2",
+    "conflict_paths": [
+      "app/dashboard/dashboard-client.tsx",
+      "app/dashboard/evidence-routing/page.tsx",
+      "app/dashboard/page.tsx",
+      "app/dashboard/workspace-sidebar.tsx",
+      "lib/tec.ts"
+    ]
+  },
+  "37": {
+    "base": "8336d36aaee6fcece56e8aafac40368317e75a41",
+    "head": "6b61d6de27117e749a27d749bbc36d861543e676",
+    "main": "ef946aba6d7a8f24fe2a4f91630d2733afe80ec2",
+    "conflict_paths": [
+      "app/dashboard/dashboard-client.tsx",
+      "app/dashboard/evidence-routing/page.tsx",
+      "app/dashboard/page.tsx",
+      "app/dashboard/workspace-sidebar.tsx",
+      "lib/tec.ts"
+    ]
+  }
+}
