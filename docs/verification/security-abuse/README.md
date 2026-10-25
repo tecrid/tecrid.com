@@ -1,0 +1,5 @@
+# F11 sender and API verification
+
+The first commit records two built-Worker failures: oversized JSON reached route handling and repeated public mutations had no durable budget. Workers now bound JSON before parsing and apply IP, principal and global mutation budgets. Protected organization mutations share a per-organization budget. Mail's actual token-issuance hook creates an exact recipient/token assertion using a separate credential, while preserving mail relay authentication in its own header. Missing/reused issuance configuration fails closed.
+
+Build, 152 unit/backend tests and 42 built-Worker/rendered/redirect checks pass. Focused core source lint and whitespace pass. Existing real-session tests verify the relay and issuance headers; all mail transports are intercepted. Paired actual protocol modules remain identical and pass both directions with replay denial. The VLE counterpart tests mail token/recipient tampering, idempotency and per-recipient quotas. ABUSE-CONTROLS.md lists defaults, configuration gates and boundaries. No live secret, schema, migration, production account, real message, merge or deployment was used.

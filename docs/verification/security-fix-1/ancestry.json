@@ -1,0 +1,138 @@
+{
+  "18-published-head": {
+    "sha": "9f107293b0773af9b9c56bef5816289e94b3cca3",
+    "ancestor_of": {
+      "26": true,
+      "27": true,
+      "28": true,
+      "29": true,
+      "30": true,
+      "31": true,
+      "32": true,
+      "33": true,
+      "34": true,
+      "35": true,
+      "36": true,
+      "37": true
+    }
+  },
+  "19-published-head": {
+    "sha": "8336d36aaee6fcece56e8aafac40368317e75a41",
+    "ancestor_of": {
+      "26": true,
+      "27": true,
+      "28": true,
+      "29": true,
+      "30": true,
+      "31": true,
+      "32": true,
+      "33": true,
+      "34": true,
+      "35": true,
+      "36": true,
+      "37": true
+    }
+  },
+  "20-published-head": {
+    "sha": "f2d8704f30781875aa4853f46c9164c21799f4b8",
+    "ancestor_of": {
+      "26": true,
+      "27": true,
+      "28": true,
+      "29": true,
+      "30": true,
+      "31": true,
+      "32": true,
+      "33": true,
+      "34": true,
+      "35": true,
+      "36": true,
+      "37": true
+    }
+  },
+  "21-published-head": {
+    "sha": "36f7837a72a4ed59e2e07c72c9b3ddcb845d9373",
+    "ancestor_of": {
+      "26": true,
+      "27": true,
+      "28": true,
+      "29": true,
+      "30": true,
+      "31": true,
+      "32": true,
+      "33": true,
+      "34": true,
+      "35": true,
+      "36": true,
+      "37": true
+    }
+  },
+  "22-published-head": {
+    "sha": "6c686aa9552a373bb97b3de27f84829366fb1d45",
+    "ancestor_of": {
+      "26": false,
+      "27": false,
+      "28": false,
+      "29": false,
+      "30": false,
+      "31": false,
+      "32": false,
+      "33": false,
+      "34": false,
+      "35": false,
+      "36": false,
+      "37": false
+    }
+  },
+  "22-implementation": {
+    "sha": "db10682176a602cf27c810245716aeac60d793f5",
+    "ancestor_of": {
+      "26": true,
+      "27": true,
+      "28": true,
+      "29": true,
+      "30": true,
+      "31": true,
+      "32": true,
+      "33": true,
+      "34": true,
+      "35": true,
+      "36": true,
+      "37": true
+    }
+  },
+  "23-published-head": {
+    "sha": "ba9267cdd92b32a99ca2dca184f12f77d7d8468e",
+    "ancestor_of": {
+      "26": true,
+      "27": true,
+      "28": true,
+      "29": true,
+      "30": true,
+      "31": true,
+      "32": true,
+      "33": true,
+      "34": true,
+      "35": true,
+      "36": true,
+      "37": true
+    }
+  },
+  "24-published-head": {
+    "sha": "cd4746531f1b25f7025fa979e2b5a5c020ba028b",
+    "ancestor_of": {
+      "26": true,
+      "27": true,
+      "28": true,
+      "29": true,
+      "30": true,
+      "31": true,
+      "32": true,
+      "33": true,
+      "34": true,
+      "35": true,
+      "36": true,
+      "37": true
+    }
+  }
+}

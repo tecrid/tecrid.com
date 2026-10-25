@@ -4,6 +4,7 @@ Security F08. This is a coordinated receiver/sender change. Draft PRs only; no l
 
 | Environment binding | Purpose |
 | --- | --- |
+| TECRID_MAIL_ISSUANCE_SECRET | Token/recipient assertions from the authentication issuance hook |
 | TECRID_EMAIL_RELAY_SECRET | Existing mail relay only; never report or notification authority |
 | TECRID_REPORT_READ_SECRET | Original/digital report reads and read-only permission workspace/status |
 | TECRID_REPORT_PERMISSION_SECRET | Report permission requests and grant/revoke/decline mutations |
@@ -18,4 +19,4 @@ Replay claims use an atomic INSERT OR IGNORE against the existing unique key in 
 
 Verification includes independent Node HMAC reference bytes, actor/audience/origin/path tampering, timestamps, purpose separation, concurrent single-use claims, missing storage and bounded oversized bodies. From the VLE checkout, `node scripts/verify-service-peer.mjs /path/to/tecrid/lib/service-assertion.js` tests both actual checked-out protocol modules in separate disposable databases. Evidence records identical source hashes, two accepted directions, two replay denials and zero external calls. Existing report, permission and notification tests now sign requests through the same protocol.
 
-The mail relay's separate token/recipient issuance binding and general abuse budgets remain F11. This PR does not claim those later controls are complete. Receiver stays OFF; no source PDF, production account, real message or production database is used by verification.
+F11 adds the separate token/recipient issuance assertion and mutation budgets documented in ABUSE-CONTROLS.md. Receiver stays OFF; no source PDF, production account, real message or production database is used by verification.

@@ -1,3 +1,4 @@
+import {takeBudget,configuredLimit} from "./abuse-budget.js";
 import { optionalRoutingCode } from "./routing-codes";
 import { apiRequestScope, normalizeApiScopes } from "./api-scopes";
 import { and, asc, desc, eq, isNull, or, inArray } from "drizzle-orm";
@@ -393,6 +394,9 @@ export async function getOrganizationForUser(userId: string) {
 export async function requireOrganizationAdmin(user: ChatGPTUser) {
   const membership = await getOrganizationForUser(user.userId);
   if (!membership || !["owner", "admin"].includes(membership.role)) throw new TecAuthorizationError("An organization owner or administrator is required.");
+  if (!await takeBudget(env.DB, "organization-mutation", membership.organization.id, configuredLimit((env as unknown as Record<string,unknown>).TECRID_ORG_MUTATION_LIMIT, 60), 60000)) {
+    const error = new TecAuthorizationError("Organization request limit reached. Try again shortly."); error.status = 429; throw error;
+  }
   return membership;
 }
 

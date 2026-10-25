@@ -1,0 +1,48 @@
+✖ oversized JSON is rejected before route parsing (18.17375ms)
+✖ public mutation abuse has a durable IP budget (8.1205ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1616.790542
+
+✖ failing tests:
+
+test at tests/security-abuse-worker.test.mjs:10:1
+✖ oversized JSON is rejected before route parsing (18.17375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  401 !== 413
+  
+      at TestContext.<anonymous> (file:///Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/security-tecrid/tests/security-abuse-worker.test.mjs:10:73)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 401,
+    expected: 413,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/security-abuse-worker.test.mjs:11:1
+✖ public mutation abuse has a durable IP budget (8.1205ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  401 !== 429
+  
+      at TestContext.<anonymous> (file:///Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/security-tecrid/tests/security-abuse-worker.test.mjs:11:196)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 401,
+    expected: 429,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
