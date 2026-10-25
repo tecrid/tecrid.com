@@ -30,7 +30,7 @@ export function SharingClient({ organization, codes, redemptions, invitations, p
   const [mailto, setMailto] = useState<string | null>(null);
   const [portfolio, setPortfolio] = useState(false);
   const controller = ["brand", "supplier"].includes(organization.type);
-  const recipient = ["certification_body", "retailer", "government"].includes(organization.type);
+  const recipient = ["certification_body", "retailer", "government", "marketplace"].includes(organization.type);
   const profileUrl = `https://tecrid.com/participants/${encodeURIComponent(organization.code)}`;
   const signatureHtml = `<a href="${profileUrl}" title="View TECRID registry profile" style="text-decoration:none"><img src="https://tecrid.com/brand/tecrid-profile-badge.png" width="224" height="52" alt="View TECRID registry profile" style="display:block;width:224px;height:52px;border:0;outline:none;text-decoration:none"></a>`;
 
@@ -84,7 +84,7 @@ export function SharingClient({ organization, codes, redemptions, invitations, p
 
       <div className="sharing-side-stack">
         <form className="sharing-form sharing-redeem" onSubmit={(event) => void submit(event, "/api/v1/share-codes/redeem")}>
-          <div><p className="section-kicker light">For certifiers, retailers, and government</p><h2>Redeem evidence without uploading PDFs.</h2><p>{recipient ? `Codes addressed to ${organization.name} resolve into a frozen structured package and receipt.` : "A recipient workspace redeems the code provided by the brand or supplier."}</p></div>
+          <div><p className="section-kicker light">For certifiers, retailers, marketplaces, and government</p><h2>Redeem evidence without uploading PDFs.</h2><p>{recipient ? `Codes addressed to ${organization.name} resolve into a frozen structured package and receipt.` : "A recipient workspace redeems the code provided by the brand or supplier."}</p></div>
           <input type="hidden" name="recipientOrganizationCode" value={organization.code} />
           <label>TECRID share code<input name="code" type="password" autoComplete="off" placeholder="tec_share_…" required /></label>
           <button className="button-mint" type="submit" disabled={busy || !recipient}>{recipient ? "Redeem package →" : "Recipient workspace required"}</button>

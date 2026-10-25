@@ -24,7 +24,7 @@ import {
 const ACCESS_LEVELS = new Set(["status_only", "selected_analytes", "full_record"]);
 const DELIVERY_MODES = new Set(["one_time", "future_sku"]);
 const CONTROLLER_TYPES = new Set(["brand", "supplier"]);
-const RECIPIENT_TYPES = new Set(["certification_body", "retailer", "government"]);
+const RECIPIENT_TYPES = new Set(["certification_body", "retailer", "government", "marketplace"]);
 
 function clean(value: unknown, maximum = 240) {
   return typeof value === "string" ? value.trim().slice(0, maximum) : "";
@@ -95,7 +95,7 @@ export async function createEvidenceRequest(user: ChatGPTUser, input: Record<str
   const membership = await requireMembership(user);
   if (!RECIPIENT_TYPES.has(membership.organization.organizationType)) {
     throw new TecAuthorizationError(
-      "Evidence streams may be requested by a certification body, retailer, or government workspace.",
+      "Evidence streams may be requested by a certification body, retailer, marketplace, or government workspace.",
     );
   }
   const controller = await organizationByCode(input.controllerOrganizationCode);

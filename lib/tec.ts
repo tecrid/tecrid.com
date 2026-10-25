@@ -26,6 +26,7 @@ const ORGANIZATION_TYPES = new Set([
   "brand",
   "supplier",
   "retailer",
+  "marketplace",
   "certification_body",
   "government",
   "consultant",

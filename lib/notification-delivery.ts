@@ -108,7 +108,7 @@ export function retryDelay(attempt: number) {
 async function send(channel: Channel, event: Event, transport: typeof fetch) {
   const config = await openConfig(channel.encryptedConfig, channel.organizationId);
   const payload = notificationPayload(event);
-  const body = JSON.stringify(payload);
+  const body = JSON.stringify(channel.kind === "webhook" ? await (await import("./recipient-webhook")).recipientWebhookPayload(event) : payload);
   const common = { method: "POST", signal: AbortSignal.timeout(10_000) };
   if (channel.kind === "webhook") {
     const url = publicHttpsUrl(config.url);

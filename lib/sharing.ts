@@ -18,7 +18,7 @@ import {
 } from "./tec";
 
 const CONTROLLER_TYPES = new Set(["brand", "supplier"]);
-const RECIPIENT_TYPES = new Set(["certification_body", "retailer", "government"]);
+const RECIPIENT_TYPES = new Set(["certification_body", "retailer", "government", "marketplace"]);
 const SCOPE_MODES = new Set(["tecrid_set", "sku_set", "portfolio"]);
 const ACCESS_LEVELS = new Set(["status_only", "selected_analytes", "full_record"]);
 
@@ -105,7 +105,7 @@ export async function createEvidenceShareCode(user: ChatGPTUser, input: Record<s
   }
   const recipient = await organizationByCode(input.recipientOrganizationCode);
   if (!RECIPIENT_TYPES.has(recipient.organizationType)) {
-    throw new TecInputError("Share codes may be addressed to a certification body, retailer, or government workspace.");
+    throw new TecInputError("Share codes may be addressed to a certification body, retailer, marketplace, or government workspace.");
   }
   if (recipient.id === membership.organization.id) throw new TecInputError("A controller cannot share evidence with itself.");
   const label = clean(input.label, 140);

@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Profile and settings — TEC Registr
 
 const roleNames: Record<string, string> = {
   laboratory: "Testing laboratory", brand: "Brand or manufacturer", supplier: "Ingredient supplier",
-  retailer: "Retailer or marketplace", certification_body: "Third-party certification body",
+  retailer: "Retailer", marketplace: "Marketplace", certification_body: "Third-party certification body",
   government: "Government or regulator", consultant: "Consultant or auditor",
   research: "Research organization", other: "Other organization",
 };

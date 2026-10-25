@@ -42,7 +42,8 @@ export function OrganizationOnboarding({ email }: { email: string }) {
           <option value="laboratory">Testing laboratory</option>
           <option value="brand">Brand or manufacturer</option>
           <option value="supplier">Ingredient supplier</option>
-          <option value="retailer">Retailer or marketplace</option>
+          <option value="retailer">Retailer</option>
+          <option value="marketplace">Marketplace (including VLE)</option>
           <option value="certification_body">Third-party certification body</option>
           <option value="government">Government or regulator</option>
           <option value="consultant">Consultant or auditor</option>
