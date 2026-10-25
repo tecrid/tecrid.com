@@ -21,14 +21,20 @@ export async function getDeliveryPolicy(): Promise<TermsPolicy> {
   // A missing policy after a partial migration fails closed.
   return policy || { termsRequired: true, termsVersion: "", termsUrl: "" };
 }
-export async function organizationGate(organizationId: string, controllerId?: string) {
+// Share codes are their own explicit controller grants. Both paths use the
+// same current identity and terms policy without requiring an unrelated grant.
+export async function recipientDisclosureGate(organizationId: string, activeGrant: boolean) {
   const db = getDb();
   const [organization] = await db.select().from(organizations).where(eq(organizations.id, organizationId)).limit(1);
   if (!organization) return { ungated: false, status: "GATED", reasons: ["Organization not found."], termsRequired: false };
   const [profile] = await db.select({ verified: participantProfiles.registryVerified }).from(participantProfiles).where(eq(participantProfiles.organizationId, organizationId)).limit(1);
-  const grants = await db.select({ id: evidenceAccessGrants.id }).from(evidenceAccessGrants).innerJoin(organizations, eq(evidenceAccessGrants.controllerOrganizationId, organizations.id)).where(and(eq(evidenceAccessGrants.recipientOrganizationId, organizationId), eq(evidenceAccessGrants.status, "active"), or(eq(organizations.organizationType, "brand"), eq(organizations.organizationType, "supplier")), controllerId ? eq(evidenceAccessGrants.controllerOrganizationId, controllerId) : undefined)).limit(1);
   const identityVerified = organization.identityStatus === "verified" || (organization.identityStatus === "unreviewed" && (organization.issuerStatus === "verified" || profile?.verified === true));
-  return computeOrganizationGate({ identityVerified, activeGrant: !!grants.length, termsAcceptedAt: organization.termsAcceptedAt, acceptedVersion: organization.termsVersion }, await getDeliveryPolicy());
+  return computeOrganizationGate({ identityVerified, activeGrant, termsAcceptedAt: organization.termsAcceptedAt, acceptedVersion: organization.termsVersion }, await getDeliveryPolicy());
+}
+export async function organizationGate(organizationId: string, controllerId?: string) {
+  const db = getDb();
+  const grants = await db.select({ id: evidenceAccessGrants.id }).from(evidenceAccessGrants).innerJoin(organizations, eq(evidenceAccessGrants.controllerOrganizationId, organizations.id)).where(and(eq(evidenceAccessGrants.recipientOrganizationId, organizationId), eq(evidenceAccessGrants.status, "active"), or(eq(organizations.organizationType, "brand"), eq(organizations.organizationType, "supplier")), controllerId ? eq(evidenceAccessGrants.controllerOrganizationId, controllerId) : undefined)).limit(1);
+  return recipientDisclosureGate(organizationId, !!grants.length);
 }
 export async function grantDeliveryGate(grant: { recipientOrganizationId: string; controllerOrganizationId: string; status: string }) {
   const gate = await organizationGate(grant.recipientOrganizationId, grant.controllerOrganizationId);
