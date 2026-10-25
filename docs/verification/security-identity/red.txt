@@ -1,0 +1,81 @@
+
+ RUN  v4.1.11 /Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/security-tecrid
+
+ ❯ tests/identity-boundary.test.ts (14 tests | 13 failed) 19ms
+   × rejects unsigned administrator headers on tecrid.com with no cookie 7ms
+   × rejects unsigned administrator headers on tecrid.com with invalid cookie 1ms
+   × rejects unsigned administrator headers on tecrid.com with invalid cookie 1ms
+   × rejects unsigned administrator headers on www.tecrid.com with no cookie 0ms
+   × rejects unsigned administrator headers on www.tecrid.com with invalid cookie 1ms
+   × rejects unsigned administrator headers on www.tecrid.com with invalid cookie 0ms
+   × rejects unsigned administrator headers on tec-registry.kmfp.chatgpt.site with no cookie 0ms
+   × rejects unsigned administrator headers on tec-registry.kmfp.chatgpt.site with invalid cookie 0ms
+   × rejects unsigned administrator headers on tec-registry.kmfp.chatgpt.site with invalid cookie 0ms
+   × rejects unsigned administrator headers on alternate-origin.workers.dev with no cookie 0ms
+   × rejects unsigned administrator headers on alternate-origin.workers.dev with invalid cookie 0ms
+   × rejects unsigned administrator headers on alternate-origin.workers.dev with invalid cookie 0ms
+   × fails closed when session verification throws 3ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/identity-boundary.test.ts > rejects unsigned administrator headers on tecrid.com with no cookie
+ FAIL  tests/identity-boundary.test.ts > rejects unsigned administrator headers on tecrid.com with invalid cookie
+ FAIL  tests/identity-boundary.test.ts > rejects unsigned administrator headers on tecrid.com with invalid cookie
+ FAIL  tests/identity-boundary.test.ts > rejects unsigned administrator headers on www.tecrid.com with no cookie
+ FAIL  tests/identity-boundary.test.ts > rejects unsigned administrator headers on www.tecrid.com with invalid cookie
+ FAIL  tests/identity-boundary.test.ts > rejects unsigned administrator headers on www.tecrid.com with invalid cookie
+ FAIL  tests/identity-boundary.test.ts > rejects unsigned administrator headers on tec-registry.kmfp.chatgpt.site with no cookie
+ FAIL  tests/identity-boundary.test.ts > rejects unsigned administrator headers on tec-registry.kmfp.chatgpt.site with invalid cookie
+ FAIL  tests/identity-boundary.test.ts > rejects unsigned administrator headers on tec-registry.kmfp.chatgpt.site with invalid cookie
+ FAIL  tests/identity-boundary.test.ts > rejects unsigned administrator headers on alternate-origin.workers.dev with no cookie
+ FAIL  tests/identity-boundary.test.ts > rejects unsigned administrator headers on alternate-origin.workers.dev with invalid cookie
+ FAIL  tests/identity-boundary.test.ts > rejects unsigned administrator headers on alternate-origin.workers.dev with invalid cookie
+AssertionError: expected { userId: 'forged-owner', …(3) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "displayName": "Forged Admin",
+  "email": "admin@example.test",
+  "fullName": "Forged Admin",
+  "userId": "forged-owner",
+}
+
+ ❯ tests/identity-boundary.test.ts:13:35
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯
+
+ FAIL  tests/identity-boundary.test.ts > fails closed when session verification throws
+AssertionError: promise resolved "{ userId: 'forged', …(3) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "displayName": "admin@example.test",
++   "email": "admin@example.test",
++   "fullName": null,
++   "userId": "forged",
+  }
+
+ ❯ tests/identity-boundary.test.ts:27:31
+     25|  state.headers = new Headers({'oai-authenticated-user-id':'forged', 'o…
+     26|  vi.mocked(getEmailUser).mockRejectedValue(new Error('Session backend …
+     27|  await expect(getChatGPTUser()).rejects.toThrow('Session backend unava…
+       |                               ^
+     28| });
+     29|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  13 failed | 1 passed (14)
+   Start at  14:00:40
+   Duration  314ms (transform 36ms, setup 0ms, import 86ms, tests 19ms, environment 0ms)
+
