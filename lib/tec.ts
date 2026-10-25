@@ -159,6 +159,12 @@ function issuerCodeFor(name: string) {
   return `${stem}${randomCharacters(3)}`;
 }
 
+export function requireOrganizationIdentity(organization: Pick<typeof organizations.$inferSelect, "slug" | "issuerCode">) {
+  if (organization.slug.startsWith("setup--") || organization.issuerCode.startsWith("SETUP_")) {
+    throw new TecInputError("Save the real organization name before preparing or issuing a TECRID.");
+  }
+}
+
 async function sha256(value: string) {
   const digest = await crypto.subtle.digest(
     "SHA-256",
@@ -512,7 +518,7 @@ export async function onboardOrganization(
   const db = getDb();
   const organizationId = `org_${crypto.randomUUID().replaceAll("-", "")}`;
   const createdAt = now();
-  const issuerCode = issuerCodeFor(name);
+  const issuerCode = deferred ? `SETUP_${randomCharacters(8)}` : issuerCodeFor(name);
   const slug = `${deferred ? "setup-" : slugify(name) || "organization"}-${crypto.randomUUID().slice(0, 8)}`;
 
   await db.insert(organizations).values({
@@ -649,6 +655,8 @@ export async function submitIssuerApplication(
       "Only a laboratory organization can apply for TEC issuance authority.",
     );
   }
+
+  requireOrganizationIdentity(membership.organization);
 
   const legalName = normalizeText(value.legalName, 180);
   const laboratoryAddress = normalizeText(value.laboratoryAddress, 300);
@@ -837,6 +845,7 @@ export async function reviewIssuerApplication(
     .where(eq(issuerApplications.id, applicationId))
     .limit(1);
   if (!record) throw new TecInputError("Issuer application not found.");
+  if (decision === "approve") requireOrganizationIdentity(record.organization);
   if (record.application.status !== "submitted") {
     throw new TecInputError("Only a submitted issuer application can receive a final review decision.");
   }
@@ -1116,6 +1125,7 @@ export async function createCredential(
   value: unknown,
   options: CredentialCreationOptions = {},
 ) {
+  requireOrganizationIdentity(organization);
   const input = validateCredentialInput(value);
   const canPublish =
     organization.organizationType === "laboratory" &&
@@ -1970,8 +1980,9 @@ export async function completeWorkspaceDetails(user: ChatGPTUser, input: { name?
   const db = getDb();
   const updatedAt = now();
   const slug = `${slugify(name) || "organization"}-${crypto.randomUUID().slice(0, 8)}`;
+  const issuerCode = issuerCodeFor(name);
   await db.batch([
-    db.update(organizations).set({ name, website, slug, updatedAt }).where(and(eq(organizations.id, membership.organization.id), eq(organizations.slug, membership.organization.slug))),
+    db.update(organizations).set({ name, website, slug, issuerCode, updatedAt }).where(and(eq(organizations.id, membership.organization.id), eq(organizations.slug, membership.organization.slug))),
     db.insert(auditEvents).values({ id: `evt_${crypto.randomUUID().replaceAll("-", "")}`, organizationId: membership.organization.id, actorUserId: user.userId, eventType: "organization.details_completed", entityType: "organization", entityId: membership.organization.id, payload: JSON.stringify({ name, website }), createdAt: updatedAt }),
   ]);
   return getOrganizationForUser(user.userId);

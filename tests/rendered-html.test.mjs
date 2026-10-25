@@ -20,6 +20,18 @@ async function render(path = "/") {
   );
 }
 
+test("pricing permanently redirects home without rendering a page", async () => {
+  for (const path of ["/pricing", "/pricing/", "/pricing?source=old-link"]) {
+    const response = await render(path);
+    assert.equal(response.status, 301);
+    assert.equal(response.headers.get("location"), "http://localhost/");
+    assert.equal(await response.text(), "");
+  }
+  const home = await render("/");
+  assert.equal(home.status, 200);
+  assert.doesNotMatch(await home.text(), /\$2,500|buy\.stripe\.com|Founding Organization/);
+});
+
 test("keeps the thin homepage hero content-sized and omits editor UI for anonymous visitors", async () => {
   const { JSDOM } = await import("jsdom");
   const response = await render();

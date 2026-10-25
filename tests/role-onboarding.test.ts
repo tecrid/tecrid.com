@@ -25,7 +25,9 @@ it("saves all six roles without identity fields, defers real details, and never 
       const completed = (await completeWorkspaceDetails(user, { name: `Fixture ${role.label}`, website: "https://example.test" }))!;
       expect(completed.organization.slug).not.toMatch(/^setup--/);
       expect(completed.organization.issuerStatus).toBe(membership.organization.issuerStatus);
-      expect(completed.organization.issuerCode).toBe(membership.organization.issuerCode);
+      expect(completed.organization.issuerCode).not.toBe(membership.organization.issuerCode);
+      expect(completed.organization.issuerCode).not.toMatch(/^SETUP/);
+      expect(completed.organization.slug).toMatch(/^fixture-/);
       await expect(completeWorkspaceDetails(user, { name: "Change legal name" })).rejects.toThrow("already set");
       await expect(reserveReportTecrid(completed.organization, { productName: "Fixture", productSku: "TEST" })).rejects.toThrow();
     }
