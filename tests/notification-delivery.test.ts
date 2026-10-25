@@ -103,7 +103,7 @@ it("creates an encrypted RFC8291 push request with VAPID and only the allowed al
  expect(headers["Content-Encoding"]).toBe("aes128gcm");
  const plain = ece.decrypt(Buffer.from(push.init.body as Uint8Array), { version: "aes128gcm", privateKey: receiver, authSecret: auth });
  const payload = JSON.parse(plain.toString());
- expect(payload).toEqual(notificationPayload({ id: "notification:push", eventType: "laboratory_report.received", productSku: null, actionPath: "/dashboard/evidence-routing" }));
+ expect(payload).toEqual(notificationPayload({ id: "notification:push", eventType: "laboratory_report.received", productSku: null, actionPath: "/dashboard/evidence-routing" }, channel.id));
  expect(plain.toString()).not.toContain("SENSITIVE");
  console.info("PUSH_PAYLOAD_PROOF " + plain.toString());
  await disableNotificationChannel(user, channel.id);

@@ -1,3 +1,4 @@
+import { NotificationOpen } from "./notification-open";
 import type { ReactNode } from "react";
 import { getChatGPTUser, chatGPTSignOutPath } from "../chatgpt-auth";
 import { getDashboardData } from "../../lib/tec";
@@ -13,6 +14,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <div className="dashboard-workspace-frame">
+      <NotificationOpen />
       <WorkspaceSidebar
         organization={{
           name: data.organization.name,

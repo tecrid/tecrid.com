@@ -15,7 +15,7 @@ const calls: { url: string; headers: Headers; body: Uint8Array }[] = [];
 const receiver = createECDH("prime256v1"); receiver.generateKeys();
 const auth = Buffer.alloc(16, 4);
 const user = { userId: "worker-notify", email: "worker@example.test", displayName: "Fixture", fullName: "Fixture" };
-let mf: Miniflare;
+let mf: Miniflare, channelId: string;
 beforeAll(async () => {
  const vapid = webPush.generateVAPIDKeys();
  const bindings = { TECRID_CHANNEL_SECRET: Buffer.alloc(32, 3).toString("base64url"), TECRID_DELIVERY_ENABLED: "true", TECRID_DELIVERY_WORKER_SECRET: "isolated-worker-secret", TECRID_VAPID_PUBLIC_KEY: vapid.publicKey, TECRID_VAPID_PRIVATE_KEY: vapid.privateKey, TECRID_VAPID_SUBJECT: "mailto:fixture@example.org" };
@@ -24,7 +24,7 @@ beforeAll(async () => {
  for (const file of readdirSync("drizzle").filter(x => x.endsWith(".sql")).sort()) for (const statement of readFileSync(`drizzle/${file}`, "utf8").split("--> statement-breakpoint").filter(x => x.trim())) await env.DB.prepare(statement).run();
  await getDb().insert(organizations).values({ id: user.userId, name: "Fixture", slug: user.userId, organizationType: "brand", ownerUserId: user.userId, ownerEmail: user.email, issuerCode: "WORKER" });
  await getDb().insert(organizationMembers).values({ organizationId: user.userId, userId: user.userId, email: user.email, role: "owner" });
- await saveNotificationChannel(user, { kind: "push", label: "Isolated phone", subscription: { endpoint: "https://web.push.apple.com/FixtureOnly", keys: { p256dh: receiver.getPublicKey().toString("base64url"), auth: auth.toString("base64url") } } });
+ channelId = (await saveNotificationChannel(user, { kind: "push", label: "Isolated phone", subscription: { endpoint: "https://web.push.apple.com/FixtureOnly", keys: { p256dh: receiver.getPublicKey().toString("base64url"), auth: auth.toString("base64url") } } })).id;
  await getDb().insert(organizationNotifications).values({ id: "worker-push", organizationId: user.userId, eventType: "laboratory_report.received", title: "SENSITIVE", body: "SENSITIVE", entityId: "fixture", entityType: "credential", actionPath: "/dashboard/evidence-routing", createdAt: new Date().toISOString() });
 }, 60000);
 afterAll(async () => { await mf?.dispose(); });
@@ -38,6 +38,6 @@ it("requires the worker secret and sends decryptable Web Push in the built Cloud
  expect(calls[0].headers.get("authorization")).toMatch(/^vapid /);
  const plain = ece.decrypt(Buffer.from(calls[0].body), { version: "aes128gcm", privateKey: receiver, authSecret: auth });
  const payload = JSON.parse(plain.toString());
- expect(payload).toEqual({ eventId: "notification:worker-push", event: "laboratory_report.received", sku: null, url: "https://tecrid.com/dashboard/evidence-routing" });
+ expect(payload).toEqual({ eventId: "notification:worker-push", event: "laboratory_report.received", sku: null, url: `https://tecrid.com/dashboard/evidence-routing?notificationEvent=notification%3Aworker-push&notificationChannel=${channelId}` });
  console.info("PUSH_PAYLOAD_PROOF " + plain.toString());
 }, 30000);

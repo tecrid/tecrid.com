@@ -274,6 +274,9 @@ async function verifyIssuerProof(
   let signature: Uint8Array;
   try {
     const jwk = JSON.parse(organization.issuerPublicKeyJwk) as JsonWebKey;
+    // Node exports the Ed25519 alias; Workers expects the RFC 8037 EdDSA alias.
+    // This affects key import only, never stored keys or signed payload bytes.
+    if (jwk.alg === "Ed25519") jwk.alg = "EdDSA";
     if (jwk.kty !== "OKP" || jwk.crv !== "Ed25519" || !jwk.x) throw new Error();
     publicKey = await crypto.subtle.importKey(
       "jwk",
@@ -330,6 +333,7 @@ async function verifyStoredProof(proof: {
   try {
     if (await sha256(proof.signedPayload) !== proof.signedPayloadHash) return false;
     const jwk = JSON.parse(proof.issuerPublicKeyJwk) as JsonWebKey;
+    if (jwk.alg === "Ed25519") jwk.alg = "EdDSA";
     if (jwk.kty !== "OKP" || jwk.crv !== "Ed25519" || !jwk.x || jwk.d) return false;
     const publicKey = await crypto.subtle.importKey(
       "jwk",
