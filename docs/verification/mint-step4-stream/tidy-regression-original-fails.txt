@@ -1,0 +1,29 @@
+
+ RUN  v4.1.11 /Users/kmfp/Documents/Codex/2026-10-25/you-are-conductor-the-single-codex/work/tecrid
+
+ ❯ tests/vle-stream.test.ts (11 tests | 1 failed) 6544ms
+   × records replacement grants without allowing a superseded grant to restore its payload 749ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/vle-stream.test.ts > records replacement grants without allowing a superseded grant to restore its payload
+AssertionError: expected 'upsert' to be 'tombstone' // Object.is equality
+
+Expected: "tombstone"
+Received: "upsert"
+
+ ❯ tests/vle-stream.test.ts:105:85
+    103|  const afterReplacementRevoked=await events();
+    104|  expect(afterReplacementRevoked.filter(r=>r.grantId===replacement).at(…
+    105|  expect(afterReplacementRevoked.filter(r=>r.grantId===f.grantId).at(-1…
+       |                                                                                     ^
+    106|  expect(afterReplacementRevoked.slice(beforeRevocation).some(r=>r.gran…
+    107|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  20:38:32
+   Duration  7.38s (transform 204ms, setup 0ms, import 692ms, tests 6.54s, environment 0ms)

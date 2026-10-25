@@ -1,7 +1,7 @@
 // @vitest-environment node
 import {afterAll,beforeAll,expect,it} from "vitest";
 import {createHmac} from "node:crypto";
-import {writeFileSync} from "node:fs";
+import {readFileSync,writeFileSync} from "node:fs";
 import {eq,asc} from "drizzle-orm";
 import {evidenceFixture,actor} from "./support/evidence-fixture";
 import {env} from "./support/cloudflare-env";
@@ -95,6 +95,16 @@ it("records replacement grants without allowing a superseded grant to restore it
  await reviewMarketplaceMapping(operator,{supplierOrganizationId:supplier,recipientOrganizationId:f.recipient.userId,externalSupplierId:"vle-supplier",active:true,reviewNote:"Synthetic mapping reviewed and restored"});await processMarketplaceStreamJobs();
  const rows=await events();expect(JSON.parse(rows.filter(r=>r.grantId===replacement).at(-1)!.bodyJson).grant.supersedesGrantId).toBe(f.grantId);
  expect(rows.filter(r=>r.grantId===f.grantId).at(-1)?.operation).toBe("tombstone");
+ const beforeRevocation=rows.length;
+ await revokeEvidenceGrant(f.brand,replacement);await processMarketplaceStreamJobs();
+ // A later consent reconciliation must not resurrect the superseded broader view.
+ await setMarketplaceGrantSettings(f.brand,f.grantId,{publicStatus:true,brandOrganizationIds:["vle-brand"]});
+ await processMarketplaceStreamJobs();
+ const afterReplacementRevoked=await events();
+ expect(afterReplacementRevoked.filter(r=>r.grantId===replacement).at(-1)?.operation).toBe("tombstone");
+ expect(afterReplacementRevoked.filter(r=>r.grantId===f.grantId).at(-1)?.operation).toBe("tombstone");
+ expect(afterReplacementRevoked.slice(beforeRevocation).some(r=>r.grantId===f.grantId&&r.operation==="upsert")).toBe(false);
+
  await expect(setMarketplaceGrantSettings(f.brand,f.grantId,{publicStatus:false,brandOrganizationIds:[],supersedesGrantId:replacement})).rejects.toThrow();
  await expect(reviewMarketplaceMapping(operator,{supplierOrganizationId:supplier,recipientOrganizationId:f.recipient.userId,externalSupplierId:"wrong-supplier",active:true,reviewNote:"Synthetic attempt to change identity"})).rejects.toThrow(/identity/);
 });
@@ -109,6 +119,10 @@ it("captures recipient identity withdrawal and signed credential revocation with
  expect(rows.map(r=>r.sequence)).toEqual(rows.map((_,i)=>i+1));
 });
 it("holds oversized full records while preserving the authorized status-only stream",async()=>{
+ // A fresh independent narrow grant remains usable after prior replacements were revoked.
+ const narrowRequest=await createEvidenceRequest(f.recipient,{controllerOrganizationCode:"SECBRAND",programName:"Synthetic",purpose:"Independent bounded status",productName:"Synthetic evidence",productSku:"SEC-SKU",accessLevel:"status_only",deliveryMode:"future_sku"});
+ const narrow=(await respondToEvidenceRequest(f.brand,narrowRequest.id,{decision:"accept"})).grantId!;
+
  const request=await createEvidenceRequest(f.recipient,{controllerOrganizationCode:"SECBRAND",programName:"Synthetic",purpose:"Bounded payload",productName:"Synthetic evidence",productSku:"SEC-SKU",accessLevel:"full_record",deliveryMode:"future_sku"});
  const full=(await respondToEvidenceRequest(f.brand,request.id,{decision:"accept"})).grantId!;
  const large={...input,sourceDocument:syntheticSourceDocument(),results:Array.from({length:100},(_,i)=>({analyte:`Synthetic-${i}`,resultText:"S".repeat(80),unit:"U".repeat(40),method:"M".repeat(120),loqText:"L".repeat(80)}))};
@@ -117,6 +131,17 @@ it("holds oversized full records while preserving the authorized status-only str
  const authorization=await createRoutingAuthorization(f.brand,{laboratoryOrganizationCode:"SECLAB",productName:"Synthetic evidence",productSku:"SEC-SKU"});
  await deliverCredentialWithAuthorization(await authorizeRoutingAuthorizationId(authorization.id,f.lab.userId),issued.identifier);await processMarketplaceStreamJobs();
  const rows=(await events()).filter(r=>r.credentialIdentifier===issued.identifier);
- expect(rows.length).toBeGreaterThan(0);expect(rows.some(r=>r.grantId===full)).toBe(false);expect(rows.every(r=>JSON.parse(r.bodyJson).snapshot.results.length===0)).toBe(true);
+ expect(rows.length).toBeGreaterThan(0);expect(rows.some(r=>r.grantId===narrow)).toBe(true);expect(rows.some(r=>r.grantId===full)).toBe(false);expect(rows.every(r=>JSON.parse(r.bodyJson).snapshot.results.length===0)).toBe(true);
  expect((await getDb().select().from(marketplaceStreamJobs)).some(j=>j.heldReason==="marketplace_payload_too_large")).toBe(true);
+});
+
+it("keeps migration schema-only and the separately gated operator queue seed idempotent",async()=>{
+ const migration=readFileSync(new URL('../drizzle/0024_wonderful_dazzler.sql',import.meta.url),'utf8');
+ expect(migration.split('--> statement-breakpoint').filter(s=>s.trim()).every(s=>/^CREATE\b/.test(s.trim()))).toBe(true);
+ expect(migration).not.toContain('migration_review');
+ const seed=readFileSync(new URL('../ops/sql/marketplace-stream-review-queue.sql',import.meta.url),'utf8');
+ const db=getDb().$client;
+ await db.prepare(seed).run();const first=await db.prepare("SELECT COUNT(*) AS n FROM marketplace_stream_jobs WHERE cause='operator_review'").first<{n:number}>();
+ await db.prepare(seed).run();const second=await db.prepare("SELECT COUNT(*) AS n FROM marketplace_stream_jobs WHERE cause='operator_review'").first<{n:number}>();
+ expect(first!.n).toBeGreaterThan(0);expect(second!.n).toBe(first!.n);
 });

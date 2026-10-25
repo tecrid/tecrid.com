@@ -1,0 +1,17 @@
+{
+  "parent": "99c14c149c779d3091c259f306a7f8cb4b010258",
+  "changes": [
+    "Schema-only migration0024; operational review seed moved to separately gated idempotent SQL",
+    "Superseded lineage remains permanent after replacement revocation"
+  ],
+  "checks": {
+    "original_query_new_regression": "FAIL as expected: old upsert restored after replacement revocation",
+    "corrected_unit_suite": "177/177 in41 files PASS",
+    "node_built_worker_security_rendered": "46/46 PASS",
+    "build": "PASS",
+    "schema_drift": "PASS, no changes",
+    "focused_lint": "PASS",
+    "operator_seed": "Disposable D1 only, two executions produce same queue count"
+  },
+  "release": "Not merged/deployed/applied to production. Receiver OFF. Operator seed requires separate gate. Original 13 envelope fixtures retained unchanged as paired compatibility evidence."
+}

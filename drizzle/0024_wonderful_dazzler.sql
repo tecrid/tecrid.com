@@ -92,6 +92,3 @@ CREATE TRIGGER marketplace_event_no_update BEFORE UPDATE ON marketplace_stream_e
 CREATE TRIGGER marketplace_event_no_delete BEFORE DELETE ON marketplace_stream_events BEGIN SELECT RAISE(ABORT,'Marketplace stream events are permanent'); END;
 --> statement-breakpoint
 CREATE TRIGGER marketplace_event_sequence BEFORE INSERT ON marketplace_stream_events BEGIN SELECT CASE WHEN NEW.sequence<>COALESCE((SELECT MAX(sequence) FROM marketplace_stream_events WHERE stream_id=NEW.stream_id),0)+1 OR COALESCE(json_extract(NEW.body_json,'$.sequence'),0)<>NEW.sequence OR COALESCE(json_extract(NEW.body_json,'$.eventId'),'')<>NEW.id OR COALESCE(json_extract(NEW.body_json,'$.recipient.organizationId'),'')<>NEW.recipient_organization_id OR COALESCE(json_extract(NEW.body_json,'$.credential.tecrid'),'')<>NEW.credential_identifier OR COALESCE(json_extract(NEW.body_json,'$.grant.id'),'')<>NEW.grant_id THEN RAISE(ABORT,'Marketplace stream identity or sequence mismatch') END; END;
-
---> statement-breakpoint
-INSERT INTO marketplace_stream_jobs(delivery_id,cause,created_at) SELECT d.id,'migration_review',strftime('%Y-%m-%dT%H:%M:%fZ','now') FROM evidence_deliveries d JOIN organizations o ON o.id=d.recipient_organization_id WHERE o.organization_type='marketplace';

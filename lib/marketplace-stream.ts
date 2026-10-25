@@ -76,7 +76,8 @@ async function deliveryContext(deliveryId:string){
  else if(row.authorization.authorizationKind==="standing"&&!JSON.parse(row.authorization.grantIdsJson||"[]").includes(row.grant.id))reason="routing_scope_changed";
   else if(record && (routingCode(row.grant.productSku)!==routingCode(record.credential.productSku) || (row.authorization.authorizationKind==="standing"?!standingAuthorizationMatches(row.authorization,record.credential):row.authorization.productSku!==record.credential.productSku)))reason="routing_scope_changed";
  else if(!subject?.lotNumber&&!subject?.sourceDocument)reason="signed_lot_identity_required";
-  const replacements=await getDb().select({id:evidenceAccessGrants.id}).from(marketplaceGrantSettings).innerJoin(evidenceAccessGrants,eq(evidenceAccessGrants.id,marketplaceGrantSettings.grantId)).where(and(eq(marketplaceGrantSettings.supersedesGrantId,row.grant.id),eq(evidenceAccessGrants.status,"active"))).limit(1);
+  // Replacement lineage remains authoritative after the replacement is revoked.
+  const replacements=await getDb().select({id:marketplaceGrantSettings.grantId}).from(marketplaceGrantSettings).where(eq(marketplaceGrantSettings.supersedesGrantId,row.grant.id)).limit(1);
   if(replacements.length)reason="grant_superseded";
  return {...row,record,settings,mapping,subject,supplier,reason};
 }
