@@ -979,7 +979,7 @@ export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scope
   const id = `key_${crypto.randomUUID().replaceAll("-", "")}`;
 
   const db = getDb();
-  await db.insert(apiKeys).values({
+  await db.batch([db.insert(apiKeys).values({
     id,
     organizationId: membership.organization.id,
     label,
@@ -989,17 +989,16 @@ export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scope
     lastFour: plainTextKey.slice(-4),
     createdByUserId: user.userId,
     createdAt,
-  });
-  await db.insert(auditEvents).values({
+  }),db.insert(auditEvents).values({
     id: `evt_${crypto.randomUUID().replaceAll("-", "")}`,
     organizationId: membership.organization.id,
     actorUserId: user.userId,
     eventType: "api_key.created",
     entityType: "api_key",
     entityId: id,
-    payload: JSON.stringify({ label, prefix: plainTextKey.slice(0, 13) }),
+    payload: JSON.stringify({ scopes }),
     createdAt,
-  });
+  })]);
 
   return { id, plainTextKey, label, scopes, createdAt };
 }
@@ -1022,17 +1021,17 @@ export async function revokeApiKey(user: ChatGPTUser, keyIdValue: unknown) {
     .limit(1);
   if (!key) throw new TecAuthorizationError("API key not found for this organization.");
 
+  if (key.revokedAt) return {id:keyId,revokedAt:key.revokedAt};
   const revokedAt = now();
-  await db.update(apiKeys).set({ revokedAt }).where(eq(apiKeys.id, keyId));
-  await db.insert(auditEvents).values({
-    id: `evt_${crypto.randomUUID().replaceAll("-", "")}`,
+  await db.batch([db.update(apiKeys).set({ revokedAt }).where(and(eq(apiKeys.id, keyId),isNull(apiKeys.revokedAt))),db.insert(auditEvents).values({
+    id: `api_key_revoked:${keyId}`,
     organizationId: membership.organization.id,
     actorUserId: user.userId,
     eventType: "api_key.revoked",
     entityType: "api_key",
     entityId: keyId,
     createdAt: revokedAt,
-  });
+  })]);
   return { id: keyId, revokedAt };
 }
 
