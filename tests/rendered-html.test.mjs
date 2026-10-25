@@ -20,6 +20,18 @@ async function render(path = "/") {
   );
 }
 
+test("pricing permanently redirects home without rendering a page", async () => {
+  for (const path of ["/pricing", "/pricing/", "/pricing?source=old-link"]) {
+    const response = await render(path);
+    assert.equal(response.status, 301);
+    assert.equal(response.headers.get("location"), "http://localhost/");
+    assert.equal(await response.text(), "");
+  }
+  const home = await render("/");
+  assert.equal(home.status, 200);
+  assert.doesNotMatch(await home.text(), /\$2,500|buy\.stripe\.com|Founding Organization/);
+});
+
 test("keeps the thin homepage hero content-sized and omits editor UI for anonymous visitors", async () => {
   const { JSDOM } = await import("jsdom");
   const response = await render();
@@ -42,8 +54,9 @@ test("keeps the thin homepage hero content-sized and omits editor UI for anonymo
   assert.equal(hero.querySelectorAll("h1").length, 1);
   assert.equal(hero.querySelectorAll(".hero-copy").length, 1);
   assert.doesNotMatch(hero.textContent || "", /persistent identifier|Commercial value through|Issuer signature required/);
-  assert.ok(hero.nextElementSibling.matches(".home-evidence-context"));
-  assert.match(hero.nextElementSibling.textContent || "", /with access governed by the record’s disclosure settings/);
+  assert.ok(hero.nextElementSibling.matches(".role-picker"));
+  assert.equal(hero.nextElementSibling.querySelectorAll("button").length, 6);
+  assert.match(dom.window.document.querySelector(".home-evidence-context").textContent || "", /with access governed by the record’s disclosure settings/);
   assert.doesNotMatch(dom.window.document.body.textContent || "", /edit site/i);
   for (const element of dom.window.document.querySelectorAll("[aria-label], [title], input[value]")) {
     for (const attribute of ["aria-label", "title", "value"]) {
@@ -60,7 +73,7 @@ test("renders the TEC Registry public product", async () => {
   assert.match(html, /TEC Registry/);
   assert.match(html, /Lab results that/);
   assert.match(html, /Test Evidence Credential/);
-  assert.match(html, /Join the registry/);
+  assert.match(html, /Who are you/);
   assert.match(html, /TECRID/);
   assert.match(html, /Resolver sample/);
   assert.match(html, /Look up a TECRID/);
@@ -100,8 +113,8 @@ test("publishes focused search-intent pages, the laboratory go-time pack, and ag
   ]);
   assert.match(home, /persistent identifier and verification record for laboratory reports/i);
   assert.match(home, /Certificate of Analysis authentication/i);
-  assert.match(home, /Who TECRID serves/);
-  assert.match(home, /Founding laboratory pilot/);
+  assert.match(home, /Who are you/);
+  assert.doesNotMatch(home, /Founding laboratory pilot|Explore VLE QUALIFIED|Apply for HMTc certification|vle\.exchange\/for-suppliers/);
   assert.match(labs, /Stop answering the same report question twice/);
   assert.match(labs, /laboratory report verification/i);
   assert.match(labs, /PDF or Certificate of Analysis is a document—not a TECRID/);
@@ -125,7 +138,6 @@ test("publishes focused search-intent pages, the laboratory go-time pack, and ag
   assert.match(integrate, /Human approval still controls identity, secrets, deployment, and production writes/);
   for (const path of ["for-laboratories", "laboratory-go-time", "laboratory-value", "laboratory-pilot", "for-brands", "for-certifiers-retailers", "integrate"]) {
     assert.match(sitemap, new RegExp(`https:\\/\\/tecrid\\.com\\/${path}`));
-    assert.match(nav, new RegExp(`href="\\/${path}`));
   }
 });
 
@@ -154,7 +166,6 @@ test("publishes a claim-narrow TECRID FAQ with the VLE diligence boundary", asyn
   assert.match(faq, /"@type":"FAQPage"/);
   assert.doesNotMatch(faq, /registration (?:number|#)/i);
   assert.match(sitemap, /https:\/\/tecrid\.com\/faq/);
-  assert.match(nav, /href="\/faq"/);
 });
 
 test("locks laboratory approval behind evidence, key-control, and conformance gates", async () => {
@@ -251,7 +262,6 @@ test("publishes a portable, minification-safe TECRID identity mark and email-sig
   assert.match(html, /The badge is a link—not a blanket endorsement/);
   assert.match(html, /https:\/\/tecrid\.com\/participants\/PFND/);
   assert.match(nav, /\/icons\/tecrid\.svg/);
-  assert.match(nav, /href="\/badge"/);
   assert.match(sharingClient, /Copy email-signature HTML/);
   assert.match(sharingClient, /tecrid-profile-badge\.png/);
   assert.match(participantDirectory, /className="product-hero participants-hero"/);
@@ -269,29 +279,17 @@ test("publishes a portable, minification-safe TECRID identity mark and email-sig
   await assert.doesNotReject(access(new URL("../public/brand/tecrid-profile-badge.png", import.meta.url)));
 });
 
-test("renders pricing and API documentation", async () => {
+test("renders email-first free signup and API documentation", async () => {
   const [join, developersResponse] = await Promise.all([
     readFile(new URL("../app/join/page.tsx", import.meta.url), "utf8"),
     render("/developers"),
   ]);
   assert.equal(developersResponse.status, 200);
   const developers = await developersResponse.text();
-  assert.match(join, /Founding Organization/);
-  assert.match(join, /\$2,500/);
-  assert.match(join, /buy\.stripe\.com/);
-  assert.match(join, /first 10 historical reports/);
-  assert.match(join, /The core registry.*is free\. Forever/s);
-  assert.match(join, /Core registry · all roles/);
-  assert.match(join, /Optional · white-glove implementation/);
-  assert.match(join, /Buy implementation work—not credibility/);
-  assert.match(join, /Laboratory.*Brand or supplier.*Certifier or retailer/s);
-  assert.match(join, /TECRID authenticates provenance; it does not certify product safety/);
-  assert.match(join, /A PDF or COA does not become a TECRID/);
-  assert.match(join, /vle\.exchange\/for-laboratories/);
-  assert.doesNotMatch(join, /Sign-in uses your ChatGPT identity/);
-  assert.doesNotMatch(join, /VLE QUALIFIED/);
-  assert.match(join, /locked_prefilled_email/);
-  assert.match(join, /client_reference_id/);
+  assert.doesNotMatch(join, /Founding Organization|\$2,500|buy\.stripe\.com|white-glove|locked_prefilled_email/);
+  assert.match(join, /Start with your email/);
+  assert.match(join, /EmailSignInForm/);
+  assert.match(join, /parseRole/);
   assert.match(developers, /TEC Registry API/);
   assert.match(developers, /Open the repository/);
   assert.match(developers, /TECRID Connect/);
@@ -324,7 +322,7 @@ test("publishes privacy boundaries that match controlled TECRID workflows", asyn
   assert.match(html, /does not change a private TECRID.*registry visibility/i);
   assert.match(html, /human review/i);
   assert.doesNotMatch(html, /cannot be compelled|never disclose under any circumstance/i);
-  for (const source of [footer, onboarding, intake, join, issuerApplication, foundingLaunch]) assert.match(source, /href="\/privacy"/);
+  for (const source of [footer, intake, join, issuerApplication, foundingLaunch]) assert.match(source, /href="\/privacy"/);
 });
 
 test("keeps durable infrastructure, proof enforcement, and production metadata wired", async () => {
@@ -804,20 +802,10 @@ test("gives authenticated organizations a role-aware workspace shell and a real 
   assert.match(layout, /WorkspaceSidebar/);
   assert.match(sidebar, /usePathname/);
   assert.match(sidebar, /aria-current/);
-  assert.match(sidebar, /Laboratory launch/);
-  for (const destination of [
-    "/dashboard/sharing",
-    "/dashboard/lab-defense",
-    "/dashboard/certification",
-    "/dashboard/evidence-routing",
-    "/dashboard/insights",
-    "/dashboard/reports/new",
-    "/dashboard/credentials/new",
-    "/dashboard/settings",
-  ]) assert.match(sidebar, new RegExp(destination.replaceAll("/", "\\/")));
-
-  assert.match(dashboard, /className="dashboard-workflow-card sharing-card" href="\/dashboard\/sharing"/);
-  assert.match(dashboard, /className="dashboard-workflow-card insights-card" href="\/dashboard\/insights"/);
+  assert.match(sidebar, /roleNavigation/);
+  assert.doesNotMatch(sidebar, /workspace-mobile-nav|Laboratory launch|secondary/);
+  assert.match(dashboard, /simple-primary-actions/);
+  assert.doesNotMatch(dashboard, /dashboard-workflow-grid|billing-panel|dashboard-summary/);
   assert.match(settings, /robots: \{ index: false/);
   assert.match(settings, /ApiKeyPanel/);
   assert.match(application, /id="laboratory-verification"/);

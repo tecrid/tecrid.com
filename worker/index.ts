@@ -42,6 +42,10 @@ const worker = {
       return Response.redirect(url.href, 308);
     }
 
+    if (url.pathname === "/pricing" || url.pathname === "/pricing/") {
+      return Response.redirect(new URL("/", url).href, 301);
+    }
+
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
       return handleImageOptimization(request, {

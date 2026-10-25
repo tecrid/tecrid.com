@@ -1,0 +1,46 @@
+{
+  "resolverSample": {
+    "unchanged": true,
+    "sha256": "6648c118f3c40bfdb31d52a1a2f83fa8edd8c7aa007dea05cf16ac6454fea246"
+  },
+  "proofBoundary": {
+    "unchanged": true,
+    "sha256": "49f63cd5a1f60a26c9733e5e563c5b7bfa4c87155f9606c634d0cb34581644b6"
+  },
+  "lib/evidence-routing.ts": {
+    "unchanged": true,
+    "sha256": "2e9ab0090a9a1865ca6e4c71a9ae8bf6f8d0dd989ab2926819b3ef84b0806d6e"
+  },
+  "lib/sharing.ts": {
+    "unchanged": true,
+    "sha256": "6c5fa5b93d7d01ce20ec06d4e564c15df0f80da8f60229dc94905818b2c4bedd"
+  },
+  "lib/issuer-verification.ts": {
+    "unchanged": true,
+    "sha256": "4fe589d143139f9db588a1ee2f611edb51de79d9d38740b13ac147fe9190c102"
+  },
+  "lib/test-report-access.ts": {
+    "unchanged": true,
+    "sha256": "4abb021ad438850ec030053af9277a5960623cfad930b8447f8e298e796d04b4"
+  },
+  "app/sample-lab/protected-results.tsx": {
+    "unchanged": true,
+    "sha256": "050fd78ce35fe0a58fa3e03eec04d54fe449bb1d245e45df9fa3a0bf50979d40"
+  },
+  "app/dashboard/kasandrinos/workspace.tsx": {
+    "unchanged": true,
+    "sha256": "a89c69f73833da92f0826918ce8429e1ee928fa8b6b281ec8f33dd33749ec113"
+  },
+  "app/notification-center.tsx": {
+    "unchanged": true,
+    "sha256": "8cc3d67dcb2eafc56ecdd601cb691f31992d8427d1a6a03b5161d866dddc2468"
+  },
+  "lib/notifications.ts": {
+    "unchanged": true,
+    "sha256": "d800cd178e13c7d0affcef5079552e785b34a927e8b20e75238f88a33243d2ff"
+  },
+  "db/schema.ts": {
+    "unchanged": true,
+    "sha256": "d48599b869f9242ba675045cd93375a3676c93f41b11ee090e02ab58bd6bdb49"
+  }
+}

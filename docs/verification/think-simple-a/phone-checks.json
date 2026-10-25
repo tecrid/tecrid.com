@@ -1,0 +1,166 @@
+[
+  {
+    "role": "brand",
+    "documentWidth": 390,
+    "editor": false,
+    "height": 844,
+    "nav": [
+      {
+        "height": 60,
+        "text": "⌂Home"
+      },
+      {
+        "height": 60,
+        "text": "◎Approvals"
+      },
+      {
+        "height": 60,
+        "text": "+Add a report"
+      },
+      {
+        "height": 60,
+        "text": "⚙Settings"
+      }
+    ],
+    "visibleMenus": [
+      "Mobile navigation"
+    ],
+    "width": 390
+  },
+  {
+    "role": "supplier",
+    "documentWidth": 390,
+    "editor": false,
+    "height": 844,
+    "nav": [
+      {
+        "height": 60,
+        "text": "⌂Home"
+      },
+      {
+        "height": 60,
+        "text": "◎Approvals"
+      },
+      {
+        "height": 60,
+        "text": "+Add a report"
+      },
+      {
+        "height": 60,
+        "text": "⚙Settings"
+      }
+    ],
+    "visibleMenus": [
+      "Mobile navigation"
+    ],
+    "width": 390
+  },
+  {
+    "role": "laboratory",
+    "documentWidth": 390,
+    "editor": false,
+    "height": 844,
+    "nav": [
+      {
+        "height": 60,
+        "text": "⌂Home"
+      },
+      {
+        "height": 60,
+        "text": "◎Issue"
+      },
+      {
+        "height": 60,
+        "text": "+Approvals"
+      },
+      {
+        "height": 60,
+        "text": "⚙Settings"
+      }
+    ],
+    "visibleMenus": [
+      "Mobile navigation"
+    ],
+    "width": 390
+  },
+  {
+    "role": "certification_body",
+    "documentWidth": 390,
+    "editor": false,
+    "height": 844,
+    "nav": [
+      {
+        "height": 60,
+        "text": "⌂Home"
+      },
+      {
+        "height": 60,
+        "text": "◎Requests"
+      },
+      {
+        "height": 60,
+        "text": "+Received"
+      },
+      {
+        "height": 60,
+        "text": "⚙Settings"
+      }
+    ],
+    "visibleMenus": [
+      "Mobile navigation"
+    ],
+    "width": 390
+  },
+  {
+    "role": "retailer",
+    "documentWidth": 390,
+    "editor": false,
+    "height": 844,
+    "nav": [
+      {
+        "height": 60,
+        "text": "⌂Home"
+      },
+      {
+        "height": 60,
+        "text": "◎Requests"
+      },
+      {
+        "height": 60,
+        "text": "+Received"
+      },
+      {
+        "height": 60,
+        "text": "⚙Settings"
+      }
+    ],
+    "visibleMenus": [
+      "Mobile navigation"
+    ],
+    "width": 390
+  },
+  {
+    "role": "public",
+    "documentWidth": 390,
+    "editor": false,
+    "height": 844,
+    "nav": [
+      {
+        "height": 60,
+        "text": "⌂Verify"
+      },
+      {
+        "height": 60,
+        "text": "◎What is a TECRID"
+      },
+      {
+        "height": 60,
+        "text": "+Settings"
+      }
+    ],
+    "visibleMenus": [
+      "Mobile navigation"
+    ],
+    "width": 390
+  }
+]

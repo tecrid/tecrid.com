@@ -1,30 +1,20 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { MobileNavigation } from "../app/mobile-navigation";
-
+import { RoleProvider } from "../app/role-context";
+import { roles, roleNavigation } from "../lib/roles";
 const route = vi.hoisted(() => ({ pathname: "/dashboard/settings" }));
 vi.mock("next/navigation", () => ({ usePathname: () => route.pathname }));
 afterEach(cleanup);
-
-it("keeps Workspace active on a nested route and closes More on navigation", () => {
-  const { container, rerender } = render(<MobileNavigation />);
-  expect(screen.getByRole("link", { name: "Workspace" }).getAttribute("aria-current")).toBe("page");
-  const menu = container.querySelector("details")!;
-  menu.open = true;
-  route.pathname = "/verify";
-  rerender(<MobileNavigation />);
-  expect(menu.open).toBe(false);
-  expect(screen.getByRole("link", { name: "Verify", exact: true }).getAttribute("aria-current")).toBe("page");
+it.each(roles)("shows only the $label destinations, without a More menu", ({id}) => {
+  const {container} = render(<RoleProvider initialRole={id} signedIn={false} hasWorkspace={false}><MobileNavigation /></RoleProvider>);
+  const links = screen.getAllByRole("link");
+  expect(links.map(link => link.textContent?.slice(1))).toEqual(roleNavigation(id).map(item => item.label));
+  expect(links.length).toBe(id === "public" ? 3 : 4);
+  expect(container.querySelector("details")).toBeNull();
 });
-
-it("dismisses More with Escape, restores focus, and dismisses on an outside tap", () => {
-  const { container } = render(<MobileNavigation />);
-  const menu = container.querySelector("details")!;
-  menu.open = true;
-  fireEvent.keyDown(document, { key: "Escape" });
-  expect(menu.open).toBe(false);
-  expect(document.activeElement).toBe(container.querySelector("summary"));
-  menu.open = true;
-  fireEvent.pointerDown(document.body);
-  expect(menu.open).toBe(false);
+it("marks the current role destination on nested settings pages", () => {
+  render(<RoleProvider initialRole="brand" signedIn hasWorkspace><MobileNavigation /></RoleProvider>);
+  expect(screen.getByRole("link", {name:"Settings"}).getAttribute("aria-current")).toBe("page");
+  expect(screen.queryByRole("link", {name:"Issue"})).toBeNull();
 });

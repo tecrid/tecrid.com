@@ -6,7 +6,7 @@ import { env } from "./support/cloudflare-env";
 import { getDb } from "../db";
 import { organizations, organizationMembers, reportReservations, testReportImports, participantProfiles, notificationOutbox } from "../db/schema";
 import { eq } from "drizzle-orm";
-import { canonicalizeCredential, canonicalizeCredentialRevision, createCredentialRevision, createCredential, getCredential, publicCredentialDocument, createApiKey, authenticateApiRequest, submitIssuerApplication, reviewIssuerApplication } from "../lib/tec";
+import { canonicalizeCredential, canonicalizeCredentialRevision, createCredentialRevision, createCredential, getCredential, publicCredentialDocument, createApiKey, authenticateApiRequest, submitIssuerApplication, reviewIssuerApplication, onboardOrganization, completeWorkspaceDetails } from "../lib/tec";
 import { createIssuerKeyChallenge, verifyIssuerKeyChallenge, reviewIssuerVerificationCheck } from "../lib/issuer-verification";
 import { reserveReportTecrid, finalizeReportTecrid } from "../lib/report-issuance";
 import { createLegacyReport, claimLegacyReport, getLegacySigningPayload, issueLegacyReport, getLegacyReportForUser, getLegacyDocument } from "../lib/legacy-reports";
@@ -44,6 +44,39 @@ beforeAll(async () => {
 afterAll(async()=>{await mf?.dispose()});
 
 describe("isolated real backend with D1/R2 and Ed25519",()=>{
+ it("uses the saved real lab identity for reservations and signed issuance, never the deferred code",async()=>{
+  const owner={...user,userId:"deferred-lab",email:"deferred-lab@example.test"};
+  const deferred=(await onboardOrganization(owner,{role:"laboratory"}))!.organization;
+  expect(deferred.issuerCode).toMatch(/^SETUP_/);
+  const incorrectlyVerified={...deferred,issuerStatus:"verified"};
+  await expect(reserveReportTecrid(incorrectlyVerified,{productName:"SYNTHETIC",productSku:"TEST"})).rejects.toThrow("real organization name");
+  await expect(createCredential(incorrectlyVerified,null,payload)).rejects.toThrow("real organization name");
+  await expect(createCredential({...incorrectlyVerified,issuerCode:"YLWTEST"},null,payload)).rejects.toThrow("real organization name");
+  await expect(submitIssuerApplication(owner,{})).rejects.toThrow("real organization name");
+  const saved=(await completeWorkspaceDetails(owner,{name:"Synthetic Identity Laboratory"}))!.organization;
+  expect(saved.slug).toMatch(/^synthetic-identity-laboratory-/);
+  expect(saved.issuerCode).toMatch(/^SIL[A-Z0-9]{3}$/);
+  expect(saved.issuerCode).not.toBe(deferred.issuerCode);
+  expect(saved.issuerStatus).toBe("pending");
+  const application=await submitIssuerApplication(owner,{legalName:saved.name,laboratoryAddress:"Test only",laboratoryWebsite:"https://example.test",authorityRole:"Test owner",accreditationStatus:"not_accredited",scopeSummary:"Synthetic fixtures only",methodFamilies:"Test method",contactName:"Fixture",contactEmail:owner.email,keyId:"fixture-key",publicKeyJwk:lab.issuerPublicKeyJwk,attested:true});
+  const challenge=await createIssuerKeyChallenge(owner);
+  await verifyIssuerKeyChallenge(owner,{challengeId:challenge.id,signature:(await sign(challenge.canonicalPayload)).signature});
+  for(const checkType of ["identity","accreditation","scope"]) await reviewIssuerVerificationCheck(admin,application.id,{checkType,status:"passed",evidenceNote:"Synthetic isolated test only."});
+  await getDb().update(organizations).set({slug:deferred.slug}).where(eq(organizations.id,saved.id));
+  await expect(reviewIssuerApplication(admin,application.id,{decision:"approve",reviewNote:"Synthetic isolated test only."})).rejects.toThrow("real organization name");
+  await getDb().update(organizations).set({slug:saved.slug}).where(eq(organizations.id,saved.id));
+  await reviewIssuerApplication(admin,application.id,{decision:"approve",reviewNote:"Synthetic isolated test only."});
+  const [verified]=await getDb().select().from(organizations).where(eq(organizations.id,saved.id));
+  const reservation=await reserveReportTecrid(verified,{productName:payload.sampleName,productSku:payload.productSku});
+  const issued=await createCredential(verified,null,{...payload,proof:await sign(canonicalizeCredential(payload).canonicalPayload)});
+  for(const identifier of [reservation.tecrid,issued.identifier]) {
+   expect(identifier.startsWith(`TECRID·${saved.issuerCode}-`)).toBe(true);
+   expect(identifier).not.toContain(deferred.issuerCode);
+   expect(identifier).not.toContain("SETUP");
+  }
+  expect((await getCredential(issued.identifier))!.integrity.issuerSignatureVerified).toBe(true);
+  await expect(completeWorkspaceDetails(owner,{name:"Change reviewed identity"})).rejects.toThrow("already set");
+ });
  it("denies unverified issuers and scoped-key writes",async()=>{
   await expect(reserveReportTecrid({...lab,issuerStatus:"pending"},{productName:"X",productSku:"X"})).rejects.toThrow();
   await expect(createCredential({...lab,issuerStatus:"pending"},null,payload)).rejects.toThrow();

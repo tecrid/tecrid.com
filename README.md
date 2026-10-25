@@ -132,8 +132,8 @@ actions tied to the current ChatGPT user. Leave public content anonymous.
 
 ## Mobile and future iPhone app
 
-The shared phone layout is in `app/mobile.css`, with persistent Home, Verify,
-Workspace, Alerts, and More navigation in `app/mobile-navigation.tsx`. It supports
+The shared phone layout is in `app/mobile.css` and `app/simple.css`, with one
+role-specific bottom bar in `app/mobile-navigation.tsx`. It supports
 safe-area insets, readable form controls, zoom, and independently scrolling
 report tables. Desktop layouts and printable laboratory sheets remain separate.
 
@@ -159,3 +159,38 @@ update does not cache sensitive records in a service worker.
 
 - [vinext Documentation](https://github.com/cloudflare/vinext)
 - [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+
+## Role-first front door
+
+`lib/roles.ts` defines the six front-door choices and the shared navigation map.
+Anonymous choice is a validated `tecrid_role_v1` preference. Once a workspace
+exists, its server-side organization type controls navigation. The preference
+never grants access or changes an existing membership or issuer status.
+
+`/join` uses the email-only magic-link form. `/welcome` preserves the selected
+role and original return path, then creates the workspace with just the role.
+New workspaces have a `setup--` slug until the owner supplies the organization
+name and optional website at the first report, request, or lab-verification step.
+This is a provisional display name, never a verified legal identity. Existing
+organization identities and issuer codes are preserved. The details endpoint
+authenticates the owner, rejects cross-origin writes, audits completion, and
+cannot edit a verified or previously completed identity.
+
+Lab verification lives at `/dashboard/laboratory` in four small form steps.
+The existing ICS review, signing, scope, and disclosure gates remain enforced
+by their original services. Selecting Lab never approves an issuer. Existing
+specialist workflows remain at their original URLs; Part A does not merge the
+approval systems or implement Parts B and C.
+
+For a disposable local signed-in review, run after `npm run build`:
+
+```sh
+node --import ./tests/support/register-worker-env.mjs tests/support/role-preview.mjs
+```
+
+Open `http://localhost:3110/dashboard?fixture=brand` and substitute `supplier`,
+`laboratory`, `certification_body`, `retailer`, or `public`. Use `fixture=new` at
+`/welcome` to test new role-only onboarding and `fixture=anonymous` for the
+public front door. The harness binds to loopback, uses only disposable local
+D1 data, and adds a visible demo banner. It does not load production secrets.
+The Node Worker shim is test-only and is not imported by application code.

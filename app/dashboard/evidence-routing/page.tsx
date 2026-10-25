@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { listEvidenceRoutingForUser } from "../../../lib/evidence-routing";
@@ -11,6 +12,7 @@ export default async function EvidenceRoutingPage() {
   const user = await requireChatGPTUser("/dashboard/evidence-routing");
   const data = await listEvidenceRoutingForUser(user);
   const organizationId = data.membership.organization.id;
+  if (data.membership.organization.slug.startsWith("setup--")) redirect("/dashboard/setup?return_to=/dashboard/evidence-routing");
   const name = (id: string) => data.organizationMap[id]?.name ?? "Unknown organization";
   const code = (id: string) => data.organizationMap[id]?.code ?? "—";
   const requests = data.requests.map((request) => ({
