@@ -1,0 +1,45 @@
+
+ RUN  v4.1.11 /Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/security-tecrid
+
+ ❯ tests/security-confirmation-links.test.ts (4 tests | 3 failed) 1666ms
+   × old confirmation links expire even for their named mailbox 66ms
+   × confirmation reads fail after withdrawn, with ordinary controller audit retained 68ms
+   × confirmation reads fail after declined, with ordinary controller audit retained 58ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/security-confirmation-links.test.ts > old confirmation links expire even for their named mailbox
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/security-confirmation-links.test.ts:12:191
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/security-confirmation-links.test.ts > confirmation reads fail after withdrawn, with ordinary controller audit retained
+ FAIL  tests/security-confirmation-links.test.ts > confirmation reads fail after declined, with ordinary controller audit retained
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/security-confirmation-links.test.ts:13:279
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 1 passed (4)
+   Start at  14:54:37
+   Duration  2.38s (transform 164ms, setup 0ms, import 575ms, tests 1.67s, environment 0ms)
+

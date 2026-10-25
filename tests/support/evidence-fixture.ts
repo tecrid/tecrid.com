@@ -9,8 +9,8 @@ import {canonicalizeCredential,createCredential} from '../../lib/tec';
 import {createEvidenceRequest,respondToEvidenceRequest,createRoutingAuthorization,processStandingRoutingJobs} from '../../lib/evidence-routing';
 export const actor=(id:string)=>({userId:id,email:`${id}@security.test`,displayName:id,fullName:null});
 export async function evidenceFixture(){
- const mf=new Miniflare({modules:true,script:'export default {fetch(){return new Response("test")}}',compatibilityDate:'2026-05-22',d1Databases:['DB']});
- env.DB=await mf.getD1Database('DB');
+ const mf=new Miniflare({modules:true,script:'export default {fetch(){return new Response("test")}}',compatibilityDate:'2026-05-22',d1Databases:['DB'],r2Buckets:['DOCUMENTS']});
+ env.DB=await mf.getD1Database('DB');env.DOCUMENTS=await mf.getR2Bucket('DOCUMENTS');
  for(const f of readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort())for(const s of readFileSync(`drizzle/${f}`,'utf8').split('--> statement-breakpoint'))if(s.trim())await env.DB.prepare(s).run();
  const brand=actor('security-brand'),recipient=actor('security-recipient'),other=actor('security-other'),lab=actor('security-lab');
  const pair=await crypto.subtle.generateKey('Ed25519',true,['sign','verify']);
