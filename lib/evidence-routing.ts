@@ -1,3 +1,4 @@
+import {visibleEvidenceDeliveries} from "./recipient-access";
 import { optionalRoutingCode, routingCode } from "./routing-codes";
 import { and, desc, eq, lte, or } from "drizzle-orm";
 import type { ChatGPTUser } from "../app/chatgpt-auth";
@@ -530,7 +531,7 @@ export async function listEvidenceDeliveriesForOrganization(organizationId: stri
     ))
     .orderBy(desc(evidenceDeliveries.deliveredAt))
     .limit(100);
-  return deliveries.map((delivery) => ({
+  return (await visibleEvidenceDeliveries(deliveries, organizationId)).map((delivery) => ({
     id: delivery.id,
     grantId: delivery.grantId,
     controllerOrganizationId: delivery.controllerOrganizationId,
@@ -557,7 +558,7 @@ export async function listEvidenceRoutingForUser(user: ChatGPTUser) {
     db.select({ id: organizations.id, name: organizations.name, code: organizations.issuerCode, type: organizations.organizationType }).from(organizations),
   ]);
   const organizationMap = Object.fromEntries(directory.map((item) => [item.id, item]));
-  return { membership, requests, grants, deliveries, controllerReceipts, authorizations, organizationMap };
+  return { membership, requests, grants, deliveries: await visibleEvidenceDeliveries(deliveries, organizationId), controllerReceipts, authorizations, organizationMap };
 }
 
 
