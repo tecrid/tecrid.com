@@ -22,7 +22,7 @@ beforeAll(async()=>{
  for(const f of readdirSync("drizzle").filter(x=>x.endsWith(".sql")).sort())for(const s of readFileSync(`drizzle/${f}`,"utf8").split("--> statement-breakpoint").filter(x=>x.trim()))await env.DB.prepare(s).run();
  for(const user of [actor("registry-lab"),other]){await getDb().insert(organizations).values({id:user.userId,name:`SYNTHETIC ${user.userId}`,slug:user.userId,organizationType:"laboratory",ownerUserId:user.userId,ownerEmail:user.email,issuerCode:user===other?"SBXOTHER":"SBXLAB",issuerStatus:"pending"});await getDb().insert(organizationMembers).values({organizationId:user.userId,userId:user.userId,email:user.email,role:"owner"});}
  const pair=await crypto.subtle.generateKey("Ed25519",true,["sign","verify"]);privateKey=pair.privateKey;jwk=await crypto.subtle.exportKey("jwk",pair.publicKey);
- sandboxKey=await createSandboxApiKey(user,"Synthetic sandbox");otherKey=(await createSandboxApiKey(other,"Synthetic other")).plainTextKey;liveKey=(await createApiKey(user,"Synthetic production prefix",["read","credentials:write"])).plainTextKey;
+ sandboxKey=await createSandboxApiKey(user,"Synthetic sandbox");otherKey=(await createSandboxApiKey(other,"Synthetic other")).plainTextKey;await getDb().update(organizations).set({issuerStatus:"verified"}).where(eq(organizations.id,user.userId));liveKey=(await createApiKey(user,"Synthetic production prefix",["read","credentials:write"])).plainTextKey;await getDb().update(organizations).set({issuerStatus:"pending"}).where(eq(organizations.id,user.userId));
 },60000);
 afterAll(async()=>{await mf?.dispose();});
 it("enforces key tiers on the built API before any production write",async()=>{

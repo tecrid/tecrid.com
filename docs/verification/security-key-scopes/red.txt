@@ -1,0 +1,79 @@
+
+ RUN  v4.1.11 /Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/security-tecrid
+
+ ❯ tests/security-key-scopes.test.ts (7 tests | 7 failed) 2523ms
+   × rejects non-laboratory credentials:write key creation 17ms
+   × rejects non-laboratory reports:write key creation 14ms
+   × rejects non-laboratory legacy:write key creation 16ms
+   × rejects non-laboratory * key creation 16ms
+   × pending labs cannot create production write keys 18ms
+   × legacy non-lab wildcard keys cannot authorize write routes 32ms
+   × verified labs retain known write scopes and cannot use wildcard on unknown write routes 33ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/security-key-scopes.test.ts > rejects non-laboratory credentials:write key creation
+ FAIL  tests/security-key-scopes.test.ts > rejects non-laboratory reports:write key creation
+ FAIL  tests/security-key-scopes.test.ts > rejects non-laboratory legacy:write key creation
+ FAIL  tests/security-key-scopes.test.ts > rejects non-laboratory * key creation
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ tests/security-key-scopes.test.ts:11:237
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/security-key-scopes.test.ts > pending labs cannot create production write keys
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ tests/security-key-scopes.test.ts:12:284
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/security-key-scopes.test.ts > legacy non-lab wildcard keys cannot authorize write routes
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ tests/security-key-scopes.test.ts:13:433
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  tests/security-key-scopes.test.ts > verified labs retain known write scopes and cannot use wildcard on unknown write routes
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ tests/security-key-scopes.test.ts:14:556
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed (7)
+   Start at  14:31:54
+   Duration  3.35s (transform 152ms, setup 0ms, import 627ms, tests 2.52s, environment 0ms)
+
