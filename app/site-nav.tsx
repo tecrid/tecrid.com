@@ -1,16 +1,19 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 
+import { NotificationBell } from "./notification-center";
+
 export function ProductNav({ compact = false }: { compact?: boolean }) {
   return (
     <nav className={`nav ${compact ? "nav-compact" : ""}`} aria-label="Primary navigation">
       <a className="brand" href="/" aria-label="TEC Registry home">
-        <img className="brand-mark" src="/brand/tecrid-logo.png" alt="" width="30" height="30" />
+        <img className="brand-mark" src="/icons/tecrid.svg" alt="" width="30" height="30" />
         <span className="brand-stack">
           <strong>TEC Registry</strong>
           <small>Institute of Contaminant Standards</small>
         </span>
       </a>
       <div className="nav-links">
+        <NotificationBell />
         <details className="nav-group">
           <summary>Understand <span>⌄</span></summary>
           <div><a href="/what-is-a-tecrid">What is a TECRID?</a><a href="/faq">FAQ</a><a href="/why">Why TECRID</a><a href="/standard">The standard</a><a href="/participants">Participants</a><a href="/issuers">Verified issuers</a></div>
@@ -35,7 +38,7 @@ export function ProductFooter() {
   return (
     <footer className="site-footer">
       <a className="brand footer-brand" href="/">
-        <img className="brand-mark" src="/brand/tecrid-logo.png" alt="" width="30" height="30" /><span>TEC Registry</span>
+        <img className="brand-mark" src="/icons/tecrid.svg" alt="" width="30" height="30" /><span>TEC Registry</span>
       </a>
       <p>Test Evidence Credentials and permanent TECRIDs · An ICS initiative</p>
       <div className="footer-actions">

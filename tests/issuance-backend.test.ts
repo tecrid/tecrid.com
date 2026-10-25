@@ -65,6 +65,7 @@ describe("isolated real backend with D1/R2 and Ed25519",()=>{
   const record=await getCredential(a.tecrid);expect(record!.integrity.issuerSignatureVerified).toBe(true);expect(verifyDocument(publicCredentialDocument(record!)).signatureVerified).toBe(true);
   expect(record!.results.map(r=>r.resultText)).toEqual(["ND","NR"]);expect(record!.results.every(r=>r.numericValue===null)).toBe(true);
   expect(record!.credential.issuedAt).not.toBe(payload.testedAt);
+  const notices=await env.DB.prepare("SELECT id FROM organization_notifications WHERE event_type='credential.issued' AND entity_id=?").bind(a.tecrid).all();expect(notices.results).toHaveLength(1);
   for(const action of ["correct","revoke"]) {
    const change={...payload,action,reason:"Synthetic revision check"};const canonical=await canonicalizeCredentialRevision(lab,a.tecrid,change);
    await createCredentialRevision(lab,null,a.tecrid,{...change,proof:await sign(canonical.canonicalPayload)});

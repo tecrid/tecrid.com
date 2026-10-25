@@ -1,0 +1,143 @@
+/* Shared phone shell. Keep this after globals.css so legacy page styles cannot
+   shrink controls or cover content underneath the home indicator. */
+.mobile-tab-bar { display: none; }
+.brand-mark { border-radius: 24%; }
+:focus-visible { outline: 3px solid #6385ff; outline-offset: 4px; }
+
+@media screen and (max-width: 767px) {
+  html { scroll-padding-top: 84px; scroll-padding-bottom: 100px; -webkit-text-size-adjust: 100%; }
+  body {
+    min-height: 100svh;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) calc(76px + env(safe-area-inset-bottom, 0px)) env(safe-area-inset-left, 0px);
+  }
+  main, section, article, aside, form, fieldset, .dashboard-workspace-main { min-width: 0; }
+  img, video { max-width: 100%; }
+  h1, h2, h3, code, dd, .identifier-row { overflow-wrap: anywhere; }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not(.sr-only), select, textarea {
+    min-width: 0; max-width: 100%; min-height: 48px; font-size: 16px !important;
+  }
+  button, summary, [class*="button-"] { min-height: 44px; touch-action: manipulation; }
+  input[type="checkbox"], input[type="radio"] { flex-shrink: 0; }
+  input.sr-only { width: 1px; height: 1px; min-height: 0; padding: 0; border: 0; }
+  p, li { line-height: 1.6; }
+
+  .nav { height: 68px; padding: 0 20px; gap: 12px; }
+  .nav .brand { min-width: 0; gap: 10px; }
+  .nav .brand-mark { width: 36px; height: 36px; flex-shrink: 0; }
+  .nav .brand-stack strong { font-size: 16px; }
+  .nav .brand-stack small { font-size: 9px; letter-spacing: .02em; }
+  .nav .nav-mobile-menu, .nav .nav-group, .nav .nav-links > a:not(.nav-cta-link) { display: none; }
+  .nav .nav-links { gap: 0; flex-shrink: 0; }
+  .nav .nav-cta-link { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 13px; font-size: 12px; }
+
+  .mobile-tab-bar {
+    position: fixed; z-index: 200; inset: auto 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 6px max(10px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+    border-top: 1px solid var(--line); background: #f4f1e9; box-shadow: 0 -4px 24px #101c350a; color: var(--muted);
+  }
+  .mobile-tab-bar > a, .mobile-more > summary { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-height: 58px; border-radius: 12px; font-size: 11px; font-weight: 700; list-style: none; cursor: pointer; }
+  .mobile-tab-bar svg { width: 23px; height: 23px; }
+  .mobile-tab-bar > a[aria-current="page"], .mobile-more[open] > summary { color: var(--blue); background: #e6eafb; }
+  .mobile-more > summary::-webkit-details-marker { display: none; }
+  .mobile-more-panel {
+    position: absolute; bottom: 100%; left: 0; right: 0;
+    max-height: calc(100dvh - 90px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    overflow-y: auto; overscroll-behavior: contain; padding: 8px 22px 24px; background: var(--paper); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 20px 20px 0 0; box-shadow: 0 -16px 60px #101c3526;
+  }
+  .mobile-more-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: -8px; padding: 12px 0; background: var(--paper); border-bottom: 1px solid var(--line); }
+  .mobile-more-heading strong { font-size: 20px; }
+  .mobile-more-heading button { padding: 8px 12px; border: 1px solid var(--line); border-radius: 24px; font-size: 14px; background: transparent; cursor: pointer; }
+  .mobile-more-panel h2 { margin: 22px 0 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .mobile-more-panel section a { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 16px; font-weight: 500; }
+  .mobile-more-panel a[aria-current="page"] { color: var(--blue); font-weight: 700; }
+  .mobile-install-note { margin: 24px 0 0; font-size: 13px; color: var(--muted); }
+
+  .hero.sell-hero { min-height: 0; padding: 40px 22px 32px; }
+  .hero h1 { font-size: clamp(44px, 12.5vw, 72px); line-height: 1; margin: 26px 0 22px; }
+  .hero-copy { font-size: 17px; line-height: 1.55; }
+  .eyebrow { font-size: 11px; letter-spacing: .1em; }
+  .lookup { margin-top: 28px; }
+  .lookup > label { font-size: 13px; }
+  .lookup-row { display: grid; gap: 4px; border-radius: 12px; padding: 6px; }
+  .lookup input { width: 100%; height: 52px; padding: 0 10px; }
+  .lookup-row button { width: 100%; min-height: 50px; border-radius: 8px; font-size: 16px; }
+  .lookup-message, .lookup-message button { font-size: 13px; }
+  .home-evidence-context, .evidence-value, .home-audience-section, .record-section, .protocol-section, .boundary-section { padding: 44px 22px; }
+  .section-kicker { font-size: 12px; }
+  .home-audience-grid > a { min-height: 0; padding: 24px; }
+  .identifier-row { flex-wrap: wrap; gap: 12px; }
+  .record-header h3 { font-size: 20px; }
+  .record-tabs { display: flex; }
+  .record-tabs button { flex: 1; padding: 12px 8px; font-size: 14px; }
+  .copy-button { padding: 10px 12px; font-size: 13px; }
+  .tab-panel, .results-wrap, .record-table-wrap, .table-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+  .record-footer { font-size: 13px; }
+  .record-footer a { display: inline-flex; align-items: center; min-height: 44px; }
+
+  .product-hero, .verification-hero, .dashboard-header, .form-page-header, .record-page-hero { min-height: 0; padding: 38px 22px; }
+  .product-hero h1, .dashboard-header h1, .form-page-header h1, .record-page-hero h1 { font-size: clamp(36px, 10vw, 52px); line-height: 1.08; }
+  .dashboard-header p, .form-page-header p, .record-page-hero p, .product-hero > p { font-size: 15px; line-height: 1.6; }
+  .role-hero, .pilot-hero, .lab-gotime-hero, .integration-hero { min-height: 0; padding-top: 42px; padding-bottom: 42px; }
+  .role-hero h1, .pilot-hero h1, .lab-gotime-hero h1, .integration-hero h1 { font-size: clamp(38px, 11vw, 57px); }
+  .verification-shell { padding: 24px 16px 44px; }
+  .verification-workbench, .verification-result { grid-template-columns: minmax(0, 1fr); }
+  .verification-input-panel { min-height: 0; padding: 24px 20px; }
+  .verification-input-panel + .verification-input-panel { border-left: 0; border-top: 1px solid var(--line); }
+  .verification-input-panel h2 { font-size: 32px; margin-bottom: 20px; }
+  .verification-input-panel label { font-size: 13px; margin-bottom: 8px; }
+  .verification-actions { flex-direction: column; align-items: stretch; }
+  .verification-actions button { justify-content: center; font-size: 15px; }
+  .verification-file-button { padding: 22px 16px; }
+  .verification-file-button small, .verification-message, .verification-result p, .verification-result dd, .verification-result-actions, .verification-receipt-register dd { font-size: 14px; }
+  .verification-digest, .verification-result dt, .verification-receipt-register dt { font-size: 12px; }
+  .verification-result dl > div, .verification-receipt-register > div { grid-template-columns: 1fr; gap: 8px; }
+  .verification-result-actions { flex-direction: column; gap: 12px; }
+  .verification-result-actions a { min-height: 44px; display: flex; align-items: center; }
+  .email-auth-shell { margin: 24px auto; padding: 24px 22px; }
+  .email-auth-shell h1 { font-size: 42px; }
+  .public-record-shell { margin: 24px 16px 40px; box-shadow: none; }
+  .public-record-summary span { font-size: 12px; }
+  .public-record-summary small { font-size: 14px; }
+  .public-record-page .sample-explainer > p, .public-record-page .record-boundary > p:not(.section-kicker),
+  .public-record-page .sample-method-register p, .public-record-page .version-register p { font-size: 15px; line-height: 1.65; }
+  .public-record-page .sample-identity-grid small, .public-record-page .sample-report-grid small,
+  .public-record-page .sample-timeline-grid strong, .public-record-page .source-document-register small,
+  .public-record-page .provenance-register small, .public-record-page .sample-visibility-register strong { font-size: 14px; line-height: 1.5; }
+  .public-record-page .record-integrity-bar, .public-record-page .sample-identity-grid article > span,
+  .public-record-page .sample-report-grid > div > span, .public-record-page .sample-timeline-grid > div > span,
+  .public-record-page .source-document-register > div > span, .public-record-page .provenance-register > div > span,
+  .public-record-page .sample-visibility-register > div > span,
+  .public-record-page .public-sample, .public-record-page .public-unverified, .public-record-page .public-verified { font-size: 11px; line-height: 1.5; }
+  .public-record-page table th, .public-record-page table td, .public-record-page table small { font-size: 14px; }
+  .public-record-page .public-results { padding: 22px 18px; }
+  .tecrid-card-facts { grid-template-columns: 1fr; gap: 16px; }
+  .tecrid-digital-card { padding: 18px; }
+  .dashboard-workspace-main .nav { display: none; }
+  .workspace-mobile-nav { top: env(safe-area-inset-top, 0px); }
+  .workspace-mobile-nav > summary { min-height: 68px; }
+  .workspace-mobile-nav > summary strong { font-size: 15px; }
+  .workspace-mobile-nav > summary small { font-size: 10px; }
+  .workspace-mobile-nav > summary i { font-size: 11px; }
+  .workspace-mobile-nav > div { max-height: calc(100dvh - 160px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); overscroll-behavior: contain; }
+  .workspace-mobile-nav .workspace-sidebar-nav a { min-height: 48px; font-size: 15px; }
+  .workspace-mobile-nav .workspace-sidebar-nav > span { font-size: 12px; }
+  .workspace-mobile-nav .workspace-lab-progress, .workspace-mobile-nav footer a { font-size: 14px; }
+  .workspace-mobile-nav footer a { min-height: 44px; display: flex; align-items: center; }
+  .dashboard-panel p, .dashboard-panel label, .dashboard-panel button { font-size: 15px; }
+  .footer-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 18px; }
+  .footer-actions a { display: flex; align-items: center; min-height: 44px; font-size: 13px; line-height: 1.4; }
+}
+
+@media screen and (max-width: 374px) {
+  .nav { padding-inline: 14px; }
+  .nav .brand-stack small { display: none; }
+  .nav .nav-cta-link { font-size: 11px; padding-inline: 10px; }
+}
+
+@media (display-mode: standalone) {
+  body { min-height: 100dvh; }
+  .mobile-install-note { display: none; }
+}
+
+@media print { .mobile-tab-bar { display: none !important; } }

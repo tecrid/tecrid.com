@@ -1,42 +1,43 @@
-# TECRID homepage layout sync and live-fix verification
+# TECRID live-fix and mobile source sync
 
-This PR synchronizes the live homepage layout into GitHub. `app/page.tsx` and `app/globals.css` are byte-identical to current live Site version 56. The resolver sample and proof-boundary section remain byte-identical to GitHub main, and the definition's disclosure wording moves below the hero verbatim.
+This single PR extends the existing homepage PR #19. Its base is `origin/main` at `42c679d78130df53ed42121098b00a733b8ebab9`, including merged PR #17. It synchronizes the Oct 24 live presentation from Sites version 56, source `7f1817d61fd7ecee160e2c5be1333baf511d44ff`.
 
-The current anonymous public homepage was checked on October 25, 2026 with curl without cookies and a fresh browser tab at 1280 by 720 pixels.
+## Included mobile work
 
-![Current anonymous TECRID homepage at 1280px](tecrid-live-home-1280.png)
+The current blue TECRID logo, favicon and Apple/app icon exports, home-screen manifest, safe-area viewport, 48px phone inputs, responsive report tables, fixed Home/Verify/Workspace/Alerts/More tabs, accessible More dismissal, workspace branding, grouped desktop navigation, and verification input settings are included. The content-sized homepage hero and following explanatory section are also included.
 
-![Matching local homepage at 1280px](tecrid-local-home-1280.jpg)
+The existing live Alerts tab depends on the live inbox UI, authenticated feed, VLE bridge, per-recipient read markers and existing event inserts. Those dependencies are synchronized with their original tests and SQL migration. This restores the live inbox; it does not implement the later mint-to-phone outbox or send any notification. The existing live www-to-apex redirect and its four tests are included.
 
-## Current live findings
+Main's newer self-referencing canonicals, permanent pricing redirect, Light Labs quick-start documentation and downloadable connector archives are retained. The older live copies would regress those fixes. Uncommitted experiments and duplicate ` 2`/` 3` source files in the original working folder are preserved locally and excluded from the PR.
 
-- The hero ends at approximately y=674 in the 720px screenshot. The next section begins within the first screen. The sample path is visible immediately beneath the lookup.
-- No Edit site pill appears in the anonymous screenshot or accessibility tree. The no-cookie curl response has zero matches for Edit site. Signed-in editor visibility was not reproduced, so the evidence supports anonymous absence only. No editor behavior was changed.
-- The screenshot and HTML observation are from https://tecrid.com/. The current live Site is version 56, source `7f1817d61fd7ecee160e2c5be1333baf511d44ff`, committed October 24 at 19:57:36 Asia/Nicosia and deployed successfully at 20:01:02, after the 19:38 report.
+## Preservation
 
-`anonymous-curl.json` records the no-cookie command, response SHA-256, byte count and editor-text check. The current response includes the sample path.
+The homepage resolver sample, proof-boundary section and following pilot section are byte-identical to main. Existing disclosure wording moves verbatim below the thin hero. The PR #17 card endpoint, card UI, sample reference, protected results, access-control library and their focused tests remain byte-identical to main. Its global digital-card styles are preserved; CSS differences from main concern only the homepage hero and explanatory section. The issuance test gains only an assertion for the existing live issuance notification.
 
-## Source comparison
-
-GitHub main `42c679d78130df53ed42121098b00a733b8ebab9` has a different homepage implementation from the live Site. Its hero still contains the full definition, commercial links and principles rail. This PR adopts the live thin hero and moves that existing explanatory material below it.
-
-The spacing rule on main is `.hero.sell-hero { padding-bottom: 100px; }`, while the current live source uses `.hero.sell-hero { min-height: 0; padding-bottom: 56px; }`. The more specific live selector prevents the later general `.hero` minimum heights from forcing extra space.
-
-Files changed versus main:
-
-- `app/page.tsx`: synchronize the live hero and following definition section, with the existing explanatory wording moved out of the hero. The resolver sample and proof-boundary sections are unchanged.
-- `app/globals.css`: synchronize the live content-sized hero and responsive definition-section layout.
-- `tests/rendered-html.test.mjs`: add the focused homepage regression.
-- This verification directory: add the current live screenshot, curl evidence, source-parity hashes and passing output.
-
-`source-parity.json` records the exact source commit and SHA-256 of the unchanged sample/proof-boundary block. No resolver, sample data, disclosure policy, proof-boundary wording, API, registry or mint behavior changes.
+`source-parity.json` contains exact hashes for imported live files and preserved PR #17 files, plus the deliberate main/live differences. No real result data or original PDFs are added. Screenshots show only the public homepage. The whole-folder backup is private and local; it is not included in GitHub.
 
 ## Validation
 
-The production build passed. `node --test tests/rendered-html.test.mjs` passed all 24 tests, including the new computed-style and anonymous-render regression. Exact output is in `rendered-tests.txt`.
+- Production build passed (`build.txt`).
+- All 59 unit/backend tests across 17 files passed (`unit-tests.txt`), including protected results, digital cards, organization membership, personal read state, service authentication, routing permissions, mobile navigation and inbox UI.
+- All 28 rendered/Worker checks passed (`rendered-tests.txt`): 24 rendered-page checks and four www redirect checks. The hero regression requires four children ending in the lookup, no trailing empty element, minimum height zero and the tighter spacing. It rejects anonymous Edit site text and control labels/titles/values.
+- Fresh no-cookie public HTML returned 200 with zero Edit site matches (`anonymous-curl.json`).
+- Live and local browser measurements match exactly at widths 320, 390, 767 and 1280 (`responsive-live.json`, `responsive-local.json`). All have zero horizontal overflow and no Edit site element. Phone hero bottom padding is 32px; desktop padding is 56px. The 1280px hero is 597.625px tall and ends at y=673.625.
+- Local mobile More opens within the viewport, closes on Escape and restores focus. The sample lookup loads `TECRID·DEMO-26-HM0001` and resolves its explicitly fictional record without overflow.
+- React component review and Git whitespace checks passed. Worker tests needed host-local networking because sandboxed local sockets were blocked; the successful run used isolated fixtures and mocked transports.
 
-The regression renders the actual built homepage, applies the real stylesheet in JSDOM, verifies that the hero has no forced minimum height and uses the tighter spacing, requires the lookup to be the final hero element with no empty trailing block, checks that the definition appears in the next section, retains lookup and sample controls, and rejects anonymous editor UI. JSDOM validates styles and markup; the live screenshot supplies the actual browser layout evidence.
+## Current screenshots
 
-Local browser QA at 1280 by 720 pixels matched the live view: hero bottom y=673.625, minimum height 0px, bottom padding 56px, four hero children ending with the lookup form, no horizontal overflow and no Edit site text. Exact measurements are in `tecrid-local-layout.json`.
+| Live mobile, 390px | Local mobile, 390px |
+| --- | --- |
+| ![Live mobile](tecrid-live-mobile-390.jpg) | ![Local mobile](tecrid-local-mobile-390.jpg) |
 
-No deployment or merge was performed.
+| Live desktop, 1280px | Local desktop, 1280px |
+| --- | --- |
+| ![Live desktop](tecrid-live-desktop-1280.jpg) | ![Local desktop](tecrid-local-desktop-1280.jpg) |
+
+The local Node preview has no production notification bindings and can show its notification-unavailable bell; live anonymous visitors receive the normal signed-out feed. No permissions or live runtime settings were changed.
+
+The older `tecrid-live-home-1280.png`, `tecrid-local-home-1280.jpg` and `tecrid-local-layout.json` remain as the earlier homepage-only verification record. The screenshots above verify the final mobile/logo sync.
+
+PR only. No deployment, merge, production migration, real notification, or mint was performed. Await Elon verification before continuing TECRID-MINT-TO-PHONE-1. Its existing #18 will need to reconcile the live inbox/schema changes when rebased after this sync.

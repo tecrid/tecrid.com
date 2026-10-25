@@ -1,7 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "./mobile.css";
+import "./notifications.css";
+import { NotificationProvider } from "./notification-center";
+import { MobileNavigation } from "./mobile-navigation";
 import {
   ICS_ORGANIZATION_ID,
   TECRID_SERVICE_ID,
@@ -22,6 +26,12 @@ const geistMono = Geist_Mono({
 });
 
 const title = "TECRID — Verifiable Laboratory Reports and COA Authentication";
+export const viewport: Viewport = {
+  // Vinext currently serializes width but omits viewportFit. Keep one viewport tag.
+  width: "device-width, viewport-fit=cover",
+  initialScale: 1,
+  themeColor: "#f4f1e9",
+};
 const description =
   "TECRID is a persistent identifier and verification record for laboratory reports. Authenticate the issuer, structured findings, source fingerprint, status, and version history.";
 
@@ -55,6 +65,10 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     applicationName: "TECRID",
+    manifest: "/manifest.webmanifest",
+    appleWebApp: { capable: true, title: "TECRID", statusBarStyle: "default" },
+    other: { "apple-mobile-web-app-capable": "yes" },
+    formatDetection: { telephone: false },
     authors: [{ name: "Institute of Contaminant Standards", url: "https://contaminantstandards.com" }],
     creator: "Institute of Contaminant Standards",
     publisher: "Institute of Contaminant Standards",
@@ -64,8 +78,11 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     robots: { index: true, follow: true },
     icons: {
-      icon: [{ url: "/favicon.png", type: "image/png", sizes: "64x64" }],
-      apple: [{ url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" }],
+      icon: [
+        { url: "/icons/tecrid.svg", type: "image/svg+xml" },
+        { url: "/icons/tecrid-64.png", type: "image/png", sizes: "64x64" },
+      ],
+      apple: [{ url: "/icons/tecrid-180.png", type: "image/png", sizes: "180x180" }],
     },
     openGraph: {
       title,
@@ -95,7 +112,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteIdentity).replaceAll("<", "\\u003c") }} />
-        {children}
+        <NotificationProvider>{children}<MobileNavigation /></NotificationProvider>
       </body>
     </html>
   );

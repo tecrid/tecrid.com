@@ -130,6 +130,24 @@ or enforce explicit server-side membership or allowlist checks.
 Use SIWC for account pages, user-specific dashboards, saved records, and write
 actions tied to the current ChatGPT user. Leave public content anonymous.
 
+## Mobile and future iPhone app
+
+The shared phone layout is in `app/mobile.css`, with persistent Home, Verify,
+Workspace, Alerts, and More navigation in `app/mobile-navigation.tsx`. It supports
+safe-area insets, readable form controls, zoom, and independently scrolling
+report tables. Desktop layouts and printable laboratory sheets remain separate.
+
+`public/manifest.webmanifest` enables a standalone home-screen experience.
+On iPhone, open the site in Safari and choose Share → Add to Home Screen.
+The source icon is `public/icons/tecrid-app.svg`; the opaque 1024 × 1024 master
+is `public/icons/tecrid-1024.png`. The operating system applies the app-icon
+corner mask. Smaller exports cover browser favicons and Apple touch icons.
+
+This is a mobile web foundation, not an App Store binary. A native release still
+needs its iOS project, signing, deep-link and authentication integration, device
+testing, and distribution. Verification and private reports remain online; this
+update does not cache sensitive records in a service worker.
+
 ## Useful Commands
 
 - `npm run dev`: start local development

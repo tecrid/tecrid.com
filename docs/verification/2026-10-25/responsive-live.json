@@ -1,0 +1,70 @@
+[
+  {
+    "editSite": false,
+    "height": 844,
+    "heroBottom": 603.03125,
+    "heroChildren": [
+      "DIV",
+      "H1",
+      "P",
+      "FORM"
+    ],
+    "heroHeight": 535.03125,
+    "heroMinHeight": "0px",
+    "heroPaddingBottom": "32px",
+    "mobileNavigation": "grid",
+    "overflow": false,
+    "width": 320
+  },
+  {
+    "editSite": false,
+    "height": 844,
+    "heroBottom": 612.53125,
+    "heroChildren": [
+      "DIV",
+      "H1",
+      "P",
+      "FORM"
+    ],
+    "heroHeight": 544.53125,
+    "heroMinHeight": "0px",
+    "heroPaddingBottom": "32px",
+    "mobileNavigation": "grid",
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "editSite": false,
+    "height": 844,
+    "heroBottom": 632.6875,
+    "heroChildren": [
+      "DIV",
+      "H1",
+      "P",
+      "FORM"
+    ],
+    "heroHeight": 564.6875,
+    "heroMinHeight": "0px",
+    "heroPaddingBottom": "32px",
+    "mobileNavigation": "grid",
+    "overflow": false,
+    "width": 767
+  },
+  {
+    "editSite": false,
+    "height": 900,
+    "heroBottom": 673.625,
+    "heroChildren": [
+      "DIV",
+      "H1",
+      "P",
+      "FORM"
+    ],
+    "heroHeight": 597.625,
+    "heroMinHeight": "0px",
+    "heroPaddingBottom": "56px",
+    "mobileNavigation": "none",
+    "overflow": false,
+    "width": 1280
+  }
+]

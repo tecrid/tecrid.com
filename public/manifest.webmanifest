@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "TECRID — TEC Registry",
+  "short_name": "TECRID",
+  "description": "Look up and verify laboratory evidence, and manage your TECRID workspace.",
+  "lang": "en",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f1e9",
+  "theme_color": "#f4f1e9",
+  "icons": [
+    { "src": "/icons/tecrid-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/tecrid-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Verify a report", "short_name": "Verify", "url": "/verify", "icons": [{ "src": "/icons/tecrid-192.png", "sizes": "192x192" }] },
+    { "name": "Open workspace", "short_name": "Workspace", "url": "/dashboard", "icons": [{ "src": "/icons/tecrid-192.png", "sizes": "192x192" }] }
+  ]
+}
