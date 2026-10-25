@@ -1,6 +1,6 @@
 import { optionalRoutingCode } from "./routing-codes";
 import { apiRequestScope, normalizeApiScopes } from "./api-scopes";
-import { and, asc, desc, eq, isNull, or } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, or, inArray } from "drizzle-orm";
 import { env } from "cloudflare:workers";
 import { getDb } from "../db";
 import {
@@ -382,10 +382,18 @@ export async function getOrganizationForUser(userId: string) {
       organizations,
       eq(organizationMembers.organizationId, organizations.id),
     )
-    .where(eq(organizationMembers.userId, userId))
+    .where(and(eq(organizationMembers.userId, userId), inArray(organizationMembers.role, ["owner", "admin", "member", "viewer", "editor", "approver"])))
     .limit(1);
 
   return membership ?? null;
+}
+
+// Approval, disclosure and organization key authority require an explicit
+// administrative membership. Workspace signup never creates this for others.
+export async function requireOrganizationAdmin(user: ChatGPTUser) {
+  const membership = await getOrganizationForUser(user.userId);
+  if (!membership || !["owner", "admin"].includes(membership.role)) throw new TecAuthorizationError("An organization owner or administrator is required.");
+  return membership;
 }
 
 export async function getFoundingOnboardingForUser(userId: string) {
@@ -940,8 +948,7 @@ export async function reviewIssuerApplication(
 }
 
 export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scopesValue?: unknown) {
-  const membership = await getOrganizationForUser(user.userId);
-  if (!membership) throw new TecAuthorizationError("Complete organization setup first.");
+  const membership = await requireOrganizationAdmin(user);
 
   let scopes: string[];
   try { scopes = normalizeApiScopes(scopesValue); } catch { throw new TecInputError("Choose valid API permissions."); }
@@ -979,8 +986,7 @@ export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scope
 }
 
 export async function revokeApiKey(user: ChatGPTUser, keyIdValue: unknown) {
-  const membership = await getOrganizationForUser(user.userId);
-  if (!membership) throw new TecAuthorizationError("Complete organization setup first.");
+  const membership = await requireOrganizationAdmin(user);
   const keyId = normalizeText(keyIdValue, 80);
   if (!keyId) throw new TecInputError("API key id is required.");
 

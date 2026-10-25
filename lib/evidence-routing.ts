@@ -17,6 +17,7 @@ import {
 import {
   getCredential,
   getOrganizationForUser,
+  requireOrganizationAdmin,
   publicCredentialDocument,
   TecAuthorizationError,
   TecInputError,
@@ -157,7 +158,7 @@ function scopeRank(value: string) {
 }
 
 export async function respondToEvidenceRequest(user: ChatGPTUser, requestIdValue: unknown, input: Record<string, unknown>) {
-  const membership = await requireMembership(user);
+  const membership = await requireOrganizationAdmin(user);
   const requestId = clean(requestIdValue, 100);
   const decision = clean(input.decision, 20);
   if (!requestId || !["accept", "decline"].includes(decision)) {
@@ -236,7 +237,7 @@ export async function respondToEvidenceRequest(user: ChatGPTUser, requestIdValue
 }
 
 export async function revokeEvidenceGrant(user: ChatGPTUser, grantIdValue: unknown) {
-  const membership = await requireMembership(user);
+  const membership = await requireOrganizationAdmin(user);
   const grantId = clean(grantIdValue, 100);
   const db = getDb();
   const [grant] = await db.select().from(evidenceAccessGrants).where(and(eq(evidenceAccessGrants.id, grantId), eq(evidenceAccessGrants.controllerOrganizationId, membership.organization.id))).limit(1);
@@ -254,7 +255,7 @@ export async function revokeEvidenceGrant(user: ChatGPTUser, grantIdValue: unkno
 }
 
 export async function createRoutingAuthorization(user: ChatGPTUser, input: Record<string, unknown>) {
-  const membership = await requireMembership(user);
+  const membership = await requireOrganizationAdmin(user);
   if (!CONTROLLER_TYPES.has(membership.organization.organizationType)) throw new TecAuthorizationError("Only a brand or ingredient supplier can authorize laboratory routing.");
   if (input.authorizationKind && !["standing", "token"].includes(String(input.authorizationKind))) throw new TecInputError("Choose standing authorization or routing token.");
   const standing = input.authorizationKind === "standing";
@@ -293,7 +294,7 @@ export async function createRoutingAuthorization(user: ChatGPTUser, input: Recor
 }
 
 export async function revokeRoutingAuthorization(user: ChatGPTUser, authorizationIdValue: unknown) {
-  const membership = await requireMembership(user);
+  const membership = await requireOrganizationAdmin(user);
   const id = clean(authorizationIdValue, 100);
   const db = getDb();
   const [record] = await db.select().from(routingAuthorizations).where(and(eq(routingAuthorizations.id, id), eq(routingAuthorizations.controllerOrganizationId, membership.organization.id))).limit(1);
