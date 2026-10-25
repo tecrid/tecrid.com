@@ -1,0 +1,58 @@
+{
+  "synthetic": true,
+  "tecrid": "TECRID·FLOWLAB-26-N6VW6TKF",
+  "pushMs": 135,
+  "certifierMs": 135,
+  "marketplaceMs": 136,
+  "pushPayload": {
+    "eventId": "notification:9bd51daa-5764-4c43-97f0-9cb53b07474f",
+    "event": "laboratory_report.received",
+    "sku": "FLOW-SKU",
+    "url": "https://tecrid.com/dashboard/evidence-routing?notificationEvent=notification%3A9bd51daa-5764-4c43-97f0-9cb53b07474f&notificationChannel=1771fb3d-1fee-498c-bbb4-2466afc2aebb#laboratory-reports"
+  },
+  "gatedSnapshotCount": 0,
+  "gatedNetworkCount": 0,
+  "timeline": {
+    "tecrid": "TECRID·FLOWLAB-26-N6VW6TKF",
+    "sku": "FLOW-SKU",
+    "mintedAt": "2026-10-25T07:13:09.680Z",
+    "events": [
+      {
+        "eventId": "notification:a7c89739-7f8e-4a69-b16b-e75b4d466508",
+        "event": "evidence_routing.delivered",
+        "destination": "SYNTHETIC flow-marketplace",
+        "kind": "webhook",
+        "status": "delivered",
+        "queuedAt": "2026-10-25T07:13:09.761Z",
+        "deliveredAt": "2026-10-25T07:13:09.821Z",
+        "acknowledgedAt": "2026-10-25T07:13:10.076Z",
+        "latencyMs": 141,
+        "target": "Under 60 seconds"
+      },
+      {
+        "eventId": "notification:e03b9eda-a84f-4789-806a-852ec46c343d",
+        "event": "evidence_routing.delivered",
+        "destination": "SYNTHETIC flow-certifier",
+        "kind": "webhook",
+        "status": "delivered",
+        "queuedAt": "2026-10-25T07:13:09.761Z",
+        "deliveredAt": "2026-10-25T07:13:09.821Z",
+        "acknowledgedAt": "2026-10-25T07:13:10.028Z",
+        "latencyMs": 141,
+        "target": "Under 60 seconds"
+      },
+      {
+        "eventId": "notification:9bd51daa-5764-4c43-97f0-9cb53b07474f",
+        "event": "laboratory_report.received",
+        "destination": "SYNTHETIC flow-brand",
+        "kind": "push",
+        "status": "delivered",
+        "queuedAt": "2026-10-25T07:13:09.761Z",
+        "deliveredAt": "2026-10-25T07:13:09.820Z",
+        "acknowledgedAt": "2026-10-25T07:13:10.313Z",
+        "latencyMs": 140,
+        "target": "Under 60 seconds"
+      }
+    ]
+  }
+}

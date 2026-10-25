@@ -15,6 +15,7 @@ import {
   issuerApplicationDocuments,
   issuerApplications,
   issuerVerificationChecks,
+  issuanceIdempotency,
   organizationMembers,
   organizationNotifications,
   organizations,
@@ -87,6 +88,7 @@ export type CredentialInput = {
 };
 
 type CredentialCreationOptions = {
+  idempotencyKey?: string;
   explicitRoutingControllerId?: string;
   legacyReportId?: string | null;
   issuanceBasis?: string | null;
@@ -101,6 +103,10 @@ export type CredentialRevisionInput = Partial<CredentialInput> & {
 
 export class TecInputError extends Error {
   status = 400;
+}
+
+export class TecConflictError extends TecInputError {
+  status = 409;
 }
 
 export class TecAuthorizationError extends Error {
@@ -1072,7 +1078,7 @@ function validateCredentialInput(value: unknown): CredentialInput {
     if (typeof input.sourceDocument !== "object") {
       throw new TecInputError("sourceDocument must be an object.");
     }
-    const sha = normalizeText(input.sourceDocument.sha256, 64).toLowerCase();
+    const sha = typeof input.sourceDocument.sha256 === "string" ? input.sourceDocument.sha256.trim().toLowerCase() : "";
     const filename = normalizeText(input.sourceDocument.filename, 240);
     if (!/^[a-f0-9]{64}$/.test(sha) || !filename) {
       throw new TecInputError(
@@ -1127,6 +1133,10 @@ export async function createCredential(
   options: CredentialCreationOptions = {},
 ) {
   const input = validateCredentialInput(value);
+  const safety = await import("./issuance-safety");
+  if (input.publish && !input.sourceDocument) throw new TecInputError("Issuance requires the signed source-document SHA-256 hash and filename.");
+  const issuance = input.publish ? await safety.issuanceContext(organization.id, options.idempotencyKey || `source:${input.sourceDocument!.sha256}`, JSON.stringify(issuerPayload(input)), input.sourceDocument!.sha256, input.proof, options.reservedIdentifier) : null;
+  if (issuance) { const replay = await safety.replayIssuance(issuance); if (replay) return replay; }
   const standing = input.publish ? (await (await import("./evidence-routing")).findStandingRoutingAuthorizations(organization.id, input.productSku, input.ingredientCode)).filter(route => route.authorization.controllerOrganizationId !== options.explicitRoutingControllerId) : [];
   const canPublish =
     organization.organizationType === "laboratory" &&
@@ -1144,6 +1154,8 @@ export async function createCredential(
   if (input.publish && input.visibility === "controlled" && !input.productSku && !input.ingredientCode) {
     throw new TecInputError("Controlled-result issuance requires productSku or ingredientCode in the signed record, bound to the authorization.");
   }
+
+  if (input.publish && input.productSku && (standing.length || options.controlledRoutingAuthorized) && !input.lotNumber && !input.sourceDocument?.intakeId) throw new TecInputError("A routed SKU requires a signed lotNumber or sourceDocument.intakeId sample reference.");
 
   const identifier = options.reservedIdentifier
     ? normalizeText(options.reservedIdentifier, 120).toUpperCase()
@@ -1257,7 +1269,11 @@ export async function createCredential(
     }),
     createdAt,
   });
-  await db.batch([
+  const response = {
+    tecrid: identifier, identifier, status: issued ? "issued" : "draft", fingerprint,
+    signatureVerified: Boolean(proofDetails), visibility: input.visibility ?? "public", productSku: input.productSku ?? null, idempotent: false,
+  };
+  try { await db.batch([
     credentialInsert,
     ...resultInserts,
     ...versionInserts,
@@ -1267,21 +1283,17 @@ export async function createCredential(
       title: "New TECRID issued", body: `${identifier} has been signed and issued.`,
       actionPath: `/records/${encodeURIComponent(identifier)}`, entityType: "credential", entityId: identifier, createdAt,
     })] : []),
+    ...(issuance ? [db.insert(issuanceIdempotency).values({ id: issuance.id, organizationId: organization.id, requestHash: issuance.requestHash, credentialIdentifier: identifier, responseJson: JSON.stringify(response), createdAt })] : []),
     ...(issued ? standing.map(route => db.insert(credentialRoutingJobs).values({ id: `${identifier}:${route.authorization.id}`, credentialIdentifier: identifier, authorizationId: route.authorization.id, nextAttemptAt: createdAt })) : []),
-  ]);
+  ]); } catch (error) {
+    if (issuance) { const replay = await safety.replayIssuance(issuance); if (replay) return replay; }
+    throw error;
+  }
   if (issued && standing.length && (env as unknown as Record<string, string>).TECRID_DELIVERY_ENABLED === "true") {
     await (await import("./evidence-routing")).processStandingRoutingJobs(identifier);
   }
 
-  return {
-    tecrid: identifier,
-    identifier,
-    status: issued ? "issued" : "draft",
-    fingerprint,
-    signatureVerified: Boolean(proofDetails),
-    visibility: input.visibility ?? "public",
-    productSku: input.productSku ?? null,
-  };
+  return response;
 }
 
 export async function getCredential(identifierValue: string, includeDraft = false) {
@@ -1364,7 +1376,7 @@ export async function getCredential(identifierValue: string, includeDraft = fals
   try {
     const signed = JSON.parse(currentVersion?.signedPayload || "null");
     const subject = signed?.type === "TestEvidenceCredentialRevision" ? signed.credential : signed;
-    signedScopeMatches = !!subject && (subject.productSku ?? null) === record.credential.productSku && (subject.ingredientCode ?? null) === record.credential.ingredientCode && (!subject.ingredientCode || subject.signatureVersion === "tec-credential/2");
+    signedScopeMatches = !!subject && (subject.productSku ?? null) === record.credential.productSku && (subject.ingredientCode ?? null) === record.credential.ingredientCode && (subject.lotNumber ?? null) === record.credential.lotNumber && (subject.sourceDocument?.sha256 ?? null) === record.credential.sourceDocumentHash && (!subject.ingredientCode || subject.signatureVersion === "tec-credential/2");
   } catch { /* Corrupt or incompatible signed scope fails closed. */ }
   const currentVersionConsistent = Boolean(
     currentVersion &&
@@ -1530,13 +1542,15 @@ async function prepareCredentialRevision(
   const reason = normalizeText(revision.reason, 600);
   if (!reason) throw new TecInputError("Every correction or revocation requires a public reason.");
 
+  const signedCurrent = JSON.parse(current.credential.signedPayload || "null");
+  const signedSubject = signedCurrent?.type === "TestEvidenceCredentialRevision" ? signedCurrent.credential : signedCurrent;
   const preservedSourceDocument = current.credential.sourceDocumentHash
     ? {
         sha256: current.credential.sourceDocumentHash,
         filename: current.credential.sourceDocumentName || "source-report.pdf",
         reportNumber: current.credential.laboratoryReportNumber ?? undefined,
         orderNumber: current.credential.laboratoryOrderNumber ?? undefined,
-        intakeId: current.credential.legacyReportId ?? undefined,
+        intakeId: signedSubject?.sourceDocument?.intakeId ?? current.credential.legacyReportId ?? undefined,
         issuanceBasis: current.credential.issuanceBasis ?? undefined,
       }
     : undefined;

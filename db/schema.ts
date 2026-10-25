@@ -176,6 +176,7 @@ export const credentials = sqliteTable(
     index("idx_credentials_public_record").on(table.publicRecord),
     uniqueIndex("idx_credentials_legacy_report_id").on(table.legacyReportId),
     index("idx_credentials_source_document_hash").on(table.sourceDocumentHash),
+    uniqueIndex("idx_credentials_lab_source_unique").on(table.organizationId, table.sourceDocumentHash).where(sql`${table.sourceDocumentHash} IS NOT NULL AND ${table.status} <> 'draft'`),
   ],
 );
 
@@ -1336,4 +1337,31 @@ export const deliveryPolicy = sqliteTable("delivery_policy", {
   termsRequired: integer("terms_required", { mode: "boolean" }).notNull().default(false),
   updatedAt: text("updated_at").notNull(),
   updatedByUserId: text("updated_by_user_id"),
+});
+
+
+export const issuanceIdempotency = sqliteTable("issuance_idempotency", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull().references(() => organizations.id),
+  requestHash: text("request_hash").notNull(),
+  credentialIdentifier: text("credential_identifier").notNull().references(() => credentials.identifier),
+  responseJson: text("response_json").notNull(),
+  createdAt: text("created_at").notNull(),
+});
+
+// Separate storage with no production credential or notification triggers.
+export const sandboxRegistryCredentials = sqliteTable("sandbox_registry_credentials", {
+  identifier: text("identifier").primaryKey(),
+  organizationId: text("organization_id").notNull().references(() => organizations.id),
+  createdByUserId: text("created_by_user_id").notNull(),
+  sourceDocumentHash: text("source_document_hash").notNull(),
+  requestHash: text("request_hash").notNull(),
+  documentJson: text("document_json").notNull(),
+  createdAt: text("created_at").notNull(),
+}, table => [uniqueIndex("idx_sandbox_registry_lab_source").on(table.organizationId, table.sourceDocumentHash)]);
+export const sandboxIssuanceIdempotency = sqliteTable("sandbox_issuance_idempotency", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull().references(() => organizations.id),
+  requestHash: text("request_hash").notNull(),
+  credentialIdentifier: text("credential_identifier").notNull().references(() => sandboxRegistryCredentials.identifier),
 });

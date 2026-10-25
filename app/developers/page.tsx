@@ -31,6 +31,7 @@ const developersJsonLd = {
 
 const credentialBody = `{
   "sampleName": "Organic cacao powder",
+  "productSku": "CACAO-12OZ",
   "lotNumber": "C-240518",
   "matrix": "Food · Powder",
   "method": "ICP-MS",
@@ -55,6 +56,7 @@ const canonicalizeExample = `curl https://tecrid.com/api/v1/credentials/canonica
 const createExample = `curl https://tecrid.com/api/v1/credentials \\
   -H "Authorization: Bearer $TECRID_API_KEY" \\
   -H "Content-Type: application/json" \\
+  -H "Idempotency-Key: laboratory-report-240518" \\
   -d '{
     "sampleName": "Organic cacao powder",
     "productSku": "CACAO-12OZ",
@@ -82,11 +84,13 @@ const createExample = `curl https://tecrid.com/api/v1/credentials \\
 const controlledRoutingExample = `curl https://tecrid.com/api/v1/credentials \\
   -H "Authorization: Bearer $LAB_TECRID_API_KEY" \\
   -H "Content-Type: application/json" \\
+  -H "Idempotency-Key: laboratory-report-240518" \\
   -d '{
     "sampleName": "Organic cacao powder",
     "productSku": "CACAO-12OZ",
     "lotNumber": "C-240518",
     "visibility": "controlled",
+    "sourceDocument": { "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", "filename": "laboratory-report.pdf" },
     "publish": true,
     "routingToken": "tec_route_••••••••••••",
     "proof": {
@@ -116,6 +120,7 @@ const finalizeReportExample = `curl https://tecrid.com/api/v1/report-reservation
   -d '{
     "sampleName": "Organic cacao powder",
     "productSku": "CACAO-12OZ",
+    "lotNumber": "C-240518",
     "visibility": "controlled",
     "publish": true,
     "sourceDocument": {
@@ -205,6 +210,7 @@ Content-Type: application/json
             <h2>POST /api/v1/credentials</h2>
             <p>Creates a private draft when <code>publish</code> is false. Public issuance additionally requires verified laboratory status, a reviewed key, and a valid Ed25519 signature over the canonical payload. Successful issuance returns a permanent TECRID.</p>
             <p>For a historical PDF, include <code>sourceDocument</code>. Its SHA-256 fingerprint, report reference, submitting party, and release date become part of the signed payload; the private PDF itself is not exposed by the public API.</p>
+            <p>Every new issuance requires a signed source-document hash and a stable <code>Idempotency-Key</code>. An identical retry returns HTTP 200 with the original receipt and creates no second credential or alert. Reusing a key or source hash for changed content returns HTTP 409. A routed SKU also requires a signed lot number or <code>sourceDocument.intakeId</code> sample reference.</p>
             <pre><code>{createExample}</code></pre>
           </section>
           <section id="report-mark">

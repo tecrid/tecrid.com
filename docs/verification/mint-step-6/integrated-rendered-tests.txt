@@ -1,0 +1,36 @@
+✔ keeps the thin homepage hero content-sized and omits editor UI for anonymous visitors (898.007667ms)
+✔ renders the TEC Registry public product (27.585458ms)
+✔ publishes focused search-intent pages, the laboratory go-time pack, and agent-guided setup (209.362916ms)
+✔ publishes a claim-narrow TECRID FAQ with the VLE diligence boundary (36.256667ms)
+✔ locks laboratory approval behind evidence, key-control, and conformance gates (3.265375ms)
+✔ defines TECRID for people, search engines, and AI answer systems (70.084667ms)
+✔ publishes a portable, minification-safe TECRID identity mark and email-signature workflow (25.372083ms)
+✔ renders pricing and API documentation (26.020709ms)
+✔ publishes privacy boundaries that match controlled TECRID workflows (25.382375ms)
+✔ keeps durable infrastructure, proof enforcement, and production metadata wired (1.597625ms)
+✔ explains and exposes the honest historical-report intake path (24.181417ms)
+✔ resolves a reserved sample TECRID without asserting laboratory authority (70.1705ms)
+✔ renders an isolated fictional lab and two complete dummy findings (81.686334ms)
+✔ renders a multi-party portal with personal sandbox and API-key boundaries (44.54ms)
+✔ wires controller-gated evidence routing for certifiers, retailers, and government (27.871333ms)
+✔ wires two-pass report marking, controller receipts, legacy API intake, and source-linked insights (29.122584ms)
+✔ renders the disclosure-operations wedge as workflow rather than an unproven savings claim (26.716458ms)
+✔ wires durable disclosure intake, publication gates, public JSON, and honest authority labels (2.772ms)
+✔ renders public verification and an honest laboratory dispute demonstration (44.94225ms)
+✔ wires append-only certification intake by share link, CSV, and scoped API (26.130959ms)
+✔ wires recipient-bound evidence codes, opt-in participants, and safe result projection (24.810667ms)
+✔ gives authenticated organizations a role-aware workspace shell and a real settings destination (0.69125ms)
+✔ public marketing pages declare their own self-referencing canonical (137.219125ms)
+✔ all eight Kasandrinos report views expose source metadata while keeping findings gated (194.49025ms)
+✔ www redirects / before routing (36.350667ms)
+✔ www redirects /faq?source=www&value=a%2Fb before routing (0.315958ms)
+✔ www redirects /api/v1/records?x=1&x=2 before routing (0.2105ms)
+✔ www redirects /_vinext/image?url=%2Flogo.png&w=640 before routing (0.193209ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2187.109875

@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { syntheticSourceDocument } from "./support/source-document";
 import { afterAll, beforeAll, expect, it } from "vitest";
 import { Miniflare } from "miniflare";
 import { readdirSync, readFileSync } from "node:fs";
@@ -14,7 +15,7 @@ const actor = (id: string) => ({ userId: id, email: `${id}@example.test`, displa
 const brand = actor("gate-brand"), recipient = actor("gate-recipient"), admin = actor("gate-admin");
 let mf: Miniflare, lab: typeof organizations.$inferSelect, privateKey: CryptoKey, grantId: string, authorizationId: string, firstId: string;
 const input = { sampleName: "Synthetic gated fixture", productSku: "GATED-SKU", lotNumber: "TEST-LOT", publish: true, visibility: "controlled", results: [{ analyte: "Lead", resultText: "PRIVATE-9.99", unit: "ppb" }] };
-async function issue(productSku = input.productSku) { const subject = { ...input, productSku }; const canonical = canonicalizeCredential(subject).canonicalPayload; const proof = { keyId: "gate-key", algorithm: "Ed25519", signature: Buffer.from(await crypto.subtle.sign("Ed25519", privateKey, new TextEncoder().encode(canonical))).toString("base64url") }; const result = await createCredential(lab, null, { ...subject, proof }); await processStandingRoutingJobs(); return result.identifier; }
+async function issue(productSku = input.productSku) { const subject = { ...input, sourceDocument: syntheticSourceDocument(), productSku }; const canonical = canonicalizeCredential(subject).canonicalPayload; const proof = { keyId: "gate-key", algorithm: "Ed25519", signature: Buffer.from(await crypto.subtle.sign("Ed25519", privateKey, new TextEncoder().encode(canonical))).toString("base64url") }; const result = await createCredential(lab, null, { ...subject, proof }); await processStandingRoutingJobs(); return result.identifier; }
 beforeAll(async () => {
  mf = new Miniflare({ modules: true, script: "export default {fetch(){return new Response('test')}}", compatibilityDate: "2026-05-22", d1Databases: ["DB"] }); env.DB = await mf.getD1Database("DB"); env.ICS_ADMIN_EMAILS = admin.email; env.TECRID_DELIVERY_ENABLED = "true"; env.TECRID_CHANNEL_SECRET = Buffer.alloc(32, 1).toString("base64url"); env.TECRID_WEBHOOK_HOSTS = "recipient.example.org";
  for (const f of readdirSync("drizzle").filter(x => x.endsWith(".sql")).sort()) for (const s of readFileSync(`drizzle/${f}`, "utf8").split("--> statement-breakpoint").filter(x => x.trim())) await env.DB.prepare(s).run();

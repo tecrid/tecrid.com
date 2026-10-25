@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { syntheticSourceDocument } from "./support/source-document";
 import { afterAll, beforeAll, expect, it } from "vitest";
 import { Miniflare } from "miniflare";
 import { readdirSync, readFileSync } from "node:fs";
@@ -38,7 +39,7 @@ it("creates a scoped webhook for each access level with an exact snapshot finger
   const request = await createEvidenceRequest(market, { controllerOrganizationCode: "MARKETBRAND", programName: "SYNTHETIC VLE", purpose: "Contract verification", productName: input.sampleName, productSku, accessLevel, analytes: ["Lead"], deliveryMode: "future_sku" });
   const grant = (await respondToEvidenceRequest(brand, request.id, { decision: "accept" })).grantId!; grants.push(grant);
   await createRoutingAuthorization(brand, { authorizationKind: "standing", laboratoryOrganizationCode: "MARKETLAB", productName: input.sampleName, productSku, ingredientCode: input.ingredientCode, grantIds: [grant] });
-  const subject = { ...input, productSku }; const canonical = canonicalizeCredential(subject).canonicalPayload;
+  const subject = { ...input, sourceDocument: syntheticSourceDocument(), productSku }; const canonical = canonicalizeCredential(subject).canonicalPayload;
   const issued = await createCredential(lab, null, { ...subject, proof: { keyId: "market-key", algorithm: "Ed25519", signature: Buffer.from(await crypto.subtle.sign("Ed25519", privateKey, new TextEncoder().encode(canonical))).toString("base64url") } }); await processStandingRoutingJobs();
   const [delivery] = await getDb().select().from(evidenceDeliveries).where(eq(evidenceDeliveries.credentialIdentifier, issued.identifier));
   const event = (await getDb().select().from(notificationOutbox)).find(e => e.entityId === delivery.id)!; events.push(event);

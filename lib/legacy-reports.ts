@@ -819,7 +819,7 @@ export async function issueLegacyReport(
     bundle.membership!.organization,
     user.userId,
     legacyCredentialValue(bundle, normalizedProof),
-    { legacyReportId: bundle.report.id, issuanceBasis: "legacy_report_confirmation" },
+    { idempotencyKey: `legacy:${bundle.report.id}`, legacyReportId: bundle.report.id, issuanceBasis: "legacy_report_confirmation" },
   );
   const confirmedAt = now();
   await db.batch([

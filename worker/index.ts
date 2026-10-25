@@ -54,7 +54,7 @@ const worker = {
     }
 
     const response = await handler.fetch(request, env, ctx);
-    if (env.TECRID_DELIVERY_ENABLED === "true" && response.ok && !url.pathname.startsWith("/api/internal/") && !["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+    if (env.TECRID_DELIVERY_ENABLED === "true" && response.ok && !url.pathname.startsWith("/api/internal/") && !url.pathname.startsWith("/api/sandbox/") && !url.pathname.startsWith("/api/sandbox/") && !["GET", "HEAD", "OPTIONS"].includes(request.method)) {
       ctx.waitUntil(import("../lib/notification-delivery").then(({ processNotificationOutbox }) => processNotificationOutbox()));
     }
     return response;
