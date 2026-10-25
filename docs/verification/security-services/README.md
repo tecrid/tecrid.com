@@ -1,0 +1,7 @@
+# F08 sender and notification verification
+
+The first commit records two failing regressions: mail-only configuration could send privileged report and permission calls. The fix uses distinct read/permission/import/notification credentials and matching tecrid-service/1 assertions, binding the verified actor, exact body, route, audience, timestamp and nonce. Incoming VLE inbox assertions use the same durable replay check. Original mail authentication remains unchanged.
+
+Build, 140 unit/backend tests in 34 files and 40 Worker/rendered/redirect checks pass. Focused source lint and whitespace pass. Existing real-session fixtures use distinct synthetic service credentials; all providers are intercepted. The paired VLE harness tested both checked-out protocol modules in separate disposable databases, with two accepted requests, both replays denied and zero external calls. The common module SHA-256 is in paired.json; receiver tests additionally cover tampering, time limits, missing storage, purpose separation and bounded input.
+
+This must be reviewed with the VLE receiver PR. An operator must separately provision distinct service credentials before rollout. Missing/reused configuration fails closed; there is no mail-secret fallback. No live secret, environment, schema or migration was changed. No production data, original PDF, real mail/notification, merge or deployment occurred. F11's separate mail token/recipient binding remains a later P2 area.

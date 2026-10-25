@@ -1,3 +1,4 @@
+import {signedServiceInit} from "./service-assertion.js";
 import {privateFetch} from './private-fetch';
 import {env} from 'cloudflare:workers';
 import {getEmailUser} from './email-auth';
@@ -9,9 +10,8 @@ export async function protectedTestReport(request:Request,identifier:string,kind
  // Only the validated email session supplies identity. Ignore bearer keys and client identity headers.
  let user;try{user=await getEmailUser(request.headers);}catch{return failure('Unable to verify your session. Please sign in again.',401);}
  if(!user)return failure('Sign in with your work email to view this report.',401);
- const secret=(env as any).TECRID_EMAIL_RELAY_SECRET;if(!secret)return failure('Report access is temporarily unavailable.',503);
  try{
-  const response=await transport('https://vle.exchange/api/tecrid-report-access',{method:'POST',redirect:'error',signal:AbortSignal.timeout(20000),headers:{authorization:`Bearer ${secret}`,'content-type':'application/json'},body:JSON.stringify({reportNumber:report.reportNumber,kind,actor:{userId:user.userId,email:user.email,emailVerified:true}})});
+  const response=await transport('https://vle.exchange/api/tecrid-report-access',{...await signedServiceInit('https://vle.exchange/api/tecrid-report-access',{reportNumber:report.reportNumber,kind,actor:{userId:user.userId,email:user.email,emailVerified:true}},env,'report-read'),redirect:'error',signal:AbortSignal.timeout(20000)});
   if(!response.ok)return failure(response.status===403?'Kasandrinos approval is required for this report and scope.':'The protected report is temporarily unavailable.',response.status===403?403:503);
   if(kind==='pdf'){
    if(!response.headers.get('content-type')?.includes('application/pdf')||response.headers.get('x-report-sha256')!==report.sourceSha256)return failure('Report integrity check failed.',502);

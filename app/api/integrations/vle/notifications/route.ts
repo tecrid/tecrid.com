@@ -3,7 +3,7 @@ import { inboxHeaders, ownNotifications, serviceAuthorized } from '../../../../.
 export const dynamic='force-dynamic';
 export async function POST(request:Request){
  const json=(body:unknown,status=200)=>Response.json(body,{status,headers:inboxHeaders});
- if(!await serviceAuthorized(request,(env as any).TECRID_EMAIL_RELAY_SECRET))return json({error:'Unauthorized'},401);
+ if(!await serviceAuthorized(request,env,'notifications-to-tecrid'))return json({error:'Unauthorized'},401);
  let input;try{const text=await request.text();if(text.length>1500)return json({error:'Too large'},413);input=JSON.parse(text);}catch{return json({error:'Invalid request'},400);}
  const actor=input?.actor;
  if(!actor||actor.emailVerified!==true||typeof actor.email!=='string'||actor.email.length>254||!/^\S+@\S+\.\S+$/.test(actor.email))return json({error:'Verified email required'},403);
