@@ -9,6 +9,7 @@ import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 export function createEmailAuth(db:any, schema:any, config:{secret:string;baseURL:string;relaySecret:string;relayURL:string;issuanceSecret:string}, transport:typeof fetch=privateFetch){
  if(!config.secret || config.secret.length<32)throw Error('Email authentication is not configured.');
  return betterAuth({
+  logger:{disabled:true},
   appName:'TECRID',baseURL:config.baseURL,basePath:'/api/auth',secret:config.secret,
   database:drizzleAdapter(db,{provider:'sqlite',schema,transaction:false}),
   trustedOrigins:[config.baseURL,...(config.baseURL==='https://tecrid.com'?['https://www.tecrid.com','https://tec-registry.kmfp.chatgpt.site']:[])],
