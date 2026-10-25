@@ -396,6 +396,14 @@ export async function requireOrganizationAdmin(user: ChatGPTUser) {
   return membership;
 }
 
+export async function assertIndependentIssuerReviewer(user: ChatGPTUser, organizationId: string, applicationId: string) {
+  const db = getDb();
+  const [organization] = await db.select().from(organizations).where(eq(organizations.id, organizationId)).limit(1);
+  const members = await db.select().from(organizationMembers).where(eq(organizationMembers.organizationId, organizationId));
+  const submissions = await db.select({ actor: auditEvents.actorUserId }).from(auditEvents).where(and(eq(auditEvents.entityId, applicationId), eq(auditEvents.eventType, "issuer.application_submitted")));
+  if (!organization || organization.ownerUserId === user.userId || organization.ownerEmail.toLowerCase() === user.email.toLowerCase() || members.some(member => member.userId === user.userId || member.email.toLowerCase() === user.email.toLowerCase()) || submissions.some(event => event.actor === user.userId)) throw new TecAuthorizationError("Issuer review requires an independent reviewer outside the applicant organization.");
+}
+
 export async function getFoundingOnboardingForUser(userId: string) {
   const membership = await getOrganizationForUser(userId);
   if (!membership) return null;
@@ -858,6 +866,7 @@ export async function reviewIssuerApplication(
     .where(eq(issuerApplications.id, applicationId))
     .limit(1);
   if (!record) throw new TecInputError("Issuer application not found.");
+  await assertIndependentIssuerReviewer(user, record.organization.id, applicationId);
   if (record.application.status !== "submitted") {
     throw new TecInputError("Only a submitted issuer application can receive a final review decision.");
   }
@@ -882,6 +891,11 @@ export async function reviewIssuerApplication(
     }
   }
 
+  if (decision === "approve") for (const type of ["identity", "accreditation", "scope"]) {
+    const check = checkMap.get(type);
+    if (!check?.reviewedByUserId || !check.reviewedByEmail) throw new TecAuthorizationError("Manual checks require an identified independent reviewer.");
+    await assertIndependentIssuerReviewer({userId: check.reviewedByUserId, email: check.reviewedByEmail, displayName: "Reviewer", fullName: null}, record.organization.id, applicationId);
+  }
   const reviewedAt = now();
   const applicationStatus =
     decision === "approve"
