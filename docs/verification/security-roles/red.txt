@@ -1,0 +1,34 @@
+
+ RUN  v4.1.11 /Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/security-tecrid
+
+ ❯ tests/security-roles.test.ts (6 tests | 4 failed) 1331ms
+   × denies member approval, routing, share and key mutations 37ms
+   × denies viewer approval, routing, share and key mutations 36ms
+   × denies editor approval, routing, share and key mutations 31ms
+   × denies revoked approval, routing, share and key mutations 26ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/security-roles.test.ts > denies member approval, routing, share and key mutations
+ FAIL  tests/security-roles.test.ts > denies viewer approval, routing, share and key mutations
+ FAIL  tests/security-roles.test.ts > denies editor approval, routing, share and key mutations
+ FAIL  tests/security-roles.test.ts > denies revoked approval, routing, share and key mutations
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ tests/security-roles.test.ts:17:112
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 2 passed (6)
+   Start at  14:17:29
+   Duration  2.08s (transform 160ms, setup 0ms, import 612ms, tests 1.33s, environment 0ms)
+

@@ -15,6 +15,7 @@ import {
 } from "../db/schema";
 import {
   getOrganizationForUser,
+  requireOrganizationAdmin,
   TecAuthorizationError,
   TecInputError,
 } from "./tec";
@@ -101,7 +102,7 @@ function shareAccess(input: Record<string, unknown>) {
 }
 
 export async function createEvidenceShareCode(user: ChatGPTUser, input: Record<string, unknown>) {
-  const membership = await requireMembership(user);
+  const membership = await requireOrganizationAdmin(user);
   if (!CONTROLLER_TYPES.has(membership.organization.organizationType)) {
     throw new TecAuthorizationError("Only a brand or ingredient supplier can create evidence share codes.");
   }
@@ -166,7 +167,7 @@ export async function createEvidenceShareCode(user: ChatGPTUser, input: Record<s
 }
 
 export async function revokeEvidenceShareCode(user: ChatGPTUser, idValue: unknown) {
-  const membership = await requireMembership(user);
+  const membership = await requireOrganizationAdmin(user);
   const id = clean(idValue, 100);
   const db = getDb();
   const [record] = await db.select().from(evidenceShareCodes).where(and(
