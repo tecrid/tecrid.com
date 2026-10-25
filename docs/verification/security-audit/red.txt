@@ -1,0 +1,61 @@
+
+ RUN  v4.1.11 /Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/security-tecrid
+
+ ❯ tests/security-key-audit.test.ts (3 tests | 3 failed) 1707ms
+   × sandbox key creation and revocation each append one safe actor event 38ms
+   × audit failure rolls back a sandbox key rather than creating an unaudited secret 32ms
+   × audit failure also rolls back production key creation 39ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/security-key-audit.test.ts > sandbox key creation and revocation each append one safe actor event
+AssertionError: expected [] to deeply equal [ 'sandbox_api_key.created', …(1) ]
+
+- Expected
++ Received
+
+- [
+-   "sandbox_api_key.created",
+-   "sandbox_api_key.revoked",
+- ]
++ []
+
+ ❯ tests/security-key-audit.test.ts:12:320
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/security-key-audit.test.ts > audit failure rolls back a sandbox key rather than creating an unaudited secret
+AssertionError: expected 2 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ tests/security-key-audit.test.ts:13:505
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/security-key-audit.test.ts > audit failure also rolls back production key creation
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/security-key-audit.test.ts:14:458
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  14:45:02
+   Duration  2.61s (transform 187ms, setup 0ms, import 749ms, tests 1.71s, environment 0ms)
+
