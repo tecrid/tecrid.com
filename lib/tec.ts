@@ -1,3 +1,4 @@
+import { optionalRoutingCode } from "./routing-codes";
 import { apiRequestScope, normalizeApiScopes } from "./api-scopes";
 import { and, asc, desc, eq, isNull, or } from "drizzle-orm";
 import { env } from "cloudflare:workers";
@@ -7,6 +8,7 @@ import {
   auditEvents,
   billingEvents,
   credentialResults,
+  credentialRoutingJobs,
   credentialVersions,
   credentials,
   foundingOnboarding,
@@ -66,6 +68,7 @@ export type SourceDocumentInput = {
 
 export type CredentialInput = {
   sampleName: string;
+  ingredientCode?: string;
   productSku?: string;
   lotNumber?: string;
   matrix?: string;
@@ -83,6 +86,7 @@ export type CredentialInput = {
 };
 
 type CredentialCreationOptions = {
+  explicitRoutingControllerId?: string;
   legacyReportId?: string | null;
   issuanceBasis?: string | null;
   controlledRoutingAuthorized?: boolean;
@@ -187,6 +191,7 @@ function normalizeProof(value: unknown): CredentialProofInput | undefined {
 function issuerPayload(input: CredentialInput) {
   return {
     type: "TestEvidenceCredential",
+    ...(input.ingredientCode ? { signatureVersion: "tec-credential/2", ingredientCode: input.ingredientCode } : {}),
     sampleName: input.sampleName,
     productSku: input.productSku ?? null,
     lotNumber: input.lotNumber ?? null,
@@ -230,6 +235,7 @@ function revisionPayload(
 ) {
   return {
     type: "TestEvidenceCredentialRevision",
+    ...(input.ingredientCode ? { signatureVersion: "tec-credential/2" } : {}),
     tecrid: identifier,
     version,
     previousFingerprint,
@@ -1079,8 +1085,11 @@ function validateCredentialInput(value: unknown): CredentialInput {
     };
   }
 
+  let ingredientCode: string | null;
+  try { ingredientCode = optionalRoutingCode(input.ingredientCode); } catch { throw new TecInputError("ingredientCode must be a nonempty code of at most 120 characters when supplied."); }
   return {
     sampleName,
+    ...(ingredientCode ? { ingredientCode } : {}),
     productSku: normalizeText(input.productSku, 100).toUpperCase().replace(/\s+/g, "-") || undefined,
     lotNumber: normalizeText(input.lotNumber, 120) || undefined,
     matrix: normalizeText(input.matrix, 120) || undefined,
@@ -1113,6 +1122,7 @@ export async function createCredential(
   options: CredentialCreationOptions = {},
 ) {
   const input = validateCredentialInput(value);
+  const standing = input.publish ? (await (await import("./evidence-routing")).findStandingRoutingAuthorizations(organization.id, input.productSku, input.ingredientCode)).filter(route => route.authorization.controllerOrganizationId !== options.explicitRoutingControllerId) : [];
   const canPublish =
     organization.organizationType === "laboratory" &&
     organization.issuerStatus === "verified";
@@ -1121,13 +1131,13 @@ export async function createCredential(
       "Only an ICS-verified laboratory issuer can publish a public TEC. This record can be saved as a draft.",
     );
   }
-  if (input.publish && input.visibility === "controlled" && !options.controlledRoutingAuthorized) {
+  if (input.publish && input.visibility === "controlled" && !options.controlledRoutingAuthorized && !standing.length) {
     throw new TecAuthorizationError(
       "Controlled-result issuance requires a current routing authorization from the brand or ingredient supplier.",
     );
   }
-  if (input.publish && input.visibility === "controlled" && !input.productSku) {
-    throw new TecInputError("Controlled-result issuance requires productSku so the signed record can be bound to the authorized SKU.");
+  if (input.publish && input.visibility === "controlled" && !input.productSku && !input.ingredientCode) {
+    throw new TecInputError("Controlled-result issuance requires productSku or ingredientCode in the signed record, bound to the authorization.");
   }
 
   const identifier = options.reservedIdentifier
@@ -1162,6 +1172,7 @@ export async function createCredential(
     status: issued ? "issued" : "draft",
     sampleName: input.sampleName,
     productSku: input.productSku ?? null,
+    ingredientCode: input.ingredientCode ?? null,
     lotNumber: input.lotNumber ?? null,
     matrix: input.matrix ?? null,
     method: input.method ?? null,
@@ -1251,7 +1262,11 @@ export async function createCredential(
       title: "New TECRID issued", body: `${identifier} has been signed and issued.`,
       actionPath: `/records/${encodeURIComponent(identifier)}`, entityType: "credential", entityId: identifier, createdAt,
     })] : []),
+    ...(issued ? standing.map(route => db.insert(credentialRoutingJobs).values({ id: `${identifier}:${route.authorization.id}`, credentialIdentifier: identifier, authorizationId: route.authorization.id, nextAttemptAt: createdAt })) : []),
   ]);
+  if (issued && standing.length && (env as unknown as Record<string, string>).TECRID_DELIVERY_ENABLED === "true") {
+    await (await import("./evidence-routing")).processStandingRoutingJobs(identifier);
+  }
 
   return {
     tecrid: identifier,
@@ -1340,10 +1355,16 @@ export async function getCredential(identifierValue: string, includeDraft = fals
       (await sha256(currentVersion.canonicalPayload)) === currentVersion.fingerprint &&
       currentVersion.fingerprint === record.credential.fingerprint,
   );
+  let signedScopeMatches = false;
+  try {
+    const signed = JSON.parse(currentVersion?.signedPayload || "null");
+    const subject = signed?.type === "TestEvidenceCredentialRevision" ? signed.credential : signed;
+    signedScopeMatches = !!subject && (subject.productSku ?? null) === record.credential.productSku && (subject.ingredientCode ?? null) === record.credential.ingredientCode && (!subject.ingredientCode || subject.signatureVersion === "tec-credential/2");
+  } catch { /* Corrupt or incompatible signed scope fails closed. */ }
   const currentVersionConsistent = Boolean(
     currentVersion &&
       currentVersion.version === record.credential.version &&
-      currentVersion.status === record.credential.status,
+      currentVersion.status === record.credential.status && signedScopeMatches,
   );
   const issuerSignatureVerified = currentVersion
     ? await verifyStoredProof(currentVersion)
@@ -1389,6 +1410,7 @@ export function publicCredentialDocument(
     subject: {
       sampleName: credential.sampleName,
       productSku: credential.productSku,
+      ...(credential.ingredientCode ? { ingredientCode: credential.ingredientCode, signatureVersion: "tec-credential/2" } : {}),
       lotNumber: credential.lotNumber,
       matrix: credential.matrix,
       method: credential.method,
@@ -1519,6 +1541,7 @@ async function prepareCredentialRevision(
       ? ({
           sampleName: current.credential.sampleName,
           productSku: current.credential.productSku ?? undefined,
+          ingredientCode: current.credential.ingredientCode ?? undefined,
           lotNumber: current.credential.lotNumber ?? undefined,
           matrix: current.credential.matrix ?? undefined,
           method: current.credential.method ?? undefined,
@@ -1544,6 +1567,7 @@ async function prepareCredentialRevision(
       : validateCredentialInput({
           ...revision,
           productSku: current.credential.productSku ?? revision.productSku,
+          ingredientCode: current.credential.ingredientCode ?? revision.ingredientCode,
           visibility: current.credential.visibility,
           publish: true,
           sourceDocument: preservedSourceDocument ?? revision.sourceDocument,
@@ -1642,6 +1666,7 @@ export async function createCredentialRevision(
       status,
       sampleName: prepared.input.sampleName,
       productSku: prepared.input.productSku ?? null,
+      ingredientCode: prepared.input.ingredientCode ?? null,
       lotNumber: prepared.input.lotNumber ?? null,
       matrix: prepared.input.matrix ?? null,
       method: prepared.input.method ?? null,
