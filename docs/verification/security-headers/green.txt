@@ -1,0 +1,12 @@
+✔ tecrid authenticated-capable pages have a nonce CSP, frame denial and no referrer (49.381833ms)
+✔ tecrid private API errors are never reusable across viewers (9.519958ms)
+✔ tecrid ignores client-selected CSP nonces and uses fresh nonces per response (21.124833ms)
+✔ response protection preserves verified-session cookies and revocation (112.748834ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2426.33225
