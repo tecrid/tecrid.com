@@ -1,3 +1,4 @@
+import {guardMutationRequest} from "../lib/abuse-budget.js";
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
@@ -53,6 +54,9 @@ const worker = {
       }, allowedWidths);
     }
 
+    const guarded = await guardMutationRequest(request, env);
+    if (guarded instanceof Response) return guarded;
+    request = guarded;
     const response = await handler.fetch(request, env, ctx);
     if (env.TECRID_DELIVERY_ENABLED === "true" && response.ok && !url.pathname.startsWith("/api/internal/") && !url.pathname.startsWith("/api/sandbox/") && !url.pathname.startsWith("/api/sandbox/") && !["GET", "HEAD", "OPTIONS"].includes(request.method)) {
       ctx.waitUntil(import("../lib/notification-delivery").then(({ processNotificationOutbox }) => processNotificationOutbox()));

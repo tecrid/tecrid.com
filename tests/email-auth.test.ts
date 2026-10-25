@@ -19,10 +19,10 @@ it('email login, mailbox isolation, onboarding, profile, security and production
 const mf=new Miniflare({modules:true,script:'export default {fetch(){return new Response("test")}}',d1Databases:['DB'],compatibilityDate:'2026-05-22'});
 try{
 const db=await mf.getD1Database('DB');
-env.DB=db;env.TECRID_AUTH_SECRET='local-test-only-'.repeat(4);env.TECRID_AUTH_URL='https://tecrid.test';env.TECRID_EMAIL_RELAY_SECRET='test-key';env.TECRID_REPORT_READ_SECRET='synthetic-read-'.repeat(4);env.TECRID_REPORT_PERMISSION_SECRET='synthetic-permission-'.repeat(4);env.TECRID_NOTIFICATION_SERVICE_SECRET='synthetic-notification-'.repeat(4);env.TECRID_EMAIL_RELAY_URL='https://relay.test/email';
+env.DB=db;env.TECRID_AUTH_SECRET='local-test-only-'.repeat(4);env.TECRID_AUTH_URL='https://tecrid.test';env.TECRID_EMAIL_RELAY_SECRET='test-key';env.TECRID_MAIL_ISSUANCE_SECRET='synthetic-issuance-'.repeat(4);env.TECRID_REPORT_READ_SECRET='synthetic-read-'.repeat(4);env.TECRID_REPORT_PERMISSION_SECRET='synthetic-permission-'.repeat(4);env.TECRID_NOTIFICATION_SERVICE_SECRET='synthetic-notification-'.repeat(4);env.TECRID_EMAIL_RELAY_URL='https://relay.test/email';
 for(const file of readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort())for(const sql of readFileSync(new URL('../drizzle/'+file,import.meta.url),'utf8').split('--> statement-breakpoint'))if(sql.trim())await db.prepare(sql).run();
 let mail=[],ip=1;
-const auth=createEmailAuth(drizzle(db,{schema}),schema,{secret:'local-test-only-'.repeat(4),baseURL:'https://tecrid.test',relaySecret:'test-key',relayURL:'https://relay.test/email'},async(url,options)=>{assert.equal(url,'https://relay.test/email');mail.push(JSON.parse(options.body));return Response.json({id:'test-message'});});
+const auth=createEmailAuth(drizzle(db,{schema}),schema,{secret:'local-test-only-'.repeat(4),baseURL:'https://tecrid.test',relaySecret:'test-key',issuanceSecret:'synthetic-issuance-'.repeat(4),relayURL:'https://relay.test/email'},async(url,options)=>{assert.equal(url,'https://relay.test/email');assert.equal(options.headers.authorization==='Bearer test-key',true);assert.equal(options.headers['x-tecrid-mail-issuance'].startsWith('TECRID-HMAC '),true);mail.push(JSON.parse(options.body));return Response.json({id:'test-message'});});
 const call=(path,body,cookie='',origin='https://tecrid.test')=>auth.handler(new Request('https://tecrid.test/api/auth/'+path,{method:body?'POST':'GET',headers:{origin,'Content-Type':'application/json','cf-connecting-ip':`192.0.2.${ip++}`,cookie},...(body?{body:JSON.stringify(body)}:{})}));
 const send=async(email)=>{let r=await call('sign-in/magic-link',{email,callbackURL:'/email-sign-in'});assert.equal(r.status,200);return mail.at(-1).url;};
 const link=await send('buyer@company.test');assert.equal(mail[0].email,'buyer@company.test');
@@ -55,7 +55,7 @@ assert.equal((await kasandrinosTestWorkspace(new Request('https://tecrid.test/ap
 r=await call('sign-in/magic-link',{email:'redirect@company.test',callbackURL:'https://evil.test'});assert.equal(r.status,403);
 // Use one IP for these requests to check the persisted limiter.
 for(let i=0;i<4;i++){ip=100;r=await call('sign-in/magic-link',{email:'limited@company.test',callbackURL:'/'});}assert.equal(r.status,429);
-const failing=createEmailAuth(drizzle(db,{schema}),schema,{secret:'local-test-only-'.repeat(4),baseURL:'https://tecrid.test',relaySecret:'test',relayURL:'https://relay.test/email'},async()=>new Response('',{status:503}));
+const failing=createEmailAuth(drizzle(db,{schema}),schema,{secret:'local-test-only-'.repeat(4),baseURL:'https://tecrid.test',relaySecret:'test',issuanceSecret:'synthetic-issuance-'.repeat(4),relayURL:'https://relay.test/email'},async()=>new Response('',{status:503}));
 r=await failing.handler(new Request('https://tecrid.test/api/auth/sign-in/magic-link',{method:'POST',headers:{origin:'https://tecrid.test','content-type':'application/json','cf-connecting-ip':'192.0.2.200'},body:JSON.stringify({email:'failure@company.test'})}));assert(r.status>=400);
 console.log('PASS: D1 email auth, verified identity, hashed one-use token, expiry, secure cookie, CSRF, sign-out revocation, redirect validation, persisted rate limit, delivery failure.');
 }finally{await mf.dispose();}
