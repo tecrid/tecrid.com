@@ -1,77 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { RolePicker } from "../role-picker";
 
-export function OrganizationOnboarding({ email }: { email: string }) {
-  const [message, setMessage] = useState("");
-  const [pending, setPending] = useState(false);
+export function OrganizationOnboarding(_props: { email: string }) { return <RolePicker onboarding />; }
 
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setPending(true);
-    setMessage("");
-    const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/onboarding", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        name: form.get("name"),
-        organizationType: form.get("organizationType"),
-        website: form.get("website"),
-      }),
-    });
-    const body = await response.json();
-    if (!response.ok) {
-      setMessage(body.error ?? "Organization setup failed.");
-      setPending(false);
-      return;
-    }
-    window.location.reload();
-  }
-
-  return (
-    <form className="onboarding-form" onSubmit={submit}>
-      <div className="form-intro">
-        <p className="section-kicker">Organization account</p>
-        <h2>Create your TEC workspace.</h2>
-        <p>Your sign-in identity is <strong>{email}</strong>. Tell us which organization owns this workspace.</p>
-      </div>
-      <label>Organization name<input name="name" required minLength={2} placeholder="Greenleaf Analytical" /></label>
-      <label>Organization type
-        <select name="organizationType" defaultValue="laboratory" required>
-          <option value="laboratory">Testing laboratory</option>
-          <option value="brand">Brand or manufacturer</option>
-          <option value="supplier">Ingredient supplier</option>
-          <option value="retailer">Retailer or marketplace</option>
-          <option value="certification_body">Third-party certification body</option>
-          <option value="government">Government or regulator</option>
-          <option value="consultant">Consultant or auditor</option>
-          <option value="research">Research organization</option>
-          <option value="other">Other</option>
-        </select>
-      </label>
-      <label>Website <span>optional</span><input name="website" type="url" placeholder="https://example.com" /></label>
-      <div className="form-notice">
-        <strong>Laboratory accounts start unverified.</strong>
-        <p>You can build draft credentials immediately. Public issuance begins only after ICS verifies the laboratory identity and authority.</p>
-      </div>
-      <p className="collection-notice">ICS uses account and organization data to operate, secure, and govern the registry. Evidence remains private unless an authorized workflow publishes or shares it. <a href="/privacy" target="_blank">Review Privacy &amp; Data Governance ↗</a></p>
-      <button className="button-dark" type="submit" disabled={pending}>{pending ? "Creating workspace…" : "Create workspace →"}</button>
-      <p className="form-message" role="status">{message}</p>
-    </form>
-  );
-}
-
-type KeySummary = {
-  id: string;
-  label: string;
-  scopes?: string;
-  keyPrefix: string;
-  lastFour: string;
-  createdAt: string;
-  lastUsedAt: string | null;
-  revokedAt: string | null;
-};
+type KeySummary = { id: string; label: string; scopes?: string; keyPrefix: string; lastFour: string; createdAt: string; lastUsedAt: string | null; revokedAt: string | null };
 
 export function ApiKeyPanel({ keys }: { keys: KeySummary[] }) {
   const [newKey, setNewKey] = useState<string | null>(null);

@@ -21,6 +21,10 @@ export default async function DashboardSettingsPage() {
   const user = await requireChatGPTUser("/dashboard/settings");
   const [data, sharing] = await Promise.all([getDashboardData(user.userId), listSharingForUser(user)]);
   if (!data) redirect("/dashboard");
+  if (data.organization.slug.startsWith("setup--")) {
+    if (data.organization.organizationType === "other") return <main className="product-page simple-dashboard"><header className="simple-dashboard-heading"><h1>Your account</h1><p>{user.email}</p><a href={chatGPTSignOutPath("/")}>Sign out</a></header><ProductFooter /></main>;
+    redirect("/dashboard/setup?return_to=/dashboard/settings");
+  }
   const profile = sharing.profile ? {
     displayName: sharing.profile.displayName,
     website: sharing.profile.website,

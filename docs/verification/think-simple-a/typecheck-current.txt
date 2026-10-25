@@ -1,0 +1,83 @@
+app/api/integrations/vle/notifications/route.ts(1,21): error TS2307: Cannot find module 'cloudflare:workers' or its corresponding type declarations.
+app/api/notifications/route.ts(1,21): error TS2307: Cannot find module 'cloudflare:workers' or its corresponding type declarations.
+app/api/stripe/webhook/route.ts(1,21): error TS2307: Cannot find module 'cloudflare:workers' or its corresponding type declarations.
+app/api/v1/health/route.ts(1,21): error TS2307: Cannot find module 'cloudflare:workers' or its corresponding type declarations.
+db/index.ts(1,21): error TS2307: Cannot find module 'cloudflare:workers' or its corresponding type declarations.
+lib/email-auth.ts(1,21): error TS2307: Cannot find module 'cloudflare:workers' or its corresponding type declarations.
+lib/issuer-verification.ts(2,21): error TS2307: Cannot find module 'cloudflare:workers' or its corresponding type declarations.
+lib/issuer-verification.ts(37,51): error TS2304: Cannot find name 'R2Bucket'.
+lib/issuer-verification.ts(277,5): error TS2345: Argument of type 'Uint8Array<ArrayBufferLike>' is not assignable to parameter of type 'BufferSource'.
+  Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'ArrayBufferView<ArrayBuffer>'.
+    Types of property 'buffer' are incompatible.
+      Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+        Type 'SharedArrayBuffer' is missing the following properties from type 'ArrayBuffer': resizable, resize, detached, transfer, transferToFixedLength
+lib/kasandrinos-test-workspace.ts(2,19): error TS2307: Cannot find module 'cloudflare:workers' or its corresponding type declarations.
+lib/lab-defense.ts(206,51): error TS2339: Property 'sampleName' does not exist on type '{ sampleName: string; productSku: string | null; lotNumber: string | null; matrix: string | null; method: string | null; collectedAt: string | null; receivedAt: string | null; testedAt: string | null; releasedAt: string | null; submittingParty: string | null; } | { ...; }'.
+  Property 'sampleName' does not exist on type '{ productName: string; sku: string; packageFormat: string; lotNumber: string; sampleId: string; sampleDescription: string; matrix: string; servingSize: string; }'.
+lib/lab-defense.ts(206,87): error TS2339: Property 'sampleName' does not exist on type '{ sampleName: string; productSku: string | null; lotNumber: string | null; matrix: string | null; method: string | null; collectedAt: string | null; receivedAt: string | null; testedAt: string | null; releasedAt: string | null; submittingParty: string | null; } | { ...; }'.
+  Property 'sampleName' does not exist on type '{ productName: string; sku: string; packageFormat: string; lotNumber: string; sampleId: string; sampleDescription: string; matrix: string; servingSize: string; }'.
+lib/lab-defense.ts(209,46): error TS2339: Property 'method' does not exist on type '{ sampleName: string; productSku: string | null; lotNumber: string | null; matrix: string | null; method: string | null; collectedAt: string | null; receivedAt: string | null; testedAt: string | null; releasedAt: string | null; submittingParty: string | null; } | { ...; }'.
+  Property 'method' does not exist on type '{ productName: string; sku: string; packageFormat: string; lotNumber: string; sampleId: string; sampleDescription: string; matrix: string; servingSize: string; }'.
+lib/lab-defense.ts(209,78): error TS2339: Property 'method' does not exist on type '{ sampleName: string; productSku: string | null; lotNumber: string | null; matrix: string | null; method: string | null; collectedAt: string | null; receivedAt: string | null; testedAt: string | null; releasedAt: string | null; submittingParty: string | null; } | { ...; }'.
+  Property 'method' does not exist on type '{ productName: string; sku: string; packageFormat: string; lotNumber: string; sampleId: string; sampleDescription: string; matrix: string; servingSize: string; }'.
+lib/lab-defense.ts(210,52): error TS2339: Property 'testedAt' does not exist on type '{ sampleName: string; productSku: string | null; lotNumber: string | null; matrix: string | null; method: string | null; collectedAt: string | null; receivedAt: string | null; testedAt: string | null; releasedAt: string | null; submittingParty: string | null; } | { ...; }'.
+  Property 'testedAt' does not exist on type '{ productName: string; sku: string; packageFormat: string; lotNumber: string; sampleId: string; sampleDescription: string; matrix: string; servingSize: string; }'.
+lib/lab-defense.ts(210,86): error TS2339: Property 'testedAt' does not exist on type '{ sampleName: string; productSku: string | null; lotNumber: string | null; matrix: string | null; method: string | null; collectedAt: string | null; receivedAt: string | null; testedAt: string | null; releasedAt: string | null; submittingParty: string | null; } | { ...; }'.
+  Property 'testedAt' does not exist on type '{ productName: string; sku: string; packageFormat: string; lotNumber: string; sampleId: string; sampleDescription: string; matrix: string; servingSize: string; }'.
+lib/legacy-reports.ts(2,21): error TS2307: Cannot find module 'cloudflare:workers' or its corresponding type declarations.
+lib/legacy-reports.ts(45,51): error TS2304: Cannot find name 'R2Bucket'.
+lib/notifications.ts(1,21): error TS2307: Cannot find module 'cloudflare:workers' or its corresponding type declarations.
+lib/notifications.ts(13,44): error TS2552: Cannot find name 'D1Database'. Did you mean 'IDBDatabase'?
+lib/notifications.ts(25,19): error TS7006: Parameter 'row' implicitly has an 'any' type.
+lib/sample-tecrid.ts(151,23): error TS18048: 'report' is possibly 'undefined'.
+lib/tec.ts(4,21): error TS2307: Cannot find module 'cloudflare:workers' or its corresponding type declarations.
+lib/tec.ts(287,5): error TS2345: Argument of type 'Uint8Array<ArrayBufferLike>' is not assignable to parameter of type 'BufferSource'.
+  Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'ArrayBufferView<ArrayBuffer>'.
+    Types of property 'buffer' are incompatible.
+      Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+        Type 'SharedArrayBuffer' is missing the following properties from type 'ArrayBuffer': resizable, resize, detached, transfer, transferToFixedLength
+lib/test-report-access.ts(2,19): error TS2307: Cannot find module 'cloudflare:workers' or its corresponding type declarations.
+tests/email-auth.test.ts(16,25): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+tests/email-auth.test.ts(17,31): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+tests/email-auth.test.ts(24,5): error TS7034: Variable 'mail' implicitly has type 'any[]' in some locations where its type cannot be determined.
+tests/email-auth.test.ts(25,270): error TS18048: 'options' is possibly 'undefined'.
+tests/email-auth.test.ts(25,270): error TS2345: Argument of type 'BodyInit | null | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/email-auth.test.ts(26,13): error TS7006: Parameter 'path' implicitly has an 'any' type.
+tests/email-auth.test.ts(26,18): error TS7006: Parameter 'body' implicitly has an 'any' type.
+tests/email-auth.test.ts(27,18): error TS7006: Parameter 'email' implicitly has an 'any' type.
+tests/email-auth.test.ts(27,137): error TS7005: Variable 'mail' implicitly has an 'any[]' type.
+tests/email-auth.test.ts(28,58): error TS7005: Variable 'mail' implicitly has an 'any[]' type.
+tests/email-auth.test.ts(30,198): error TS2531: Object is possibly 'null'.
+tests/email-auth.test.ts(30,255): error TS2531: Object is possibly 'null'.
+tests/email-auth.test.ts(31,79): error TS18047: 's' is possibly 'null'.
+tests/email-auth.test.ts(31,127): error TS18047: 's' is possibly 'null'.
+tests/email-auth.test.ts(32,56): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string | URL'.
+  Type 'null' is not assignable to type 'string | URL'.
+tests/email-auth.test.ts(34,85): error TS7005: Variable 'mail' implicitly has an 'any[]' type.
+tests/email-auth.test.ts(35,311): error TS18047: 'supplierSession' is possibly 'null'.
+tests/email-auth.test.ts(35,392): error TS18047: 'supplierSession' is possibly 'null'.
+tests/email-auth.test.ts(35,449): error TS18047: 'supplierSession' is possibly 'null'.
+tests/email-auth.test.ts(35,473): error TS18047: 's' is possibly 'null'.
+tests/email-auth.test.ts(35,497): error TS2531: Object is possibly 'null'.
+tests/email-auth.test.ts(37,29): error TS7006: Parameter '_url' implicitly has an 'any' type.
+tests/email-auth.test.ts(37,34): error TS7006: Parameter 'options' implicitly has an 'any' type.
+tests/email-auth.test.ts(42,66): error TS18047: 'principal' is possibly 'null'.
+tests/email-auth.test.ts(43,44): error TS2345: Argument of type '{ userId: string; email: string; displayName: string; fullName: string | null; } | null' is not assignable to parameter of type 'ChatGPTUser'.
+  Type 'null' is not assignable to type 'ChatGPTUser'.
+tests/email-auth.test.ts(44,32): error TS2345: Argument of type '{ userId: string; email: string; displayName: string; fullName: string | null; } | null' is not assignable to parameter of type 'ChatGPTUser'.
+  Type 'null' is not assignable to type 'ChatGPTUser'.
+tests/email-auth.test.ts(46,49): error TS2345: Argument of type '{ userId: string; email: string; displayName: string; fullName: string | null; } | null' is not assignable to parameter of type 'ChatGPTUser'.
+  Type 'null' is not assignable to type 'ChatGPTUser'.
+tests/email-auth.test.ts(46,314): error TS18047: 'principal' is possibly 'null'.
+tests/email-auth.test.ts(50,176): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string | URL'.
+  Type 'null' is not assignable to type 'string | URL'.
+tests/laboratory-connector.test.ts(15,73): error TS2353: Object literal may only specify known properties, and 'token' does not exist in type '{ method?: string | undefined; retry?: boolean | undefined; fetcher?: { (input: URL | RequestInfo, init?: RequestInit | undefined): Promise<Response>; (input: string | ... 1 more ... | Request, init?: RequestInit | undefined): Promise<...>; } | undefined; }'.
+tests/laboratory-connector.test.ts(20,81): error TS2353: Object literal may only specify known properties, and 'body' does not exist in type '{ method?: string | undefined; retry?: boolean | undefined; fetcher?: { (input: URL | RequestInfo, init?: RequestInit | undefined): Promise<Response>; (input: string | ... 1 more ... | Request, init?: RequestInit | undefined): Promise<...>; } | undefined; }'.
+tests/notifications.test.ts(51,58): error TS7006: Parameter 'n' implicitly has an 'any' type.
+tests/notifications.test.ts(54,56): error TS7006: Parameter 'n' implicitly has an 'any' type.
+tests/notifications.test.ts(58,56): error TS7006: Parameter 'n' implicitly has an 'any' type.
+tests/private-fetch.test.ts(13,92): error TS7006: Parameter 'request' implicitly has an 'any' type.
+worker/index.ts(6,11): error TS2304: Cannot find name 'Fetcher'.
+worker/index.ts(7,7): error TS2552: Cannot find name 'D1Database'. Did you mean 'IDBDatabase'?
+worker/index.ts(8,14): error TS2304: Cannot find name 'R2Bucket'.

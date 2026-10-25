@@ -1,0 +1,52 @@
+import { afterEach, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { RoleProvider } from "../app/role-context";
+import { RolePicker } from "../app/role-picker";
+import { ProductNav, ProductFooter } from "../app/site-nav";
+import { IssuerApplicationPanel } from "../app/dashboard/issuer-application";
+import { EmailSignInForm } from "../app/sign-in/sign-in-form";
+const route = vi.hoisted(() => ({ pathname: "/" }));
+vi.mock("next/navigation", () => ({ usePathname: () => route.pathname }));
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); document.cookie = "tecrid_role_v1=; Max-Age=0; Path=/"; route.pathname = "/"; });
+it("carries the chosen signup role and original destination through the email callback", async () => {
+  const request = vi.fn(async (_url: string, _options: RequestInit) => Response.json({ ok: true })); vi.stubGlobal("fetch", request);
+  render(<RoleProvider initialRole="supplier" signedIn={false} hasWorkspace={false}><EmailSignInForm returnTo="/dashboard/reports/new" ready hasError={false} initialRole="laboratory" /></RoleProvider>);
+  fireEvent.change(screen.getByLabelText("Email"), {target:{value:"lab@example.test"}});
+  fireEvent.submit(screen.getByRole("button", {name:/Email me/}).closest("form")!);
+  await screen.findByText("Check your inbox.");
+  const payload = JSON.parse(request.mock.calls[0][1].body as string);
+  expect(payload.callbackURL).toBe("/welcome?return_to=%2Fdashboard%2Freports%2Fnew&role=laboratory");
+  expect(payload.newUserCallbackURL).toBe(payload.callbackURL);
+  expect(document.cookie).toContain("tecrid_role_v1=laboratory");
+});
+it("keeps a persisted member role when a browser preference changes and removes the public nav from dashboard pages", () => {
+  route.pathname = "/dashboard/settings";
+  render(<RoleProvider initialRole="brand" signedIn hasWorkspace><ProductNav /><RolePicker /><ProductFooter /></RoleProvider>);
+  expect(screen.queryByRole("navigation")).toBeNull();
+  expect(screen.getByRole("button", {name:/^Brand /}).getAttribute("aria-pressed")).toBe("true");
+  expect(screen.getAllByRole("link").map(link=>link.textContent)).toEqual(["Privacy", "Contact"]);
+});
+it("shows a retry after failed role onboarding and posts only the role", async () => {
+  const request = vi.fn(async (_url: string, _options: RequestInit) => Response.json({error:"Try again"},{status:503})); vi.stubGlobal("fetch",request);
+  render(<RoleProvider initialRole="public" signedIn hasWorkspace={false}><RolePicker onboarding preferredRole="retailer" /></RoleProvider>);
+  expect(screen.getByRole("button", {name:/^Retailer /}).getAttribute("aria-pressed")).toBe("true");
+  fireEvent.click(screen.getByRole("button", {name:/^Lab /}));
+  await screen.findByText("Try again");
+  expect(JSON.parse(request.mock.calls[0][1].body as string)).toEqual({role:"laboratory"});
+  expect((screen.getByRole("button", {name:/^Lab /}) as HTMLButtonElement).disabled).toBe(false);
+});
+it("shows four small lab steps, validates each one and preserves entered fields when going back", async () => {
+  const {container} = render(<IssuerApplicationPanel application={null} issuerStatus="pending" documents={[]} checks={[]} />);
+  expect(container.querySelectorAll("fieldset:not([hidden])").length).toBe(1);
+  fireEvent.click(screen.getByRole("button",{name:"Continue"}));
+  expect(screen.getByText(/Step 1 of 4/)).toBeTruthy();
+  fireEvent.change(screen.getByLabelText("Laboratory legal name"),{target:{value:"Fixture laboratory"}});
+  fireEvent.change(screen.getByLabelText("Physical laboratory address"),{target:{value:"Test address"}});
+  fireEvent.change(screen.getByLabelText("Laboratory website"),{target:{value:"https://example.test"}});
+  fireEvent.change(screen.getByLabelText("Your authority role"),{target:{value:"Owner"}});
+  fireEvent.click(screen.getByRole("button",{name:"Continue"}));
+  await waitFor(()=>expect(screen.getByText(/Step 2 of 4/)).toBeTruthy());
+  fireEvent.click(screen.getByRole("button",{name:"Back"}));
+  expect((screen.getByLabelText("Laboratory legal name") as HTMLInputElement).value).toBe("Fixture laboratory");
+  expect(screen.queryByRole("button",{name:/Submit for ICS/})).toBeNull();
+});

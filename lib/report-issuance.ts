@@ -13,6 +13,7 @@ import {
   getCredential,
   TecAuthorizationError,
   TecInputError,
+  requireOrganizationIdentity,
 } from "./tec";
 import {
   authorizeRoutingAuthorizationId,
@@ -64,6 +65,7 @@ export async function reserveReportTecrid(
   organization: typeof organizations.$inferSelect,
   input: Record<string, unknown>,
 ) {
+  requireOrganizationIdentity(organization);
   if (organization.organizationType !== "laboratory" || organization.issuerStatus !== "verified") {
     throw new TecAuthorizationError("Only an ICS-verified laboratory can reserve a production TECRID for a report.");
   }

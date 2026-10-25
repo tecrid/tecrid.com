@@ -1,0 +1,85 @@
+[
+  {
+    "role": "brand",
+    "documentWidth": 1440,
+    "editor": false,
+    "height": 1000,
+    "nav": [
+      "Home",
+      "Approvals",
+      "Add a report",
+      "Settings"
+    ],
+    "publicNav": 0,
+    "width": 1440
+  },
+  {
+    "role": "supplier",
+    "documentWidth": 1440,
+    "editor": false,
+    "height": 1000,
+    "nav": [
+      "Home",
+      "Approvals",
+      "Add a report",
+      "Settings"
+    ],
+    "publicNav": 0,
+    "width": 1440
+  },
+  {
+    "role": "laboratory",
+    "documentWidth": 1440,
+    "editor": false,
+    "height": 1000,
+    "nav": [
+      "Home",
+      "Issue",
+      "Approvals",
+      "Settings"
+    ],
+    "publicNav": 0,
+    "width": 1440
+  },
+  {
+    "role": "certification_body",
+    "documentWidth": 1440,
+    "editor": false,
+    "height": 1000,
+    "nav": [
+      "Home",
+      "Requests",
+      "Received",
+      "Settings"
+    ],
+    "publicNav": 0,
+    "width": 1440
+  },
+  {
+    "role": "retailer",
+    "documentWidth": 1440,
+    "editor": false,
+    "height": 1000,
+    "nav": [
+      "Home",
+      "Requests",
+      "Received",
+      "Settings"
+    ],
+    "publicNav": 0,
+    "width": 1440
+  },
+  {
+    "role": "public",
+    "documentWidth": 1440,
+    "editor": false,
+    "height": 1000,
+    "nav": [
+      "Verify",
+      "What is a TECRID",
+      "Settings"
+    ],
+    "publicNav": 0,
+    "width": 1440
+  }
+]

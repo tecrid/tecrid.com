@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { listSharingForUser } from "../../../lib/sharing";
@@ -11,6 +12,7 @@ export default async function SharingPage() {
   const user = await requireChatGPTUser("/dashboard/sharing");
   const data = await listSharingForUser(user);
   const organizationId = data.membership.organization.id;
+  if (data.membership.organization.slug.startsWith("setup--")) redirect("/dashboard/setup?return_to=/dashboard/sharing");
   const name = (id: string) => data.organizationMap[id]?.name ?? "Unknown organization";
   const codes = data.codes.map((code) => ({
     ...code,
