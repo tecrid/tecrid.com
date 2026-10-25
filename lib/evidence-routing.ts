@@ -361,7 +361,7 @@ function withControlledPayloadsWithheld<T extends ReturnType<typeof publicCreden
   };
 }
 
-function documentForGrant(record: NonNullable<Awaited<ReturnType<typeof getCredential>>>, grant: typeof evidenceAccessGrants.$inferSelect) {
+export function documentForGrant(record: NonNullable<Awaited<ReturnType<typeof getCredential>>>, grant: typeof evidenceAccessGrants.$inferSelect) {
   const full = publicCredentialDocument(record, { includeControlledResults: true });
   const requestedAnalytes = normalizeAnalytes(grant.analyteScopeJson ? JSON.parse(grant.analyteScopeJson) : []);
   const analytes = new Set(requestedAnalytes.map((value) => value.toLowerCase()));

@@ -53,7 +53,7 @@ it("creates a scoped webhook for each access level with an exact snapshot finger
   if (index === 0) expect(JSON.stringify(payload)).not.toContain("LEAD-PRIVATE");
  }
 });
-it("signs the exact scoped body and leaves lifecycle events metadata-only", async () => {
+it("withholds legacy marketplace webhooks without signed supplier identity and leaves lifecycle metadata unchanged", async () => {
  const channel = await saveNotificationChannel(market, { kind: "webhook", url: "https://vle.example.org/events", label: "SYNTHETIC receiver" });
  // A channel gets only events created after enrollment, so enqueue a new
  // synthetic event pointing at the already verified snapshot.
@@ -64,7 +64,7 @@ it("signs the exact scoped body and leaves lifecycle events metadata-only", asyn
   const body = String(init!.body); bodies.push(body); const headers = new Headers(init!.headers); const [stamp, signature] = headers.get("x-tecrid-signature")!.split(",");
   expect(signature).toBe(`v1=${createHmac("sha256", channel.webhookSecret!).update(`${stamp.slice(2)}.${body}`).digest("hex")}`); return new Response(null,{status:202});
  } });
- expect(bodies.some(body => JSON.parse(body).delivery?.accessLevel === "selected_analytes")).toBe(true);
+ expect(bodies).toEqual([]);
  expect(bodies.join()).not.toContain("CADMIUM-PRIVATE");
  const lifecycle = await recipientWebhookPayload({ ...events[1], eventType: "credential.corrected" });
  expect(Object.keys(lifecycle).sort()).toEqual(["event","eventId","sku","url"]);

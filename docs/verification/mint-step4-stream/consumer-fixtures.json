@@ -1,0 +1,1231 @@
+[
+  {
+    "schemaVersion": "vle-evidence/1",
+    "environment": "production",
+    "streamId": "12b527214d8bebb2614c98913c6ec89402491c70e918d3b6a4182b28f38046d6",
+    "eventId": "vle:fe0b45cf-6e1f-4261-b88c-28375e0c667b",
+    "deliveryId": "vle:fe0b45cf-6e1f-4261-b88c-28375e0c667b",
+    "sequence": 1,
+    "event": "credential.issued",
+    "occurredAt": "2026-10-25T17:40:00.339Z",
+    "operation": "upsert",
+    "recipient": {
+      "type": "marketplace",
+      "organizationId": "security-recipient"
+    },
+    "credential": {
+      "tecrid": "TECRID·SECLAB-26-E5GRVJNS",
+      "version": 1,
+      "status": "active",
+      "program": "analytical-record",
+      "issuingLab": "Synthetic security-lab",
+      "issuedAt": "2026-10-25T17:39:59.439Z",
+      "retestDue": null,
+      "verificationUrl": "https://tecrid.com/records/TECRID%C2%B7SECLAB-26-E5GRVJNS",
+      "fingerprint": "b5023c907355b8ff07a8c95deb7b0137f4cdbd40b37aed1ab926fbccb077ff5e",
+      "verification": {
+        "signatureVerified": true,
+        "fingerprintVerified": true,
+        "currentVersion": true
+      },
+      "identity": {
+        "originatingSupplier": "stream-supplier",
+        "originatingSupplierId": "vle-supplier",
+        "mappingId": "a432e31e65b12a3899b97b9e757bbe0ce8ee466cc00c612fa35df6189de31c2e",
+        "ingredientCode": "synthetic-ingredient",
+        "productSku": "SEC-SKU",
+        "supplierLotId": "SYNTHETIC-LOT"
+      }
+    },
+    "grant": {
+      "id": "39244b2f-b31c-4876-b54e-f492857bd3a8",
+      "controllerOrganizationId": "security-brand",
+      "recipientOrganizationId": "security-recipient",
+      "status": "active",
+      "accessLevel": "status_only",
+      "publicStatus": false,
+      "brandOrganizationIds": [],
+      "expiresAt": null,
+      "supersedesGrantId": "3d9656cf-eb20-48db-80d6-4088f269856d"
+    },
+    "snapshot": {
+      "schemaVersion": "tec-registry/1.0-draft",
+      "type": "TestEvidenceCredential",
+      "tecrid": "TECRID·SECLAB-26-E5GRVJNS",
+      "status": "issued",
+      "version": 1,
+      "issuedAt": "2026-10-25T17:39:59.439Z",
+      "updatedAt": "2026-10-25T17:39:59.439Z",
+      "visibility": "controlled",
+      "resultsAccess": {
+        "state": "granted",
+        "grantRequired": true,
+        "accessLevel": "status_only",
+        "analytes": [],
+        "deliveredAnalytes": [],
+        "missingAnalytes": [],
+        "coverageState": "complete",
+        "note": "This recipient view is a registry extraction from the full signed credential. The complete signed payload remains withheld unless full-record access is granted."
+      },
+      "issuer": {
+        "code": "SECLAB",
+        "name": "Synthetic security-lab",
+        "status": "verified",
+        "registryPath": "/issuers/SECLAB"
+      },
+      "subject": {
+        "sampleName": "Synthetic stream",
+        "productSku": "SEC-SKU",
+        "originatingSupplier": "stream-supplier",
+        "signatureVersion": "tec-credential/3",
+        "ingredientCode": "synthetic-ingredient",
+        "lotNumber": "SYNTHETIC-LOT",
+        "matrix": null,
+        "method": null,
+        "collectedAt": null,
+        "receivedAt": null,
+        "testedAt": null,
+        "releasedAt": null,
+        "submittingParty": null
+      },
+      "sourceDocument": {
+        "sha256": "d48b2d30f48fbb1d6ae19aa8e3bbf8ab01154911f22b07f43ce5b9475570219f",
+        "filename": "synthetic-3.pdf",
+        "reportNumber": null,
+        "orderNumber": null,
+        "issuanceBasis": null,
+        "publicDocument": false
+      },
+      "results": [],
+      "integrity": {
+        "fingerprintRecorded": true,
+        "fingerprintValid": true,
+        "issuerSignatureVerified": true,
+        "versionHistoryRecorded": true,
+        "currentVersionConsistent": true,
+        "fingerprintAlgorithm": "SHA-256",
+        "fingerprint": "b5023c907355b8ff07a8c95deb7b0137f4cdbd40b37aed1ab926fbccb077ff5e",
+        "issuerProof": {
+          "algorithm": "Ed25519",
+          "keyId": "security-fixture-key",
+          "keyReviewedAt": "2026-10-25T17:39:55.176Z",
+          "publicKeyJwk": {
+            "key_ops": [
+              "verify"
+            ],
+            "ext": true,
+            "alg": "Ed25519",
+            "crv": "Ed25519",
+            "x": "8HUAsbD0-1LWZefexBl5_s3aQqHj8guoSXnKsd7I7ZQ",
+            "kty": "OKP"
+          },
+          "signature": "mXNpb_hW1kdiVceVJnKHTxIg3AV3PIuSzgFi2e2E52-ekpXF8UHppymAC1zhSo1JDkZM-RxOPblRFpwyQLPhDQ",
+          "signedPayload": null,
+          "signedPayloadHash": "827bdc3495c07f85fa9914b6ab48c82ea711ccd99a29a5a5654933c35b2796f1",
+          "payloadWithheld": true
+        }
+      },
+      "versions": [
+        {
+          "version": 1,
+          "status": "issued",
+          "fingerprint": "b5023c907355b8ff07a8c95deb7b0137f4cdbd40b37aed1ab926fbccb077ff5e",
+          "canonicalPayload": null,
+          "issuerSignature": null,
+          "issuerKeyId": "security-fixture-key",
+          "issuerPublicKeyJwk": "{\"key_ops\":[\"verify\"],\"ext\":true,\"alg\":\"Ed25519\",\"crv\":\"Ed25519\",\"x\":\"8HUAsbD0-1LWZefexBl5_s3aQqHj8guoSXnKsd7I7ZQ\",\"kty\":\"OKP\"}",
+          "issuerKeyVerifiedAt": "2026-10-25T17:39:55.176Z",
+          "signatureAlgorithm": "Ed25519",
+          "signedPayload": null,
+          "signedPayloadHash": "827bdc3495c07f85fa9914b6ab48c82ea711ccd99a29a5a5654933c35b2796f1",
+          "changeType": "issuance",
+          "changeReason": "Original issuance",
+          "createdAt": "2026-10-25T17:39:59.439Z",
+          "payloadWithheld": true
+        }
+      ],
+      "links": {
+        "human": "/records/TECRID%C2%B7SECLAB-26-E5GRVJNS",
+        "json": "/api/v1/credentials/TECRID%C2%B7SECLAB-26-E5GRVJNS",
+        "issuer": "/issuers/SECLAB"
+      },
+      "interpretationBoundary": "This record establishes issuer attribution, content integrity, and status. It does not by itself establish representative sampling, method suitability, regulatory compliance, or product safety."
+    },
+    "snapshotFingerprint": "37d41babc972b035514d9e0d629f352e2397beb468689bccfbe0f06770129213"
+  },
+  {
+    "schemaVersion": "vle-evidence/1",
+    "environment": "production",
+    "streamId": "1aa29939db171851331ea269423537760618cce48567e1d07caa63e5ff057677",
+    "eventId": "vle:9f150f30-2175-4f3e-9c8c-627b34466add",
+    "deliveryId": "vle:9f150f30-2175-4f3e-9c8c-627b34466add",
+    "sequence": 2,
+    "event": "credential.issued",
+    "occurredAt": "2026-10-25T17:39:56.392Z",
+    "operation": "upsert",
+    "recipient": {
+      "type": "marketplace",
+      "organizationId": "security-recipient"
+    },
+    "credential": {
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "version": 1,
+      "status": "active",
+      "program": "analytical-record",
+      "issuingLab": "Synthetic security-lab",
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "retestDue": null,
+      "verificationUrl": "https://tecrid.com/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+      "fingerprint": "181269d34b9989f94e86e4ce6d85381037f44dc0c9600f7cf5ee85990aa63b44",
+      "verification": {
+        "signatureVerified": true,
+        "fingerprintVerified": true,
+        "currentVersion": true
+      },
+      "identity": {
+        "originatingSupplier": "stream-supplier",
+        "originatingSupplierId": "vle-supplier",
+        "mappingId": "a432e31e65b12a3899b97b9e757bbe0ce8ee466cc00c612fa35df6189de31c2e",
+        "ingredientCode": "synthetic-ingredient",
+        "productSku": "SEC-SKU",
+        "supplierLotId": "SYNTHETIC-LOT"
+      }
+    },
+    "grant": {
+      "id": "5dc34124-0994-4beb-86f5-00de2237c09e",
+      "controllerOrganizationId": "security-brand",
+      "recipientOrganizationId": "security-recipient",
+      "status": "active",
+      "accessLevel": "status_only",
+      "publicStatus": false,
+      "brandOrganizationIds": [],
+      "expiresAt": null,
+      "supersedesGrantId": null
+    },
+    "snapshot": {
+      "schemaVersion": "tec-registry/1.0-draft",
+      "type": "TestEvidenceCredential",
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "status": "issued",
+      "version": 1,
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "updatedAt": "2026-10-25T17:39:55.566Z",
+      "visibility": "controlled",
+      "resultsAccess": {
+        "state": "granted",
+        "grantRequired": true,
+        "accessLevel": "status_only",
+        "analytes": [],
+        "deliveredAnalytes": [],
+        "missingAnalytes": [],
+        "coverageState": "complete",
+        "note": "This recipient view is a registry extraction from the full signed credential. The complete signed payload remains withheld unless full-record access is granted."
+      },
+      "issuer": {
+        "code": "SECLAB",
+        "name": "Synthetic security-lab",
+        "status": "verified",
+        "registryPath": "/issuers/SECLAB"
+      },
+      "subject": {
+        "sampleName": "Synthetic stream",
+        "productSku": "SEC-SKU",
+        "originatingSupplier": "stream-supplier",
+        "signatureVersion": "tec-credential/3",
+        "ingredientCode": "synthetic-ingredient",
+        "lotNumber": "SYNTHETIC-LOT",
+        "matrix": null,
+        "method": null,
+        "collectedAt": null,
+        "receivedAt": null,
+        "testedAt": null,
+        "releasedAt": null,
+        "submittingParty": null
+      },
+      "sourceDocument": {
+        "sha256": "9dff5864352636a70c57a399311fe20a2e9ef02da6eba2480ad777f42d033ad7",
+        "filename": "synthetic-1.pdf",
+        "reportNumber": null,
+        "orderNumber": null,
+        "issuanceBasis": null,
+        "publicDocument": false
+      },
+      "results": [],
+      "integrity": {
+        "fingerprintRecorded": true,
+        "fingerprintValid": true,
+        "issuerSignatureVerified": true,
+        "versionHistoryRecorded": true,
+        "currentVersionConsistent": true,
+        "fingerprintAlgorithm": "SHA-256",
+        "fingerprint": "181269d34b9989f94e86e4ce6d85381037f44dc0c9600f7cf5ee85990aa63b44",
+        "issuerProof": {
+          "algorithm": "Ed25519",
+          "keyId": "security-fixture-key",
+          "keyReviewedAt": "2026-10-25T17:39:55.176Z",
+          "publicKeyJwk": {
+            "key_ops": [
+              "verify"
+            ],
+            "ext": true,
+            "alg": "Ed25519",
+            "crv": "Ed25519",
+            "x": "8HUAsbD0-1LWZefexBl5_s3aQqHj8guoSXnKsd7I7ZQ",
+            "kty": "OKP"
+          },
+          "signature": "kUEIMOZ9nGFVGQMQsuqjZ6U0MS2aEq7SCUsA7vOj67YcNvrRdiWK9HZW4R4Esg3MvYdMumWdQngdU-JHG-k7Dw",
+          "signedPayload": null,
+          "signedPayloadHash": "a7ee190a16d453b74d9b2930b498d6fecc4929d9bb8e1618c8b459ce7790ef02",
+          "payloadWithheld": true
+        }
+      },
+      "versions": [
+        {
+          "version": 1,
+          "status": "issued",
+          "fingerprint": "181269d34b9989f94e86e4ce6d85381037f44dc0c9600f7cf5ee85990aa63b44",
+          "canonicalPayload": null,
+          "issuerSignature": null,
+          "issuerKeyId": "security-fixture-key",
+          "issuerPublicKeyJwk": "{\"key_ops\":[\"verify\"],\"ext\":true,\"alg\":\"Ed25519\",\"crv\":\"Ed25519\",\"x\":\"8HUAsbD0-1LWZefexBl5_s3aQqHj8guoSXnKsd7I7ZQ\",\"kty\":\"OKP\"}",
+          "issuerKeyVerifiedAt": "2026-10-25T17:39:55.176Z",
+          "signatureAlgorithm": "Ed25519",
+          "signedPayload": null,
+          "signedPayloadHash": "a7ee190a16d453b74d9b2930b498d6fecc4929d9bb8e1618c8b459ce7790ef02",
+          "changeType": "issuance",
+          "changeReason": "Original issuance",
+          "createdAt": "2026-10-25T17:39:55.566Z",
+          "payloadWithheld": true
+        }
+      ],
+      "links": {
+        "human": "/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+        "json": "/api/v1/credentials/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+        "issuer": "/issuers/SECLAB"
+      },
+      "interpretationBoundary": "This record establishes issuer attribution, content integrity, and status. It does not by itself establish representative sampling, method suitability, regulatory compliance, or product safety."
+    },
+    "snapshotFingerprint": "6ee2b244ca41c9c83ade1bff1fe7f845aa25d216d17937aa29beacf4d112d780"
+  },
+  {
+    "schemaVersion": "vle-evidence/1",
+    "environment": "production",
+    "streamId": "1aa29939db171851331ea269423537760618cce48567e1d07caa63e5ff057677",
+    "eventId": "vle:fc7ce864-0c13-4335-80b2-5ac1d8c6e221",
+    "deliveryId": "vle:fc7ce864-0c13-4335-80b2-5ac1d8c6e221",
+    "sequence": 5,
+    "event": "credential.corrected",
+    "occurredAt": "2026-10-25T17:39:57.462Z",
+    "operation": "upsert",
+    "recipient": {
+      "type": "marketplace",
+      "organizationId": "security-recipient"
+    },
+    "credential": {
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "version": 2,
+      "status": "active",
+      "program": "analytical-record",
+      "issuingLab": "Synthetic security-lab",
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "retestDue": null,
+      "verificationUrl": "https://tecrid.com/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+      "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+      "verification": {
+        "signatureVerified": true,
+        "fingerprintVerified": true,
+        "currentVersion": true
+      },
+      "identity": {
+        "originatingSupplier": "stream-supplier",
+        "originatingSupplierId": "vle-supplier",
+        "mappingId": "a432e31e65b12a3899b97b9e757bbe0ce8ee466cc00c612fa35df6189de31c2e",
+        "ingredientCode": "synthetic-ingredient",
+        "productSku": "SEC-SKU",
+        "supplierLotId": "SYNTHETIC-LOT"
+      }
+    },
+    "grant": {
+      "id": "5dc34124-0994-4beb-86f5-00de2237c09e",
+      "controllerOrganizationId": "security-brand",
+      "recipientOrganizationId": "security-recipient",
+      "status": "active",
+      "accessLevel": "status_only",
+      "publicStatus": false,
+      "brandOrganizationIds": [],
+      "expiresAt": null,
+      "supersedesGrantId": null
+    },
+    "snapshot": {
+      "schemaVersion": "tec-registry/1.0-draft",
+      "type": "TestEvidenceCredential",
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "status": "issued",
+      "version": 2,
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "updatedAt": "2026-10-25T17:39:57.308Z",
+      "visibility": "controlled",
+      "resultsAccess": {
+        "state": "granted",
+        "grantRequired": true,
+        "accessLevel": "status_only",
+        "analytes": [],
+        "deliveredAnalytes": [],
+        "missingAnalytes": [],
+        "coverageState": "complete",
+        "note": "This recipient view is a registry extraction from the full signed credential. The complete signed payload remains withheld unless full-record access is granted."
+      },
+      "issuer": {
+        "code": "SECLAB",
+        "name": "Synthetic security-lab",
+        "status": "verified",
+        "registryPath": "/issuers/SECLAB"
+      },
+      "subject": {
+        "sampleName": "Synthetic stream",
+        "productSku": "SEC-SKU",
+        "originatingSupplier": "stream-supplier",
+        "signatureVersion": "tec-credential/3",
+        "ingredientCode": "synthetic-ingredient",
+        "lotNumber": "SYNTHETIC-LOT",
+        "matrix": null,
+        "method": null,
+        "collectedAt": null,
+        "receivedAt": null,
+        "testedAt": null,
+        "releasedAt": null,
+        "submittingParty": null
+      },
+      "sourceDocument": {
+        "sha256": "9dff5864352636a70c57a399311fe20a2e9ef02da6eba2480ad777f42d033ad7",
+        "filename": "synthetic-1.pdf",
+        "reportNumber": null,
+        "orderNumber": null,
+        "issuanceBasis": null,
+        "publicDocument": false
+      },
+      "results": [],
+      "integrity": {
+        "fingerprintRecorded": true,
+        "fingerprintValid": true,
+        "issuerSignatureVerified": true,
+        "versionHistoryRecorded": true,
+        "currentVersionConsistent": true,
+        "fingerprintAlgorithm": "SHA-256",
+        "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+        "issuerProof": {
+          "algorithm": "Ed25519",
+          "keyId": "security-fixture-key",
+          "keyReviewedAt": "2026-10-25T17:39:55.176Z",
+          "publicKeyJwk": {
+            "key_ops": [
+              "verify"
+            ],
+            "ext": true,
+            "alg": "Ed25519",
+            "crv": "Ed25519",
+            "x": "8HUAsbD0-1LWZefexBl5_s3aQqHj8guoSXnKsd7I7ZQ",
+            "kty": "OKP"
+          },
+          "signature": "NCfnA5CF7Tww8_XULlKtxbA_6NL6wxods0I-nhoaXmbr3r-Cr6emIrIq0MBkPLbNQVr3nrpuCn3tgdztbsU6CA",
+          "signedPayload": null,
+          "signedPayloadHash": "842193efa219bb3c784b017a28ada2667b4d8fa0deeb0aa4a1581395b9af74d2",
+          "payloadWithheld": true
+        }
+      },
+      "versions": [
+        {
+          "version": 2,
+          "status": "issued",
+          "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+          "canonicalPayload": null,
+          "issuerSignature": null,
+          "issuerKeyId": "security-fixture-key",
+          "issuerPublicKeyJwk": "{\"key_ops\":[\"verify\"],\"ext\":true,\"alg\":\"Ed25519\",\"crv\":\"Ed25519\",\"x\":\"8HUAsbD0-1LWZefexBl5_s3aQqHj8guoSXnKsd7I7ZQ\",\"kty\":\"OKP\"}",
+          "issuerKeyVerifiedAt": "2026-10-25T17:39:55.176Z",
+          "signatureAlgorithm": "Ed25519",
+          "signedPayload": null,
+          "signedPayloadHash": "842193efa219bb3c784b017a28ada2667b4d8fa0deeb0aa4a1581395b9af74d2",
+          "changeType": "correction",
+          "changeReason": "Synthetic correction",
+          "createdAt": "2026-10-25T17:39:57.308Z",
+          "payloadWithheld": true
+        },
+        {
+          "version": 1,
+          "status": "issued",
+          "fingerprint": "181269d34b9989f94e86e4ce6d85381037f44dc0c9600f7cf5ee85990aa63b44",
+          "canonicalPayload": null,
+          "issuerSignature": null,
+          "issuerKeyId": "security-fixture-key",
+          "issuerPublicKeyJwk": "{\"key_ops\":[\"verify\"],\"ext\":true,\"alg\":\"Ed25519\",\"crv\":\"Ed25519\",\"x\":\"8HUAsbD0-1LWZefexBl5_s3aQqHj8guoSXnKsd7I7ZQ\",\"kty\":\"OKP\"}",
+          "issuerKeyVerifiedAt": "2026-10-25T17:39:55.176Z",
+          "signatureAlgorithm": "Ed25519",
+          "signedPayload": null,
+          "signedPayloadHash": "a7ee190a16d453b74d9b2930b498d6fecc4929d9bb8e1618c8b459ce7790ef02",
+          "changeType": "issuance",
+          "changeReason": "Original issuance",
+          "createdAt": "2026-10-25T17:39:55.566Z",
+          "payloadWithheld": true
+        }
+      ],
+      "links": {
+        "human": "/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+        "json": "/api/v1/credentials/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+        "issuer": "/issuers/SECLAB"
+      },
+      "interpretationBoundary": "This record establishes issuer attribution, content integrity, and status. It does not by itself establish representative sampling, method suitability, regulatory compliance, or product safety."
+    },
+    "snapshotFingerprint": "4f267e55acb72c6de53dbf1a0b794066537664587f6e2a9633569a421db3d434"
+  },
+  {
+    "schemaVersion": "vle-evidence/1",
+    "environment": "production",
+    "streamId": "1aa29939db171851331ea269423537760618cce48567e1d07caa63e5ff057677",
+    "eventId": "vle:de94dc4f-4e67-4a6a-b0e6-424af1c1467a",
+    "deliveryId": "vle:de94dc4f-4e67-4a6a-b0e6-424af1c1467a",
+    "sequence": 6,
+    "event": "grant.revoked",
+    "occurredAt": "2026-10-25T17:39:57.607Z",
+    "operation": "tombstone",
+    "recipient": {
+      "type": "marketplace",
+      "organizationId": "security-recipient"
+    },
+    "credential": {
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "version": 2,
+      "status": "active",
+      "program": "analytical-record",
+      "issuingLab": "Synthetic security-lab",
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "retestDue": null,
+      "verificationUrl": "https://tecrid.com/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+      "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+      "verification": {
+        "signatureVerified": false,
+        "fingerprintVerified": false,
+        "currentVersion": false
+      },
+      "identity": {
+        "originatingSupplier": "stream-supplier",
+        "originatingSupplierId": "vle-supplier",
+        "mappingId": "a432e31e65b12a3899b97b9e757bbe0ce8ee466cc00c612fa35df6189de31c2e",
+        "ingredientCode": "synthetic-ingredient",
+        "productSku": "SEC-SKU",
+        "supplierLotId": "SYNTHETIC-LOT"
+      }
+    },
+    "grant": {
+      "id": "5dc34124-0994-4beb-86f5-00de2237c09e",
+      "controllerOrganizationId": "security-brand",
+      "recipientOrganizationId": "security-recipient",
+      "status": "revoked",
+      "accessLevel": "status_only",
+      "publicStatus": false,
+      "brandOrganizationIds": [],
+      "expiresAt": null,
+      "supersedesGrantId": null
+    },
+    "reason": "grant_or_recipient_withdrawn"
+  },
+  {
+    "schemaVersion": "vle-evidence/1",
+    "environment": "production",
+    "streamId": "1aa29939db171851331ea269423537760618cce48567e1d07caa63e5ff057677",
+    "eventId": "vle:e7a6356f-3381-438b-9e60-d729d30db7ae",
+    "deliveryId": "vle:e7a6356f-3381-438b-9e60-d729d30db7ae",
+    "sequence": 7,
+    "event": "grant.revoked",
+    "occurredAt": "2026-10-25T17:39:57.722Z",
+    "operation": "tombstone",
+    "recipient": {
+      "type": "marketplace",
+      "organizationId": "security-recipient"
+    },
+    "credential": {
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "version": 2,
+      "status": "active",
+      "program": "analytical-record",
+      "issuingLab": "Synthetic security-lab",
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "retestDue": null,
+      "verificationUrl": "https://tecrid.com/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+      "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+      "verification": {
+        "signatureVerified": false,
+        "fingerprintVerified": false,
+        "currentVersion": false
+      },
+      "identity": {
+        "originatingSupplier": "stream-supplier",
+        "originatingSupplierId": "vle-supplier",
+        "mappingId": "a432e31e65b12a3899b97b9e757bbe0ce8ee466cc00c612fa35df6189de31c2e",
+        "ingredientCode": "synthetic-ingredient",
+        "productSku": "SEC-SKU",
+        "supplierLotId": "SYNTHETIC-LOT"
+      }
+    },
+    "grant": {
+      "id": "3d9656cf-eb20-48db-80d6-4088f269856d",
+      "controllerOrganizationId": "security-brand",
+      "recipientOrganizationId": "security-recipient",
+      "status": "revoked",
+      "accessLevel": "full_record",
+      "publicStatus": false,
+      "brandOrganizationIds": [],
+      "expiresAt": null,
+      "supersedesGrantId": null
+    },
+    "reason": "reviewed_supplier_mapping_required"
+  },
+  {
+    "schemaVersion": "vle-evidence/1",
+    "environment": "production",
+    "streamId": "1aa29939db171851331ea269423537760618cce48567e1d07caa63e5ff057677",
+    "eventId": "vle:5cb75919-a6e3-4af0-941f-a37ba5f6e498",
+    "deliveryId": "vle:5cb75919-a6e3-4af0-941f-a37ba5f6e498",
+    "sequence": 8,
+    "event": "grant.revoked",
+    "occurredAt": "2026-10-25T17:39:57.780Z",
+    "operation": "tombstone",
+    "recipient": {
+      "type": "marketplace",
+      "organizationId": "security-recipient"
+    },
+    "credential": {
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "version": 2,
+      "status": "active",
+      "program": "analytical-record",
+      "issuingLab": "Synthetic security-lab",
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "retestDue": null,
+      "verificationUrl": "https://tecrid.com/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+      "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+      "verification": {
+        "signatureVerified": false,
+        "fingerprintVerified": false,
+        "currentVersion": false
+      },
+      "identity": {
+        "originatingSupplier": "stream-supplier",
+        "originatingSupplierId": "vle-supplier",
+        "mappingId": "a432e31e65b12a3899b97b9e757bbe0ce8ee466cc00c612fa35df6189de31c2e",
+        "ingredientCode": "synthetic-ingredient",
+        "productSku": "SEC-SKU",
+        "supplierLotId": "SYNTHETIC-LOT"
+      }
+    },
+    "grant": {
+      "id": "5dc34124-0994-4beb-86f5-00de2237c09e",
+      "controllerOrganizationId": "security-brand",
+      "recipientOrganizationId": "security-recipient",
+      "status": "revoked",
+      "accessLevel": "status_only",
+      "publicStatus": false,
+      "brandOrganizationIds": [],
+      "expiresAt": null,
+      "supersedesGrantId": null
+    },
+    "reason": "reviewed_supplier_mapping_required"
+  },
+  {
+    "schemaVersion": "vle-evidence/1",
+    "environment": "production",
+    "streamId": "1aa29939db171851331ea269423537760618cce48567e1d07caa63e5ff057677",
+    "eventId": "vle:41e9b914-24d2-4370-8bec-89b167b5c354",
+    "deliveryId": "vle:41e9b914-24d2-4370-8bec-89b167b5c354",
+    "sequence": 9,
+    "event": "grant.revoked",
+    "occurredAt": "2026-10-25T17:39:58.130Z",
+    "operation": "tombstone",
+    "recipient": {
+      "type": "marketplace",
+      "organizationId": "security-recipient"
+    },
+    "credential": {
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "version": 2,
+      "status": "active",
+      "program": "analytical-record",
+      "issuingLab": "Synthetic security-lab",
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "retestDue": null,
+      "verificationUrl": "https://tecrid.com/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+      "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+      "verification": {
+        "signatureVerified": false,
+        "fingerprintVerified": false,
+        "currentVersion": false
+      },
+      "identity": {
+        "originatingSupplier": "stream-supplier",
+        "originatingSupplierId": "vle-supplier",
+        "mappingId": "a432e31e65b12a3899b97b9e757bbe0ce8ee466cc00c612fa35df6189de31c2e",
+        "ingredientCode": "synthetic-ingredient",
+        "productSku": "SEC-SKU",
+        "supplierLotId": "SYNTHETIC-LOT"
+      }
+    },
+    "grant": {
+      "id": "3d9656cf-eb20-48db-80d6-4088f269856d",
+      "controllerOrganizationId": "security-brand",
+      "recipientOrganizationId": "security-recipient",
+      "status": "revoked",
+      "accessLevel": "full_record",
+      "publicStatus": false,
+      "brandOrganizationIds": [],
+      "expiresAt": null,
+      "supersedesGrantId": null
+    },
+    "reason": "grant_superseded"
+  },
+  {
+    "schemaVersion": "vle-evidence/1",
+    "environment": "production",
+    "streamId": "1aa29939db171851331ea269423537760618cce48567e1d07caa63e5ff057677",
+    "eventId": "vle:caf36a39-d777-4000-8360-11fad8398ee1",
+    "deliveryId": "vle:caf36a39-d777-4000-8360-11fad8398ee1",
+    "sequence": 10,
+    "event": "credential.corrected",
+    "occurredAt": "2026-10-25T17:39:58.221Z",
+    "operation": "upsert",
+    "recipient": {
+      "type": "marketplace",
+      "organizationId": "security-recipient"
+    },
+    "credential": {
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "version": 2,
+      "status": "active",
+      "program": "analytical-record",
+      "issuingLab": "Synthetic security-lab",
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "retestDue": null,
+      "verificationUrl": "https://tecrid.com/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+      "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+      "verification": {
+        "signatureVerified": true,
+        "fingerprintVerified": true,
+        "currentVersion": true
+      },
+      "identity": {
+        "originatingSupplier": "stream-supplier",
+        "originatingSupplierId": "vle-supplier",
+        "mappingId": "a432e31e65b12a3899b97b9e757bbe0ce8ee466cc00c612fa35df6189de31c2e",
+        "ingredientCode": "synthetic-ingredient",
+        "productSku": "SEC-SKU",
+        "supplierLotId": "SYNTHETIC-LOT"
+      }
+    },
+    "grant": {
+      "id": "39244b2f-b31c-4876-b54e-f492857bd3a8",
+      "controllerOrganizationId": "security-brand",
+      "recipientOrganizationId": "security-recipient",
+      "status": "active",
+      "accessLevel": "status_only",
+      "publicStatus": false,
+      "brandOrganizationIds": [],
+      "expiresAt": null,
+      "supersedesGrantId": "3d9656cf-eb20-48db-80d6-4088f269856d"
+    },
+    "snapshot": {
+      "schemaVersion": "tec-registry/1.0-draft",
+      "type": "TestEvidenceCredential",
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "status": "issued",
+      "version": 2,
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "updatedAt": "2026-10-25T17:39:57.308Z",
+      "visibility": "controlled",
+      "resultsAccess": {
+        "state": "granted",
+        "grantRequired": true,
+        "accessLevel": "status_only",
+        "analytes": [],
+        "deliveredAnalytes": [],
+        "missingAnalytes": [],
+        "coverageState": "complete",
+        "note": "This recipient view is a registry extraction from the full signed credential. The complete signed payload remains withheld unless full-record access is granted."
+      },
+      "issuer": {
+        "code": "SECLAB",
+        "name": "Synthetic security-lab",
+        "status": "verified",
+        "registryPath": "/issuers/SECLAB"
+      },
+      "subject": {
+        "sampleName": "Synthetic stream",
+        "productSku": "SEC-SKU",
+        "originatingSupplier": "stream-supplier",
+        "signatureVersion": "tec-credential/3",
+        "ingredientCode": "synthetic-ingredient",
+        "lotNumber": "SYNTHETIC-LOT",
+        "matrix": null,
+        "method": null,
+        "collectedAt": null,
+        "receivedAt": null,
+        "testedAt": null,
+        "releasedAt": null,
+        "submittingParty": null
+      },
+      "sourceDocument": {
+        "sha256": "9dff5864352636a70c57a399311fe20a2e9ef02da6eba2480ad777f42d033ad7",
+        "filename": "synthetic-1.pdf",
+        "reportNumber": null,
+        "orderNumber": null,
+        "issuanceBasis": null,
+        "publicDocument": false
+      },
+      "results": [],
+      "integrity": {
+        "fingerprintRecorded": true,
+        "fingerprintValid": true,
+        "issuerSignatureVerified": true,
+        "versionHistoryRecorded": true,
+        "currentVersionConsistent": true,
+        "fingerprintAlgorithm": "SHA-256",
+        "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+        "issuerProof": {
+          "algorithm": "Ed25519",
+          "keyId": "security-fixture-key",
+          "keyReviewedAt": "2026-10-25T17:39:55.176Z",
+          "publicKeyJwk": {
+            "key_ops": [
+              "verify"
+            ],
+            "ext": true,
+            "alg": "Ed25519",
+            "crv": "Ed25519",
+            "x": "8HUAsbD0-1LWZefexBl5_s3aQqHj8guoSXnKsd7I7ZQ",
+            "kty": "OKP"
+          },
+          "signature": "NCfnA5CF7Tww8_XULlKtxbA_6NL6wxods0I-nhoaXmbr3r-Cr6emIrIq0MBkPLbNQVr3nrpuCn3tgdztbsU6CA",
+          "signedPayload": null,
+          "signedPayloadHash": "842193efa219bb3c784b017a28ada2667b4d8fa0deeb0aa4a1581395b9af74d2",
+          "payloadWithheld": true
+        }
+      },
+      "versions": [
+        {
+          "version": 2,
+          "status": "issued",
+          "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+          "canonicalPayload": null,
+          "issuerSignature": null,
+          "issuerKeyId": "security-fixture-key",
+          "issuerPublicKeyJwk": "{\"key_ops\":[\"verify\"],\"ext\":true,\"alg\":\"Ed25519\",\"crv\":\"Ed25519\",\"x\":\"8HUAsbD0-1LWZefexBl5_s3aQqHj8guoSXnKsd7I7ZQ\",\"kty\":\"OKP\"}",
+          "issuerKeyVerifiedAt": "2026-10-25T17:39:55.176Z",
+          "signatureAlgorithm": "Ed25519",
+          "signedPayload": null,
+          "signedPayloadHash": "842193efa219bb3c784b017a28ada2667b4d8fa0deeb0aa4a1581395b9af74d2",
+          "changeType": "correction",
+          "changeReason": "Synthetic correction",
+          "createdAt": "2026-10-25T17:39:57.308Z",
+          "payloadWithheld": true
+        },
+        {
+          "version": 1,
+          "status": "issued",
+          "fingerprint": "181269d34b9989f94e86e4ce6d85381037f44dc0c9600f7cf5ee85990aa63b44",
+          "canonicalPayload": null,
+          "issuerSignature": null,
+          "issuerKeyId": "security-fixture-key",
+          "issuerPublicKeyJwk": "{\"key_ops\":[\"verify\"],\"ext\":true,\"alg\":\"Ed25519\",\"crv\":\"Ed25519\",\"x\":\"8HUAsbD0-1LWZefexBl5_s3aQqHj8guoSXnKsd7I7ZQ\",\"kty\":\"OKP\"}",
+          "issuerKeyVerifiedAt": "2026-10-25T17:39:55.176Z",
+          "signatureAlgorithm": "Ed25519",
+          "signedPayload": null,
+          "signedPayloadHash": "a7ee190a16d453b74d9b2930b498d6fecc4929d9bb8e1618c8b459ce7790ef02",
+          "changeType": "issuance",
+          "changeReason": "Original issuance",
+          "createdAt": "2026-10-25T17:39:55.566Z",
+          "payloadWithheld": true
+        }
+      ],
+      "links": {
+        "human": "/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+        "json": "/api/v1/credentials/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+        "issuer": "/issuers/SECLAB"
+      },
+      "interpretationBoundary": "This record establishes issuer attribution, content integrity, and status. It does not by itself establish representative sampling, method suitability, regulatory compliance, or product safety."
+    },
+    "snapshotFingerprint": "4f267e55acb72c6de53dbf1a0b794066537664587f6e2a9633569a421db3d434"
+  },
+  {
+    "schemaVersion": "vle-evidence/1",
+    "environment": "production",
+    "streamId": "1aa29939db171851331ea269423537760618cce48567e1d07caa63e5ff057677",
+    "eventId": "vle:fc3d56dd-b92f-47c6-bf21-2b6f79f3f559",
+    "deliveryId": "vle:fc3d56dd-b92f-47c6-bf21-2b6f79f3f559",
+    "sequence": 11,
+    "event": "grant.revoked",
+    "occurredAt": "2026-10-25T17:39:58.340Z",
+    "operation": "tombstone",
+    "recipient": {
+      "type": "marketplace",
+      "organizationId": "security-recipient"
+    },
+    "credential": {
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "version": 2,
+      "status": "active",
+      "program": "analytical-record",
+      "issuingLab": "Synthetic security-lab",
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "retestDue": null,
+      "verificationUrl": "https://tecrid.com/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+      "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+      "verification": {
+        "signatureVerified": false,
+        "fingerprintVerified": false,
+        "currentVersion": false
+      },
+      "identity": {
+        "originatingSupplier": "stream-supplier",
+        "originatingSupplierId": "vle-supplier",
+        "mappingId": "a432e31e65b12a3899b97b9e757bbe0ce8ee466cc00c612fa35df6189de31c2e",
+        "ingredientCode": "synthetic-ingredient",
+        "productSku": "SEC-SKU",
+        "supplierLotId": "SYNTHETIC-LOT"
+      }
+    },
+    "grant": {
+      "id": "5dc34124-0994-4beb-86f5-00de2237c09e",
+      "controllerOrganizationId": "security-brand",
+      "recipientOrganizationId": "security-recipient",
+      "status": "revoked",
+      "accessLevel": "status_only",
+      "publicStatus": false,
+      "brandOrganizationIds": [],
+      "expiresAt": null,
+      "supersedesGrantId": null
+    },
+    "reason": "grant_or_recipient_withdrawn"
+  },
+  {
+    "schemaVersion": "vle-evidence/1",
+    "environment": "production",
+    "streamId": "1aa29939db171851331ea269423537760618cce48567e1d07caa63e5ff057677",
+    "eventId": "vle:734a4f57-0701-4b43-9758-96c983f34e63",
+    "deliveryId": "vle:734a4f57-0701-4b43-9758-96c983f34e63",
+    "sequence": 12,
+    "event": "grant.revoked",
+    "occurredAt": "2026-10-25T17:39:58.793Z",
+    "operation": "tombstone",
+    "recipient": {
+      "type": "marketplace",
+      "organizationId": "security-recipient"
+    },
+    "credential": {
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "version": 2,
+      "status": "active",
+      "program": "analytical-record",
+      "issuingLab": "Synthetic security-lab",
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "retestDue": null,
+      "verificationUrl": "https://tecrid.com/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+      "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+      "verification": {
+        "signatureVerified": false,
+        "fingerprintVerified": false,
+        "currentVersion": false
+      },
+      "identity": {
+        "originatingSupplier": "stream-supplier",
+        "originatingSupplierId": "vle-supplier",
+        "mappingId": "a432e31e65b12a3899b97b9e757bbe0ce8ee466cc00c612fa35df6189de31c2e",
+        "ingredientCode": "synthetic-ingredient",
+        "productSku": "SEC-SKU",
+        "supplierLotId": "SYNTHETIC-LOT"
+      }
+    },
+    "grant": {
+      "id": "39244b2f-b31c-4876-b54e-f492857bd3a8",
+      "controllerOrganizationId": "security-brand",
+      "recipientOrganizationId": "security-recipient",
+      "status": "revoked",
+      "accessLevel": "status_only",
+      "publicStatus": false,
+      "brandOrganizationIds": [],
+      "expiresAt": null,
+      "supersedesGrantId": "3d9656cf-eb20-48db-80d6-4088f269856d"
+    },
+    "reason": "grant_or_recipient_withdrawn"
+  },
+  {
+    "schemaVersion": "vle-evidence/1",
+    "environment": "production",
+    "streamId": "1aa29939db171851331ea269423537760618cce48567e1d07caa63e5ff057677",
+    "eventId": "vle:8ce0fbeb-caf7-4102-9049-517e65a64e85",
+    "deliveryId": "vle:8ce0fbeb-caf7-4102-9049-517e65a64e85",
+    "sequence": 13,
+    "event": "credential.corrected",
+    "occurredAt": "2026-10-25T17:39:59.098Z",
+    "operation": "upsert",
+    "recipient": {
+      "type": "marketplace",
+      "organizationId": "security-recipient"
+    },
+    "credential": {
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "version": 2,
+      "status": "active",
+      "program": "analytical-record",
+      "issuingLab": "Synthetic security-lab",
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "retestDue": null,
+      "verificationUrl": "https://tecrid.com/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+      "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+      "verification": {
+        "signatureVerified": true,
+        "fingerprintVerified": true,
+        "currentVersion": true
+      },
+      "identity": {
+        "originatingSupplier": "stream-supplier",
+        "originatingSupplierId": "vle-supplier",
+        "mappingId": "a432e31e65b12a3899b97b9e757bbe0ce8ee466cc00c612fa35df6189de31c2e",
+        "ingredientCode": "synthetic-ingredient",
+        "productSku": "SEC-SKU",
+        "supplierLotId": "SYNTHETIC-LOT"
+      }
+    },
+    "grant": {
+      "id": "39244b2f-b31c-4876-b54e-f492857bd3a8",
+      "controllerOrganizationId": "security-brand",
+      "recipientOrganizationId": "security-recipient",
+      "status": "active",
+      "accessLevel": "status_only",
+      "publicStatus": false,
+      "brandOrganizationIds": [],
+      "expiresAt": null,
+      "supersedesGrantId": "3d9656cf-eb20-48db-80d6-4088f269856d"
+    },
+    "snapshot": {
+      "schemaVersion": "tec-registry/1.0-draft",
+      "type": "TestEvidenceCredential",
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "status": "issued",
+      "version": 2,
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "updatedAt": "2026-10-25T17:39:57.308Z",
+      "visibility": "controlled",
+      "resultsAccess": {
+        "state": "granted",
+        "grantRequired": true,
+        "accessLevel": "status_only",
+        "analytes": [],
+        "deliveredAnalytes": [],
+        "missingAnalytes": [],
+        "coverageState": "complete",
+        "note": "This recipient view is a registry extraction from the full signed credential. The complete signed payload remains withheld unless full-record access is granted."
+      },
+      "issuer": {
+        "code": "SECLAB",
+        "name": "Synthetic security-lab",
+        "status": "verified",
+        "registryPath": "/issuers/SECLAB"
+      },
+      "subject": {
+        "sampleName": "Synthetic stream",
+        "productSku": "SEC-SKU",
+        "originatingSupplier": "stream-supplier",
+        "signatureVersion": "tec-credential/3",
+        "ingredientCode": "synthetic-ingredient",
+        "lotNumber": "SYNTHETIC-LOT",
+        "matrix": null,
+        "method": null,
+        "collectedAt": null,
+        "receivedAt": null,
+        "testedAt": null,
+        "releasedAt": null,
+        "submittingParty": null
+      },
+      "sourceDocument": {
+        "sha256": "9dff5864352636a70c57a399311fe20a2e9ef02da6eba2480ad777f42d033ad7",
+        "filename": "synthetic-1.pdf",
+        "reportNumber": null,
+        "orderNumber": null,
+        "issuanceBasis": null,
+        "publicDocument": false
+      },
+      "results": [],
+      "integrity": {
+        "fingerprintRecorded": true,
+        "fingerprintValid": true,
+        "issuerSignatureVerified": true,
+        "versionHistoryRecorded": true,
+        "currentVersionConsistent": true,
+        "fingerprintAlgorithm": "SHA-256",
+        "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+        "issuerProof": {
+          "algorithm": "Ed25519",
+          "keyId": "security-fixture-key",
+          "keyReviewedAt": "2026-10-25T17:39:55.176Z",
+          "publicKeyJwk": {
+            "key_ops": [
+              "verify"
+            ],
+            "ext": true,
+            "alg": "Ed25519",
+            "crv": "Ed25519",
+            "x": "8HUAsbD0-1LWZefexBl5_s3aQqHj8guoSXnKsd7I7ZQ",
+            "kty": "OKP"
+          },
+          "signature": "NCfnA5CF7Tww8_XULlKtxbA_6NL6wxods0I-nhoaXmbr3r-Cr6emIrIq0MBkPLbNQVr3nrpuCn3tgdztbsU6CA",
+          "signedPayload": null,
+          "signedPayloadHash": "842193efa219bb3c784b017a28ada2667b4d8fa0deeb0aa4a1581395b9af74d2",
+          "payloadWithheld": true
+        }
+      },
+      "versions": [
+        {
+          "version": 2,
+          "status": "issued",
+          "fingerprint": "c8bd78fc47179b3f5f9f5b89f50f0ff53b1c8eb93354dcfc0f6f9a0c66d534ea",
+          "canonicalPayload": null,
+          "issuerSignature": null,
+          "issuerKeyId": "security-fixture-key",
+          "issuerPublicKeyJwk": "{\"key_ops\":[\"verify\"],\"ext\":true,\"alg\":\"Ed25519\",\"crv\":\"Ed25519\",\"x\":\"8HUAsbD0-1LWZefexBl5_s3aQqHj8guoSXnKsd7I7ZQ\",\"kty\":\"OKP\"}",
+          "issuerKeyVerifiedAt": "2026-10-25T17:39:55.176Z",
+          "signatureAlgorithm": "Ed25519",
+          "signedPayload": null,
+          "signedPayloadHash": "842193efa219bb3c784b017a28ada2667b4d8fa0deeb0aa4a1581395b9af74d2",
+          "changeType": "correction",
+          "changeReason": "Synthetic correction",
+          "createdAt": "2026-10-25T17:39:57.308Z",
+          "payloadWithheld": true
+        },
+        {
+          "version": 1,
+          "status": "issued",
+          "fingerprint": "181269d34b9989f94e86e4ce6d85381037f44dc0c9600f7cf5ee85990aa63b44",
+          "canonicalPayload": null,
+          "issuerSignature": null,
+          "issuerKeyId": "security-fixture-key",
+          "issuerPublicKeyJwk": "{\"key_ops\":[\"verify\"],\"ext\":true,\"alg\":\"Ed25519\",\"crv\":\"Ed25519\",\"x\":\"8HUAsbD0-1LWZefexBl5_s3aQqHj8guoSXnKsd7I7ZQ\",\"kty\":\"OKP\"}",
+          "issuerKeyVerifiedAt": "2026-10-25T17:39:55.176Z",
+          "signatureAlgorithm": "Ed25519",
+          "signedPayload": null,
+          "signedPayloadHash": "a7ee190a16d453b74d9b2930b498d6fecc4929d9bb8e1618c8b459ce7790ef02",
+          "changeType": "issuance",
+          "changeReason": "Original issuance",
+          "createdAt": "2026-10-25T17:39:55.566Z",
+          "payloadWithheld": true
+        }
+      ],
+      "links": {
+        "human": "/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+        "json": "/api/v1/credentials/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+        "issuer": "/issuers/SECLAB"
+      },
+      "interpretationBoundary": "This record establishes issuer attribution, content integrity, and status. It does not by itself establish representative sampling, method suitability, regulatory compliance, or product safety."
+    },
+    "snapshotFingerprint": "4f267e55acb72c6de53dbf1a0b794066537664587f6e2a9633569a421db3d434"
+  },
+  {
+    "schemaVersion": "vle-evidence/1",
+    "environment": "production",
+    "streamId": "1aa29939db171851331ea269423537760618cce48567e1d07caa63e5ff057677",
+    "eventId": "vle:66120024-8d29-4a1f-9bb2-fcddedf30018",
+    "deliveryId": "vle:66120024-8d29-4a1f-9bb2-fcddedf30018",
+    "sequence": 14,
+    "event": "credential.revoked",
+    "occurredAt": "2026-10-25T17:39:59.273Z",
+    "operation": "tombstone",
+    "recipient": {
+      "type": "marketplace",
+      "organizationId": "security-recipient"
+    },
+    "credential": {
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "version": 3,
+      "status": "revoked",
+      "program": "analytical-record",
+      "issuingLab": "Synthetic security-lab",
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "retestDue": null,
+      "verificationUrl": "https://tecrid.com/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+      "fingerprint": "1cb7c275bed731989948a4f06d35d51732e4c7cbb3d615e4ce309a8dbfe3069c",
+      "verification": {
+        "signatureVerified": false,
+        "fingerprintVerified": false,
+        "currentVersion": false
+      },
+      "identity": {
+        "originatingSupplier": "stream-supplier",
+        "originatingSupplierId": "vle-supplier",
+        "mappingId": "a432e31e65b12a3899b97b9e757bbe0ce8ee466cc00c612fa35df6189de31c2e",
+        "ingredientCode": "synthetic-ingredient",
+        "productSku": "SEC-SKU",
+        "supplierLotId": "SYNTHETIC-LOT"
+      }
+    },
+    "grant": {
+      "id": "5dc34124-0994-4beb-86f5-00de2237c09e",
+      "controllerOrganizationId": "security-brand",
+      "recipientOrganizationId": "security-recipient",
+      "status": "revoked",
+      "accessLevel": "status_only",
+      "publicStatus": false,
+      "brandOrganizationIds": [],
+      "expiresAt": null,
+      "supersedesGrantId": null
+    },
+    "reason": "credential_revoked"
+  },
+  {
+    "schemaVersion": "vle-evidence/1",
+    "environment": "production",
+    "streamId": "1aa29939db171851331ea269423537760618cce48567e1d07caa63e5ff057677",
+    "eventId": "vle:70a9c9ce-6ff0-40c7-93a1-bf18bb301e90",
+    "deliveryId": "vle:70a9c9ce-6ff0-40c7-93a1-bf18bb301e90",
+    "sequence": 15,
+    "event": "credential.revoked",
+    "occurredAt": "2026-10-25T17:39:59.331Z",
+    "operation": "tombstone",
+    "recipient": {
+      "type": "marketplace",
+      "organizationId": "security-recipient"
+    },
+    "credential": {
+      "tecrid": "TECRID·SECLAB-26-N3E6TFMQ",
+      "version": 3,
+      "status": "revoked",
+      "program": "analytical-record",
+      "issuingLab": "Synthetic security-lab",
+      "issuedAt": "2026-10-25T17:39:55.566Z",
+      "retestDue": null,
+      "verificationUrl": "https://tecrid.com/records/TECRID%C2%B7SECLAB-26-N3E6TFMQ",
+      "fingerprint": "1cb7c275bed731989948a4f06d35d51732e4c7cbb3d615e4ce309a8dbfe3069c",
+      "verification": {
+        "signatureVerified": false,
+        "fingerprintVerified": false,
+        "currentVersion": false
+      },
+      "identity": {
+        "originatingSupplier": "stream-supplier",
+        "originatingSupplierId": "vle-supplier",
+        "mappingId": "a432e31e65b12a3899b97b9e757bbe0ce8ee466cc00c612fa35df6189de31c2e",
+        "ingredientCode": "synthetic-ingredient",
+        "productSku": "SEC-SKU",
+        "supplierLotId": "SYNTHETIC-LOT"
+      }
+    },
+    "grant": {
+      "id": "39244b2f-b31c-4876-b54e-f492857bd3a8",
+      "controllerOrganizationId": "security-brand",
+      "recipientOrganizationId": "security-recipient",
+      "status": "revoked",
+      "accessLevel": "status_only",
+      "publicStatus": false,
+      "brandOrganizationIds": [],
+      "expiresAt": null,
+      "supersedesGrantId": "3d9656cf-eb20-48db-80d6-4088f269856d"
+    },
+    "reason": "credential_revoked"
+  }
+]

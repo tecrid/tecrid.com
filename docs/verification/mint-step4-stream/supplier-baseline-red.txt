@@ -1,0 +1,57 @@
+
+ RUN  v4.1.11 /Users/kmfp/Documents/Codex/2026-10-25/you-are-conductor-the-single-codex/work/tecrid
+
+ ❯ tests/vle-supplier-signature.test.ts (2 tests | 2 failed) 10ms
+   × preserves legacy payload bytes and adds supplier identity only in a new signature domain 8ms
+   × rejects display names, domains and truncated supplier identities 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/vle-supplier-signature.test.ts > preserves legacy payload bytes and adds supplier identity only in a new signature domain
+AssertionError: expected { …(16) } to match object { …(3) }
+(14 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "ingredientCode": "ing",
+-   "originatingSupplier": "supplier-id",
+-   "signatureVersion": "tec-credential/3",
++   "signatureVersion": "tec-credential/2",
+  }
+
+ ❯ tests/vle-supplier-signature.test.ts:10:13
+      8|  expect(v2).toMatchObject({signatureVersion:"tec-credential/2"});
+      9|  const v3=canonicalizeCredential({...legacy,ingredientCode:"ING",origi…
+     10|  expect(v3).toMatchObject({signatureVersion:"tec-credential/3",origina…
+       |             ^
+     11|  expect(canonicalizeCredential({...legacy,originatingSupplier:"supplie…
+     12| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/vle-supplier-signature.test.ts > rejects display names, domains and truncated supplier identities
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ tests/vle-supplier-signature.test.ts:14:166
+     12| });
+     13| it("rejects display names, domains and truncated supplier identities",…
+     14|  for(const originatingSupplier of ["Supplier Name","owner@example.test…
+       |                                                                                                                                                                      ^
+     15| });
+     16|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  19:30:43
+   Duration  1.52s (transform 138ms, setup 0ms, import 488ms, tests 10ms, environment 706ms)

@@ -16,6 +16,7 @@ import { canonicalizeCredential, createApiKey } from "../lib/tec";
 import { saveNotificationChannel } from "../lib/notification-delivery";
 import { acknowledgeOwnedNotification } from "../lib/notification-acknowledgments";
 import { brandDeliveryTimeline } from "../lib/delivery-timeline";
+import {reviewMarketplaceMapping} from "../lib/marketplace-stream";
 const ece = createRequire(import.meta.url)("http_ece");
 const actor = (id: string) => ({ userId: id, email: `${id}@example.test`, displayName: id, fullName: id });
 const brand = actor("flow-brand"), labUser = actor("flow-lab"), certifier = actor("flow-certifier"), marketplace = actor("flow-marketplace"), gated = actor("flow-gated");
@@ -24,7 +25,7 @@ const calls: { url: string; headers: Headers; body: Buffer; at: number }[] = [];
 const channels = new Map<string, Awaited<ReturnType<typeof saveNotificationChannel>>>();
 let proofEvidence: Record<string, unknown> = {};
 let mf: Miniflare, privateKey: CryptoKey, apiKey: string, identifier: string, pushEvent: string;
-const input = { sourceDocument: syntheticSourceDocument(), sampleName: "SYNTHETIC sandbox lab flow", productSku: "FLOW-SKU", ingredientCode: "synthetic-cacao", lotNumber: "SYNTHETIC-LOT", publish: true, visibility: "controlled", results: [{ analyte: "Lead", resultText: "PRIVATE-LEAD-0.12", unit: "ppb" }, { analyte: "Cadmium", resultText: "PRIVATE-CADMIUM-9.99", unit: "ppb" }] };
+const input = { originatingSupplier:"flow-supplier", sourceDocument: syntheticSourceDocument(), sampleName: "SYNTHETIC sandbox lab flow", productSku: "FLOW-SKU", ingredientCode: "synthetic-cacao", lotNumber: "SYNTHETIC-LOT", publish: true, visibility: "controlled", results: [{ analyte: "Lead", resultText: "PRIVATE-LEAD-0.12", unit: "ppb" }, { analyte: "Cadmium", resultText: "PRIVATE-CADMIUM-9.99", unit: "ppb" }] };
 async function drain() { const result = await mf.dispatchFetch("https://tecrid.com/api/internal/notification-worker", { method: "POST", headers: { authorization: "Bearer isolated-flow-worker" } }); expect(result.status).toBe(200); await result.json(); }
 beforeAll(async () => {
  const vapid = webPush.generateVAPIDKeys();
@@ -33,10 +34,12 @@ beforeAll(async () => {
  env.DB = await mf.getD1Database("DB"); Object.assign(env, bindings);
  for (const f of readdirSync("drizzle").filter(x => x.endsWith(".sql")).sort()) for (const s of readFileSync(`drizzle/${f}`, "utf8").split("--> statement-breakpoint").filter(x => x.trim())) await env.DB.prepare(s).run();
  const pair = await crypto.subtle.generateKey("Ed25519",true,["sign","verify"]); privateKey = pair.privateKey;
- for (const [user, type, code] of [[brand,"brand","FLOWBRAND"],[labUser,"laboratory","FLOWLAB"],[certifier,"certification_body","FLOWCERT"],[marketplace,"marketplace","FLOWMARKET"],[gated,"retailer","FLOWGATED"],[actor("flow-other-brand"),"brand","FLOWOTHER"]] as const) {
+ for (const [user, type, code] of [[brand,"brand","FLOWBRAND"],[labUser,"laboratory","FLOWLAB"],[certifier,"certification_body","FLOWCERT"],[marketplace,"marketplace","FLOWMARKET"],[gated,"retailer","FLOWGATED"],[actor("flow-other-brand"),"brand","FLOWOTHER"],[actor("flow-supplier"),"supplier","FLOWSUPPLIER"]] as const) {
   await getDb().insert(organizations).values({ id: user.userId, name: `SYNTHETIC ${user.userId}`, slug: user.userId, organizationType: type, ownerUserId: user.userId, ownerEmail: user.email, issuerCode: code, identityStatus: user === gated ? "unreviewed" : "verified", issuerStatus: user === gated ? "pending" : "verified", ...(type === "laboratory" ? { issuerKeyId: "flow-key", issuerKeyAlgorithm: "Ed25519", issuerKeyVerifiedAt: new Date().toISOString(), issuerPublicKeyJwk: JSON.stringify(await crypto.subtle.exportKey("jwk",pair.publicKey)) } : {}) });
   await getDb().insert(organizationMembers).values({ organizationId: user.userId, userId: user.userId, email: user.email, role: "owner" });
  }
+ env.ICS_ADMIN_EMAILS="operator@flow.test";
+ await reviewMarketplaceMapping({userId:"flow-operator",email:"operator@flow.test",displayName:"Synthetic operator",fullName:null},{supplierOrganizationId:"flow-supplier",recipientOrganizationId:marketplace.userId,externalSupplierId:"vle-synthetic-supplier",active:true,reviewNote:"Synthetic independent review of both registry identities"});
  channels.set(brand.userId, await saveNotificationChannel(brand,{ kind:"push", label:"SYNTHETIC phone", subscription:{ endpoint:"https://web.push.apple.com/SyntheticFlow", keys:{p256dh:receiver.getPublicKey().toString("base64url"),auth:auth.toString("base64url")} } }));
  const grantIds: string[] = [];
  for (const [user,host,scope] of [[certifier,"certifier","selected_analytes"],[marketplace,"marketplace","status_only"],[gated,"gated","full_record"]] as const) {
@@ -49,6 +52,10 @@ beforeAll(async () => {
  await drain(); calls.length = 0;
 },60000);
 afterAll(async () => { await mf?.dispose(); });
+it("rejects forged identity headers on new marketplace administration routes",async()=>{
+ for(const path of ["/api/marketplace/mappings","/api/marketplace/grants/fake/consent"]){const r=await mf.dispatchFetch(`https://tecrid.com${path}`,{method:"POST",headers:{"content-type":"application/json","oai-authenticated-user-email":"operator@flow.test","oai-authenticated-user-id":"flow-operator"},body:"{}"});expect(r.status).toBe(401);}
+ expect((await mf.dispatchFetch("https://tecrid.com/api/marketplace/holds")).status).toBe(401);
+});
 it("issues through the built Worker and delivers push and both UNGATED webhooks under 60 seconds, with no GATED disclosure", async () => {
  const canonical = canonicalizeCredential(input).canonicalPayload;
  const proof = {keyId:"flow-key",algorithm:"Ed25519",signature:Buffer.from(await crypto.subtle.sign("Ed25519",privateKey,new TextEncoder().encode(canonical))).toString("base64url")};
@@ -64,7 +71,8 @@ it("issues through the built Worker and delivers push and both UNGATED webhooks 
  const cert = calls.find(call => call.url.includes("certifier.example.org"))!, market = calls.find(call => call.url.includes("marketplace.example.org"))!;
  expect(cert).toBeTruthy(); expect(market).toBeTruthy(); expect(calls.some(call => call.url.includes("gated.example.org"))).toBe(false);
  for (const [call,user] of [[cert,certifier],[market,marketplace]] as const) {
-  const body = JSON.parse(call.body.toString()); expect(body.delivery.tecrid).toBe(identifier);
+  const body = JSON.parse(call.body.toString()); expect(user===marketplace?body.credential.tecrid:body.delivery.tecrid).toBe(identifier);
+  if(user===marketplace)expect(body).toMatchObject({schemaVersion:"vle-evidence/1",operation:"upsert",grant:{publicStatus:false,brandOrganizationIds:[]}});
   const [stamp,sig] = call.headers.get("x-tecrid-signature")!.split(","); expect(sig).toBe(`v1=${createHmac("sha256",channels.get(user.userId)!.webhookSecret!).update(`${stamp.slice(2)}.${call.body.toString()}`).digest("hex")}`);
  }
  expect(JSON.parse(JSON.parse(cert.body.toString()).delivery.snapshotJson).results.map((r:{analyte:string})=>r.analyte)).toEqual(["Lead"]);
