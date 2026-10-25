@@ -1,0 +1,189 @@
+
+ RUN  v4.1.11 /Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/security-tecrid
+
+ ❯ tests/security-share-route.test.ts (3 tests | 3 failed) 38ms
+   × rejects anonymous redemption before constructing a package 35ms
+   × rejects cross-origin session requests 1ms
+   × passes only the verified principal and returns private no-store 2ms
+ ❯ tests/security-shares.test.ts (7 tests | 6 failed) 1811ms
+   × rejects a missing principal even with the correct named recipient code 55ms
+   × rejects another organization and a removed member 62ms
+   × rejects a GATED recipient and unaccepted current terms 51ms
+   × redeems once and replays only for the authenticated current recipient 84ms
+   × denies expired replays and hides them in recipient sharing reads while retaining controller audit 51ms
+   × revokes an already redeemed share and retains the immutable audit receipt 51ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/security-share-route.test.ts > rejects anonymous redemption before constructing a package
+AssertionError: expected 200 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 200
+
+ ❯ tests/security-share-route.test.ts:10:114
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  tests/security-share-route.test.ts > rejects cross-origin session requests
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ tests/security-share-route.test.ts:11:113
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  tests/security-share-route.test.ts > passes only the verified principal and returns private no-store
+AssertionError: expected "vi.fn()" to be called with arguments: [ {}, { …(4) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    {},
+-   {
+-     "displayName": "Synthetic",
+-     "email": "synthetic@security.test",
+-     "fullName": null,
+-     "userId": "email:synthetic",
+-   },
+  ]
+
+
+Number of calls: 1
+
+ ❯ tests/security-share-route.test.ts:12:327
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  tests/security-shares.test.ts > rejects a missing principal even with the correct named recipient code
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ denied tests/security-shares.test.ts:9:121
+      7| import {createEvidenceShareCode,redeemEvidenceShareCode,revokeEvidence…
+      8| let f:Awaited<ReturnType<typeof evidenceFixture>>,code:Awaited<ReturnT…
+      9| async function denied(promise:Promise<unknown>){expect(await promise.t…
+       |                                                                                                                         ^
+     10| const input=()=>({code:code.plainTextCode,recipientOrganizationCode:'S…
+     11| beforeAll(async()=>{f=await evidenceFixture();},60000);
+ ❯ tests/security-shares.test.ts:14:87
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  tests/security-shares.test.ts > rejects another organization and a removed member
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ denied tests/security-shares.test.ts:9:121
+      7| import {createEvidenceShareCode,redeemEvidenceShareCode,revokeEvidence…
+      8| let f:Awaited<ReturnType<typeof evidenceFixture>>,code:Awaited<ReturnT…
+      9| async function denied(promise:Promise<unknown>){expect(await promise.t…
+       |                                                                                                                         ^
+     10| const input=()=>({code:code.plainTextCode,recipientOrganizationCode:'S…
+     11| beforeAll(async()=>{f=await evidenceFixture();},60000);
+ ❯ tests/security-shares.test.ts:15:66
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  tests/security-shares.test.ts > rejects a GATED recipient and unaccepted current terms
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ denied tests/security-shares.test.ts:9:121
+      7| import {createEvidenceShareCode,redeemEvidenceShareCode,revokeEvidence…
+      8| let f:Awaited<ReturnType<typeof evidenceFixture>>,code:Awaited<ReturnT…
+      9| async function denied(promise:Promise<unknown>){expect(await promise.t…
+       |                                                                                                                         ^
+     10| const input=()=>({code:code.plainTextCode,recipientOrganizationCode:'S…
+     11| beforeAll(async()=>{f=await evidenceFixture();},60000);
+ ❯ tests/security-shares.test.ts:16:186
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  tests/security-shares.test.ts > redeems once and replays only for the authenticated current recipient
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ denied tests/security-shares.test.ts:9:121
+      7| import {createEvidenceShareCode,redeemEvidenceShareCode,revokeEvidence…
+      8| let f:Awaited<ReturnType<typeof evidenceFixture>>,code:Awaited<ReturnT…
+      9| async function denied(promise:Promise<unknown>){expect(await promise.t…
+       |                                                                                                                         ^
+     10| const input=()=>({code:code.plainTextCode,recipientOrganizationCode:'S…
+     11| beforeAll(async()=>{f=await evidenceFixture();},60000);
+ ❯ tests/security-shares.test.ts:17:279
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  tests/security-shares.test.ts > denies expired replays and hides them in recipient sharing reads while retaining controller audit
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ denied tests/security-shares.test.ts:9:121
+      7| import {createEvidenceShareCode,redeemEvidenceShareCode,revokeEvidence…
+      8| let f:Awaited<ReturnType<typeof evidenceFixture>>,code:Awaited<ReturnT…
+      9| async function denied(promise:Promise<unknown>){expect(await promise.t…
+       |                                                                                                                         ^
+     10| const input=()=>({code:code.plainTextCode,recipientOrganizationCode:'S…
+     11| beforeAll(async()=>{f=await evidenceFixture();},60000);
+ ❯ tests/security-shares.test.ts:18:244
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  tests/security-shares.test.ts > revokes an already redeemed share and retains the immutable audit receipt
+Error: Active share code not found for this controller.
+ ❯ revokeEvidenceShareCode lib/sharing.ts:174:52
+    172|     eq(evidenceShareCodes.controllerOrganizationId, membership.organiz…
+    173|   )).limit(1);
+    174|   if (!record || record.status !== "active") throw new TecAuthorizatio…
+       |                                                    ^
+    175|   const revokedAt = new Date().toISOString();
+    176|   await db.batch([
+ ❯ tests/security-shares.test.ts:19:149
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  9 failed | 1 passed (10)
+   Start at  14:10:59
+   Duration  2.57s (transform 223ms, setup 0ms, import 1.01s, tests 1.85s, environment 0ms)
+

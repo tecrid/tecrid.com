@@ -1,0 +1,20 @@
+// @vitest-environment node
+import {afterAll,beforeAll,beforeEach,expect,it,vi} from 'vitest';
+import {eq} from 'drizzle-orm';
+import {evidenceFixture} from './support/evidence-fixture';
+import {getDb} from '../db';
+import {deliveryPolicy,evidenceShareRedemptions,organizationMembers,organizations} from '../db/schema';
+import {createEvidenceShareCode,redeemEvidenceShareCode,revokeEvidenceShareCode,listSharingForUser} from '../lib/sharing';
+let f:Awaited<ReturnType<typeof evidenceFixture>>,code:Awaited<ReturnType<typeof createEvidenceShareCode>>;
+async function denied(promise:Promise<unknown>){expect(await promise.then(()=>200,(e:{status?:number})=>e.status??500)).toBe(403);}
+const input=()=>({code:code.plainTextCode,recipientOrganizationCode:'SECRECIPIENT'});
+beforeAll(async()=>{f=await evidenceFixture();},60000);
+afterAll(async()=>{await f?.mf.dispose();});
+beforeEach(async()=>{vi.restoreAllMocks();await getDb().update(organizations).set({identityStatus:'verified'}).where(eq(organizations.id,f.recipient.userId));await getDb().update(deliveryPolicy).set({termsRequired:false}).where(eq(deliveryPolicy.id,'global'));await getDb().insert(organizationMembers).values({organizationId:f.recipient.userId,userId:f.recipient.userId,email:f.recipient.email,role:'owner'}).onConflictDoNothing();code=await createEvidenceShareCode(f.brand,{recipientOrganizationCode:'SECRECIPIENT',label:'Synthetic package',purpose:'Security regression',scopeMode:'sku_set',scopeValues:['SEC-SKU'],accessLevel:'full_record'});});
+it('rejects a missing principal even with the correct named recipient code',async()=>{await denied(redeemEvidenceShareCode(input(),null));});
+it('rejects another organization and a removed member',async()=>{await denied(redeemEvidenceShareCode(input(),f.other));await getDb().delete(organizationMembers).where(eq(organizationMembers.userId,f.recipient.userId));await denied(redeemEvidenceShareCode(input(),f.recipient));});
+it('rejects a GATED recipient and unaccepted current terms',async()=>{await getDb().update(organizations).set({identityStatus:'revoked'}).where(eq(organizations.id,f.recipient.userId));await denied(redeemEvidenceShareCode(input(),f.recipient));await getDb().update(organizations).set({identityStatus:'verified'}).where(eq(organizations.id,f.recipient.userId));await getDb().update(deliveryPolicy).set({termsRequired:true,termsVersion:'security-v2',termsUrl:'https://terms.security.test/current'}).where(eq(deliveryPolicy.id,'global'));await denied(redeemEvidenceShareCode(input(),f.recipient));});
+it('redeems once and replays only for the authenticated current recipient',async()=>{const result=await redeemEvidenceShareCode(input(),f.recipient);expect(result.evidence).toHaveLength(1);expect((await redeemEvidenceShareCode(input(),f.recipient)).receipt.replayed).toBe(true);await denied(redeemEvidenceShareCode(input(),f.other));});
+it('denies expired replays and hides them in recipient sharing reads while retaining controller audit',async()=>{await redeemEvidenceShareCode(input(),f.recipient);const clock=vi.spyOn(Date,"now").mockReturnValue(Date.parse(code.expiresAt)+1);await denied(redeemEvidenceShareCode(input(),f.recipient));expect((await listSharingForUser(f.recipient)).redemptions.some(r=>r.shareCodeId===code.id)).toBe(false);expect((await listSharingForUser(f.brand)).redemptions.some(r=>r.shareCodeId===code.id)).toBe(true);clock.mockRestore();});
+it('revokes an already redeemed share and retains the immutable audit receipt',async()=>{await redeemEvidenceShareCode(input(),f.recipient);expect((await revokeEvidenceShareCode(f.brand,code.id)).status).toBe('revoked');await denied(redeemEvidenceShareCode(input(),f.recipient));expect(await getDb().select().from(evidenceShareRedemptions).where(eq(evidenceShareRedemptions.shareCodeId,code.id))).toHaveLength(1);});
+it('fails closed during concurrent redemption and revocation, including replay',async()=>{await Promise.allSettled([redeemEvidenceShareCode(input(),f.recipient),revokeEvidenceShareCode(f.brand,code.id)]);await denied(redeemEvidenceShareCode(input(),f.recipient));});

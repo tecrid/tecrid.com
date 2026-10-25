@@ -1,4 +1,5 @@
-import { and, desc, eq, or } from "drizzle-orm";
+import { recipientDisclosureGate } from "./organization-access";
+import { and, desc, eq, or, sql } from "drizzle-orm";
 import type { ChatGPTUser } from "../app/chatgpt-auth";
 import { getDb } from "../db";
 import {
@@ -171,7 +172,7 @@ export async function revokeEvidenceShareCode(user: ChatGPTUser, idValue: unknow
     eq(evidenceShareCodes.id, id),
     eq(evidenceShareCodes.controllerOrganizationId, membership.organization.id),
   )).limit(1);
-  if (!record || record.status !== "active") throw new TecAuthorizationError("Active share code not found for this controller.");
+  if (!record || !["active", "redeemed"].includes(record.status)) throw new TecAuthorizationError("Current share code not found for this controller.");
   const revokedAt = new Date().toISOString();
   await db.batch([
     db.update(evidenceShareCodes).set({ status: "revoked", revokedAt, revokedByUserId: user.userId }).where(eq(evidenceShareCodes.id, record.id)),
@@ -248,7 +249,21 @@ function projectReceipt(snapshot: ReceiptSnapshot, accessLevel: string, analytes
   };
 }
 
-export async function redeemEvidenceShareCode(input: Record<string, unknown>) {
+function currentShare(share: typeof evidenceShareCodes.$inferSelect) {
+  const expiry = Date.parse(share.expiresAt);
+  return ["active", "redeemed"].includes(share.status) && Number.isFinite(expiry) && expiry > Date.now();
+}
+async function assertShareRecipient(user: ChatGPTUser | null, shareId: string) {
+  if (!user) throw new TecAuthorizationError("Verified recipient sign-in is required.");
+  const membership = await requireMembership(user);
+  if (!["owner", "admin", "member", "viewer", "editor", "approver"].includes(membership.role)) throw new TecAuthorizationError("Current recipient membership is required.");
+  const [share] = await getDb().select().from(evidenceShareCodes).where(and(eq(evidenceShareCodes.id, shareId), eq(evidenceShareCodes.recipientOrganizationId, membership.organization.id))).limit(1);
+  if (!share || !currentShare(share) || !(await recipientDisclosureGate(membership.organization.id, true)).ungated) throw new TecAuthorizationError("This share is unavailable under the current recipient approval.");
+  return share;
+}
+
+export async function redeemEvidenceShareCode(input: Record<string, unknown>, user: ChatGPTUser | null) {
+  if (!user) throw new TecAuthorizationError("Verified recipient sign-in is required.");
   const token = clean(input.code, 120);
   if (!/^tec_share_[A-Za-z0-9]+$/.test(token)) throw new TecAuthorizationError("A valid TECRID share code is required.");
   const recipientCode = normalizeCode(input.recipientOrganizationCode);
@@ -266,15 +281,17 @@ export async function redeemEvidenceShareCode(input: Record<string, unknown>) {
     eq(organizations.issuerCode, recipientCode),
   )).limit(1);
   if (!recipient) throw new TecAuthorizationError("This code was issued to a different receiving organization.");
+  await assertShareRecipient(user, match.share.id);
   if (match.share.status === "redeemed") {
     const [existing] = await db.select().from(evidenceShareRedemptions).where(eq(evidenceShareRedemptions.shareCodeId, match.share.id)).limit(1);
     if (!existing) throw new TecAuthorizationError("This code has been redeemed but its receipt is unavailable.");
+    await assertShareRecipient(user, match.share.id);
     return {
       ...(JSON.parse(existing.packageJson) as Record<string, unknown>),
       receipt: { id: existing.id, packageFingerprint: existing.packageFingerprint, recordCount: existing.recordCount, replayed: true },
     };
   }
-  if (match.share.status !== "active" || new Date(match.share.expiresAt).getTime() <= Date.now()) {
+  if (match.share.status !== "active" || !currentShare(match.share)) {
     throw new TecAuthorizationError("This share code is invalid, expired, or revoked.");
   }
   const scopeValues = normalizeList(JSON.parse(match.share.scopeJson), 120);
@@ -329,7 +346,17 @@ export async function redeemEvidenceShareCode(input: Record<string, unknown>) {
   await db.batch([
     db.insert(evidenceShareRedemptions).values({
       id: redemptionId,
-      shareCodeId: match.share.id,
+      // A concurrent revoke/expiry/member removal must abort the whole batch.
+      // NULL violates share_code_id NOT NULL, including all notification writes.
+      shareCodeId: sql`(SELECT s.id FROM evidence_share_codes s
+        JOIN organizations r ON r.id=s.recipient_organization_id
+        JOIN organization_members m ON m.organization_id=r.id
+        JOIN delivery_policy p ON p.id='global'
+        WHERE s.id=${match.share.id} AND s.status='active'
+        AND julianday(s.expires_at)>julianday('now') AND m.user_id=${user.userId}
+        AND m.role IN ('owner','admin','member','viewer','editor','approver')
+        AND (r.identity_status='verified' OR (r.identity_status='unreviewed' AND (r.issuer_status='verified' OR EXISTS(SELECT 1 FROM participant_profiles profile WHERE profile.organization_id=r.id AND profile.registry_verified=1))))
+        AND (p.terms_required=0 OR (p.terms_url<>'' AND p.terms_version<>'' AND r.terms_accepted_at IS NOT NULL AND r.terms_version=p.terms_version)) LIMIT 1)`,
       controllerOrganizationId: match.share.controllerOrganizationId,
       recipientOrganizationId: recipient.id,
       packageJson,
@@ -354,6 +381,7 @@ export async function redeemEvidenceShareCode(input: Record<string, unknown>) {
       actionPath: "/dashboard/sharing", entityType: "evidence_share_redemption", entityId: redemptionId, createdAt: redeemedAt,
     }),
   ]);
+  await assertShareRecipient(user, match.share.id);
   return { ...packageValue, receipt: { id: redemptionId, packageFingerprint, recordCount: evidence.length } };
 }
 
@@ -408,7 +436,10 @@ export async function listSharingForUser(user: ChatGPTUser) {
   return {
     membership,
     codes,
-    redemptions,
+    redemptions: (await Promise.all(redemptions.map(async redemption => {
+      if (redemption.controllerOrganizationId === organizationId) return redemption;
+      try { await assertShareRecipient(user, redemption.shareCodeId); return redemption; } catch (error) { if (error instanceof TecAuthorizationError) return null; throw error; }
+    }))).filter((redemption): redemption is typeof redemptions[number] => redemption !== null),
     invitations,
     organizationMap: Object.fromEntries(directory.map((item) => [item.id, item])),
     profile: profile[0] ?? null,
