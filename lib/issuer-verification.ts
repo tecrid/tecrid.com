@@ -11,6 +11,7 @@ import {
 import type { ChatGPTUser } from "../app/chatgpt-auth";
 import {
   getOrganizationForUser,
+  assertIndependentIssuerReviewer,
   isIcsAdmin,
   TecAuthorizationError,
   TecInputError,
@@ -356,6 +357,7 @@ export async function reviewIssuerVerificationCheck(
     .where(eq(issuerApplications.id, applicationId))
     .limit(1);
   if (!application) throw new TecInputError("Issuer application not found.");
+  await assertIndependentIssuerReviewer(user, application.organizationId, applicationId);
   if (application.status !== "submitted") {
     throw new TecInputError("Verification checks can be recorded only while the application is submitted for review.");
   }
