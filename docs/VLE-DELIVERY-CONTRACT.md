@@ -39,3 +39,9 @@ There is no automatic retry guarantee within 60 seconds during a provider outage
 ## Verification
 
 `tests/marketplace-delivery.test.ts` exercises marketplace onboarding, the existing request and grant workflow, all three disclosure levels, exact snapshot fingerprints, HMAC over the scoped body, metadata-only lifecycle events, cross-recipient denial, tampering, revocation and stale-record rejection. Tests use synthetic identities and isolated databases with intercepted outbound requests.
+
+## Explicit acknowledgment (step 5)
+
+The webhook headers also include `X-TECRID-Channel-Id` and `X-TECRID-Acknowledgment-Url`. After durable consumer acceptance, POST to that URL with JSON `{ "eventId": "<received event>", "channelId": "<received channel>" }`. Sign its exact body bytes with the same channel secret and the same timestamp/HMAC header format. The timestamp must be within five minutes. Only a dispatched event belonging to that active webhook channel can be acknowledged. Repeating the acknowledgment preserves its first timestamp. The URL carries no bearer secret.
+
+An acknowledgment can race the original HTTP response and is accepted while that job is sending or delivered. The timeline keeps transport acceptance and acknowledgment separate. HTTP 2xx from the original endpoint alone never sets acknowledged. A signed consumer acknowledgment is not a human-read claim.

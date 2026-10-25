@@ -1,0 +1,58 @@
+{
+  "synthetic": true,
+  "tecrid": "TECRID·FLOWLAB-26-KBAVGKBF",
+  "pushMs": 88,
+  "certifierMs": 89,
+  "marketplaceMs": 89,
+  "pushPayload": {
+    "eventId": "notification:99c99b58-7952-4184-95b0-98f149ac2b04",
+    "event": "laboratory_report.received",
+    "sku": "FLOW-SKU",
+    "url": "https://tecrid.com/dashboard/evidence-routing?notificationEvent=notification%3A99c99b58-7952-4184-95b0-98f149ac2b04&notificationChannel=dd5cafdb-5ccf-4b7a-9908-1db06b9e4b03#laboratory-reports"
+  },
+  "gatedSnapshotCount": 0,
+  "gatedNetworkCount": 0,
+  "timeline": {
+    "tecrid": "TECRID·FLOWLAB-26-KBAVGKBF",
+    "sku": "FLOW-SKU",
+    "mintedAt": "2026-10-25T07:12:28.505Z",
+    "events": [
+      {
+        "eventId": "notification:7d9fd62d-9ab9-4154-9cc1-55b4861e4d6d",
+        "event": "evidence_routing.delivered",
+        "destination": "SYNTHETIC flow-marketplace",
+        "kind": "webhook",
+        "status": "delivered",
+        "queuedAt": "2026-10-25T07:12:28.551Z",
+        "deliveredAt": "2026-10-25T07:12:28.597Z",
+        "acknowledgedAt": "2026-10-25T07:12:28.761Z",
+        "latencyMs": 92,
+        "target": "Under 60 seconds"
+      },
+      {
+        "eventId": "notification:61a0b8ed-4fea-49fb-a545-baafddd3417d",
+        "event": "evidence_routing.delivered",
+        "destination": "SYNTHETIC flow-certifier",
+        "kind": "webhook",
+        "status": "delivered",
+        "queuedAt": "2026-10-25T07:12:28.551Z",
+        "deliveredAt": "2026-10-25T07:12:28.597Z",
+        "acknowledgedAt": "2026-10-25T07:12:28.704Z",
+        "latencyMs": 92,
+        "target": "Under 60 seconds"
+      },
+      {
+        "eventId": "notification:99c99b58-7952-4184-95b0-98f149ac2b04",
+        "event": "laboratory_report.received",
+        "destination": "SYNTHETIC flow-brand",
+        "kind": "push",
+        "status": "delivered",
+        "queuedAt": "2026-10-25T07:12:28.551Z",
+        "deliveredAt": "2026-10-25T07:12:28.597Z",
+        "acknowledgedAt": "2026-10-25T07:12:28.916Z",
+        "latencyMs": 92,
+        "target": "Under 60 seconds"
+      }
+    ]
+  }
+}

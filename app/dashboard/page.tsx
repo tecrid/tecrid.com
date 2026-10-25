@@ -1,3 +1,5 @@
+import { brandDeliveryTimeline } from "../../lib/delivery-timeline";
+import { DeliveryTimeline } from "./delivery-timeline";
 import {KasandrinosWorkspaceLink} from "./kasandrinos/workspace";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -19,6 +21,7 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
   const user = await requireChatGPTUser("/dashboard");
   const data = await getDashboardData(user.userId);
+  const timeline = data && ["brand", "supplier"].includes(data.organization.organizationType) ? await brandDeliveryTimeline(user) : null;
   const legacyReports = data ? await listLegacyReportsForUser(user) : [];
   const activeApiKey = data?.keys.some((key) => !key.revokedAt) ?? false;
   const verificationProgress = getVerificationProgress(
@@ -70,6 +73,8 @@ export default async function DashboardPage() {
             </div>
             <Link className="button-mint" href="/dashboard/disclosures">Open disclosure operations →</Link>
           </section>
+
+          {timeline ? <DeliveryTimeline records={timeline} /> : null}
 
           <section className="dashboard-workflow-grid">
             <Link className="dashboard-workflow-card sharing-card" href="/dashboard/sharing">

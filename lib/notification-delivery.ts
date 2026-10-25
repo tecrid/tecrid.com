@@ -19,11 +19,13 @@ async function membership(user: ChatGPTUser, manage = false) {
   return result;
 }
 
-export function notificationPayload(event: Pick<Event, "id" | "eventType" | "productSku" | "actionPath">) {
+export function notificationPayload(event: Pick<Event, "id" | "eventType" | "productSku" | "actionPath">, channelId?: string) {
   // Explicit allowlist. Never reuse an in-app title, body, audit payload, or
   // signed credential as a push/email body.
   const path = event.actionPath.startsWith("/dashboard") && !event.actionPath.startsWith("//") ? event.actionPath : "/dashboard";
-  return { eventId: event.id, event: event.eventType, sku: event.productSku, url: new URL(path, origin()).href };
+  const url = new URL(path, origin());
+  if (channelId) { url.searchParams.set("notificationEvent", event.id); url.searchParams.set("notificationChannel", channelId); }
+  return { eventId: event.id, event: event.eventType, sku: event.productSku, url: url.href };
 }
 
 export async function saveNotificationChannel(user: ChatGPTUser, input: Record<string, unknown>) {
@@ -107,7 +109,7 @@ export function retryDelay(attempt: number) {
 
 async function send(channel: Channel, event: Event, transport: typeof fetch) {
   const config = await openConfig(channel.encryptedConfig, channel.organizationId);
-  const payload = notificationPayload(event);
+  const payload = notificationPayload(event, channel.kind === "push" ? channel.id : undefined);
   const body = JSON.stringify(channel.kind === "webhook" ? await (await import("./recipient-webhook")).recipientWebhookPayload(event) : payload);
   const common = { method: "POST", signal: AbortSignal.timeout(10_000) };
   if (channel.kind === "webhook") {
@@ -117,7 +119,7 @@ async function send(channel: Channel, event: Event, transport: typeof fetch) {
     const hosts = (settings().TECRID_WEBHOOK_HOSTS || "").split(",").map(x => x.trim()).filter(Boolean);
     if (!hosts.includes(url.hostname)) throw Error("Webhook host has not been approved for delivery.");
     const timestamp = String(Math.floor(Date.now() / 1000));
-    return transport(url, { ...common, headers: { "content-type": "application/json", "x-tecrid-event-id": event.id, "x-tecrid-signature": `t=${timestamp},v1=${await signWebhook(config.secret, timestamp, body)}` }, body });
+    return transport(url, { ...common, headers: { "content-type": "application/json", "x-tecrid-event-id": event.id, "x-tecrid-channel-id": channel.id, "x-tecrid-acknowledgment-url": new URL("/api/notification-acknowledgments", origin()).href, "x-tecrid-signature": `t=${timestamp},v1=${await signWebhook(config.secret, timestamp, body)}` }, body });
   }
   if (channel.kind === "email") {
     const relayUrl = settings().TECRID_NOTIFICATION_EMAIL_RELAY_URL;
