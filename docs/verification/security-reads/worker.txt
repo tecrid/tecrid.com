@@ -1,0 +1,48 @@
+✔ built Worker rejects forged identity on https://tecrid.com (no cookie) (206.256125ms)
+✔ built Worker rejects forged identity on https://tecrid.com (tecrid.session_token=forged) (3.575334ms)
+✔ built Worker rejects forged identity on https://tecrid.com (__Secure-tecrid.session_token=forged) (2.488583ms)
+✔ built Worker rejects forged identity on https://www.tecrid.com (no cookie) (1.647ms)
+✔ built Worker rejects forged identity on https://www.tecrid.com (tecrid.session_token=forged) (1.352125ms)
+✔ built Worker rejects forged identity on https://www.tecrid.com (__Secure-tecrid.session_token=forged) (1.409542ms)
+✔ built Worker rejects forged identity on https://tec-registry.kmfp.chatgpt.site (no cookie) (2.128916ms)
+✔ built Worker rejects forged identity on https://tec-registry.kmfp.chatgpt.site (tecrid.session_token=forged) (2.017208ms)
+✔ built Worker rejects forged identity on https://tec-registry.kmfp.chatgpt.site (__Secure-tecrid.session_token=forged) (2.380875ms)
+✔ built Worker rejects forged identity on https://alternate-origin.workers.dev (no cookie) (2.2205ms)
+✔ built Worker rejects forged identity on https://alternate-origin.workers.dev (tecrid.session_token=forged) (1.898667ms)
+✔ built Worker rejects forged identity on https://alternate-origin.workers.dev (__Secure-tecrid.session_token=forged) (2.088792ms)
+✔ keeps the thin homepage hero content-sized and omits editor UI for anonymous visitors (789.109292ms)
+✔ renders the TEC Registry public product (25.375917ms)
+✔ publishes focused search-intent pages, the laboratory go-time pack, and agent-guided setup (172.024916ms)
+✔ publishes a claim-narrow TECRID FAQ with the VLE diligence boundary (30.58925ms)
+✔ locks laboratory approval behind evidence, key-control, and conformance gates (1.026541ms)
+✔ defines TECRID for people, search engines, and AI answer systems (58.323375ms)
+✔ publishes a portable, minification-safe TECRID identity mark and email-signature workflow (23.428417ms)
+✔ renders pricing and API documentation (22.445917ms)
+✔ publishes privacy boundaries that match controlled TECRID workflows (28.374417ms)
+✔ keeps durable infrastructure, proof enforcement, and production metadata wired (1.76475ms)
+✔ explains and exposes the honest historical-report intake path (20.760417ms)
+✔ resolves a reserved sample TECRID without asserting laboratory authority (72.511041ms)
+✔ renders an isolated fictional lab and two complete dummy findings (58.544042ms)
+✔ renders a multi-party portal with personal sandbox and API-key boundaries (37.73925ms)
+✔ wires controller-gated evidence routing for certifiers, retailers, and government (21.259916ms)
+✔ wires two-pass report marking, controller receipts, legacy API intake, and source-linked insights (20.358667ms)
+✔ renders the disclosure-operations wedge as workflow rather than an unproven savings claim (22.006667ms)
+✔ wires durable disclosure intake, publication gates, public JSON, and honest authority labels (1.034041ms)
+✔ renders public verification and an honest laboratory dispute demonstration (38.854875ms)
+✔ wires append-only certification intake by share link, CSV, and scoped API (20.66125ms)
+✔ wires recipient-bound evidence codes, opt-in participants, and safe result projection (20.078625ms)
+✔ gives authenticated organizations a role-aware workspace shell and a real settings destination (0.550834ms)
+✔ public marketing pages declare their own self-referencing canonical (110.218084ms)
+✔ all eight Kasandrinos report views expose source metadata while keeping findings gated (168.147625ms)
+✔ www redirects / before routing (30.912791ms)
+✔ www redirects /faq?source=www&value=a%2Fb before routing (0.279375ms)
+✔ www redirects /api/v1/records?x=1&x=2 before routing (0.176084ms)
+✔ www redirects /_vinext/image?url=%2Flogo.png&w=640 before routing (0.171375ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1876.281917

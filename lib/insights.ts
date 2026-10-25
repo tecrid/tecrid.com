@@ -1,3 +1,4 @@
+import {visibleEvidenceDeliveries} from "./recipient-access";
 import { desc, eq, inArray } from "drizzle-orm";
 import type { ChatGPTUser } from "../app/chatgpt-auth";
 import { getDb } from "../db";
@@ -91,7 +92,7 @@ export async function getEvidenceInsightsForOrganization(organizationId: string)
       missingAnalytes: snapshot.resultsAccess?.missingAnalytes ?? [],
     });
   }
-  for (const delivery of recipientDeliveries) {
+  for (const delivery of await visibleEvidenceDeliveries(recipientDeliveries, organizationId)) {
     const snapshot = parseSnapshot(delivery.snapshotJson);
     records.push({
       tecrid: delivery.credentialIdentifier,

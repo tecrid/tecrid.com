@@ -1,3 +1,4 @@
+import {currentEvidenceVersion, currentShareEvidence} from "./recipient-access";
 import { recipientDisclosureGate } from "./organization-access";
 import { and, desc, eq, or, sql } from "drizzle-orm";
 import type { ChatGPTUser } from "../app/chatgpt-auth";
@@ -286,6 +287,7 @@ export async function redeemEvidenceShareCode(input: Record<string, unknown>, us
     const [existing] = await db.select().from(evidenceShareRedemptions).where(eq(evidenceShareRedemptions.shareCodeId, match.share.id)).limit(1);
     if (!existing) throw new TecAuthorizationError("This code has been redeemed but its receipt is unavailable.");
     await assertShareRecipient(user, match.share.id);
+    if (!await currentShareEvidence(JSON.parse(existing.packageJson))) throw new TecAuthorizationError("The shared evidence is no longer current.");
     return {
       ...(JSON.parse(existing.packageJson) as Record<string, unknown>),
       receipt: { id: existing.id, packageFingerprint: existing.packageFingerprint, recordCount: existing.recordCount, replayed: true },
@@ -302,7 +304,9 @@ export async function redeemEvidenceShareCode(input: Record<string, unknown>, us
     .innerJoin(organizations, eq(controllerEvidenceReceipts.laboratoryOrganizationId, organizations.id))
     .where(eq(controllerEvidenceReceipts.controllerOrganizationId, match.share.controllerOrganizationId))
     .orderBy(desc(controllerEvidenceReceipts.deliveredAt));
-  const scoped = receipts.filter(({ receipt }) => {
+  const currentReceipts = [];
+  for (const item of receipts) if (await currentEvidenceVersion(item.receipt.credentialIdentifier, item.receipt.credentialVersion)) currentReceipts.push(item);
+  const scoped = currentReceipts.filter(({ receipt }) => {
     const snapshot = JSON.parse(receipt.snapshotJson) as ReceiptSnapshot;
     const identifier = (snapshot.record?.identifier ?? receipt.credentialIdentifier).toUpperCase();
     const sku = normalizeSku(snapshot.subject?.productSku ?? "");
@@ -382,6 +386,7 @@ export async function redeemEvidenceShareCode(input: Record<string, unknown>, us
     }),
   ]);
   await assertShareRecipient(user, match.share.id);
+  if (!await currentShareEvidence(packageValue)) throw new TecAuthorizationError("The shared evidence is no longer current.");
   return { ...packageValue, receipt: { id: redemptionId, packageFingerprint, recordCount: evidence.length } };
 }
 
@@ -438,7 +443,7 @@ export async function listSharingForUser(user: ChatGPTUser) {
     codes,
     redemptions: (await Promise.all(redemptions.map(async redemption => {
       if (redemption.controllerOrganizationId === organizationId) return redemption;
-      try { await assertShareRecipient(user, redemption.shareCodeId); return redemption; } catch (error) { if (error instanceof TecAuthorizationError) return null; throw error; }
+      try { await assertShareRecipient(user, redemption.shareCodeId); return await currentShareEvidence(JSON.parse(redemption.packageJson)) ? redemption : null; } catch (error) { if (error instanceof TecAuthorizationError) return null; throw error; }
     }))).filter((redemption): redemption is typeof redemptions[number] => redemption !== null),
     invitations,
     organizationMap: Object.fromEntries(directory.map((item) => [item.id, item])),
