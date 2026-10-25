@@ -1,0 +1,77 @@
+
+ RUN  v4.1.11 /Users/kmfp/Documents/ChatGPT/TECRID/orders-20261025/security-tecrid
+
+ ❯ tests/security-independent-review.test.ts (5 tests | 4 failed) 1261ms
+   × an ICS admin cannot record manual checks for its own lab application 24ms
+   × the owner cannot self-approve even with all five gates already passed 28ms
+   × a current applicant-organization member cannot review it 27ms
+   × an independent final reviewer cannot rely on self-authored manual checks 29ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/security-independent-review.test.ts > an ICS admin cannot record manual checks for its own lab application
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ denied tests/security-independent-review.test.ts:15:113
+
+ ❯ tests/security-independent-review.test.ts:16:85
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/security-independent-review.test.ts > the owner cannot self-approve even with all five gates already passed
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ denied tests/security-independent-review.test.ts:15:113
+
+ ❯ tests/security-independent-review.test.ts:17:86
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/security-independent-review.test.ts > a current applicant-organization member cannot review it
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ denied tests/security-independent-review.test.ts:15:113
+
+ ❯ tests/security-independent-review.test.ts:18:73
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/security-independent-review.test.ts > an independent final reviewer cannot rely on self-authored manual checks
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ denied tests/security-independent-review.test.ts:15:113
+
+ ❯ tests/security-independent-review.test.ts:21:265
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  14:34:50
+   Duration  2.00s (transform 161ms, setup 0ms, import 569ms, tests 1.26s, environment 0ms)
+
