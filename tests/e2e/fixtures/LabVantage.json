@@ -1,0 +1,10 @@
+{
+  "SYNTHETIC": true,
+  "notice": "OUR reference shape only. NOT a vendor export or a compatibility claim.",
+  "sdiworkitem": {
+    "sampleid": "SYNTHETIC-001",
+    "paramlistid": "SYNTHETIC ICPMS",
+    "value": 1,
+    "units": "synthetic-unit"
+  }
+}
