@@ -23,7 +23,7 @@ export default function LaboratoryValuePage() {
         </section>
 
         <section className="lab-value-problem">
-          <div><p className="section-kicker">The cost today</p><h2>The laboratory keeps paying for a report it already finished.</h2><p>When a customer, retailer, certifier, regulator, or attorney questions a forwarded document, laboratory staff must search the LIMS, compare files, confirm authenticity, explain amendments, and resend evidence. That work is usually unpriced, interruptive, and difficult to measure.</p></div>
+          <div><p className="section-kicker">The cost today</p><h2>The laboratory keeps paying for a report it already finished.</h2><p>When a customer, retailer, certifier, regulator, or attorney questions a forwarded document, laboratory staff must search the LIMS, compare files, confirm authenticity, explain amendments, and resend evidence. That work is usually not separately billed, interruptive, and difficult to measure.</p></div>
           <div className="lab-value-shift"><article><span>01</span><strong>Authorship survives forwarding</strong><p>A resolver and signed canonical record answer whether the evidence came from the registered issuer.</p></article><article><span>02</span><strong>Delivery becomes reusable</strong><p>The brand receives its record once; separately authorized recipients receive their scoped packages automatically.</p></article><article><span>03</span><strong>Corrections remain legible</strong><p>Revisions and revocations append to the history rather than relying on every recipient to replace a file.</p></article></div>
         </section>
 

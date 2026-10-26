@@ -1,6 +1,7 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { prepareContentSecurityPolicy, applyContentSecurityPolicy } from "../lib/content-security-policy";
 
 interface Env {
   ASSETS: Fetcher;
@@ -39,7 +40,10 @@ const worker = {
     }
 
     if (url.pathname === "/pricing" || url.pathname === "/pricing/") {
-      return Response.redirect(new URL("/", url).href, 301);
+      return new Response(request.method === "HEAD" ? null : "Not found", {
+        status: 404,
+        headers: { "content-type": "text/plain; charset=utf-8", "x-content-type-options": "nosniff" },
+      });
     }
 
     if (url.pathname === "/_vinext/image") {
@@ -53,7 +57,9 @@ const worker = {
       }, allowedWidths);
     }
 
-    return handler.fetch(request, env, ctx);
+    const security = prepareContentSecurityPolicy(request);
+    const response = await handler.fetch(security.request, env, ctx);
+    return applyContentSecurityPolicy(response, security.policy);
   },
 };
 

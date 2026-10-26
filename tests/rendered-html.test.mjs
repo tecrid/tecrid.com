@@ -20,12 +20,13 @@ async function render(path = "/") {
   );
 }
 
-test("pricing permanently redirects home without rendering a page", async () => {
-  for (const path of ["/pricing", "/pricing/", "/pricing?source=old-link"]) {
+test("retired pricing URLs return plain 404 without a redirect", async () => {
+  for (const path of ["/pricing", "/pricing/", "/pricing?source=old-link", "/pricing/?source=old-link"]) {
     const response = await render(path);
-    assert.equal(response.status, 301);
-    assert.equal(response.headers.get("location"), "http://localhost/");
-    assert.equal(await response.text(), "");
+    assert.equal(response.status, 404);
+    assert.equal(response.headers.get("location"), null);
+    assert.match(response.headers.get("content-type"), /^text\/plain/);
+    assert.equal(await response.text(), "Not found");
   }
   const home = await render("/");
   assert.equal(home.status, 200);

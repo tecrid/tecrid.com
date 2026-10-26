@@ -4,7 +4,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [{
       userAgent: "*",
-      allow: "/",
+      allow: ["/", "/llms.txt"],
       disallow: ["/admin/", "/api/", "/certify/", "/confirm/", "/dashboard/", "/join/success"],
     }],
     sitemap: "https://tecrid.com/sitemap.xml",
