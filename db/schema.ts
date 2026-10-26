@@ -384,6 +384,7 @@ export const issuerApplications = sqliteTable(
     submittedAt: text("submitted_at").notNull().default(sql`CURRENT_TIMESTAMP`),
     reviewedAt: text("reviewed_at"),
     reviewNote: text("review_note"),
+    reviewVersion: integer("review_version").notNull().default(0),
   },
   (table) => [
     index("idx_issuer_applications_organization_id").on(
@@ -1267,3 +1268,40 @@ export const notificationReads = sqliteTable("notification_reads", {
  notificationId: text("notification_id").notNull().references(()=>organizationNotifications.id,{onDelete:"cascade"}),
  recipientEmail: text("recipient_email").notNull(), readAt: text("read_at").notNull(),
 }, table=>[primaryKey({columns:[table.notificationId,table.recipientEmail]})]);
+
+// PR0b draft migration only. Private public-key credentials, never biometric data.
+export const passkey = sqliteTable("auth_passkey", {
+ id: text("id").primaryKey(), name: text("name"), publicKey: text("public_key").notNull(),
+ userId: text("user_id").notNull().references(()=>user.id,{onDelete:"cascade"}),
+ credentialID: text("credential_id").notNull().unique(), counter: integer("counter").notNull(),
+ deviceType: text("device_type").notNull(), backedUp: integer("backed_up",{mode:"boolean"}).notNull(),
+ transports: text("transports"), createdAt: integer("created_at",{mode:"timestamp_ms"}), aaguid: text("aaguid"),
+},table=>[index("idx_auth_passkey_user").on(table.userId)]);
+export const issuerReviewApprovals = sqliteTable("issuer_review_approvals", {
+ id:text("id").primaryKey(), applicationId:text("application_id").notNull().references(()=>issuerApplications.id),
+ reviewVersion:integer("review_version").notNull(), reviewerUserId:text("reviewer_user_id").notNull(),
+ reviewerEmail:text("reviewer_email").notNull(), credentialId:text("credential_id").notNull(),
+ verifiedAt:text("verified_at").notNull(), reviewNote:text("review_note").notNull(), registerEvidence:text("register_evidence").notNull(),
+},table=>[uniqueIndex("idx_issuer_approval_user").on(table.applicationId,table.reviewVersion,table.reviewerUserId),uniqueIndex("idx_issuer_approval_email").on(table.applicationId,table.reviewVersion,table.reviewerEmail)]);
+export const issuerDecisionChallenges = sqliteTable("issuer_decision_challenges", {
+ id:text("id").primaryKey(),applicationId:text("application_id").notNull().references(()=>issuerApplications.id),
+ userId:text("user_id").notNull(),sessionId:text("session_id").notNull(),challenge:text("challenge").notNull(),
+ intentHash:text("intent_hash").notNull(),reviewVersion:integer("review_version").notNull(),expiresAt:text("expires_at").notNull(),
+});
+export const issuerDecisionReceipts = sqliteTable("issuer_decision_receipts", {
+ id:text("id").primaryKey(),challengeId:text("challenge_id").notNull().unique().references(()=>issuerDecisionChallenges.id),
+ applicationId:text("application_id").notNull(),userId:text("user_id").notNull(),sessionId:text("session_id").notNull(),
+ credentialId:text("credential_id").notNull(),verifiedAt:text("verified_at").notNull(),decision:text("decision").notNull(),
+});
+export const issuerReviewReads = sqliteTable("issuer_review_reads", {
+ applicationId:text("application_id").notNull().references(()=>issuerApplications.id),recipientEmail:text("recipient_email").notNull(),readAt:text("read_at").notNull(),
+},table=>[uniqueIndex("idx_issuer_review_read").on(table.applicationId,table.recipientEmail)]);
+export const issuerReviewMail = sqliteTable("issuer_review_mail", {
+ id:text("id").primaryKey(),applicationId:text("application_id").notNull().references(()=>issuerApplications.id),
+ recipientEmail:text("recipient_email").notNull(),kind:text("kind").notNull(),status:text("status").notNull().default("queued"),
+ attempts:integer("attempts").notNull().default(0),claimId:text("claim_id"),lastAttemptAt:text("last_attempt_at"),createdAt:text("created_at").notNull(),
+},table=>[uniqueIndex("idx_issuer_review_mail_recipient_kind").on(table.applicationId,table.recipientEmail,table.kind)]);
+export const passkeyEnrollmentGrants = sqliteTable("passkey_enrollment_grants", {
+ id:text("id").primaryKey(),userId:text("user_id").notNull().references(()=>user.id),sessionId:text("session_id").notNull(),
+ tokenHash:text("token_hash").notNull().unique(),expiresAt:text("expires_at").notNull(),usedAt:text("used_at"),
+});

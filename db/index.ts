@@ -11,3 +11,10 @@ export function getDb() {
 
   return drizzle(env.DB, { schema });
 }
+
+export function getRawDb() {
+  if (!env.DB) throw new Error("Local database binding is unavailable.");
+  return env.DB;
+}
+
+export function getApplicationSettings(): Record<string,unknown> { return env as unknown as Record<string,unknown>; }

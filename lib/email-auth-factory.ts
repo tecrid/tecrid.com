@@ -1,3 +1,4 @@
+import { passkey } from '@better-auth/passkey';
 import {privateFetch} from './private-fetch';
 import { betterAuth } from 'better-auth';
 import { magicLink } from 'better-auth/plugins';
@@ -15,7 +16,7 @@ export function createEmailAuth(db:any, schema:any, config:{secret:string;baseUR
   session:{expiresIn:60*60*24*7,updateAge:60*60*24,cookieCache:{enabled:false}},
   advanced:{disableOriginCheck:false,disableCSRFCheck:false,cookiePrefix:'tecrid',useSecureCookies:config.baseURL.startsWith('https:'),ipAddress:{ipAddressHeaders:['cf-connecting-ip']},defaultCookieAttributes:{httpOnly:true,sameSite:'lax',path:'/'}},
   rateLimit:{enabled:true,storage:'database',window:60,max:60},
-  plugins:[magicLink({expiresIn:600,storeToken:'hashed',rateLimit:{window:60,max:3},
+  plugins:[passkey({ rpID:new URL(config.baseURL).hostname, rpName:'TECRID', origin:config.baseURL, authenticatorSelection:{authenticatorAttachment:'platform',residentKey:'required',userVerification:'required'}, registration:{requireSession:true,afterVerification:async({verification})=>{if(!verification.registrationInfo?.userVerified)throw Error('Device user verification is required.');}}, authentication:{afterVerification:async({verification})=>{if(!verification.authenticationInfo.userVerified)throw Error('Device user verification is required.');}} }),magicLink({expiresIn:600,storeToken:'hashed',rateLimit:{window:60,max:3},
    async sendMagicLink({email,url}){
     if(!config.relaySecret||!config.relayURL)throw Error('Email delivery is not configured.');
     const response=await transport(config.relayURL,{

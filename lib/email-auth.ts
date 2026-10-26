@@ -12,3 +12,11 @@ export async function getEmailUser(headers:Headers){
  if(!result?.user.emailVerified)return null;
  return {userId:`email:${result.user.id}`,email:result.user.email.toLowerCase(),displayName:result.user.name||result.user.email,fullName:result.user.name||null};
 }
+
+export function emailAuthOrigin(){return String((env as unknown as Record<string,unknown>).TECRID_AUTH_URL || 'https://tecrid.com');}
+export async function getVerifiedEmailSession(headers:Headers){
+ if(!emailAuthReady())return null;
+ const result=await emailAuth().api.getSession({headers});
+ if(!result?.user.emailVerified)return null;
+ return {user:{userId:`email:${result.user.id}`,email:result.user.email.toLowerCase(),displayName:result.user.name||result.user.email,fullName:result.user.name||null},session:{id:result.session.id,userId:result.user.id}};
+}

@@ -1,4 +1,5 @@
-import { requireConfirmedLaboratoryMailbox, requireIndependentLabReviewer, scopePdf } from "./lab-signup-policy";
+import { waitingReviewMailStatements } from "./issuer-review-notices";
+import { requireConfirmedLaboratoryMailbox, scopePdf } from "./lab-signup-policy";
 import { parseRole, roles } from "./roles";
 import { apiRequestScope, normalizeApiScopes } from "./api-scopes";
 import { and, asc, desc, eq, isNull, or } from "drizzle-orm";
@@ -793,6 +794,7 @@ export async function submitIssuerApplication(
   await bucket.put(objectKey, scope.bytes, { httpMetadata: { contentType: "application/pdf" } });
   try {
     await db.batch([applicationInsert, organizationUpdate, auditInsert,
+      ...waitingReviewMailStatements(id,submittedAt),
       db.insert(issuerApplicationDocuments).values({ id: documentId, applicationId: id, organizationId: membership.organization.id, documentType: "accreditation_scope", objectKey, filename: scope.filename, mimeType: "application/pdf", size: scope.size, sha256: scope.sha256, uploadedByUserId: user.userId, createdAt: submittedAt }),
       db.insert(organizationNotifications).values({ id: `notice_${id}_submitted`, organizationId: membership.organization.id, eventType: "issuer.application_submitted", entityType: "issuer_application", entityId: id, title: "Lab application submitted", body: "Your application is awaiting independent ICS review. Issuing remains locked.", actionPath: "/dashboard/laboratory", createdAt: submittedAt }),
     ]);
@@ -834,136 +836,9 @@ export async function listIssuerApplicationsForAdmin(user: ChatGPTUser) {
   }));
 }
 
-export async function reviewIssuerApplication(
-  user: ChatGPTUser,
-  applicationIdValue: string,
-  value: Record<string, unknown>,
-) {
-  if (!isIcsAdmin(user)) throw new TecAuthorizationError("ICS administrator access required.");
-  const applicationId = normalizeText(applicationIdValue, 120);
-  const decision = normalizeText(value.decision, 32);
-  const reviewNote = normalizeText(value.reviewNote, 1200);
-  if (!applicationId || !["approve", "needs_information", "reject"].includes(decision)) {
-    throw new TecInputError("Choose approve, needs_information, or reject.");
-  }
-  if (!reviewNote) throw new TecInputError("A review note is required.");
-
-  const db = getDb();
-  const [record] = await db
-    .select({ application: issuerApplications, organization: organizations })
-    .from(issuerApplications)
-    .innerJoin(
-      organizations,
-      eq(issuerApplications.organizationId, organizations.id),
-    )
-    .where(eq(issuerApplications.id, applicationId))
-    .limit(1);
-  if (!record) throw new TecInputError("Issuer application not found.");
-  await requireIndependentLabReviewer(user, record.organization.id, record.application.contactEmail);
-  if (decision === "approve") {
-    requireOrganizationIdentity(record.organization);
-    const [submission] = await db.select().from(auditEvents).where(and(eq(auditEvents.entityId, applicationId), eq(auditEvents.eventType, "issuer.application_submitted"))).limit(1);
-    let currentSignup = false;
-    try { currentSignup = JSON.parse(submission?.payload || "{}").signupVerificationVersion === 1; } catch { currentSignup = false; }
-    if (!currentSignup) throw new TecInputError("Complete the current laboratory signup verification before approval. Request a replacement application.");
-  }
-  if (record.application.status !== "submitted") {
-    throw new TecInputError("Only a submitted issuer application can receive a final review decision.");
-  }
-  if (decision === "approve" && (!record.application.publicKeyJwk || !record.application.keyId)) {
-    throw new TecInputError(
-      "Approval requires an Ed25519 public key and key ID in the application.",
-    );
-  }
-
-  const verificationChecks = await db
-    .select()
-    .from(issuerVerificationChecks)
-    .where(eq(issuerVerificationChecks.applicationId, applicationId));
-  const requiredChecks = ["identity", "accreditation", "scope", "key_control", "conformance"];
-  const checkMap = new Map(verificationChecks.map((check) => [check.checkType, check]));
-  if (decision === "approve") {
-    const incomplete = requiredChecks.filter((checkType) => checkMap.get(checkType)?.status !== "passed");
-    const manualChecks = verificationChecks.filter(check => ["identity", "accreditation", "scope"].includes(check.checkType));
-    for (const check of manualChecks) {
-      if (!check.reviewedByUserId || !check.reviewedByEmail || check.reviewedByUserId === user.userId || check.reviewedByEmail.toLowerCase() === user.email.toLowerCase()) {
-        throw new TecAuthorizationError("Two different independent ICS admins must review identity, accreditation and scope. A second admin must give final approval.");
-      }
-      await requireIndependentLabReviewer({ ...user, userId: check.reviewedByUserId, email: check.reviewedByEmail }, record.organization.id, record.application.contactEmail);
-      if (!isIcsAdmin({ ...user, email: check.reviewedByEmail })) throw new TecAuthorizationError("The first reviewer must still be an ICS administrator.");
-    }
-    if (incomplete.length) {
-      throw new TecInputError(
-        `Approval is locked until these verification gates pass: ${incomplete.join(", ")}.`,
-      );
-    }
-  }
-
-  const reviewedAt = now();
-  const applicationStatus =
-    decision === "approve"
-      ? "approved"
-      : decision === "needs_information"
-        ? "needs_information"
-        : "rejected";
-  const issuerStatus =
-    decision === "approve"
-      ? "verified"
-      : decision === "needs_information"
-        ? "needs_information"
-        : "rejected";
-  const applicationUpdate = db
-    .update(issuerApplications)
-    .set({
-      status: applicationStatus,
-      reviewedAt,
-      reviewNote,
-    })
-    .where(eq(issuerApplications.id, applicationId));
-  const organizationUpdate = db
-    .update(organizations)
-    .set({
-      issuerStatus,
-      issuerPublicKeyJwk:
-        decision === "approve" ? record.application.publicKeyJwk : record.organization.issuerPublicKeyJwk,
-      issuerKeyId:
-        decision === "approve" ? record.application.keyId : record.organization.issuerKeyId,
-      issuerKeyAlgorithm:
-        decision === "approve" ? "Ed25519" : record.organization.issuerKeyAlgorithm,
-      issuerKeyVerifiedAt:
-        decision === "approve"
-          ? checkMap.get("key_control")?.reviewedAt ?? reviewedAt
-          : record.organization.issuerKeyVerifiedAt,
-      updatedAt: reviewedAt,
-    })
-    .where(eq(organizations.id, record.organization.id));
-  const auditInsert = db.insert(auditEvents).values({
-    id: `evt_${applicationId}_${applicationStatus}`,
-    organizationId: record.organization.id,
-    actorUserId: user.userId,
-    eventType: `issuer.application_${applicationStatus}`,
-    entityType: "issuer_application",
-    entityId: applicationId,
-    payload: JSON.stringify({
-      decision,
-      reviewNote,
-      issuerCode: record.organization.issuerCode,
-      keyId: record.application.keyId,
-      verificationChecks: Object.fromEntries(
-        requiredChecks.map((checkType) => [checkType, checkMap.get(checkType)?.status ?? "missing"]),
-      ),
-    }),
-    createdAt: reviewedAt,
-  });
-  await db.batch([applicationUpdate, organizationUpdate, auditInsert,
-    db.insert(organizationNotifications).values({ id: `notice_${applicationId}_${applicationStatus}`, organizationId: record.organization.id, eventType: `issuer.application_${applicationStatus}`, entityType: "issuer_application", entityId: applicationId, title: decision === "approve" ? "Lab application approved" : decision === "reject" ? "Lab application rejected" : "More information needed", body: decision === "approve" ? "Two independent ICS admins have approved your laboratory. Issuing requires your registered signing key." : "Open your laboratory application to read the ICS decision and next steps.", actionPath: "/dashboard/laboratory", createdAt: reviewedAt }),
-  ]);
-  return {
-    id: applicationId,
-    status: applicationStatus,
-    issuerStatus,
-    reviewedAt,
-  };
+export async function reviewIssuerApplication(user: ChatGPTUser, applicationId: string, value: Record<string,unknown>, reviewSession?: import("./passkey-review").ReviewSession) {
+  const { commitIssuerDecision } = await import("./passkey-review");
+  return commitIssuerDecision(user, applicationId, value, reviewSession);
 }
 
 export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scopesValue?: unknown) {
