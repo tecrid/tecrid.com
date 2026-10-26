@@ -1,3 +1,6 @@
+import { getEmailUser } from "../lib/email-auth";
+import { isIcsAdmin } from "../lib/tec";
+import { deliverIssuerReviewMail } from "../lib/issuer-review-notices";
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
@@ -29,6 +32,7 @@ interface ExecutionContext {
 // const imageConfig: ImageConfig = { dangerouslyAllowSVG: true };
 
 const worker = {
+  async scheduled() { await deliverIssuerReviewMail(); },
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
@@ -58,8 +62,16 @@ const worker = {
     }
 
     const security = prepareContentSecurityPolicy(request);
+    if(url.pathname === "/admin/issuers" || url.pathname.startsWith("/admin/issuers/")) {
+      const user=await getEmailUser(request.headers);
+      if(!user || !isIcsAdmin(user)) return applyContentSecurityPolicy(new Response("ICS approver access required.",{status:403,headers:{"Cache-Control":"private, no-store","X-Robots-Tag":"noindex, nofollow"}}),security.policy);
+    }
     const response = await handler.fetch(security.request, env, ctx);
-    return applyContentSecurityPolicy(response, security.policy);
+    const secured=applyContentSecurityPolicy(response, security.policy);
+    if(url.pathname === "/admin/issuers" || url.pathname.startsWith("/admin/issuers/") || url.pathname === "/account/passkeys") {
+      const headers=new Headers(secured.headers);headers.set("Cache-Control","private, no-store, max-age=0");headers.set("Vary","Cookie");headers.set("X-Robots-Tag","noindex, nofollow");return new Response(secured.body,{status:secured.status,headers});
+    }
+    return secured;
   },
 };
 

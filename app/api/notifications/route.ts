@@ -1,3 +1,4 @@
+import { approverInbox } from '../../../lib/issuer-review-notices';
 import { env } from 'cloudflare:workers';
 import { getChatGPTUser } from '../../chatgpt-auth';
 import { getEmailUser } from '../../../lib/email-auth';
@@ -16,12 +17,13 @@ async function handle(request: Request) {
   if (readId?.startsWith('vle:') && !emailUser) return json({error:'Work-email sign-in is required for VLE notifications.'},403);
   if (readId && !/^(tecrid|vle):/.test(readId)) return json({error:'Unknown notification.'},404);
   const results = await Promise.allSettled([
-    ownNotifications(env.DB, user, readId?.startsWith('tecrid:') ? readId : undefined),
+    ownNotifications(env.DB, user, readId?.startsWith('tecrid:') && !readId.startsWith('tecrid:issuer-review:') ? readId : undefined),
     emailUser ? vleNotifications(emailUser, readId?.startsWith('vle:') ? readId : undefined) : Promise.resolve([]),
+    emailUser ? approverInbox(emailUser,readId?.startsWith("tecrid:issuer-review:")?readId:undefined) : Promise.resolve([]),
   ]);
-  if(readId && results[readId.startsWith('vle:')?1:0].status==='rejected') return json({error:'The notification could not be marked read. Refresh and retry.'},503);
+  if(readId && results[readId.startsWith('tecrid:issuer-review:')?2:readId.startsWith('vle:')?1:0].status==='rejected') return json({error:'The notification could not be marked read. Refresh and retry.'},503);
   const items=results.flatMap(result=>result.status==='fulfilled'?result.value:[]).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
-  const unavailable=results.flatMap((result,index)=>result.status==='rejected'?[index===0?'TECRID':'VLE']:[]);
+  const unavailable=results.flatMap((result,index)=>result.status==='rejected'?[index===1?'VLE':'TECRID']:[]);
   return json({items, unreadCount:items.filter(item=>!item.read).length, unavailable, vleConnected:!!emailUser});
 }
 export async function GET(request:Request){try{return await handle(request);}catch{return json({error:'Notifications are temporarily unavailable.'},503);}}

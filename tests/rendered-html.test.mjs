@@ -174,9 +174,9 @@ test("locks laboratory approval behind evidence, key-control, and conformance ga
     readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
     readFile(new URL("../drizzle/0014_spooky_shen.sql", import.meta.url), "utf8"),
     readFile(new URL("../lib/issuer-verification.ts", import.meta.url), "utf8"),
-    readFile(new URL("../lib/tec.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/passkey-review.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/dashboard/issuer-application.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/admin/issuers/review-controls.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/admin/issuers/[applicationId]/phone-review.tsx", import.meta.url), "utf8"),
   ]);
   assert.match(schema, /issuerApplicationDocuments/);
   assert.match(schema, /issuerVerificationChecks/);
@@ -188,11 +188,13 @@ test("locks laboratory approval behind evidence, key-control, and conformance ga
   assert.match(verificationService, /expiresAt/);
   assert.match(verificationService, /key_control/);
   assert.match(verificationService, /conformance/);
-  assert.match(issuerService, /Approval is locked until these verification gates pass/);
-  assert.match(issuerService, /"identity", "accreditation", "scope", "key_control", "conformance"/);
+  assert.match(issuerService, /signing-key challenge must pass first/);
+  assert.match(issuerService, /identity:checks/);
+  assert.match(issuerService, /requireUserVerification:true/);
   assert.match(dashboardPanel, /Upload private evidence/);
   assert.match(dashboardPanel, /Create 15-minute challenge/);
-  assert.match(adminPanel, /approvalReady/);
+  assert.match(adminPanel, /keyComplete/);
+  assert.match(adminPanel, /startAuthentication/);
   await assert.doesNotReject(access(new URL("../app/api/issuer-application/evidence/route.ts", import.meta.url)));
   await assert.doesNotReject(access(new URL("../app/api/issuer-application/key-challenge/verify/route.ts", import.meta.url)));
   await assert.doesNotReject(access(new URL("../app/api/admin/issuer-applications/[applicationId]/checks/route.ts", import.meta.url)));

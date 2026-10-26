@@ -43,3 +43,5 @@ export function NotificationCenter(){
   </article>)}</div><p className="notification-description">Updates refresh while the app is open. Read status is personal and shared between your TECRID and VLE inboxes. Showing the latest 100 updates from each source.</p>
  </section>;
 }
+
+export function ApproverUnreadCount(){const {items}=useContext(Context);const count=items.filter(item=>item.kind==="issuer.awaiting_review"&&!item.read).length;return count>0?<span className="notification-count" aria-label={`${count} unread lab reviews`}>{count>99?"99+":count}</span>:null;}

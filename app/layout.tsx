@@ -1,3 +1,6 @@
+import "./phone-review.css";
+import { getEmailUser } from "../lib/email-auth";
+import { isIcsAdmin } from "../lib/tec";
 import type { Metadata, Viewport } from "next";
 import { headers, cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -112,6 +115,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const user = await getChatGPTUser();
+  const verifiedEmailUser = user ? await getEmailUser(new Headers(await headers())) : null;
   const membership = user ? await getOrganizationForUser(user.userId) : null;
   const preference = parseRole((await cookies()).get(ROLE_COOKIE)?.value) ?? "public";
   const role = membership ? organizationRole(membership.organization.organizationType) : preference;
@@ -121,7 +125,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteIdentity).replaceAll("<", "\\u003c") }} />
-        <RoleProvider initialRole={role} signedIn={!!user} hasWorkspace={!!membership}><NotificationProvider>{children}<MobileNavigation /></NotificationProvider></RoleProvider>
+        <RoleProvider initialRole={role} signedIn={!!user} hasWorkspace={!!membership} isApprover={!!verifiedEmailUser && isIcsAdmin(verifiedEmailUser)}><NotificationProvider>{children}<MobileNavigation /></NotificationProvider></RoleProvider>
       </body>
     </html>
   );

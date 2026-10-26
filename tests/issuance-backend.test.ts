@@ -1,3 +1,4 @@
+import { approveWithTwo, syntheticReview } from "./support/passkey-fixtures";
 // @vitest-environment node
 import { beforeAll, afterAll, describe, it, expect } from "vitest";
 import { Miniflare } from "miniflare";
@@ -19,8 +20,8 @@ let mf: Miniflare;
 let lab: typeof organizations.$inferSelect;
 let privateKey: CryptoKey;
 const user = {userId:"email:fixture-lab",email:"lab@example.test",displayName:"Fixture laboratory",fullName:"Fixture laboratory"};
-const admin = {...user,userId:"fixture-admin",email:"admin@example.test"};
-const secondAdmin = {...admin,userId:"fixture-admin-2",email:"admin-2@example.test"};
+const admin = {...user,userId:"email:fixture-admin",email:"admin@example.test"};
+const secondAdmin = {...admin,userId:"email:fixture-admin-2",email:"admin-2@example.test"};
 const scopeFile = () => new File(["%PDF-1.7 synthetic accreditation scope"],"scope.pdf");
 const accreditation = {accreditationStatus:"accredited",accreditationBody:"SYNTHETIC accreditation body",accreditationNumber:"FAKE-17025",accreditationUrl:"https://register.example.test/FAKE"};
 const register = {registerUrl:"https://register.example.test/FAKE",registerResult:"SYNTHETIC current certificate and scope match",registerCheckedAt:"2026-01-01"};
@@ -44,7 +45,7 @@ beforeAll(async () => {
   await verifyIssuerKeyChallenge(user,{challengeId:challenge.id,signature:(await sign(challenge.canonicalPayload)).signature});
   await expect(verifyIssuerKeyChallenge(user,{challengeId:challenge.id,signature:(await sign(challenge.canonicalPayload)).signature})).rejects.toThrow();
   for(const checkType of ["identity","accreditation","scope"]) await reviewIssuerVerificationCheck(admin,app.id,{checkType,status:"passed",evidenceNote:"Synthetic isolated test; no real lab approval.",...register});
-  await reviewIssuerApplication(secondAdmin,app.id,{decision:"approve",reviewNote:"Synthetic isolated test"});
+  await approveWithTwo(admin,secondAdmin,app.id);
   [lab]=await getDb().select().from(organizations).where(eq(organizations.id,user.userId));
 },60000);
 afterAll(async()=>{await mf?.dispose()});
@@ -70,9 +71,9 @@ describe("isolated real backend with D1/R2 and Ed25519",()=>{
   await verifyIssuerKeyChallenge(owner,{challengeId:challenge.id,signature:(await sign(challenge.canonicalPayload)).signature});
   for(const checkType of ["identity","accreditation","scope"]) await reviewIssuerVerificationCheck(admin,application.id,{checkType,status:"passed",evidenceNote:"Synthetic isolated test only.",...register});
   await getDb().update(organizations).set({slug:deferred.slug}).where(eq(organizations.id,saved.id));
-  await expect(reviewIssuerApplication(secondAdmin,application.id,{decision:"approve",reviewNote:"Synthetic isolated test only."})).rejects.toThrow("real organization name");
+  await expect(syntheticReview(secondAdmin,application.id,{decision:"approve",reviewNote:"Synthetic isolated test only."})).rejects.toThrow("real organization name");
   await getDb().update(organizations).set({slug:saved.slug}).where(eq(organizations.id,saved.id));
-  await reviewIssuerApplication(secondAdmin,application.id,{decision:"approve",reviewNote:"Synthetic isolated test only."});
+  await approveWithTwo(admin,secondAdmin,application.id);
   const [verified]=await getDb().select().from(organizations).where(eq(organizations.id,saved.id));
   const reservation=await reserveReportTecrid(verified,{productName:payload.sampleName,productSku:payload.productSku});
   const issued=await createCredential(verified,null,{...payload,proof:await sign(canonicalizeCredential(payload).canonicalPayload)});
