@@ -10,7 +10,7 @@ export function RolePicker({ onboarding = false, returnTo = "/dashboard", prefer
     chooseRole(value);
     if (!onboarding) {
       if (hasWorkspace) { location.assign("/dashboard"); return; }
-      location.assign(value === "public" ? "/verify" : `/join?role=${value}`);
+      location.assign(`/join?role=${value}`);
       return;
     }
     setPending(value); setMessage("");
@@ -18,7 +18,7 @@ export function RolePicker({ onboarding = false, returnTo = "/dashboard", prefer
       const response = await fetch("/api/onboarding", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ role: value }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "We could not save your choice. Try again.");
-      location.assign(value === "public" ? "/verify" : returnTo);
+      location.assign(value === "laboratory" ? "/dashboard/laboratory" : value === "public" ? "/verify" : returnTo);
     } catch (error) { setMessage(error instanceof Error ? error.message : "Check your connection and try again."); setPending(null); }
   }
   return <section className="role-picker" aria-labelledby="role-question">

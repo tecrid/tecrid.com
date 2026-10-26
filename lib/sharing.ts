@@ -447,6 +447,7 @@ export async function upsertParticipantProfile(user: ChatGPTUser, input: Record<
   const website = clean(input.website, 240) || membership.organization.website;
   const summary = clean(input.summary, 600);
   const isPublic = input.isPublic === true || input.isPublic === "true" || input.isPublic === "on";
+  if (isPublic && membership.organization.organizationType === "laboratory" && membership.organization.issuerStatus !== "verified") throw new TecAuthorizationError("Your laboratory profile stays private until ICS approves verification.");
   if (isPublic && !summary) throw new TecInputError("Add a short public description before listing this organization.");
   const publicSlug = membership.organization.slug;
   const now = new Date().toISOString();

@@ -10,6 +10,7 @@ type ApplicationSummary = {
   reviewNote: string | null;
   keyId: string | null;
   publicKeyJwk: string | null;
+  contactEmail?: string;
 } | null;
 
 type EvidenceSummary = {
@@ -38,11 +39,13 @@ export function IssuerApplicationPanel({
   issuerStatus,
   documents,
   checks,
+  confirmedEmail,
 }: {
   application: ApplicationSummary;
   issuerStatus: string;
   documents: EvidenceSummary[];
   checks: CheckSummary[];
+  confirmedEmail?: string | null;
 }) {
   const [step, setStep] = useState(0);
   const [message, setMessage] = useState("");
@@ -250,24 +253,7 @@ export function IssuerApplicationPanel({
     try {
     const response = await fetch("/api/issuer-application", {
       method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        legalName: form.get("legalName"),
-        laboratoryAddress: form.get("laboratoryAddress"),
-        laboratoryWebsite: form.get("laboratoryWebsite"),
-        authorityRole: form.get("authorityRole"),
-        accreditationStatus: form.get("accreditationStatus"),
-        accreditationBody: form.get("accreditationBody"),
-        accreditationNumber: form.get("accreditationNumber"),
-        accreditationUrl: form.get("accreditationUrl"),
-        scopeSummary: form.get("scopeSummary"),
-        methodFamilies: form.get("methodFamilies"),
-        contactName: form.get("contactName"),
-        contactEmail: form.get("contactEmail"),
-        keyId: form.get("keyId"),
-        publicKeyJwk: form.get("publicKeyJwk"),
-        attested: form.get("attested") === "on",
-      }),
+      body: form,
     });
     const body = await response.json();
     setPending(false);
@@ -294,11 +280,10 @@ export function IssuerApplicationPanel({
   if (application && !canResubmit) {
     const checkByType = new Map(checks.map((check) => [check.checkType, check]));
     const checklist = [
-      ["identity", "Legal identity and authority"],
-      ["accreditation", "Accreditation or competence evidence"],
-      ["scope", "Methods, matrices and analyte scope"],
-      ["key_control", "Issuer signing-key control"],
-      ["conformance", "TECRID signing conformance"],
+      ["email", "Work email confirmed", confirmedEmail && application.contactEmail?.toLowerCase() === confirmedEmail.toLowerCase() ? "passed" : "pending"],
+      ["accreditation", "Identity, ISO/IEC 17025 and scope", ["identity", "accreditation", "scope"].every(type => checkByType.get(type)?.status === "passed") ? "passed" : "pending"],
+      ["key_control", "Signing-key challenge", ["key_control", "conformance"].every(type => checkByType.get(type)?.status === "passed") ? "passed" : "pending"],
+      ["review", "Two independent ICS admins", application.status === "approved" ? "passed" : "pending"],
     ];
     const keyComplete = checkByType.get("key_control")?.status === "passed" && checkByType.get("conformance")?.status === "passed";
     return (
@@ -308,11 +293,10 @@ export function IssuerApplicationPanel({
           <span className="record-status record-draft">{application.status}</span>
         </div>
         <p className="panel-copy">Submitted {new Date(application.submittedAt).toLocaleDateString()}. Payment cannot accelerate or determine this review.</p>
-        <div className="review-boundary"><strong>Not yet authorized to publish.</strong><span>All five gates below must pass. An application or payment never creates issuance authority.</span></div>
+        <div className="review-boundary"><strong>Not yet authorized to publish.</strong><span>Complete the four steps below. Only two independent ICS admins can approve issuing.</span></div>
         <div className="issuer-gate-list" aria-label="Issuer verification gates">
-          {checklist.map(([checkType, label], index) => {
+          {checklist.map(([checkType, label, status], index) => {
             const check = checkByType.get(checkType);
-            const status = check?.status ?? "pending";
             return <article key={checkType}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{label}</strong><small>{check?.evidenceNote || (checkType === "key_control" || checkType === "conformance" ? "Complete the cryptographic challenge below." : "Awaiting ICS evidence review.")}</small></div><i className={`gate-status gate-${status}`}>{status}</i></article>;
           })}
         </div>
@@ -359,7 +343,8 @@ export function IssuerApplicationPanel({
       </div>
       {canResubmit ? <div className="review-boundary"><strong>ICS requested a new application.</strong><span>{application.reviewNote || "Correct the application and submit the complete replacement record below."}</span></div> : null}
       <p className="panel-copy">ICS reviews the laboratory’s legal identity, analytical scope, accreditation evidence, responsible contact, and signing-key control. Approval applies only to the recorded scope.</p>
-      <form className="issuer-application-form" onSubmit={submit} noValidate>
+      {!confirmedEmail ? <p role="status">Confirm your laboratory work email with a <a href="/sign-in?return_to=/dashboard/laboratory">one-time sign-in link</a> before submitting.</p> : <p>Confirmed work email: {confirmedEmail}</p>}
+      <form encType="multipart/form-data" className="issuer-application-form" onSubmit={submit} noValidate>
         <p className="issuer-step-label">Step {step + 1} of 4: {["Your lab", "Accreditation", "Scope and contact", "Signing and confirmation"][step]}</p>
         <fieldset hidden={step !== 0}>
         <label>Laboratory legal name<input name="legalName" required /></label>
@@ -369,18 +354,18 @@ export function IssuerApplicationPanel({
           <label>Your authority role<input name="authorityRole" required placeholder="Quality director, laboratory manager…" /></label>
         </div>
         </fieldset><fieldset hidden={step !== 1}>
-        <label>Accreditation status<select name="accreditationStatus" defaultValue="accredited" required><option value="accredited">Accredited for at least part of the requested scope</option><option value="in_process">Accreditation in process</option><option value="not_accredited">Not accredited — submit comparable competence evidence</option></select></label>
+        <input type="hidden" name="accreditationStatus" value="accredited"/><p>ISO/IEC 17025 accreditation is required. ICS checks the accreditation body&apos;s public register.</p><label>Accreditation scope PDF<input name="scopeDocument" type="file" accept="application/pdf,.pdf" required/></label>
         <div className="form-pair">
-          <label>Accreditation body<input name="accreditationBody" placeholder="Optional if not accredited" /></label>
-          <label>Accreditation number<input name="accreditationNumber" /></label>
+          <label>Accreditation body<input name="accreditationBody" required /></label>
+          <label>Accreditation number<input name="accreditationNumber" required /></label>
         </div>
-        <label>Public accreditation record URL<input name="accreditationUrl" type="url" placeholder="https://…" /></label>
+        <label>Public accreditation record URL<input name="accreditationUrl" required type="url" placeholder="https://…" /></label>
         </fieldset><fieldset hidden={step !== 2}>
         <label>Requested issuance scope<textarea name="scopeSummary" required rows={4} placeholder="Matrices, analyte families, authenticity claims, exclusions…" /></label>
         <label>Method families<textarea name="methodFamilies" required rows={3} placeholder="ICP-MS, GC-FID sterol profile, LC-MS/MS…" /></label>
         <div className="form-pair">
           <label>Responsible contact<input name="contactName" required /></label>
-          <label>Contact email<input name="contactEmail" type="email" required /></label>
+          <label>Contact email<input name="contactEmail" type="email" defaultValue={confirmedEmail ?? ""} required /></label>
         </div>
         </fieldset><fieldset hidden={step !== 3}>
         <details className="signing-key-details" open>

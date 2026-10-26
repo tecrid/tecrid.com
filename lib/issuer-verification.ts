@@ -1,3 +1,4 @@
+import { requireIndependentLabReviewer } from "./lab-signup-policy";
 import { and, desc, eq } from "drizzle-orm";
 import { env } from "cloudflare:workers";
 import { getDb } from "../db";
@@ -345,7 +346,7 @@ export async function reviewIssuerVerificationCheck(
   const applicationId = normalizeText(applicationIdValue, 160);
   const checkType = normalizeText(value.checkType, 64);
   const status = normalizeText(value.status, 32);
-  const evidenceNote = normalizeText(value.evidenceNote, 1800);
+  let evidenceNote = normalizeText(value.evidenceNote, 1800);
   if (!MANUAL_CHECK_TYPES.has(checkType) || !CHECK_STATUSES.has(status)) {
     throw new TecInputError("Choose a supported verification check and status.");
   }
@@ -356,6 +357,18 @@ export async function reviewIssuerVerificationCheck(
     .where(eq(issuerApplications.id, applicationId))
     .limit(1);
   if (!application) throw new TecInputError("Issuer application not found.");
+  await requireIndependentLabReviewer(user, application.organizationId, application.contactEmail);
+  if (checkType === "accreditation" && status === "passed") {
+    const registerUrl = normalizeText(value.registerUrl, 300);
+    const registerResult = normalizeText(value.registerResult, 600);
+    const registerCheckedAt = normalizeText(value.registerCheckedAt, 10);
+    let validUrl = false;
+    try { const url = new URL(registerUrl); validUrl = url.protocol === "https:" && !url.username && !url.password; } catch { validUrl = false; }
+    if (!validUrl || !registerResult || !/^\d{4}-\d{2}-\d{2}$/.test(registerCheckedAt) || !Number.isFinite(Date.parse(registerCheckedAt)) || registerCheckedAt > now().slice(0, 10)) throw new TecInputError("Record the accreditation body's public register URL, lookup result and lookup date.");
+    const [scope] = await getDb().select().from(issuerApplicationDocuments).where(and(eq(issuerApplicationDocuments.applicationId, applicationId), eq(issuerApplicationDocuments.documentType, "accreditation_scope"))).limit(1);
+    if (!scope) throw new TecInputError("The ISO/IEC 17025 scope PDF is required before passing accreditation.");
+    evidenceNote = JSON.stringify({ note: evidenceNote, standard: "ISO/IEC 17025", registerUrl, registerResult, registerCheckedAt });
+  }
   if (application.status !== "submitted") {
     throw new TecInputError("Verification checks can be recorded only while the application is submitted for review.");
   }

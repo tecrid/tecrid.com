@@ -16,10 +16,10 @@ import {drizzle} from 'drizzle-orm/d1';
 import * as schema from '../db/schema.ts';
 import {createEmailAuth} from '../lib/email-auth-factory.ts';
 it('email login, mailbox isolation, onboarding, profile, security and production gate',async()=>{
-const mf=new Miniflare({modules:true,script:'export default {fetch(){return new Response("test")}}',d1Databases:['DB'],compatibilityDate:'2026-05-22'});
+const mf=new Miniflare({modules:true,script:'export default {fetch(){return new Response("test")}}',d1Databases:['DB'],r2Buckets:['DOCUMENTS'],compatibilityDate:'2026-05-22'});
 try{
 const db=await mf.getD1Database('DB');
-env.DB=db;env.TECRID_AUTH_SECRET='local-test-only-'.repeat(4);env.TECRID_AUTH_URL='https://tecrid.test';env.TECRID_EMAIL_RELAY_SECRET='test-key';env.TECRID_EMAIL_RELAY_URL='https://relay.test/email';
+env.DB=db;env.DOCUMENTS=await mf.getR2Bucket('DOCUMENTS');env.TECRID_AUTH_SECRET='local-test-only-'.repeat(4);env.TECRID_AUTH_URL='https://tecrid.test';env.TECRID_EMAIL_RELAY_SECRET='test-key';env.TECRID_EMAIL_RELAY_URL='https://relay.test/email';
 for(const file of readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort())for(const sql of readFileSync(new URL('../drizzle/'+file,import.meta.url),'utf8').split('--> statement-breakpoint'))if(sql.trim())await db.prepare(sql).run();
 let mail=[],ip=1;
 const auth=createEmailAuth(drizzle(db,{schema}),schema,{secret:'local-test-only-'.repeat(4),baseURL:'https://tecrid.test',relaySecret:'test-key',relayURL:'https://relay.test/email'},async(url,options)=>{assert.equal(url,'https://relay.test/email');mail.push(JSON.parse(options.body));return Response.json({id:'test-message'});});
@@ -39,11 +39,12 @@ assert.equal((await protectedTestReport(new Request('https://tecrid.test/api/tes
 assert.equal((await protectedTestReport(new Request('https://tecrid.test/api/test-reports/id/results',{headers:{cookie:'tecrid.session_token=forged'}}),report.testIdentifier,'card',reportTransport)).status,401);assert.equal(protectedCalls,1);
 let workspaceCalls=0;const workspaceTransport=async(_url:any,options:any)=>{workspaceCalls++;const body=JSON.parse(options.body);assert.equal(body.actor.email,'buyer@company.test');assert.equal(body.actor.emailVerified,true);return Response.json({sandbox:true,productionAuthority:false,canManage:false,reports:[]});};
 assert.equal((await kasandrinosTestWorkspace(new Request('https://tecrid.test/api/kasandrinos-test',{headers:{cookie}}),workspaceTransport)).status,200);assert.equal(workspaceCalls,1);
-const principal=await getEmailUser(new Headers({cookie}));assert(principal.userId.startsWith('email:'));
+const principal=await getEmailUser(new Headers({cookie}));assert(principal);assert(principal.userId.startsWith('email:'));
 const membership=await onboardOrganization(principal,{name:'Synthetic email lab',organizationType:'laboratory',website:'https://example.test'});assert.equal(membership.organization.issuerStatus,'pending');
-await upsertParticipantProfile(principal,{displayName:'Synthetic email lab',website:'https://example.test',summary:'Isolated test profile',isPublic:true});
+await assert.rejects(upsertParticipantProfile(principal,{displayName:'Synthetic email lab',website:'https://company.test',summary:'Isolated test profile',isPublic:true}));
+await upsertParticipantProfile(principal,{displayName:'Synthetic email lab',website:'https://company.test',summary:'Isolated test profile',isPublic:false});
 const pair=await crypto.subtle.generateKey('Ed25519',true,['sign','verify']);
-const application=await submitIssuerApplication(principal,{legalName:'Synthetic email lab',laboratoryAddress:'Test only',laboratoryWebsite:'https://example.test',authorityRole:'Test owner',accreditationStatus:'not_accredited',scopeSummary:'Synthetic only',methodFamilies:'Test',contactName:'Fixture',contactEmail:principal.email,keyId:'test-email-key',publicKeyJwk:JSON.stringify(await crypto.subtle.exportKey('jwk',pair.publicKey)),attested:true});assert(application.id);
+const application=await submitIssuerApplication(principal,{legalName:'Synthetic email lab',laboratoryAddress:'Test only',laboratoryWebsite:'https://company.test',authorityRole:'Test owner',accreditationStatus:'accredited',accreditationBody:'SYNTHETIC body',accreditationNumber:'FAKE-17025',accreditationUrl:'https://register.example.test/FAKE',scopeSummary:'Synthetic only',methodFamilies:'Test',contactName:'Fixture',contactEmail:principal.email,keyId:'test-email-key',publicKeyJwk:JSON.stringify(await crypto.subtle.exportKey('jwk',pair.publicKey)),attested:true},new File(['%PDF-1.7 synthetic scope'],'scope.pdf'));assert(application.id);
 await assert.rejects(reserveReportTecrid(membership.organization,{productName:'X',productSku:'X'}));
 assert.equal(await getEmailUser(new Headers({cookie,origin:'https://evil.test'})),null);
 assert.equal(safeReturnPath('//evil.test'),'/dashboard');assert.equal(safeReturnPath('/dashboard#laboratory-verification'),'/dashboard#laboratory-verification');
