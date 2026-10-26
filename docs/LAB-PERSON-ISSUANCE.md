@@ -1,6 +1,6 @@
 # PR0c — Named laboratory issuers
 
-This is a local draft follow-up to PR0b head 8ebe1c1fc8c57f05fcba8791bfba11f90d76043b. It adds laboratory-person authority, server-recorded attribution, and offboarding. It does not connect an identity provider.
+The operator has opened PR0b as draft #42 (head 8263a2402b06c86d6e3880bf0214a6a1ee69b725), applied without edits from the saved bundle. This is a local draft follow-up to PR0b head 8ebe1c1fc8c57f05fcba8791bfba11f90d76043b. It adds laboratory-person authority, server-recorded attribution, and offboarding. It does not connect an identity provider.
 
 A person signs in using their own confirmed work-email account, registers their own device passkey, and requests a lab membership at /dashboard/team. The lab owner or admin approves membership. The request email must exactly match the domain pinned from the independently approved lab application; an editable website cannot change that domain. A person cannot silently transfer from another existing workspace. ICS can inspect named people using the team link from the lab review page.
 
@@ -23,6 +23,8 @@ Draft SQL migration 0026 adds the people table and attribution fields. Database 
 A lab owner/admin can remove a person. ICS can suspend a person or the whole lab. Each action requires a reason and commits status, key revocation, and audit together. Person identity failure also revokes bound keys through a trigger. Every attempted write rechecks person and lab; deleting their passkey also immediately prevents writes. Past records retain attribution and remain verifiable. Suspension cannot be cleared by applicant resubmission; a database guard also covers a concurrent submission. Recovery, reinstatement, approver-roster governance, accreditation expiry, and withdrawal notifications to external peers are separate queued work.
 
 Apply this patch only on the completed PR0b bundle/tree. Draft migrations 0025/0026 must be reconciled with the separate security PR stack and migration journal by the integration owner. They have only run against disposable local D1. Do not apply them to production from this handoff. Existing legacy write keys require named-person re-enrollment and rotation after an approved ID integration; there is no bypass.
+
+The 16:24 operator-requested cleanup removes exactly three unused rendered-test locals; unrelated inherited findings remain.
 
 ## Validation
 
