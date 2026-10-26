@@ -14,7 +14,8 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
     "test:rendered": "node --import ./tests/support/register-worker-env.mjs --test tests/rendered-html.test.mjs tests/www-redirect.test.mjs",
-    "test:passkeys": "node --import ./tests/support/register-worker-env.mjs --test tests/passkey-phone.http.test.mjs"
+    "test:passkeys": "node --import ./tests/support/register-worker-env.mjs --test tests/passkey-phone.http.test.mjs",
+    "test:e2e": "node --import ./tests/support/register-worker-env.mjs --test tests/e2e/rehearsal.test.mjs"
   },
   "dependencies": {
     "@better-auth/core": "1.7.12",
