@@ -1,3 +1,4 @@
+import { seedSyntheticIssuerPerson } from "./support/issuer-person-fixtures";
 import { approveWithTwo, syntheticReview } from "./support/passkey-fixtures";
 // @vitest-environment node
 import { beforeAll, afterAll, describe, it, expect } from "vitest";
@@ -47,6 +48,7 @@ beforeAll(async () => {
   for(const checkType of ["identity","accreditation","scope"]) await reviewIssuerVerificationCheck(admin,app.id,{checkType,status:"passed",evidenceNote:"Synthetic isolated test; no real lab approval.",...register});
   await approveWithTwo(admin,secondAdmin,app.id);
   [lab]=await getDb().select().from(organizations).where(eq(organizations.id,user.userId));
+  await seedSyntheticIssuerPerson(env.DB,lab.id,user);
 },60000);
 afterAll(async()=>{await mf?.dispose()});
 
@@ -75,8 +77,9 @@ describe("isolated real backend with D1/R2 and Ed25519",()=>{
   await getDb().update(organizations).set({slug:saved.slug}).where(eq(organizations.id,saved.id));
   await approveWithTwo(admin,secondAdmin,application.id);
   const [verified]=await getDb().select().from(organizations).where(eq(organizations.id,saved.id));
+  await seedSyntheticIssuerPerson(env.DB,verified.id,owner);
   const reservation=await reserveReportTecrid(verified,{productName:payload.sampleName,productSku:payload.productSku});
-  const issued=await createCredential(verified,null,{...payload,proof:await sign(canonicalizeCredential(payload).canonicalPayload)});
+  const issued=await createCredential(verified,owner.userId,{...payload,proof:await sign(canonicalizeCredential(payload).canonicalPayload)});
   for(const identifier of [reservation.tecrid,issued.identifier]) {
    expect(identifier.startsWith(`TECRID·${saved.issuerCode}-`)).toBe(true);
    expect(identifier).not.toContain(deferred.issuerCode);
@@ -96,27 +99,27 @@ describe("isolated real backend with D1/R2 and Ed25519",()=>{
   const input={productName:payload.sampleName,productSku:payload.productSku,laboratoryReportNumber:"EXAMPLE-1",idempotencyKey:"test-job-1"};
   const a=await reserveReportTecrid(lab,input);const b=await reserveReportTecrid(lab,input);expect(a.id).toBe(b.id);
   await expect(reserveReportTecrid(lab,{...input,productSku:"different"})).rejects.toThrow();
-  await expect(finalizeReportTecrid(lab,a.id,payload)).rejects.toThrow();
+  await expect(finalizeReportTecrid(lab,a.id,payload,{userId:user.userId})).rejects.toThrow();
   const signed={...payload,proof:await sign(canonicalizeCredential(payload).canonicalPayload)};
-  const first=await finalizeReportTecrid(lab,a.id,signed);expect(first.idempotent).toBe(false);
-  expect((await finalizeReportTecrid(lab,a.id,signed)).idempotent).toBe(true);
-  await expect(finalizeReportTecrid(lab,a.id,{...signed,lotNumber:"changed"})).rejects.toThrow();
+  const first=await finalizeReportTecrid(lab,a.id,signed,{userId:user.userId});expect(first.idempotent).toBe(false);
+  expect((await finalizeReportTecrid(lab,a.id,signed,{userId:user.userId})).idempotent).toBe(true);
+  await expect(finalizeReportTecrid(lab,a.id,{...signed,lotNumber:"changed"},{userId:user.userId})).rejects.toThrow();
   await getDb().update(reportReservations).set({status:"finalizing",finalizedCredentialIdentifier:null}).where(eq(reportReservations.id,a.id));
-  expect((await finalizeReportTecrid(lab,a.id,signed)).idempotent).toBe(true);
+  expect((await finalizeReportTecrid(lab,a.id,signed,{userId:user.userId})).idempotent).toBe(true);
   const record=await getCredential(a.tecrid);expect(record!.integrity.issuerSignatureVerified).toBe(true);expect(verifyDocument(publicCredentialDocument(record!)).signatureVerified).toBe(true);
   expect(record!.results.map(r=>r.resultText)).toEqual(["ND","NR"]);expect(record!.results.every(r=>r.numericValue===null)).toBe(true);
   expect(record!.credential.issuedAt).not.toBe(payload.testedAt);
   const notices=await env.DB.prepare("SELECT id FROM organization_notifications WHERE event_type='credential.issued' AND entity_id=?").bind(a.tecrid).all();expect(notices.results).toHaveLength(1);
   for(const action of ["correct","revoke"]) {
    const change={...payload,action,reason:"Synthetic revision check"};const canonical=await canonicalizeCredentialRevision(lab,a.tecrid,change);
-   await createCredentialRevision(lab,null,a.tecrid,{...change,proof:await sign(canonical.canonicalPayload)});
+   await createCredentialRevision(lab,user.userId,a.tecrid,{...change,proof:await sign(canonical.canonicalPayload)});
   }
   const revoked=await getCredential(a.tecrid);expect(revoked!.credential.status).toBe("revoked");expect(revoked!.versions).toHaveLength(3);expect(revoked!.integrity.issuerSignatureVerified).toBe(true);
  });
  it("redacts controlled findings from resolver AND version history",async()=>{
   const input={...payload,visibility:"controlled" as const};const proof=await sign(canonicalizeCredential(input).canonicalPayload);
-  await expect(createCredential(lab,null,{...input,proof})).rejects.toThrow();
-  const made=await createCredential(lab,null,{...input,proof},{controlledRoutingAuthorized:true});
+  await expect(createCredential(lab,user.userId,{...input,proof})).rejects.toThrow();
+  const made=await createCredential(lab,user.userId,{...input,proof},{controlledRoutingAuthorized:true});
   const record=await getCredential(made.identifier);const document=publicCredentialDocument(record!);
   expect(document.results).toEqual([]);expect(document.integrity.issuerProof?.signedPayload).toBeNull();
   const response=await versions(new Request("https://example.test"),{params:Promise.resolve({identifier:made.identifier})});

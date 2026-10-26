@@ -68,7 +68,7 @@ const worker = {
     }
     const response = await handler.fetch(security.request, env, ctx);
     const secured=applyContentSecurityPolicy(response, security.policy);
-    if(url.pathname === "/admin/issuers" || url.pathname.startsWith("/admin/issuers/") || url.pathname === "/account/passkeys") {
+    if(url.pathname === "/admin/issuers" || url.pathname.startsWith("/admin/issuers/") || url.pathname === "/account/passkeys" || url.pathname === "/dashboard/team") {
       const headers=new Headers(secured.headers);headers.set("Cache-Control","private, no-store, max-age=0");headers.set("Vary","Cookie");headers.set("X-Robots-Tag","noindex, nofollow");return new Response(secured.body,{status:secured.status,headers});
     }
     return secured;

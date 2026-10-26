@@ -16,12 +16,13 @@ function errorResponse(error: unknown) {
 
 export async function POST(request: Request, { params }: RouteContext) {
   try {
-    const { organization } = await authenticateApiRequest(request);
+    const { organization, key } = await authenticateApiRequest(request);
     const { reservationId } = await params;
     const result = await finalizeReportTecrid(
       organization,
       reservationId,
       await request.json() as Record<string, unknown>,
+      {userId:key.createdByUserId,apiKeyId:key.id},
     );
     return Response.json(result, { status: result.idempotent ? 200 : 201 });
   } catch (error) {

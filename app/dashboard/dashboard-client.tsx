@@ -5,7 +5,7 @@ import { RolePicker } from "../role-picker";
 
 export function OrganizationOnboarding(_props: { email: string }) { return <RolePicker onboarding />; }
 
-type KeySummary = { id: string; label: string; scopes?: string; keyPrefix: string; lastFour: string; createdAt: string; lastUsedAt: string | null; revokedAt: string | null };
+type KeySummary = { issuerPersonId?: string | null; id: string; label: string; scopes?: string; keyPrefix: string; lastFour: string; createdAt: string; lastUsedAt: string | null; revokedAt: string | null };
 
 export function ApiKeyPanel({ keys }: { keys: KeySummary[] }) {
   const [newKey, setNewKey] = useState<string | null>(null);
@@ -82,7 +82,7 @@ export function ApiKeyPanel({ keys }: { keys: KeySummary[] }) {
             <span className={`key-state ${key.revokedAt ? "revoked" : ""}`}>{key.revokedAt ? "Revoked" : "Active"}</span>
             <strong>{key.label} · {key.scopes ? JSON.parse(key.scopes).join(", ") : "Legacy access"}</strong>
             <code>{key.keyPrefix}••••••{key.lastFour}</code>
-            <small>Created {new Date(key.createdAt).toLocaleDateString()} · {key.lastUsedAt ? `Last used ${new Date(key.lastUsedAt).toLocaleDateString()}` : "Never used"}</small>
+            <small>Person {key.issuerPersonId||"Unbound (read only)"} · Created {new Date(key.createdAt).toLocaleDateString()} · {key.lastUsedAt ? `Last used ${new Date(key.lastUsedAt).toLocaleDateString()}` : "Never used"}</small>
             {!key.revokedAt ? <button type="button" disabled={pending} onClick={() => revokeKey(key.id)}>Revoke</button> : <span />}
           </div>
         )) : <p className="empty-state">No API keys yet.</p>}

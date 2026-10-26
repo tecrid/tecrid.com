@@ -117,6 +117,7 @@ export default async function RecordPage({ params }: PageProps) {
         )}
         <div className="provenance-register">
           <div><span>Issuer identity</span><strong><a href={`/issuers/${encodeURIComponent(issuer.issuerCode)}`}>{issuer.name} ↗</a></strong><small>TEC issuer code {issuer.issuerCode}</small></div>
+          <div><span>Issuer person</span><code>{credential.issuerPersonId || "Historical issuer person not recorded"}</code><small>Stable registry identifier; personal details remain private</small></div>
           <div><span>Record fingerprint</span><code>{credential.fingerprint ? `sha256:${credential.fingerprint}` : "Not recorded"}</code><small>{integrity.fingerprintValid ? "Recomputed from the canonical current version" : integrity.fingerprintRecorded ? "Recorded but not validated against a canonical version" : "This record has no fingerprint"}</small></div>
           <div><span>Issuer proof</span><strong>{integrity.issuerSignatureVerified ? `${credential.signatureAlgorithm} verified` : "Not present"}</strong><small>{integrity.issuerSignatureVerified ? `Key ${credential.issuerKeyId}` : "A fingerprint alone does not prove laboratory key control"}</small></div>
           <div><span>Machine access</span><a href={`/api/v1/credentials/${encodeURIComponent(credential.identifier)}`}>Open JSON endpoint ↗</a><small>{resultsControlled ? "Public integrity envelope; findings and signed payload withheld" : "Includes exact signed payload, signature, reviewed public key, and live verification state"}</small></div>

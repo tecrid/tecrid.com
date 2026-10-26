@@ -23,13 +23,14 @@ export async function GET(_request: Request, { params }: RouteContext) {
 
 export async function POST(request: Request, { params }: RouteContext) {
   try {
-    const { organization } = await authenticateApiRequest(request);
+    const { organization, key } = await authenticateApiRequest(request);
     const { identifier } = await params;
     const revision = await createCredentialRevision(
       organization,
-      null,
+      key.createdByUserId,
       decodeURIComponent(identifier),
       await request.json(),
+      {apiKeyId:key.id},
     );
     return Response.json({ revision }, { status: 201 });
   } catch (error) {

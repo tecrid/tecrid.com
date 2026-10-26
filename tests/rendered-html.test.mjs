@@ -96,7 +96,7 @@ test("renders the TEC Registry public product", async () => {
 });
 
 test("publishes focused search-intent pages, the laboratory go-time pack, and agent-guided setup", async () => {
-  const [homeResponse, labsResponse, goTimeResponse, valueResponse, pilotResponse, brandsResponse, recipientsResponse, integrateResponse, sitemapResponse, nav] = await Promise.all([
+  const [homeResponse, labsResponse, goTimeResponse, valueResponse, pilotResponse, brandsResponse, recipientsResponse, integrateResponse, sitemapResponse] = await Promise.all([
     render("/"),
     render("/for-laboratories"),
     render("/laboratory-go-time"),
@@ -106,7 +106,6 @@ test("publishes focused search-intent pages, the laboratory go-time pack, and ag
     render("/for-certifiers-retailers"),
     render("/integrate"),
     render("/sitemap.xml"),
-    readFile(new URL("../app/site-nav.tsx", import.meta.url), "utf8"),
   ]);
   for (const response of [homeResponse, labsResponse, goTimeResponse, valueResponse, pilotResponse, brandsResponse, recipientsResponse, integrateResponse, sitemapResponse]) assert.equal(response.status, 200);
   const [home, labs, goTime, value, pilot, brands, recipients, integrate, sitemap] = await Promise.all([
@@ -143,10 +142,9 @@ test("publishes focused search-intent pages, the laboratory go-time pack, and ag
 });
 
 test("publishes a claim-narrow TECRID FAQ with the VLE diligence boundary", async () => {
-  const [faqResponse, sitemapResponse, nav] = await Promise.all([
+  const [faqResponse, sitemapResponse] = await Promise.all([
     render("/faq"),
     render("/sitemap.xml"),
-    readFile(new URL("../app/site-nav.tsx", import.meta.url), "utf8"),
   ]);
   assert.equal(faqResponse.status, 200);
   assert.equal(sitemapResponse.status, 200);
@@ -303,10 +301,9 @@ test("renders email-first free signup and API documentation", async () => {
 });
 
 test("publishes privacy boundaries that match controlled TECRID workflows", async () => {
-  const [response, footer, onboarding, intake, join, issuerApplication, foundingLaunch] = await Promise.all([
+  const [response, footer, intake, join, issuerApplication, foundingLaunch] = await Promise.all([
     render("/privacy"),
     readFile(new URL("../app/site-nav.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/dashboard/dashboard-client.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/dashboard/reports/new/report-intake-form.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/join/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/dashboard/issuer-application.tsx", import.meta.url), "utf8"),
