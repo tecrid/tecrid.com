@@ -148,6 +148,13 @@
       "when": 1793021386996,
       "tag": "0025_passkey_phone_review",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "6",
+      "when": 1793023774561,
+      "tag": "0026_issuer_people",
+      "breakpoints": true
     }
   ]
 }

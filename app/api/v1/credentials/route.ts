@@ -41,7 +41,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { organization } = await authenticateApiRequest(request);
+    const { organization, key } = await authenticateApiRequest(request);
     const payload = await request.json() as Record<string, unknown>;
     const routingToken = typeof payload.routingToken === "string" ? payload.routingToken : "";
     const routingAuthorization = routingToken
@@ -57,9 +57,9 @@ export async function POST(request: Request) {
     }
     const credential = await createCredential(
       organization,
-      null,
+      key.createdByUserId,
       payload,
-      { controlledRoutingAuthorized: Boolean(routingAuthorization) },
+      { controlledRoutingAuthorized: Boolean(routingAuthorization),apiKeyId:key.id },
     );
     const routing = routingAuthorization && credential.status === "issued"
       ? await deliverCredentialWithAuthorization(routingAuthorization, credential.identifier)

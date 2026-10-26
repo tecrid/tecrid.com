@@ -1,3 +1,4 @@
+import { requireIssuerPerson } from "./issuer-people";
 import { waitingReviewMailStatements } from "./issuer-review-notices";
 import { requireConfirmedLaboratoryMailbox, scopePdf } from "./lab-signup-policy";
 import { parseRole, roles } from "./roles";
@@ -86,6 +87,7 @@ export type CredentialInput = {
 };
 
 type CredentialCreationOptions = {
+  apiKeyId?: string | null;
   legacyReportId?: string | null;
   issuanceBasis?: string | null;
   controlledRoutingAuthorized?: boolean;
@@ -600,6 +602,7 @@ export async function getDashboardData(userId: string) {
     .select({
       id: apiKeys.id,
       label: apiKeys.label,
+      issuerPersonId: apiKeys.issuerPersonId,
       scopes: apiKeys.scopes,
       keyPrefix: apiKeys.keyPrefix,
       lastFour: apiKeys.lastFour,
@@ -659,6 +662,7 @@ export async function submitIssuerApplication(
     );
   }
 
+  if(membership.organization.issuerStatus==="suspended")throw new TecAuthorizationError("This laboratory is suspended. Contact ICS; resubmission cannot restore issuance.");
   const legalName = normalizeText(value.legalName, 180);
   const laboratoryAddress = normalizeText(value.laboratoryAddress, 300);
   const laboratoryWebsite = normalizeText(value.laboratoryWebsite, 300);
@@ -847,6 +851,8 @@ export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scope
 
   let scopes: string[];
   try { scopes = normalizeApiScopes(scopesValue); } catch { throw new TecInputError("Choose valid API permissions."); }
+  const writeKey = scopes.some(scope => scope !== "read");
+  const authority = writeKey ? await requireIssuerPerson(membership.organization.id, user.userId) : null;
   const label = normalizeText(labelValue, 60) || "Default key";
   const secret = randomCharacters(42).toLowerCase();
   const plainTextKey = `tec_live_${secret}`;
@@ -864,6 +870,7 @@ export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scope
     keyHash,
     lastFour: plainTextKey.slice(-4),
     createdByUserId: user.userId,
+    issuerPersonId: authority?.person.id ?? null,
     createdAt,
   });
   await db.insert(auditEvents).values({
@@ -873,7 +880,7 @@ export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scope
     eventType: "api_key.created",
     entityType: "api_key",
     entityId: id,
-    payload: JSON.stringify({ label, prefix: plainTextKey.slice(0, 13) }),
+    payload: JSON.stringify({ label, prefix: plainTextKey.slice(0, 13), issuerPersonId: authority?.person.id ?? null, ownerUserId:user.userId }),
     createdAt,
   });
 
@@ -934,6 +941,9 @@ export async function authenticateApiRequest(request: Request) {
     throw new TecAuthorizationError("This API key does not permit this operation.");
   }
 
+  if (!["GET","HEAD"].includes(request.method)) {
+    await requireIssuerPerson(record.organization.id, record.key.createdByUserId, record.key.id);
+  }
   await db
     .update(apiKeys)
     .set({ lastUsedAt: now() })
@@ -1060,6 +1070,9 @@ export async function createCredential(
     }
   }
   const issued = Boolean(input.publish && canPublish);
+  const authority = issued ? await requireIssuerPerson(organization.id,actorUserId,options.apiKeyId) : null;
+  if(authority) organization=authority.organization;
+  const attribution = authority ? {issuerPersonId:authority.person.id,issuerUserId:authority.person.userId,issuerDisplayName:authority.person.displayName,issuingApiKeyId:authority.apiKeyId} : {};
   const createdAt = now();
   const signedPayload = JSON.stringify(issuerPayload(input));
   const proofDetails = issued
@@ -1070,6 +1083,7 @@ export async function createCredential(
     issuer: organization.id,
     version: 1,
     status: issued ? "issued" : "draft",
+    issuerPersonId: authority?.person.id ?? null,
     credential: issuerPayload(input),
     proof: proofDetails,
   });
@@ -1078,6 +1092,7 @@ export async function createCredential(
 
   const credentialInsert = db.insert(credentials).values({
     identifier,
+    ...attribution,
     organizationId: organization.id,
     status: issued ? "issued" : "draft",
     sampleName: input.sampleName,
@@ -1128,6 +1143,7 @@ export async function createCredential(
   );
   const versionInserts = issued && fingerprint
     ? [db.insert(credentialVersions).values({
+      ...attribution,
       credentialIdentifier: identifier,
       version: 1,
       status: "issued",
@@ -1154,6 +1170,9 @@ export async function createCredential(
     entityType: "credential",
     entityId: identifier,
     payload: JSON.stringify({
+      ...attribution,
+      issuedAt: issued ? createdAt : null,
+      laboratoryId: organization.id,
       resultCount: input.results.length,
       fingerprint,
       issuerKeyId: proofDetails?.issuerKeyId ?? null,
@@ -1214,6 +1233,7 @@ export async function getCredential(identifierValue: string, includeDraft = fals
     .orderBy(asc(credentialResults.sequence));
   const storedVersions = await db
     .select({
+      issuerPersonId: credentialVersions.issuerPersonId,
       version: credentialVersions.version,
       status: credentialVersions.status,
       fingerprint: credentialVersions.fingerprint,
@@ -1237,6 +1257,7 @@ export async function getCredential(identifierValue: string, includeDraft = fals
     : record.credential.fingerprint
       ? [
           {
+            issuerPersonId: record.credential.issuerPersonId,
             version: record.credential.version,
             status: record.credential.status,
             fingerprint: record.credential.fingerprint,
@@ -1303,6 +1324,7 @@ export function publicCredentialDocument(
     issuer: {
       code: issuer.issuerCode,
       name: issuer.name,
+      personId: credential.issuerPersonId,
       status: issuer.issuerStatus,
       registryPath: `/issuers/${encodeURIComponent(issuer.issuerCode)}`,
     },
@@ -1373,6 +1395,7 @@ export function publicCredentialDocument(
     },
     versions: resultsControlled
       ? versions.map((version) => ({
+          issuerPersonId: version.issuerPersonId,
           version: version.version,
           status: version.status,
           fingerprint: version.fingerprint,
@@ -1506,6 +1529,7 @@ export async function createCredentialRevision(
   actorUserId: string | null,
   identifierValue: string,
   value: unknown,
+  options: {apiKeyId?: string | null} = {},
 ) {
   if (
     organization.organizationType !== "laboratory" ||
@@ -1515,6 +1539,9 @@ export async function createCredentialRevision(
       "Only an ICS-verified laboratory issuer can revise a public TECRID.",
     );
   }
+  const authority=await requireIssuerPerson(organization.id,actorUserId,options.apiKeyId);
+  organization=authority.organization;
+  const attribution={issuerPersonId:authority.person.id,issuerUserId:authority.person.userId,issuerDisplayName:authority.person.displayName,issuingApiKeyId:authority.apiKeyId};
   const prepared = await prepareCredentialRevision(
     organization,
     identifierValue,
@@ -1530,6 +1557,7 @@ export async function createCredentialRevision(
   const createdAt = now();
   const registryPayload = JSON.stringify({
     revision: JSON.parse(prepared.canonicalPayload),
+    issuerPersonId: authority.person.id,
     status,
     proof: proofDetails,
   });
@@ -1538,6 +1566,7 @@ export async function createCredentialRevision(
   const db = getDb();
 
   const versionInsert = db.insert(credentialVersions).values({
+    ...attribution,
     credentialIdentifier: identifier,
     version: prepared.version,
     status,
@@ -1613,6 +1642,9 @@ export async function createCredentialRevision(
     entityType: "credential",
     entityId: identifier,
     payload: JSON.stringify({
+      ...attribution,
+      laboratoryId: organization.id,
+      issuedAt: createdAt,
       version: prepared.version,
       reason: prepared.reason,
       previousFingerprint: prepared.current.credential.fingerprint,

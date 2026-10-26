@@ -20,6 +20,7 @@ export const organizations = sqliteTable(
     ownerUserId: text("owner_user_id").notNull(),
     ownerEmail: text("owner_email").notNull(),
     issuerCode: text("issuer_code").notNull(),
+    verifiedEmailDomain: text("verified_email_domain"),
     issuerStatus: text("issuer_status").notNull().default("pending"),
     issuerPublicKeyJwk: text("issuer_public_key_jwk"),
     issuerKeyId: text("issuer_key_id"),
@@ -68,6 +69,7 @@ export const apiKeys = sqliteTable(
     keyPrefix: text("key_prefix").notNull(),
     keyHash: text("key_hash").notNull(),
     lastFour: text("last_four").notNull(),
+    issuerPersonId: text("issuer_person_id"),
     createdByUserId: text("created_by_user_id").notNull(),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
     lastUsedAt: text("last_used_at"),
@@ -162,6 +164,10 @@ export const credentials = sqliteTable(
       .notNull()
       .default(false),
     visibility: text("visibility").notNull().default("public"),
+    issuerPersonId: text("issuer_person_id"),
+    issuerUserId: text("issuer_user_id"),
+    issuerDisplayName: text("issuer_display_name"),
+    issuingApiKeyId: text("issuing_api_key_id"),
     createdByUserId: text("created_by_user_id"),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -195,6 +201,10 @@ export const credentialVersions = sqliteTable(
     signedPayloadHash: text("signed_payload_hash"),
     changeType: text("change_type").notNull().default("issuance"),
     changeReason: text("change_reason"),
+    issuerPersonId: text("issuer_person_id"),
+    issuerUserId: text("issuer_user_id"),
+    issuerDisplayName: text("issuer_display_name"),
+    issuingApiKeyId: text("issuing_api_key_id"),
     createdByUserId: text("created_by_user_id"),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   },
@@ -1305,3 +1315,14 @@ export const passkeyEnrollmentGrants = sqliteTable("passkey_enrollment_grants", 
  id:text("id").primaryKey(),userId:text("user_id").notNull().references(()=>user.id),sessionId:text("session_id").notNull(),
  tokenHash:text("token_hash").notNull().unique(),expiresAt:text("expires_at").notNull(),usedAt:text("used_at"),
 });
+
+
+export const issuerPeople = sqliteTable("issuer_people", {
+ id:text("id").primaryKey(), organizationId:text("organization_id").notNull().references(()=>organizations.id,{onDelete:"restrict"}),
+ userId:text("user_id").notNull(), email:text("email").notNull(), emailDomain:text("email_domain").notNull(),
+ displayName:text("display_name").notNull(), status:text("status").notNull().default("requested"),
+ identityStatus:text("identity_status").notNull().default("pending"), identityVerifiedAt:text("identity_verified_at"),
+ approvedByUserId:text("approved_by_user_id"), approvedAt:text("approved_at"),
+ removedAt:text("removed_at"), suspendedAt:text("suspended_at"), statusReason:text("status_reason"),
+ createdAt:text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`), updatedAt:text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+},table=>[uniqueIndex("idx_issuer_person_lab_user").on(table.organizationId,table.userId),index("idx_issuer_person_lab_status").on(table.organizationId,table.status)]);

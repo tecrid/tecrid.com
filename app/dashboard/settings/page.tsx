@@ -46,6 +46,7 @@ export default async function DashboardSettingsPage() {
 
         <ProfileSettingsForm organization={{ name: data.organization.name, code: data.organization.issuerCode, website: data.organization.website }} profile={profile} />
 
+        <p><a href="/dashboard/team">Laboratory people and issuer permissions</a></p>
         <ApiKeyPanel keys={data.keys} />
 
         <section className="settings-integration-card">

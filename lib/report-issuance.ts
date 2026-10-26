@@ -1,3 +1,4 @@
+import { requireIssuerPerson } from "./issuer-people";
 import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "../db";
 import {
@@ -213,10 +214,13 @@ export async function finalizeReportTecrid(
   organization: typeof organizations.$inferSelect,
   reservationIdValue: unknown,
   input: Record<string, unknown>,
+  actor: {userId:string;apiKeyId?:string} | null = null,
 ) {
   if (organization.organizationType !== "laboratory" || organization.issuerStatus !== "verified") {
     throw new TecAuthorizationError("Only a currently verified laboratory can finalize a report.");
   }
+  const authority=await requireIssuerPerson(organization.id,actor?.userId??null,actor?.apiKeyId);
+  organization=authority.organization;
   const reservationId = clean(reservationIdValue, 120);
   const db = getDb();
   const [reservation] = await db
@@ -284,7 +288,8 @@ export async function finalizeReportTecrid(
 
   let credential;
   try {
-    credential = await createCredential(organization, null, input, {
+    credential = await createCredential(organization, authority.person.userId, input, {
+      apiKeyId: authority.apiKeyId,
       reservedIdentifier: reservation.identifier,
       controlledRoutingAuthorized: Boolean(routing),
       issuanceBasis: "report_reservation",

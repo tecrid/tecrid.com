@@ -95,6 +95,39 @@ test('virtual platform passkeys and all six independent review pairs work on rea
    for(const event of audits){const p=JSON.parse(event.payload);assert.equal(p.passkeyUserVerified,true);assert(p.credentialId);assert(p.passkeyVerifiedAt);}
    results.push({pair:[a,b],approved:true,missingStepUpDenied:true,sameApproverDenied:true});
   }
+  let labPeople=null;
+  if(process.env.TECRID_TEST_LAB_PEOPLE==='1'){
+   const owner=await person(0,'owner@synthetic-lab.test'),staff=await person(0,'staff@synthetic-lab.test');
+   await DB.prepare("UPDATE organizations SET owner_user_id=?,owner_email='owner@synthetic-lab.test' WHERE id='org-synthetic-phone-0'").bind('email:'+owner.userId).run();
+   await DB.prepare("INSERT INTO organization_members(organization_id,user_id,email,role) VALUES('org-synthetic-phone-0',?,'owner@synthetic-lab.test','owner')").bind('email:'+owner.userId).run();
+   await staff.page.goto(origin+'/dashboard/team');
+   await staff.page.getByLabel('Laboratory code',{exact:true}).fill('SYNTHETIC0');
+   await staff.page.getByRole('button',{name:'Request membership',exact:true}).click();
+   await staff.page.getByText(/identity pending/).first().waitFor();
+   const request=await DB.prepare("SELECT id FROM issuer_people WHERE user_id=?").bind('email:'+staff.userId).first();assert(request);
+   await owner.page.goto(origin+'/dashboard/team');await owner.page.getByRole('button',{name:'Approve membership',exact:true}).waitFor();
+   assert.match((await owner.context.request.get(origin+'/dashboard/team')).headers()['cache-control'],/private.*no-store/);
+   assert(await owner.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+   await owner.page.screenshot({path:resolve(shots,'lab-owner-team-390.png'),fullPage:true});
+   const pendingCard=owner.page.locator('article').filter({hasText:'staff@synthetic-lab.test'});
+   await pendingCard.getByLabel('Reason',{exact:true}).first().fill('Synthetic lab owner approval');
+   await pendingCard.getByRole('button',{name:'Approve membership',exact:true}).click();
+   await owner.page.getByText('Membership active · identity pending',{exact:true}).waitFor();
+   const denied=await staff.context.request.post(origin+'/api/keys',{headers:{origin},data:{label:'Synthetic denied issuance',scopes:['credentials:write']}});assert.equal(denied.status(),403);
+   const forbiddenRoster=await other.context.request.get(origin+'/api/lab-team?lab=SYNTHETIC0');assert.equal(forbiddenRoster.status(),403);
+   assert.equal((await other.context.request.get(origin+'/dashboard/team?lab=SYNTHETIC0')).status(),404);
+   await people[0].page.goto(origin+'/dashboard/team?lab=SYNTHETIC0');
+   assert(await people[0].page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+   await people[0].page.screenshot({path:resolve(shots,'ics-team-390.png'),fullPage:true});
+   const personCard=people[0].page.locator('article').filter({hasText:'staff@synthetic-lab.test'});
+   await personCard.getByLabel('Reason',{exact:true}).fill('Synthetic ICS person suspension');
+   await personCard.getByRole('button',{name:'Suspend person and revoke keys',exact:true}).click();
+   await people[0].page.getByText('Membership suspended · identity pending',{exact:true}).waitFor();
+   assert.equal((await DB.prepare('SELECT status FROM issuer_people WHERE id=?').bind(request.id).first()).status,'suspended');
+   assert.equal((await DB.prepare("SELECT id FROM audit_events WHERE entity_id=? AND event_type='issuer_person.suspend'").bind(request.id).all()).results.length,1);
+   labPeople={scope:'PR0c team HTTP only; synthetic identity remains pending',enrolledAdditionalPlatformAuthenticators:2,joinRequestViaPhone:true,ownerApprovalViaPhone:true,pendingIdentityWriteKeyDenied:true,foreignRosterDenied:true,icsSuspensionViaPhone:true,privateNoStore:true,phoneWidth:390,teamViewsWithoutOverflow:2,externalCalls:0};
+   await writeFile(resolve(output,'lab-people-http-receipt.json'),JSON.stringify(labPeople,null,2)+'\n');
+  }
   await people[0].page.goto(origin+'/admin/issuers');await people[0].page.screenshot({path:resolve(shots,'waiting-list-390.png'),fullPage:true});
   await writeFile(resolve(output,'http-browser-receipt.json'),JSON.stringify({scope:'PR0b passkey and phone approval HTTP only',synthetic:true,reviewerCount:4,virtualPlatformAuthenticators:5,enrolled:5,passkeyOnlySignIn:true,sessionOnlyEnrollmentDenied:true,nonApproverDenied:true,allSixPairs:results,phoneWidth:390,phoneViewsWithoutHorizontalOverflow:views,pdfHttpReads:12,interceptedEmailLinks:transportCalls.filter(c=>c==='intercepted-mail').length,actualExternalCalls:0,physicalFaceIdSafariHomeScreen:'UNVERIFIED',fullIssuanceVolumeHarness:'NOT PERFORMED'},null,2)+'\n');
   for(const context of contexts)await context.close();
