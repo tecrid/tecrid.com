@@ -146,7 +146,7 @@ export default function DevelopersPage() {
       </section>
 
       <section className="api-agent-onboarding" id="agent-setup">
-        <div><p className="section-kicker">Fastest implementation path</p><h2>Open the repository. Type <code>integrate</code>.</h2><p>The checked-in Codex and Claude Code instructions inspect the target stack, create a secret-free role plan, implement the smallest compatible connection, run tests, and leave a durable integration report. People retain control of identity, credentials, disclosure, deployment, and production writes.</p></div>
+        <div><p className="section-kicker">Fastest implementation path</p><h2>Open the repository. Type <code>integrate</code>.</h2><p>The checked-in Codex and Claude Code instructions inspect the target stack, create a secret-free setup outline, implement the smallest compatible connection, run tests, and leave a durable integration report. People retain control of identity, credentials, disclosure, deployment, and production writes.</p></div>
         <div><a className="button-dark" href="/integrate">Read the four-step setup →</a><a href="https://github.com/tecrid/tecrid-connect" target="_blank" rel="noreferrer">Open TECRID Connect on GitHub ↗</a><a href="/downloads/tecrid-connect.zip" download>Download the current ZIP ↓</a></div>
       </section>
 

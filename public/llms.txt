@@ -10,7 +10,14 @@ Interpret each record according to its program, issuer, version, current status 
 - [What is a TECRID?](https://tecrid.com/what-is-a-tecrid): Testing records and their purpose.
 - [The standard](https://tecrid.com/standard): The public record standard.
 - [Verify a record](https://tecrid.com/verify): Public verification entry point.
-- [Verification](https://tecrid.com/verification): How verification is presented.
 - [Developers](https://tecrid.com/developers): Published integration documentation.
 - [Frequently asked questions](https://tecrid.com/faq): Public questions and answers.
-- [Disclosures](https://tecrid.com/disclosures): Disclosures about the service.
+- [Privacy and data governance](https://tecrid.com/privacy): Confidentiality, disclosure boundaries and privacy contacts.
+
+## Citation
+
+Cite the public page title, its exact URL and the date accessed. When citing a record, include its TECRID, issuer, version and current status as shown on the record. Do not treat a TEST example as an issued production credential.
+
+## Contact
+
+For privacy requests and confidentiality concerns, use privacy@tecrid.com, as published on the privacy page. Do not email raw laboratory reports or share codes.
