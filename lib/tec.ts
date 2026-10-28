@@ -1,3 +1,4 @@
+import { requireConfirmedLaboratoryMailbox, requireIndependentLabReviewer, scopePdf } from "./lab-signup-policy";
 import { parseRole, roles } from "./roles";
 import { apiRequestScope, normalizeApiScopes } from "./api-scopes";
 import { and, asc, desc, eq, isNull, or } from "drizzle-orm";
@@ -648,6 +649,7 @@ export async function getDashboardData(userId: string) {
 export async function submitIssuerApplication(
   user: ChatGPTUser,
   value: Record<string, unknown>,
+  scopeDocument?: File,
 ) {
   const membership = await getOrganizationForUser(user.userId);
   if (!membership || membership.organization.organizationType !== "laboratory") {
@@ -655,8 +657,6 @@ export async function submitIssuerApplication(
       "Only a laboratory organization can apply for TEC issuance authority.",
     );
   }
-
-  requireOrganizationIdentity(membership.organization);
 
   const legalName = normalizeText(value.legalName, 180);
   const laboratoryAddress = normalizeText(value.laboratoryAddress, 300);
@@ -698,9 +698,11 @@ export async function submitIssuerApplication(
   } catch {
     throw new TecInputError("Laboratory website must be a complete http or https URL.");
   }
-  if (accreditationStatus === "accredited" && (!accreditationBody || !accreditationNumber)) {
-    throw new TecInputError("Accredited laboratories must provide the accreditation body and certificate number.");
+  if (accreditationStatus !== "accredited" || !accreditationBody || !accreditationNumber || !accreditationUrl) {
+    throw new TecInputError("ISO/IEC 17025 accreditation body, certificate number and public register URL are required.");
   }
+  await requireConfirmedLaboratoryMailbox(user, laboratoryWebsite, contactEmail);
+  const scope = await scopePdf(scopeDocument);
   if (!/^\S+@\S+\.\S+$/.test(contactEmail)) {
     throw new TecInputError("Enter a valid laboratory contact email.");
   }
@@ -739,6 +741,10 @@ export async function submitIssuerApplication(
   const db = getDb();
   const submittedAt = now();
   const id = `issuer_app_${crypto.randomUUID().replaceAll("-", "")}`;
+  const documentId = `issuer_doc_${crypto.randomUUID().replaceAll("-", "")}`;
+  const objectKey = `issuer-evidence/${membership.organization.id}/${id}/${documentId}.pdf`;
+  const bucket = (env as unknown as { DOCUMENTS?: { put(key: string, bytes: ArrayBuffer, options: { httpMetadata: { contentType: string } }): Promise<unknown>; delete(key: string): Promise<unknown> } }).DOCUMENTS;
+  if (!bucket) throw new Error("Private evidence storage unavailable.");
   const applicationInsert = db.insert(issuerApplications).values({
     id,
     organizationId: membership.organization.id,
@@ -763,7 +769,7 @@ export async function submitIssuerApplication(
   });
   const organizationUpdate = db
     .update(organizations)
-    .set({ issuerStatus: "application_submitted", updatedAt: submittedAt })
+    .set({ issuerStatus: "application_submitted", updatedAt: submittedAt, ...(membership.organization.slug.startsWith("setup--") ? { name: legalName, slug: `${slugify(legalName)}-${crypto.randomUUID().slice(0, 8)}`, issuerCode: issuerCodeFor(legalName), website: laboratoryWebsite } : {}) })
     .where(eq(organizations.id, membership.organization.id));
   const auditInsert = db.insert(auditEvents).values({
     id: `evt_${crypto.randomUUID().replaceAll("-", "")}`,
@@ -779,10 +785,18 @@ export async function submitIssuerApplication(
       laboratoryWebsite,
       keyId,
       keySubmitted: Boolean(normalizedJwk),
+      signupVerificationVersion: 1,
+      workEmailConfirmed: true,
     }),
     createdAt: submittedAt,
   });
-  await db.batch([applicationInsert, organizationUpdate, auditInsert]);
+  await bucket.put(objectKey, scope.bytes, { httpMetadata: { contentType: "application/pdf" } });
+  try {
+    await db.batch([applicationInsert, organizationUpdate, auditInsert,
+      db.insert(issuerApplicationDocuments).values({ id: documentId, applicationId: id, organizationId: membership.organization.id, documentType: "accreditation_scope", objectKey, filename: scope.filename, mimeType: "application/pdf", size: scope.size, sha256: scope.sha256, uploadedByUserId: user.userId, createdAt: submittedAt }),
+      db.insert(organizationNotifications).values({ id: `notice_${id}_submitted`, organizationId: membership.organization.id, eventType: "issuer.application_submitted", entityType: "issuer_application", entityId: id, title: "Lab application submitted", body: "Your application is awaiting independent ICS review. Issuing remains locked.", actionPath: "/dashboard/laboratory", createdAt: submittedAt }),
+    ]);
+  } catch (error) { await bucket.delete(objectKey); throw error; }
   return { id, status: "submitted", submittedAt };
 }
 
@@ -845,7 +859,14 @@ export async function reviewIssuerApplication(
     .where(eq(issuerApplications.id, applicationId))
     .limit(1);
   if (!record) throw new TecInputError("Issuer application not found.");
-  if (decision === "approve") requireOrganizationIdentity(record.organization);
+  await requireIndependentLabReviewer(user, record.organization.id, record.application.contactEmail);
+  if (decision === "approve") {
+    requireOrganizationIdentity(record.organization);
+    const [submission] = await db.select().from(auditEvents).where(and(eq(auditEvents.entityId, applicationId), eq(auditEvents.eventType, "issuer.application_submitted"))).limit(1);
+    let currentSignup = false;
+    try { currentSignup = JSON.parse(submission?.payload || "{}").signupVerificationVersion === 1; } catch { currentSignup = false; }
+    if (!currentSignup) throw new TecInputError("Complete the current laboratory signup verification before approval. Request a replacement application.");
+  }
   if (record.application.status !== "submitted") {
     throw new TecInputError("Only a submitted issuer application can receive a final review decision.");
   }
@@ -863,6 +884,14 @@ export async function reviewIssuerApplication(
   const checkMap = new Map(verificationChecks.map((check) => [check.checkType, check]));
   if (decision === "approve") {
     const incomplete = requiredChecks.filter((checkType) => checkMap.get(checkType)?.status !== "passed");
+    const manualChecks = verificationChecks.filter(check => ["identity", "accreditation", "scope"].includes(check.checkType));
+    for (const check of manualChecks) {
+      if (!check.reviewedByUserId || !check.reviewedByEmail || check.reviewedByUserId === user.userId || check.reviewedByEmail.toLowerCase() === user.email.toLowerCase()) {
+        throw new TecAuthorizationError("Two different independent ICS admins must review identity, accreditation and scope. A second admin must give final approval.");
+      }
+      await requireIndependentLabReviewer({ ...user, userId: check.reviewedByUserId, email: check.reviewedByEmail }, record.organization.id, record.application.contactEmail);
+      if (!isIcsAdmin({ ...user, email: check.reviewedByEmail })) throw new TecAuthorizationError("The first reviewer must still be an ICS administrator.");
+    }
     if (incomplete.length) {
       throw new TecInputError(
         `Approval is locked until these verification gates pass: ${incomplete.join(", ")}.`,
@@ -909,7 +938,7 @@ export async function reviewIssuerApplication(
     })
     .where(eq(organizations.id, record.organization.id));
   const auditInsert = db.insert(auditEvents).values({
-    id: `evt_${crypto.randomUUID().replaceAll("-", "")}`,
+    id: `evt_${applicationId}_${applicationStatus}`,
     organizationId: record.organization.id,
     actorUserId: user.userId,
     eventType: `issuer.application_${applicationStatus}`,
@@ -926,7 +955,9 @@ export async function reviewIssuerApplication(
     }),
     createdAt: reviewedAt,
   });
-  await db.batch([applicationUpdate, organizationUpdate, auditInsert]);
+  await db.batch([applicationUpdate, organizationUpdate, auditInsert,
+    db.insert(organizationNotifications).values({ id: `notice_${applicationId}_${applicationStatus}`, organizationId: record.organization.id, eventType: `issuer.application_${applicationStatus}`, entityType: "issuer_application", entityId: applicationId, title: decision === "approve" ? "Lab application approved" : decision === "reject" ? "Lab application rejected" : "More information needed", body: decision === "approve" ? "Two independent ICS admins have approved your laboratory. Issuing requires your registered signing key." : "Open your laboratory application to read the ICS decision and next steps.", actionPath: "/dashboard/laboratory", createdAt: reviewedAt }),
+  ]);
   return {
     id: applicationId,
     status: applicationStatus,

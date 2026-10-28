@@ -4,7 +4,7 @@ export const roles = [
   { id: "laboratory", label: "Lab", detail: "Prepare and issue signed laboratory reports." },
   { id: "certification_body", label: "Certification body", detail: "Request and receive the evidence you need." },
   { id: "retailer", label: "Retailer", detail: "Receive reports from the brands you work with." },
-  { id: "public", label: "Just looking", detail: "For journalists and anyone checking a report." },
+  { id: "public", label: "Other", detail: "For journalists and anyone checking a report." },
 ] as const;
 export type Role = typeof roles[number]["id"];
 export const ROLE_COOKIE = "tecrid_role_v1";

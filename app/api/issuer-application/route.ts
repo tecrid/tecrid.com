@@ -12,7 +12,11 @@ export async function POST(request: Request) {
   const user = await getChatGPTUser();
   if (!user) return Response.json({ error: "Sign in is required." }, { status: 401 });
   try {
-    const application = await submitIssuerApplication(user, await request.json());
+    const multipart = request.headers.get("content-type")?.includes("multipart/form-data");
+    const form = multipart ? await request.formData() : null;
+    const value = form ? { ...Object.fromEntries(form.entries()), attested: form.get("attested") === "on" } : await request.json();
+    const document = form?.get("scopeDocument");
+    const application = await submitIssuerApplication(user, value, document instanceof File ? document : undefined);
     return Response.json({ application }, { status: 201 });
   } catch (error) {
     const status =

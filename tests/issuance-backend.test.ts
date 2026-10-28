@@ -18,54 +18,61 @@ import { GET as versions } from "../app/api/v1/credentials/[identifier]/versions
 let mf: Miniflare;
 let lab: typeof organizations.$inferSelect;
 let privateKey: CryptoKey;
-const user = {userId:"fixture-lab",email:"lab@example.test",displayName:"Fixture laboratory",fullName:"Fixture laboratory"};
+const user = {userId:"email:fixture-lab",email:"lab@example.test",displayName:"Fixture laboratory",fullName:"Fixture laboratory"};
 const admin = {...user,userId:"fixture-admin",email:"admin@example.test"};
+const secondAdmin = {...admin,userId:"fixture-admin-2",email:"admin-2@example.test"};
+const scopeFile = () => new File(["%PDF-1.7 synthetic accreditation scope"],"scope.pdf");
+const accreditation = {accreditationStatus:"accredited",accreditationBody:"SYNTHETIC accreditation body",accreditationNumber:"FAKE-17025",accreditationUrl:"https://register.example.test/FAKE"};
+const register = {registerUrl:"https://register.example.test/FAKE",registerResult:"SYNTHETIC current certificate and scope match",registerCheckedAt:"2026-01-01"};
+async function confirmed(id:string,email:string){await env.DB.prepare("INSERT INTO auth_user(id,name,email,email_verified,created_at,updated_at) VALUES(?,?,?,1,0,0)").bind(id.slice(6),"Synthetic lab",email).run();}
 const brandUser = {...user,userId:"fixture-brand",email:"brand@example.test"};
 const payload = {sampleName:"EXAMPLE historical oil",productSku:"EXAMPLE-01",lotNumber:"EXAMPLE-LOT",testedAt:"2025-01-02",releasedAt:"2025-01-03",publish:true,sourceDocument:{sha256:"a".repeat(64),filename:"example.pdf",reportNumber:"EXAMPLE-1"},results:[{analyte:"Lead",resultText:"ND",unit:"ppb",loqText:"5.12 ppb",numericValue:null},{analyte:"Example",resultText:"NR",unit:"ppb",loqText:"0 ppb",numericValue:null}]};
 async function sign(text:string) {return {keyId:"fixture-key",algorithm:"Ed25519" as const,signature:Buffer.from(await crypto.subtle.sign("Ed25519",privateKey,new TextEncoder().encode(text))).toString("base64url")};}
 beforeAll(async () => {
   mf = new Miniflare({modules:true,script:"export default {fetch(){return new Response('test')}}",compatibilityDate:"2026-05-22",d1Databases:["DB"],r2Buckets:["DOCUMENTS"]});
-  env.DB=await mf.getD1Database("DB"); env.DOCUMENTS=await mf.getR2Bucket("DOCUMENTS");env.ICS_ADMIN_EMAILS=admin.email;
+  env.DB=await mf.getD1Database("DB"); env.DOCUMENTS=await mf.getR2Bucket("DOCUMENTS");env.ICS_ADMIN_EMAILS=`${admin.email},${secondAdmin.email}`;
   for(const f of readdirSync("drizzle").filter(f=>f.endsWith(".sql")).sort()) for(const sql of readFileSync(`drizzle/${f}`,"utf8").split("--> statement-breakpoint").filter(s=>s.trim())) await env.DB.prepare(sql).run();
   for (const [id,type] of [[user.userId,"laboratory"],[brandUser.userId,"brand"]]) {
-    await getDb().insert(organizations).values({id,name:id,slug:id,organizationType:type,ownerUserId:id,ownerEmail:`${id}@example.test`,issuerCode:id.toUpperCase().replaceAll("-", ""),issuerStatus:"pending"});
+    await getDb().insert(organizations).values({id,name:id,slug:id,organizationType:type,ownerUserId:id,ownerEmail:`${id}@example.test`,issuerCode:id.toUpperCase().replace(/[^A-Z0-9]/g, ""),issuerStatus:"pending"});
     await getDb().insert(organizationMembers).values({organizationId:id,userId:id,email:`${id}@example.test`,role:"owner"});
   }
+  await confirmed(user.userId,user.email);
   const pair = await crypto.subtle.generateKey("Ed25519",true,["sign","verify"]); privateKey=pair.privateKey;
-  const app=await submitIssuerApplication(user,{legalName:"EXAMPLE test lab",laboratoryAddress:"Test only",laboratoryWebsite:"https://example.test",authorityRole:"Test owner",accreditationStatus:"not_accredited",scopeSummary:"Synthetic test oil only",methodFamilies:"Test method",contactName:"Fixture",contactEmail:user.email,keyId:"fixture-key",publicKeyJwk:JSON.stringify(await crypto.subtle.exportKey("jwk",pair.publicKey)),attested:true});
+  const app=await submitIssuerApplication(user,{legalName:"EXAMPLE test lab",laboratoryAddress:"Test only",laboratoryWebsite:"https://example.test",authorityRole:"Test owner",...accreditation,scopeSummary:"Synthetic test oil only",methodFamilies:"Test method",contactName:"Fixture",contactEmail:user.email,keyId:"fixture-key",publicKeyJwk:JSON.stringify(await crypto.subtle.exportKey("jwk",pair.publicKey)),attested:true},scopeFile());
   await expect(reviewIssuerApplication(admin,app.id,{decision:"approve",reviewNote:"Test"})).rejects.toThrow();
   const challenge=await createIssuerKeyChallenge(user);
   await verifyIssuerKeyChallenge(user,{challengeId:challenge.id,signature:(await sign(challenge.canonicalPayload)).signature});
   await expect(verifyIssuerKeyChallenge(user,{challengeId:challenge.id,signature:(await sign(challenge.canonicalPayload)).signature})).rejects.toThrow();
-  for(const checkType of ["identity","accreditation","scope"]) await reviewIssuerVerificationCheck(admin,app.id,{checkType,status:"passed",evidenceNote:"Synthetic isolated test; no real lab approval."});
-  await reviewIssuerApplication(admin,app.id,{decision:"approve",reviewNote:"Synthetic isolated test"});
+  for(const checkType of ["identity","accreditation","scope"]) await reviewIssuerVerificationCheck(admin,app.id,{checkType,status:"passed",evidenceNote:"Synthetic isolated test; no real lab approval.",...register});
+  await reviewIssuerApplication(secondAdmin,app.id,{decision:"approve",reviewNote:"Synthetic isolated test"});
   [lab]=await getDb().select().from(organizations).where(eq(organizations.id,user.userId));
 },60000);
 afterAll(async()=>{await mf?.dispose()});
 
 describe("isolated real backend with D1/R2 and Ed25519",()=>{
  it("uses the saved real lab identity for reservations and signed issuance, never the deferred code",async()=>{
-  const owner={...user,userId:"deferred-lab",email:"deferred-lab@example.test"};
+  const owner={...user,userId:"email:deferred-lab",email:"deferred-lab@example.test"};
+  await confirmed(owner.userId,owner.email);
   const deferred=(await onboardOrganization(owner,{role:"laboratory"}))!.organization;
   expect(deferred.issuerCode).toMatch(/^SETUP_/);
   const incorrectlyVerified={...deferred,issuerStatus:"verified"};
   await expect(reserveReportTecrid(incorrectlyVerified,{productName:"SYNTHETIC",productSku:"TEST"})).rejects.toThrow("real organization name");
   await expect(createCredential(incorrectlyVerified,null,payload)).rejects.toThrow("real organization name");
   await expect(createCredential({...incorrectlyVerified,issuerCode:"YLWTEST"},null,payload)).rejects.toThrow("real organization name");
-  await expect(submitIssuerApplication(owner,{})).rejects.toThrow("real organization name");
+  await expect(submitIssuerApplication(owner,{})).rejects.toThrow();
   const saved=(await completeWorkspaceDetails(owner,{name:"Synthetic Identity Laboratory"}))!.organization;
   expect(saved.slug).toMatch(/^synthetic-identity-laboratory-/);
   expect(saved.issuerCode).toMatch(/^SIL[A-Z0-9]{3}$/);
   expect(saved.issuerCode).not.toBe(deferred.issuerCode);
   expect(saved.issuerStatus).toBe("pending");
-  const application=await submitIssuerApplication(owner,{legalName:saved.name,laboratoryAddress:"Test only",laboratoryWebsite:"https://example.test",authorityRole:"Test owner",accreditationStatus:"not_accredited",scopeSummary:"Synthetic fixtures only",methodFamilies:"Test method",contactName:"Fixture",contactEmail:owner.email,keyId:"fixture-key",publicKeyJwk:lab.issuerPublicKeyJwk,attested:true});
+  const application=await submitIssuerApplication(owner,{legalName:saved.name,laboratoryAddress:"Test only",laboratoryWebsite:"https://example.test",authorityRole:"Test owner",...accreditation,scopeSummary:"Synthetic fixtures only",methodFamilies:"Test method",contactName:"Fixture",contactEmail:owner.email,keyId:"fixture-key",publicKeyJwk:lab.issuerPublicKeyJwk,attested:true},scopeFile());
   const challenge=await createIssuerKeyChallenge(owner);
   await verifyIssuerKeyChallenge(owner,{challengeId:challenge.id,signature:(await sign(challenge.canonicalPayload)).signature});
-  for(const checkType of ["identity","accreditation","scope"]) await reviewIssuerVerificationCheck(admin,application.id,{checkType,status:"passed",evidenceNote:"Synthetic isolated test only."});
+  for(const checkType of ["identity","accreditation","scope"]) await reviewIssuerVerificationCheck(admin,application.id,{checkType,status:"passed",evidenceNote:"Synthetic isolated test only.",...register});
   await getDb().update(organizations).set({slug:deferred.slug}).where(eq(organizations.id,saved.id));
-  await expect(reviewIssuerApplication(admin,application.id,{decision:"approve",reviewNote:"Synthetic isolated test only."})).rejects.toThrow("real organization name");
+  await expect(reviewIssuerApplication(secondAdmin,application.id,{decision:"approve",reviewNote:"Synthetic isolated test only."})).rejects.toThrow("real organization name");
   await getDb().update(organizations).set({slug:saved.slug}).where(eq(organizations.id,saved.id));
-  await reviewIssuerApplication(admin,application.id,{decision:"approve",reviewNote:"Synthetic isolated test only."});
+  await reviewIssuerApplication(secondAdmin,application.id,{decision:"approve",reviewNote:"Synthetic isolated test only."});
   const [verified]=await getDb().select().from(organizations).where(eq(organizations.id,saved.id));
   const reservation=await reserveReportTecrid(verified,{productName:payload.sampleName,productSku:payload.productSku});
   const issued=await createCredential(verified,null,{...payload,proof:await sign(canonicalizeCredential(payload).canonicalPayload)});
