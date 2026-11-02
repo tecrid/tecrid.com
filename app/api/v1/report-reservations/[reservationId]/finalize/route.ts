@@ -1,4 +1,4 @@
-import { authenticateApiRequest, TecAuthorizationError, TecInputError } from "../../../../../../lib/tec";
+import { authenticateApiRequest, TecAuthorizationError, TecDuplicateDocumentError, TecInputError } from "../../../../../../lib/tec";
 import { finalizeReportTecrid } from "../../../../../../lib/report-issuance";
 
 type RouteContext = { params: Promise<{ reservationId: string }> };
@@ -6,11 +6,13 @@ type RouteContext = { params: Promise<{ reservationId: string }> };
 function errorResponse(error: unknown) {
   const known = error instanceof TecAuthorizationError || error instanceof TecInputError;
   const status = known ? error.status : 500;
+  const tecrid = error instanceof TecDuplicateDocumentError ? error.existingTecrid : undefined;
   return Response.json({
     error: {
-      code: status === 403 ? "not_authorized" : status === 400 ? "invalid_request" : "internal_error",
+      code: status === 409 ? "already_minted" : status === 403 ? "not_authorized" : status === 400 ? "invalid_request" : "internal_error",
       message: known ? error.message : "Report finalization failed.",
     },
+    ...(tecrid ? { tecrid } : {}),
   }, { status });
 }
 

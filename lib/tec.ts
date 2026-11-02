@@ -104,6 +104,23 @@ export class TecAuthorizationError extends Error {
   status = 403;
 }
 
+export class TecDuplicateDocumentError extends TecInputError {
+  existingTecrid: string;
+  constructor(existingTecrid: string) {
+    super(`This PDF has already been minted as ${existingTecrid}. A new TECRID was not issued.`);
+    this.status = 409;
+    this.existingTecrid = existingTecrid;
+  }
+}
+
+const ORGANIZATION_MANAGER_ROLES = new Set(["owner", "admin"]);
+
+export function assertOrganizationManager(role: string, action: string) {
+  if (!ORGANIZATION_MANAGER_ROLES.has(role)) {
+    throw new TecAuthorizationError(`Only an organization owner or admin can ${action}.`);
+  }
+}
+
 export function isIcsAdmin(user: ChatGPTUser) {
   const configured = String(
     (env as unknown as Record<string, unknown>).ICS_ADMIN_EMAILS ?? "",
@@ -228,6 +245,16 @@ function issuerPayload(input: CredentialInput) {
   };
 }
 
+function issuanceSignedPayload(identifier: string, input: CredentialInput) {
+  return {
+    type: "TestEvidenceCredential",
+    tecrid: identifier,
+    sourceDocumentSha256: input.sourceDocument?.sha256 ?? null,
+    lotNumber: input.lotNumber ?? null,
+    credential: issuerPayload(input),
+  };
+}
+
 function revisionPayload(
   identifier: string,
   version: number,
@@ -239,12 +266,37 @@ function revisionPayload(
   return {
     type: "TestEvidenceCredentialRevision",
     tecrid: identifier,
+    sourceDocumentSha256: input.sourceDocument?.sha256 ?? null,
+    lotNumber: input.lotNumber ?? null,
     version,
     previousFingerprint,
     action,
     reason,
     credential: issuerPayload(input),
   };
+}
+
+function signedPayloadCovers(
+  payload: string,
+  expected: { identifier: string; sourceDocumentHash: string | null; lotNumber: string | null },
+) {
+  try {
+    const parsed = JSON.parse(payload) as {
+      tecrid?: unknown;
+      sourceDocumentSha256?: unknown;
+      lotNumber?: unknown;
+      credential?: { lotNumber?: unknown; sourceDocument?: { sha256?: unknown } | null };
+    };
+    if (parsed.tecrid !== expected.identifier) return false;
+    if (typeof parsed.sourceDocumentSha256 !== "string" || parsed.sourceDocumentSha256 !== expected.sourceDocumentHash) return false;
+    if ((parsed.lotNumber ?? null) !== (expected.lotNumber ?? null)) return false;
+    const nestedHash = parsed.credential?.sourceDocument?.sha256;
+    if (typeof nestedHash === "string" && nestedHash !== parsed.sourceDocumentSha256) return false;
+    if (parsed.credential && (parsed.credential.lotNumber ?? null) !== (parsed.lotNumber ?? null)) return false;
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function verifyIssuerProof(
@@ -318,7 +370,7 @@ async function verifyStoredProof(proof: {
   signatureAlgorithm: string | null;
   signedPayload: string | null;
   signedPayloadHash: string | null;
-}) {
+}, expected: { identifier: string; sourceDocumentHash: string | null; lotNumber: string | null }) {
   if (
     !proof.issuerSignature ||
     !proof.issuerKeyId ||
@@ -329,6 +381,7 @@ async function verifyStoredProof(proof: {
     !proof.signedPayloadHash
   ) return false;
   try {
+    if (!signedPayloadCovers(proof.signedPayload, expected)) return false;
     if (await sha256(proof.signedPayload) !== proof.signedPayloadHash) return false;
     const jwk = JSON.parse(proof.issuerPublicKeyJwk) as JsonWebKey;
     if (jwk.kty !== "OKP" || jwk.crv !== "Ed25519" || !jwk.x || jwk.d) return false;
@@ -969,6 +1022,9 @@ export async function reviewIssuerApplication(
 export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scopesValue?: unknown) {
   const membership = await getOrganizationForUser(user.userId);
   if (!membership) throw new TecAuthorizationError("Complete organization setup first.");
+  if (membership.organization.organizationType === "laboratory") {
+    assertOrganizationManager(membership.role, "create laboratory API keys");
+  }
 
   let scopes: string[];
   try { scopes = normalizeApiScopes(scopesValue); } catch { throw new TecInputError("Choose valid API permissions."); }
@@ -1144,10 +1200,41 @@ function validateCredentialInput(value: unknown): CredentialInput {
 
 export function canonicalizeCredential(value: unknown) {
   const input = validateCredentialInput(value);
+  const tecrid = normalizeText((value as { tecrid?: unknown } | null)?.tecrid, 120).toUpperCase();
+  if (!tecrid) {
+    throw new TecInputError("The canonical payload requires the TECRID identifier so the laboratory signature covers it.");
+  }
+  if (!input.sourceDocument) {
+    throw new TecInputError("The canonical payload requires the SHA-256 of the source PDF.");
+  }
+  const signed = issuanceSignedPayload(tecrid, input);
   return {
-    canonicalPayload: JSON.stringify(issuerPayload(input)),
-    normalizedCredential: issuerPayload(input),
+    canonicalPayload: JSON.stringify(signed),
+    normalizedCredential: signed,
   };
+}
+
+async function existingCredentialForPdf(hash: string) {
+  const [row] = await getDb()
+    .select({ identifier: credentials.identifier })
+    .from(credentials)
+    .where(eq(credentials.sourceDocumentHash, hash))
+    .limit(1);
+  return row ?? null;
+}
+
+function isPdfHashConflict(error: unknown) {
+  const pending: unknown[] = [error];
+  const seen = new Set<unknown>();
+  while (pending.length) {
+    const current = pending.pop();
+    if (!current || seen.has(current)) continue;
+    seen.add(current);
+    const message = current instanceof Error ? current.message : typeof current === "string" ? current : "";
+    if (/unique/i.test(message) && message.includes("source_document_hash")) return true;
+    if (typeof current === "object" && current && "cause" in current) pending.push((current as { cause?: unknown }).cause);
+  }
+  return false;
 }
 
 export async function createCredential(
@@ -1175,18 +1262,33 @@ export async function createCredential(
     throw new TecInputError("Controlled-result issuance requires productSku so the signed record can be bound to the authorized SKU.");
   }
 
-  const identifier = options.reservedIdentifier
+  const bodyTecrid = normalizeText((value as { tecrid?: unknown } | null)?.tecrid, 120).toUpperCase();
+  const reserved = options.reservedIdentifier
     ? normalizeText(options.reservedIdentifier, 120).toUpperCase()
-    : generateTecridIdentifier(organization.issuerCode);
-  if (options.reservedIdentifier) {
+    : "";
+  if (reserved && bodyTecrid && reserved !== bodyTecrid) {
+    throw new TecInputError("The TECRID in the signed request does not match the reserved identifier.");
+  }
+  const identifier = reserved || bodyTecrid || (input.publish ? "" : generateTecridIdentifier(organization.issuerCode));
+  if (input.publish && !input.sourceDocument) {
+    throw new TecInputError("Published issuance requires the SHA-256 fingerprint of the source PDF.");
+  }
+  if (input.publish && !identifier) {
+    throw new TecInputError("Published issuance requires the TECRID identifier inside the signed payload. Reserve an identifier, then sign the canonical payload.");
+  }
+  if (reserved || bodyTecrid) {
     const prefix = `TECRID·${organization.issuerCode.toUpperCase()}-`;
     if (!identifier.startsWith(prefix)) {
-      throw new TecAuthorizationError("The reserved TECRID does not belong to this laboratory issuer.");
+      throw new TecAuthorizationError("The TECRID does not belong to this laboratory issuer.");
     }
+  }
+  if (input.sourceDocument) {
+    const existing = await existingCredentialForPdf(input.sourceDocument.sha256);
+    if (existing) throw new TecDuplicateDocumentError(existing.identifier);
   }
   const issued = Boolean(input.publish && canPublish);
   const createdAt = now();
-  const signedPayload = JSON.stringify(issuerPayload(input));
+  const signedPayload = JSON.stringify(issuanceSignedPayload(identifier, input));
   const proofDetails = issued
     ? await verifyIssuerProof(organization, signedPayload, input.proof)
     : null;
@@ -1286,6 +1388,7 @@ export async function createCredential(
     }),
     createdAt,
   });
+  try {
   await db.batch([
     credentialInsert,
     ...resultInserts,
@@ -1297,6 +1400,13 @@ export async function createCredential(
       actionPath: `/records/${encodeURIComponent(identifier)}`, entityType: "credential", entityId: identifier, createdAt,
     })] : []),
   ]);
+  } catch (error) {
+    if (input.sourceDocument && isPdfHashConflict(error)) {
+      const existing = await existingCredentialForPdf(input.sourceDocument.sha256);
+      if (existing) throw new TecDuplicateDocumentError(existing.identifier);
+    }
+    throw error;
+  }
 
   return {
     tecrid: identifier,
@@ -1391,7 +1501,11 @@ export async function getCredential(identifierValue: string, includeDraft = fals
       currentVersion.status === record.credential.status,
   );
   const issuerSignatureVerified = currentVersion
-    ? await verifyStoredProof(currentVersion)
+    ? await verifyStoredProof(currentVersion, {
+        identifier: record.credential.identifier,
+        sourceDocumentHash: record.credential.sourceDocumentHash,
+        lotNumber: record.credential.lotNumber,
+      })
     : false;
   return {
     ...record,
@@ -1543,6 +1657,12 @@ async function prepareCredentialRevision(
   if (!current.credential.publicRecord || !current.credential.fingerprint) {
     throw new TecInputError("Only an issued public TECRID can be corrected or revoked.");
   }
+  if (current.credential.status === "revoked") {
+    throw new TecInputError("Revoked is permanent. A revoked TECRID cannot be corrected or returned to issued.");
+  }
+  if (current.credential.status !== "issued") {
+    throw new TecInputError("Only an issued TECRID can be corrected or revoked.");
+  }
   const revision = (value ?? {}) as CredentialRevisionInput;
   const action = revision.action === "revoke" ? "revoke" : "correct";
   const reason = normalizeText(revision.reason, 600);
@@ -1593,6 +1713,12 @@ async function prepareCredentialRevision(
           publish: true,
           sourceDocument: preservedSourceDocument ?? revision.sourceDocument,
         });
+  if ((input.lotNumber ?? null) !== (current.credential.lotNumber ?? null)) {
+    throw new TecInputError("Each TECRID is bound to exactly one lot and cannot be reassigned.");
+  }
+  if (current.credential.sourceDocumentHash && input.sourceDocument?.sha256 !== current.credential.sourceDocumentHash) {
+    throw new TecInputError("A TECRID stays bound to its original PDF fingerprint.");
+  }
   const version = current.credential.version + 1;
   const canonicalPayload = JSON.stringify(
     revisionPayload(

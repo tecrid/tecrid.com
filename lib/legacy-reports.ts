@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, gte, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, isNull, or } from "drizzle-orm";
 import { env } from "cloudflare:workers";
 import { getDb } from "../db";
 import {
@@ -13,6 +13,7 @@ import type { ChatGPTUser } from "../app/chatgpt-auth";
 import {
   canonicalizeCredential,
   createCredential,
+  generateTecridIdentifier,
   getOrganizationForUser,
   isIcsAdmin,
   TecAuthorizationError,
@@ -767,12 +768,29 @@ async function requireIssuingLaboratory(user: ChatGPTUser, token: string) {
   return bundle;
 }
 
+async function reservedLegacyTecrid(bundle: NonNullable<Awaited<ReturnType<typeof requireIssuingLaboratory>>>) {
+  if (bundle.report.pendingCredentialIdentifier) return bundle.report.pendingCredentialIdentifier;
+  const tecrid = generateTecridIdentifier(bundle.membership!.organization.issuerCode);
+  await getDb().update(legacyReports).set({
+    pendingCredentialIdentifier: tecrid,
+    updatedAt: now(),
+  }).where(and(eq(legacyReports.id, bundle.report.id), isNull(legacyReports.pendingCredentialIdentifier)));
+  const [fresh] = await getDb()
+    .select({ pendingCredentialIdentifier: legacyReports.pendingCredentialIdentifier })
+    .from(legacyReports)
+    .where(eq(legacyReports.id, bundle.report.id))
+    .limit(1);
+  if (!fresh?.pendingCredentialIdentifier) throw new TecInputError("The TECRID for this report could not be reserved.");
+  return fresh.pendingCredentialIdentifier;
+}
+
 export async function getLegacySigningPayload(user: ChatGPTUser, token: string) {
   const bundle = await requireIssuingLaboratory(user, token);
-  const value = legacyCredentialValue(bundle);
-  const canonical = canonicalizeCredential(value);
+  const tecrid = await reservedLegacyTecrid(bundle);
+  const canonical = canonicalizeCredential({ ...legacyCredentialValue(bundle), tecrid });
   return {
     reportId: bundle.report.id,
+    tecrid,
     canonicalPayload: canonical.canonicalPayload,
     keyId: bundle.membership!.organization.issuerKeyId,
     algorithm: bundle.membership!.organization.issuerKeyAlgorithm,
@@ -815,11 +833,12 @@ export async function issueLegacyReport(
     throw new TecInputError("A valid Ed25519 issuer proof is required.");
   }
 
+  const tecrid = bundle.report.pendingCredentialIdentifier ?? await reservedLegacyTecrid(bundle);
   const credential = await createCredential(
     bundle.membership!.organization,
     user.userId,
-    legacyCredentialValue(bundle, normalizedProof),
-    { legacyReportId: bundle.report.id, issuanceBasis: "legacy_report_confirmation" },
+    { ...legacyCredentialValue(bundle, normalizedProof), tecrid },
+    { legacyReportId: bundle.report.id, issuanceBasis: "legacy_report_confirmation", reservedIdentifier: tecrid },
   );
   const confirmedAt = now();
   await db.batch([

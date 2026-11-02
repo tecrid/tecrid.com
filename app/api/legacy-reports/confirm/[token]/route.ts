@@ -5,7 +5,7 @@ import {
   flagLegacyReportDiscrepancy,
   issueLegacyReport,
 } from "../../../../../lib/legacy-reports";
-import { TecAuthorizationError, TecInputError } from "../../../../../lib/tec";
+import { TecAuthorizationError, TecDuplicateDocumentError, TecInputError } from "../../../../../lib/tec";
 
 type RouteContext = { params: Promise<{ token: string }> };
 
@@ -40,8 +40,9 @@ export async function POST(request: Request, { params }: RouteContext) {
         ? error.status
         : 500;
     const known = error instanceof TecAuthorizationError || error instanceof TecInputError;
+    const tecrid = error instanceof TecDuplicateDocumentError ? error.existingTecrid : undefined;
     return Response.json(
-      { error: known ? error.message : "Confirmation action failed." },
+      { error: known ? error.message : "Confirmation action failed.", ...(tecrid ? { tecrid } : {}) },
       { status },
     );
   }

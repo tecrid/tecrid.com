@@ -3,6 +3,7 @@ import {
   createCredential,
   listCredentialsForApi,
   TecAuthorizationError,
+  TecDuplicateDocumentError,
   TecInputError,
 } from "../../../../lib/tec";
 import {
@@ -13,17 +14,21 @@ import {
 function errorResponse(error: unknown) {
   const known = error instanceof TecAuthorizationError || error instanceof TecInputError;
   const status = known ? error.status : 500;
+  const tecrid = error instanceof TecDuplicateDocumentError ? error.existingTecrid : undefined;
   return Response.json(
     {
       error: {
         code:
-          status === 403
+          status === 409
+            ? "already_minted"
+            : status === 403
             ? "not_authorized"
             : status === 400
               ? "invalid_request"
               : "internal_error",
         message: known ? error.message : "Credential operation failed.",
       },
+      ...(tecrid ? { tecrid } : {}),
     },
     { status },
   );

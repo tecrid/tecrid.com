@@ -42,6 +42,10 @@ export function verifyDocument(doc) {
   if(!proof?.signedPayload) throw new Error('Full signed payload required; obtain authorized recipient access for controlled findings.');
   if(proof.algorithm!=='Ed25519'||sha256(proof.signedPayload)!==proof.signedPayloadHash) throw new Error('Signed payload hash or algorithm invalid.');
   if(!verify(null,Buffer.from(proof.signedPayload),createPublicKey({key:proof.publicKeyJwk,format:'jwk'}),Buffer.from(proof.signature,'base64url'))) throw new Error('Issuer signature invalid.');
+  let payload; try { payload=JSON.parse(proof.signedPayload); } catch { throw new Error('Signed payload is not the canonical TECRID document.'); }
+  if(payload.tecrid!==doc.tecrid) throw new Error('Signed payload does not cover this TECRID.');
+  if(!payload.sourceDocumentSha256 || payload.sourceDocumentSha256!==doc.sourceDocument?.sha256) throw new Error('Signed payload does not cover the PDF SHA-256.');
+  if((payload.lotNumber??null)!==(doc.subject?.lotNumber??null)) throw new Error('Signed payload does not cover the lot identifier.');
   const current=doc.versions?.find(v=>v.version===doc.version);
   if(!current?.canonicalPayload || sha256(current.canonicalPayload)!==doc.integrity.fingerprint || current.signedPayload!==proof.signedPayload) throw new Error('Current version fingerprint mismatch.');
   return {tecrid:doc.tecrid,version:doc.version,status:doc.status,signatureVerified:true,checkedAt:new Date().toISOString(),sourceDocument:doc.sourceDocument,subject:doc.subject};
@@ -65,7 +69,8 @@ export async function main(args) {
   const [jobPath,inputPath,pdfPath,outputPath]=rest;if(!outputPath)throw new Error('prepare job.json credential.json final-marked.pdf unsigned.json');
   const job=await json(jobPath);if(job.base!==base)throw new Error('Job environment mismatch.');const input=await json(inputPath);const bytes=await readFile(pdfPath);
   if(bytes.subarray(0,5).toString()!=='%PDF-')throw new Error('PDF required.');
-  const credential={...input,publish:true,sourceDocument:{...input.sourceDocument,sha256:sha256(bytes),filename:pdfPath.split(/[\\/]/).pop()}};
+  const tecrid=job.reservation?.tecrid; if(!tecrid) throw new Error('Reserved TECRID missing from the job. The signature must cover that identifier.');
+  const credential={...input,tecrid,publish:true,sourceDocument:{...input.sourceDocument,sha256:sha256(bytes),filename:pdfPath.split(/[\\/]/).pop()}};
   const canonical=await call('/api/v1/credentials/canonicalize',{method:'POST',body:credential});
   await save(outputPath,{base,reservation:job.reservation,credential,canonicalPayload:canonical.canonicalPayload});console.log('Prepared exact canonical payload for lab review. No signature or issuance performed.');return;
  }

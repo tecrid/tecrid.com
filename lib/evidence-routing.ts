@@ -12,6 +12,7 @@ import {
   routingAuthorizations,
 } from "../db/schema";
 import {
+  assertOrganizationManager,
   getCredential,
   getOrganizationForUser,
   publicCredentialDocument,
@@ -201,6 +202,9 @@ export async function respondToEvidenceRequest(user: ChatGPTUser, requestIdValue
     if (approved.analytes.some((value) => !requested.has(value.toLowerCase()))) {
       throw new TecInputError("Approved analytes must be a subset of the requested analytes.");
     }
+  }
+  if (approved.accessLevel === "full_record") {
+    assertOrganizationManager(membership.role, "grant full record access");
   }
   const grantId = crypto.randomUUID();
   await db.batch([

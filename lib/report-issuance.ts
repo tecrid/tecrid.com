@@ -233,7 +233,7 @@ export async function finalizeReportTecrid(
   const existing = await getCredential(reservation.identifier);
   if (existing) {
     if (existing.credential.organizationId !== organization.id ||
-        existing.credential.signedPayload !== canonicalizeCredential(input).canonicalPayload) {
+        existing.credential.signedPayload !== canonicalizeCredential({ ...input, tecrid: reservation.identifier }).canonicalPayload) {
       throw new TecInputError("This reservation was already issued with different content.");
     }
     if (reservation.status !== "finalized") {

@@ -171,7 +171,7 @@ export const credentials = sqliteTable(
     index("idx_credentials_status").on(table.status),
     index("idx_credentials_public_record").on(table.publicRecord),
     uniqueIndex("idx_credentials_legacy_report_id").on(table.legacyReportId),
-    index("idx_credentials_source_document_hash").on(table.sourceDocumentHash),
+    uniqueIndex("idx_credentials_source_document_hash").on(table.sourceDocumentHash),
   ],
 );
 
@@ -273,6 +273,7 @@ export const legacyReports = sqliteTable(
       () => credentials.identifier,
       { onDelete: "restrict" },
     ),
+    pendingCredentialIdentifier: text("pending_credential_identifier"),
     claimedAt: text("claimed_at"),
     confirmedAt: text("confirmed_at"),
     declinedAt: text("declined_at"),
@@ -289,6 +290,9 @@ export const legacyReports = sqliteTable(
     ),
     uniqueIndex("idx_legacy_reports_issued_credential").on(
       table.issuedCredentialIdentifier,
+    ),
+    uniqueIndex("idx_legacy_reports_pending_credential_identifier").on(
+      table.pendingCredentialIdentifier,
     ),
     index("idx_legacy_reports_status").on(table.status),
     index("idx_legacy_reports_issuer_org").on(table.issuerOrganizationId),

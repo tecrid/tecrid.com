@@ -2,6 +2,7 @@ import { getChatGPTUser } from "../../chatgpt-auth";
 import {
   createCredentialForUser,
   TecAuthorizationError,
+  TecDuplicateDocumentError,
   TecInputError,
 } from "../../../lib/tec";
 import { rejectCrossOriginWrite } from "../../../lib/request-security";
@@ -20,8 +21,9 @@ export async function POST(request: Request) {
         ? error.status
         : 500;
     const known = error instanceof TecAuthorizationError || error instanceof TecInputError;
+    const tecrid = error instanceof TecDuplicateDocumentError ? error.existingTecrid : undefined;
     return Response.json(
-      { error: known ? error.message : "Credential creation failed." },
+      { error: known ? error.message : "Credential creation failed.", ...(tecrid ? { tecrid } : {}) },
       { status },
     );
   }

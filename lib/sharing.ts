@@ -12,6 +12,7 @@ import {
   participantProfiles,
 } from "../db/schema";
 import {
+  assertOrganizationManager,
   getOrganizationForUser,
   TecAuthorizationError,
   TecInputError,
@@ -103,6 +104,7 @@ export async function createEvidenceShareCode(user: ChatGPTUser, input: Record<s
   if (!CONTROLLER_TYPES.has(membership.organization.organizationType)) {
     throw new TecAuthorizationError("Only a brand or ingredient supplier can create evidence share codes.");
   }
+  assertOrganizationManager(membership.role, "create evidence share codes");
   const recipient = await organizationByCode(input.recipientOrganizationCode);
   if (!RECIPIENT_TYPES.has(recipient.organizationType)) {
     throw new TecInputError("Share codes may be addressed to a certification body, retailer, or government workspace.");
@@ -171,7 +173,9 @@ export async function revokeEvidenceShareCode(user: ChatGPTUser, idValue: unknow
     eq(evidenceShareCodes.id, id),
     eq(evidenceShareCodes.controllerOrganizationId, membership.organization.id),
   )).limit(1);
-  if (!record || record.status !== "active") throw new TecAuthorizationError("Active share code not found for this controller.");
+  if (!record || !["active", "redeemed"].includes(record.status)) {
+    throw new TecAuthorizationError("An active or redeemed share code was not found for this controller.");
+  }
   const revokedAt = new Date().toISOString();
   await db.batch([
     db.update(evidenceShareCodes).set({ status: "revoked", revokedAt, revokedByUserId: user.userId }).where(eq(evidenceShareCodes.id, record.id)),
@@ -266,6 +270,9 @@ export async function redeemEvidenceShareCode(input: Record<string, unknown>) {
     eq(organizations.issuerCode, recipientCode),
   )).limit(1);
   if (!recipient) throw new TecAuthorizationError("This code was issued to a different receiving organization.");
+  if (match.share.status === "revoked" || new Date(match.share.expiresAt).getTime() <= Date.now()) {
+    throw new TecAuthorizationError("This share code is invalid, expired, or revoked.");
+  }
   if (match.share.status === "redeemed") {
     const [existing] = await db.select().from(evidenceShareRedemptions).where(eq(evidenceShareRedemptions.shareCodeId, match.share.id)).limit(1);
     if (!existing) throw new TecAuthorizationError("This code has been redeemed but its receipt is unavailable.");
@@ -274,7 +281,7 @@ export async function redeemEvidenceShareCode(input: Record<string, unknown>) {
       receipt: { id: existing.id, packageFingerprint: existing.packageFingerprint, recordCount: existing.recordCount, replayed: true },
     };
   }
-  if (match.share.status !== "active" || new Date(match.share.expiresAt).getTime() <= Date.now()) {
+  if (match.share.status !== "active") {
     throw new TecAuthorizationError("This share code is invalid, expired, or revoked.");
   }
   const scopeValues = normalizeList(JSON.parse(match.share.scopeJson), 120);
