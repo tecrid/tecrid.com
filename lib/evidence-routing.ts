@@ -11,6 +11,8 @@ import {
   organizations,
   routingAuthorizations,
 } from "../db/schema";
+import { emailOrganizationMembers } from "./record-notices";
+import { organizationsByIds } from "./org-authority";
 import {
   assertOrganizationManager,
   getCredential,
@@ -19,6 +21,7 @@ import {
   TecAuthorizationError,
   TecInputError,
 } from "./tec";
+import { redactUnentitledCommitments } from "./withheld-results";
 
 const ACCESS_LEVELS = new Set(["status_only", "selected_analytes", "full_record"]);
 const DELIVERY_MODES = new Set(["one_time", "future_sku"]);
@@ -233,6 +236,12 @@ export async function respondToEvidenceRequest(user: ChatGPTUser, requestIdValue
       payload: JSON.stringify({ requestId: request.id, recipientOrganizationId: request.requesterOrganizationId, productSku: request.productSku, ...approved }), createdAt: respondedAt,
     }),
   ]);
+  await emailOrganizationMembers([request.requesterOrganizationId], {
+    eventType: "evidence_access.granted",
+    title: `Access approved for ${request.productSku}`,
+    body: `${membership.organization.name} approved ${approved.accessLevel.replaceAll("_", " ")} access.`,
+    url: "https://tecrid.com/dashboard/evidence-routing",
+  });
   return { id: request.id, status: "accepted", grantId, approved };
 }
 
@@ -245,6 +254,11 @@ export async function revokeEvidenceGrant(user: ChatGPTUser, grantIdValue: unkno
   const revokedAt = new Date().toISOString();
   await db.batch([
     db.update(evidenceAccessGrants).set({ status: "revoked", revokedByUserId: user.userId, revokedAt }).where(eq(evidenceAccessGrants.id, grant.id)),
+    db.insert(organizationNotifications).values({
+      id: crypto.randomUUID(), organizationId: grant.recipientOrganizationId, eventType: "evidence_access.revoked",
+      title: `Access revoked for ${grant.productSku}`, body: `${membership.organization.name} revoked future access to ${grant.productSku}.`,
+      actionPath: "/dashboard/evidence-routing", entityType: "evidence_grant", entityId: grant.id, createdAt: revokedAt,
+    }),
     db.insert(auditEvents).values({
       id: crypto.randomUUID(), organizationId: membership.organization.id, actorUserId: user.userId,
       eventType: "evidence_access.revoked", entityType: "evidence_grant", entityId: grant.id,
@@ -379,7 +393,7 @@ function documentForGrant(record: NonNullable<Awaited<ReturnType<typeof getCrede
   const deliveredAnalytes = new Set(results.map((result) => result.analyte.toLowerCase()));
   const missingAnalytes = requestedAnalytes.filter((analyte) => !deliveredAnalytes.has(analyte.toLowerCase()));
   const redacted = withControlledPayloadsWithheld(full);
-  return {
+  return redactUnentitledCommitments({
     ...redacted,
     results,
     resultsAccess: {
@@ -394,7 +408,7 @@ function documentForGrant(record: NonNullable<Awaited<ReturnType<typeof getCrede
         ? "The issued credential did not contain every analyte in this grant. Missing analytes are explicit; the registry does not infer a passing result."
         : "This recipient view is a registry extraction from the full signed credential. The complete signed payload remains withheld unless full-record access is granted.",
     },
-  };
+  });
 }
 
 export async function deliverCredentialWithAuthorization(
@@ -536,17 +550,20 @@ export async function listEvidenceDeliveriesForOrganization(organizationId: stri
     ))
     .orderBy(desc(evidenceDeliveries.deliveredAt))
     .limit(100);
-  return deliveries.map((delivery) => ({
-    id: delivery.id,
-    grantId: delivery.grantId,
-    controllerOrganizationId: delivery.controllerOrganizationId,
-    recipientOrganizationId: delivery.recipientOrganizationId,
-    credentialIdentifier: delivery.credentialIdentifier,
-    credentialVersion: delivery.credentialVersion,
-    accessLevel: delivery.accessLevel,
-    snapshotFingerprint: delivery.snapshotFingerprint,
-    deliveredAt: delivery.deliveredAt,
-    snapshot: JSON.parse(delivery.snapshotJson),
+  return Promise.all(deliveries.map(async (delivery) => {
+    const snapshot = redactUnentitledCommitments(JSON.parse(delivery.snapshotJson));
+    return {
+      id: delivery.id,
+      grantId: delivery.grantId,
+      controllerOrganizationId: delivery.controllerOrganizationId,
+      recipientOrganizationId: delivery.recipientOrganizationId,
+      credentialIdentifier: delivery.credentialIdentifier,
+      credentialVersion: delivery.credentialVersion,
+      accessLevel: delivery.accessLevel,
+      snapshotFingerprint: delivery.accessLevel === "full_record" ? delivery.snapshotFingerprint : await sha256(JSON.stringify(snapshot)),
+      deliveredAt: delivery.deliveredAt,
+      snapshot,
+    };
   }));
 }
 
@@ -554,14 +571,30 @@ export async function listEvidenceRoutingForUser(user: ChatGPTUser) {
   const membership = await requireMembership(user);
   const organizationId = membership.organization.id;
   const db = getDb();
-  const [requests, grants, deliveries, controllerReceipts, authorizations, directory] = await Promise.all([
+  const [requests, grants, deliveries, controllerReceipts, authorizations] = await Promise.all([
     db.select().from(evidenceRequests).where(or(eq(evidenceRequests.requesterOrganizationId, organizationId), eq(evidenceRequests.controllerOrganizationId, organizationId))).orderBy(desc(evidenceRequests.requestedAt)).limit(100),
     db.select().from(evidenceAccessGrants).where(or(eq(evidenceAccessGrants.controllerOrganizationId, organizationId), eq(evidenceAccessGrants.recipientOrganizationId, organizationId))).orderBy(desc(evidenceAccessGrants.createdAt)).limit(100),
     db.select().from(evidenceDeliveries).where(or(eq(evidenceDeliveries.controllerOrganizationId, organizationId), eq(evidenceDeliveries.recipientOrganizationId, organizationId))).orderBy(desc(evidenceDeliveries.deliveredAt)).limit(100),
     db.select().from(controllerEvidenceReceipts).where(eq(controllerEvidenceReceipts.controllerOrganizationId, organizationId)).orderBy(desc(controllerEvidenceReceipts.deliveredAt)).limit(100),
     db.select().from(routingAuthorizations).where(eq(routingAuthorizations.controllerOrganizationId, organizationId)).orderBy(desc(routingAuthorizations.createdAt)).limit(100),
-    db.select({ id: organizations.id, name: organizations.name, code: organizations.issuerCode, type: organizations.organizationType }).from(organizations),
+  ]);
+  const visibleDeliveries = await Promise.all(deliveries.map(async (delivery) => {
+    const snapshot = redactUnentitledCommitments(JSON.parse(delivery.snapshotJson));
+    const snapshotJson = JSON.stringify(snapshot);
+    return {
+      ...delivery,
+      snapshotJson,
+      snapshotFingerprint: delivery.accessLevel === "full_record" ? delivery.snapshotFingerprint : await sha256(snapshotJson),
+    };
+  }));
+  const directory = await organizationsByIds([
+    organizationId,
+    ...requests.flatMap((request) => [request.requesterOrganizationId, request.controllerOrganizationId]),
+    ...grants.flatMap((grant) => [grant.controllerOrganizationId, grant.recipientOrganizationId]),
+    ...deliveries.flatMap((delivery) => [delivery.controllerOrganizationId, delivery.recipientOrganizationId]),
+    ...controllerReceipts.map((receipt) => receipt.laboratoryOrganizationId),
+    ...authorizations.map((authorization) => authorization.laboratoryOrganizationId),
   ]);
   const organizationMap = Object.fromEntries(directory.map((item) => [item.id, item]));
-  return { membership, requests, grants, deliveries, controllerReceipts, authorizations, organizationMap };
+  return { membership, requests, grants, deliveries: visibleDeliveries, controllerReceipts, authorizations, organizationMap };
 }

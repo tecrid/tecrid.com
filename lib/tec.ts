@@ -1,3 +1,5 @@
+import { notifyRevisionAudience } from "./record-notices";
+import { redactUnentitledCommitments } from "./withheld-results";
 import { requireConfirmedLaboratoryMailbox, requireIndependentLabReviewer, scopePdf } from "./lab-signup-policy";
 import { parseRole, roles } from "./roles";
 import { apiRequestScope, normalizeApiScopes } from "./api-scopes";
@@ -274,6 +276,76 @@ function revisionPayload(
     reason,
     credential: issuerPayload(input),
   };
+}
+
+function storedCredentialInput(
+  credential: typeof credentials.$inferSelect,
+  results: Array<typeof credentialResults.$inferSelect>,
+): CredentialInput {
+  return {
+    sampleName: credential.sampleName,
+    productSku: credential.productSku ?? undefined,
+    lotNumber: credential.lotNumber ?? undefined,
+    matrix: credential.matrix ?? undefined,
+    method: credential.method ?? undefined,
+    submittingParty: credential.submittingParty ?? undefined,
+    collectedAt: credential.collectedAt ?? undefined,
+    receivedAt: credential.receivedAt ?? undefined,
+    testedAt: credential.testedAt ?? undefined,
+    releasedAt: credential.releasedAt ?? undefined,
+    visibility: credential.visibility === "controlled" ? "controlled" : "public",
+    publish: true,
+    sourceDocument: credential.sourceDocumentHash
+      ? {
+          sha256: credential.sourceDocumentHash,
+          filename: credential.sourceDocumentName || "source-report.pdf",
+          reportNumber: credential.laboratoryReportNumber ?? undefined,
+          orderNumber: credential.laboratoryOrderNumber ?? undefined,
+          intakeId: credential.legacyReportId ?? undefined,
+          issuanceBasis: credential.issuanceBasis ?? undefined,
+        }
+      : undefined,
+    results: results.slice().sort((left, right) => left.sequence - right.sequence).map((row) => ({
+      analyte: row.analyte,
+      symbol: row.symbol ?? undefined,
+      resultText: row.resultText,
+      numericValue: row.numericValue,
+      unit: row.unit,
+      loqText: row.loqText ?? undefined,
+      method: row.method ?? undefined,
+    })),
+  };
+}
+
+export function coversBoundSignature(
+  payload: string | null,
+  expected: { identifier: string; sourceDocumentHash: string | null; lotNumber: string | null },
+) {
+  return Boolean(payload && signedPayloadCovers(payload, expected));
+}
+
+export function boundSigningText(input: {
+  identifier: string;
+  version: number;
+  changeType: string;
+  changeReason: string | null;
+  previousFingerprint: string | null;
+  credential: typeof credentials.$inferSelect;
+  results: Array<typeof credentialResults.$inferSelect>;
+}) {
+  if (!input.credential.sourceDocumentHash) return null;
+  const body = storedCredentialInput(input.credential, input.results);
+  if (input.changeType === "correction" || input.changeType === "revocation") {
+    return JSON.stringify(revisionPayload(
+      input.identifier,
+      input.version,
+      input.previousFingerprint ?? "",
+      input.changeType === "revocation" ? "revoke" : "correct",
+      input.changeReason || "Bound signature repair",
+      body,
+    ));
+  }
+  return JSON.stringify(issuanceSignedPayload(input.identifier, body));
 }
 
 function signedPayloadCovers(
@@ -1527,7 +1599,7 @@ export function publicCredentialDocument(
 ) {
   const { credential, issuer, results, versions, integrity } = record;
   const resultsControlled = credential.visibility === "controlled" && !options.includeControlledResults;
-  return {
+  const document = {
     schemaVersion: "tec-registry/1.0-draft",
     type: "TestEvidenceCredential",
     tecrid: credential.identifier,
@@ -1637,6 +1709,7 @@ export function publicCredentialDocument(
     interpretationBoundary:
       "This record establishes issuer attribution, content integrity, and status. It does not by itself establish representative sampling, method suitability, regulatory compliance, or product safety.",
   };
+  return redactUnentitledCommitments(document);
 }
 
 export async function createCredentialForUser(user: ChatGPTUser, value: unknown) {
@@ -1878,6 +1951,12 @@ export async function createCredentialRevision(
     ...resultStatements,
     auditInsert,
   ]);
+  await notifyRevisionAudience({
+    identifier,
+    action: prepared.action === "revoke" ? "revoke" : "correct",
+    reason: prepared.reason,
+    version: prepared.version,
+  });
   return {
     tecrid: identifier,
     identifier,
@@ -1918,7 +1997,7 @@ export async function getIssuer(issuerCodeValue: string) {
     .from(organizations)
     .where(eq(organizations.issuerCode, issuerCode))
     .limit(1);
-  if (!organization) return null;
+  if (!organization || organization.organizationType !== "laboratory" || organization.issuerStatus !== "verified") return null;
   const [application] = await db
     .select({
       legalName: issuerApplications.legalName,

@@ -1,4 +1,6 @@
 import {safeReturnPath} from "../lib/auth-return-path";
+import { removeClientIdentityHeaders } from "../lib/request-security";
+import { env } from "cloudflare:workers";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -20,7 +22,8 @@ const SIGN_OUT_PATH = "/signout-with-chatgpt";
 const CALLBACK_PATH = "/callback";
 
 export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
-  const requestHeaders = await headers();
+  const requestHeaders = new Headers(await headers());
+  removeClientIdentityHeaders(requestHeaders, (env as { TECRID_PLATFORM_IDENTITY_SECRET?: string }).TECRID_PLATFORM_IDENTITY_SECRET);
   if((requestHeaders.get("cookie")||"").includes("tecrid.session_token=")){
     const {getEmailUser}=await import("../lib/email-auth");
     const emailUser=await getEmailUser(new Headers(requestHeaders));

@@ -1,4 +1,5 @@
 import { getChatGPTUser } from "../../../../../chatgpt-auth";
+import { requireAdminFactor } from "../../../../../../lib/admin-mfa";
 import { reviewIssuerVerificationCheck } from "../../../../../../lib/issuer-verification";
 import { rejectCrossOriginWrite } from "../../../../../../lib/request-security";
 import { TecAuthorizationError, TecInputError } from "../../../../../../lib/tec";
@@ -11,6 +12,7 @@ export async function POST(request: Request, { params }: RouteContext) {
   const user = await getChatGPTUser();
   if (!user) return Response.json({ error: "Sign in is required." }, { status: 401 });
   try {
+    await requireAdminFactor(user, request);
     const { applicationId } = await params;
     const check = await reviewIssuerVerificationCheck(
       user,

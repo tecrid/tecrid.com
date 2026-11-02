@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 import { requireChatGPTUser } from "../../chatgpt-auth";
-import { isIcsAdmin, listFoundingOnboardingForAdmin } from "../../../lib/tec";
+import { adminGate } from "../../../lib/admin-mfa";
+import { listFoundingOnboardingForAdmin } from "../../../lib/tec";
 import { ProductFooter, ProductNav } from "../../site-nav";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +14,10 @@ export const metadata: Metadata = {
 
 export default async function FoundingAdminPage() {
   const user = await requireChatGPTUser("/admin/founding");
-  if (!isIcsAdmin(user)) notFound();
+  const token = (await cookies()).get("tecrid_admin_mfa")?.value;
+  const gate = await adminGate(user, token ? `tecrid_admin_mfa=${token}` : null);
+  if (gate === "denied") notFound();
+  if (gate !== "ok") redirect("/admin/security");
   const launches = await listFoundingOnboardingForAdmin(user);
 
   return (

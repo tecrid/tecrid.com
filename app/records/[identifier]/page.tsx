@@ -117,8 +117,8 @@ export default async function RecordPage({ params }: PageProps) {
         )}
         <div className="provenance-register">
           <div><span>Issuer identity</span><strong><a href={`/issuers/${encodeURIComponent(issuer.issuerCode)}`}>{issuer.name} ↗</a></strong><small>TEC issuer code {issuer.issuerCode}</small></div>
-          <div><span>Record fingerprint</span><code>{credential.fingerprint ? `sha256:${credential.fingerprint}` : "Not recorded"}</code><small>{integrity.fingerprintValid ? "Recomputed from the canonical current version" : integrity.fingerprintRecorded ? "Recorded but not validated against a canonical version" : "This record has no fingerprint"}</small></div>
-          <div><span>Issuer proof</span><strong>{integrity.issuerSignatureVerified ? `${credential.signatureAlgorithm} verified` : "Not present"}</strong><small>{integrity.issuerSignatureVerified ? `Key ${credential.issuerKeyId}` : "A fingerprint alone does not prove laboratory key control"}</small></div>
+          <div><span>Record fingerprint</span><code>{publicDocument.integrity.fingerprint ? `sha256:${publicDocument.integrity.fingerprint}` : resultsControlled ? "Not published" : "Not recorded"}</code><small>{resultsControlled ? "The fingerprint commits to withheld findings, so it stays with the granted record." : integrity.fingerprintValid ? "Recomputed from the canonical current version" : integrity.fingerprintRecorded ? "Recorded but not validated against a canonical version" : "This record has no fingerprint"}</small></div>
+          <div><span>Issuer proof</span><strong>{integrity.issuerSignatureVerified ? `${credential.signatureAlgorithm} verified` : "Not present"}</strong><small>{resultsControlled ? "The registry checked the signature. The signature itself is withheld with the findings." : integrity.issuerSignatureVerified ? `Key ${credential.issuerKeyId}` : "A fingerprint alone does not prove laboratory key control"}</small></div>
           <div><span>Machine access</span><a href={`/api/v1/credentials/${encodeURIComponent(credential.identifier)}`}>Open JSON endpoint ↗</a><small>{resultsControlled ? "Public integrity envelope; findings and signed payload withheld" : "Includes exact signed payload, signature, reviewed public key, and live verification state"}</small></div>
         </div>
         {credential.sourceDocumentHash ? (
@@ -135,11 +135,11 @@ export default async function RecordPage({ params }: PageProps) {
           <div><p className="section-kicker">Append-only history</p><h2 id="version-register-title">Version register</h2></div>
           <span className="verified-pill"><i /> {versions.length} recorded</span>
         </div>
-        {versions.length ? <ol>{versions.map((version) => (
-          <li key={`${version.version}-${version.fingerprint}`}>
+        {publicDocument.versions.length ? <ol>{publicDocument.versions.map((version) => (
+          <li key={`${version.version}-${version.createdAt}`}>
             <span>v{version.version}</span>
             <div><strong>{version.changeType.replaceAll("_", " ")}</strong><p>{version.changeReason || "No public reason supplied"}</p></div>
-            <div><small>{new Date(version.createdAt).toLocaleString("en", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC</small><code>sha256:{version.fingerprint}</code></div>
+            <div><small>{new Date(version.createdAt).toLocaleString("en", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC</small><code>{version.fingerprint ? `sha256:${version.fingerprint}` : "Fingerprint withheld"}</code></div>
           </li>
         ))}</ol> : <div className="empty-registry"><strong>No append-only versions are recorded.</strong><p>The registry does not infer a revision history from a current row.</p></div>}
       </section>

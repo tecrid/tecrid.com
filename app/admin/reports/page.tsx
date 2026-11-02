@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 import { requireChatGPTUser } from "../../chatgpt-auth";
-import { isIcsAdmin } from "../../../lib/tec";
+import { adminGate } from "../../../lib/admin-mfa";
 import { listAllLegacyReportsForAdmin } from "../../../lib/legacy-reports";
 import { ProductFooter, ProductNav } from "../../site-nav";
 
@@ -13,7 +14,10 @@ export const metadata: Metadata = {
 
 export default async function LegacyReportAdminPage() {
   const user = await requireChatGPTUser("/admin/reports");
-  if (!isIcsAdmin(user)) notFound();
+  const token = (await cookies()).get("tecrid_admin_mfa")?.value;
+  const gate = await adminGate(user, token ? `tecrid_admin_mfa=${token}` : null);
+  if (gate === "denied") notFound();
+  if (gate !== "ok") redirect("/admin/security");
   const reports = await listAllLegacyReportsForAdmin(user);
   return (
     <main className="product-page admin-page">

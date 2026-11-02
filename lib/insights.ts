@@ -9,6 +9,7 @@ import {
   organizationNotifications,
 } from "../db/schema";
 import { getOrganizationForUser, TecAuthorizationError } from "./tec";
+import { entitledSnapshotResults } from "./withheld-results";
 
 type SnapshotResult = {
   analyte?: string;
@@ -100,7 +101,7 @@ export async function getEvidenceInsightsForOrganization(organizationId: string)
       releasedAt: snapshot.subject?.releasedAt ?? null,
       issuedAt: snapshot.issuedAt ?? delivery.deliveredAt,
       source: "recipient_delivery",
-      results: snapshot.results ?? [],
+      results: entitledSnapshotResults(snapshot, delivery.accessLevel),
       missingAnalytes: snapshot.resultsAccess?.missingAnalytes ?? [],
     });
   }
