@@ -11,12 +11,14 @@ import {
   organizations,
   participantProfiles,
 } from "../db/schema";
+import { organizationsByIds } from "./org-authority";
 import {
   assertOrganizationManager,
   getOrganizationForUser,
   TecAuthorizationError,
   TecInputError,
 } from "./tec";
+import { redactUnentitledCommitments } from "./withheld-results";
 
 const CONTROLLER_TYPES = new Set(["brand", "supplier"]);
 const RECIPIENT_TYPES = new Set(["certification_body", "retailer", "government"]);
@@ -264,21 +266,21 @@ export async function redeemEvidenceShareCode(input: Record<string, unknown>) {
     .innerJoin(organizations, eq(evidenceShareCodes.controllerOrganizationId, organizations.id))
     .where(eq(evidenceShareCodes.tokenHash, await sha256(token)))
     .limit(1);
-  if (!match) throw new TecAuthorizationError("This share code is invalid, expired, or revoked.");
+  if (!match || match.share.status === "revoked" || new Date(match.share.expiresAt).getTime() <= Date.now()) {
+    throw new TecAuthorizationError("This share code is invalid, expired, or revoked.");
+  }
   const [recipient] = await db.select().from(organizations).where(and(
     eq(organizations.id, match.share.recipientOrganizationId),
     eq(organizations.issuerCode, recipientCode),
   )).limit(1);
   if (!recipient) throw new TecAuthorizationError("This code was issued to a different receiving organization.");
-  if (match.share.status === "revoked" || new Date(match.share.expiresAt).getTime() <= Date.now()) {
-    throw new TecAuthorizationError("This share code is invalid, expired, or revoked.");
-  }
   if (match.share.status === "redeemed") {
     const [existing] = await db.select().from(evidenceShareRedemptions).where(eq(evidenceShareRedemptions.shareCodeId, match.share.id)).limit(1);
     if (!existing) throw new TecAuthorizationError("This code has been redeemed but its receipt is unavailable.");
+    const sanitized = redactUnentitledCommitments(JSON.parse(existing.packageJson) as Record<string, unknown>);
     return {
-      ...(JSON.parse(existing.packageJson) as Record<string, unknown>),
-      receipt: { id: existing.id, packageFingerprint: existing.packageFingerprint, recordCount: existing.recordCount, replayed: true },
+      ...sanitized,
+      receipt: { id: existing.id, packageFingerprint: await sha256(JSON.stringify(sanitized)), recordCount: existing.recordCount, replayed: true },
     };
   }
   if (match.share.status !== "active") {
@@ -330,7 +332,8 @@ export async function redeemEvidenceShareCode(input: Record<string, unknown>) {
     },
     evidence,
   };
-  const packageJson = JSON.stringify(packageValue);
+  const sanitizedPackage = redactUnentitledCommitments(packageValue);
+  const packageJson = JSON.stringify(sanitizedPackage);
   const packageFingerprint = await sha256(packageJson);
   const redemptionId = crypto.randomUUID();
   await db.batch([
@@ -361,7 +364,7 @@ export async function redeemEvidenceShareCode(input: Record<string, unknown>) {
       actionPath: "/dashboard/sharing", entityType: "evidence_share_redemption", entityId: redemptionId, createdAt: redeemedAt,
     }),
   ]);
-  return { ...packageValue, receipt: { id: redemptionId, packageFingerprint, recordCount: evidence.length } };
+  return { ...sanitizedPackage, receipt: { id: redemptionId, packageFingerprint, recordCount: evidence.length } };
 }
 
 export async function createLaboratoryInvitation(user: ChatGPTUser, input: Record<string, unknown>) {
@@ -399,7 +402,7 @@ export async function listSharingForUser(user: ChatGPTUser) {
   const membership = await requireMembership(user);
   const organizationId = membership.organization.id;
   const db = getDb();
-  const [codes, redemptions, invitations, directory, profile] = await Promise.all([
+  const [codes, redemptions, invitations, profile] = await Promise.all([
     db.select().from(evidenceShareCodes).where(or(
       eq(evidenceShareCodes.controllerOrganizationId, organizationId),
       eq(evidenceShareCodes.recipientOrganizationId, organizationId),
@@ -409,8 +412,12 @@ export async function listSharingForUser(user: ChatGPTUser) {
       eq(evidenceShareRedemptions.recipientOrganizationId, organizationId),
     )).orderBy(desc(evidenceShareRedemptions.redeemedAt)).limit(100),
     db.select().from(laboratoryInvitations).where(eq(laboratoryInvitations.controllerOrganizationId, organizationId)).orderBy(desc(laboratoryInvitations.createdAt)).limit(50),
-    db.select({ id: organizations.id, name: organizations.name, code: organizations.issuerCode, type: organizations.organizationType }).from(organizations),
     db.select().from(participantProfiles).where(eq(participantProfiles.organizationId, organizationId)).limit(1),
+  ]);
+  const directory = await organizationsByIds([
+    organizationId,
+    ...codes.flatMap((code) => [code.controllerOrganizationId, code.recipientOrganizationId]),
+    ...redemptions.flatMap((redemption) => [redemption.controllerOrganizationId, redemption.recipientOrganizationId]),
   ]);
   return {
     membership,

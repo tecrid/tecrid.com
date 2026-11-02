@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 import { requireChatGPTUser } from "../../chatgpt-auth";
-import { isIcsAdmin, listIssuerApplicationsForAdmin } from "../../../lib/tec";
+import { adminGate } from "../../../lib/admin-mfa";
+import { listIssuerApplicationsForAdmin } from "../../../lib/tec";
 import { ProductFooter, ProductNav } from "../../site-nav";
 import { ReviewControls, VerificationCheckControl } from "./review-controls";
 
@@ -10,7 +12,10 @@ export const metadata: Metadata = { title: "ICS issuer review — TEC Registry",
 
 export default async function IssuerReviewPage() {
   const user = await requireChatGPTUser("/admin/issuers");
-  if (!isIcsAdmin(user)) notFound();
+  const token = (await cookies()).get("tecrid_admin_mfa")?.value;
+  const gate = await adminGate(user, token ? `tecrid_admin_mfa=${token}` : null);
+  if (gate === "denied") notFound();
+  if (gate !== "ok") redirect("/admin/security");
   const applications = await listIssuerApplicationsForAdmin(user);
   return (
     <main className="product-page admin-page">

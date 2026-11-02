@@ -1267,6 +1267,30 @@ export const testReportImports = sqliteTable("test_report_imports", {
  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
+export const adminSecondFactors = sqliteTable("admin_second_factors", {
+  email: text("email").primaryKey(),
+  totpSecret: text("totp_secret").notNull(),
+  verifiedAt: text("verified_at"),
+  failedAttempts: integer("failed_attempts").notNull().default(0),
+  lockedUntil: text("locked_until"),
+  createdAt: text("created_at").notNull(),
+});
+
+export const adminRecoveryCodes = sqliteTable("admin_recovery_codes", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull(),
+  codeHash: text("code_hash").notNull(),
+  usedAt: text("used_at"),
+}, (table) => [index("idx_admin_recovery_email").on(table.email)]);
+
+export const adminFactorSessions = sqliteTable("admin_factor_sessions", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull(),
+  tokenHash: text("token_hash").notNull(),
+  expiresAt: text("expires_at").notNull(),
+  createdAt: text("created_at").notNull(),
+}, (table) => [uniqueIndex("idx_admin_factor_token").on(table.tokenHash)]);
+
 export const notificationReads = sqliteTable("notification_reads", {
  notificationId: text("notification_id").notNull().references(()=>organizationNotifications.id,{onDelete:"cascade"}),
  recipientEmail: text("recipient_email").notNull(), readAt: text("read_at").notNull(),

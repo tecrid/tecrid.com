@@ -28,10 +28,11 @@ const server = createServer(async (req,res)=>{
     const chosen=url.searchParams.get("fixture");
     let fixture=chosen || (req.headers.cookie||"").match(/(?:^|;\s*)review_fixture=([^;]+)/)?.[1];
     const headers=new Headers();for(const [key,value] of Object.entries(req.headers))if(value)headers.set(key,Array.isArray(value)?value.join(","):value);
-    if(roles.includes(fixture)||fixture==="new") { headers.set("oai-authenticated-user-id",`fixture:${fixture}`);headers.set("oai-authenticated-user-email",`${fixture}@example.test`); }
+    const platformSecret = "local-review-platform-identity";
+    if(roles.includes(fixture)||fixture==="new") { headers.set("x-tecrid-platform-identity", platformSecret); headers.set("oai-authenticated-user-id",`fixture:${fixture}`);headers.set("oai-authenticated-user-email",`${fixture}@example.test`); }
     const chunks=[];for await(const chunk of req)chunks.push(chunk);
     const request=new Request(url,{method:req.method,headers,...(["GET","HEAD"].includes(req.method)?{}:{body:Buffer.concat(chunks)})});
-    const response=await worker.fetch(request, {DB, ASSETS:{fetch:async()=>new Response("Not found",{status:404})}}, {waitUntil(){},passThroughOnException(){}});
+    const response=await worker.fetch(request, {DB, ASSETS:{fetch:async()=>new Response("Not found",{status:404})}, TECRID_PLATFORM_IDENTITY_SECRET: platformSecret}, {waitUntil(){},passThroughOnException(){}});
     const out=Object.fromEntries(response.headers);
     if(chosen)out["set-cookie"]=`review_fixture=${roles.includes(chosen)||chosen==="new"?chosen:"anonymous"}; Path=/; SameSite=Lax`;
     let body=Buffer.from(await response.arrayBuffer());

@@ -2,8 +2,10 @@ import { and, desc, eq } from "drizzle-orm";
 import type { ChatGPTUser } from "../app/chatgpt-auth";
 import { getDb } from "../db";
 import {
+  controllerEvidenceReceipts,
   credentials,
   disputeCases,
+  evidenceDeliveries,
   verificationChecks,
 } from "../db/schema";
 import {
@@ -87,7 +89,11 @@ export async function createVerificationCheck(
   } else {
     const db = getDb();
     const [match] = await db
-      .select({ identifier: credentials.identifier })
+      .select({
+        identifier: credentials.identifier,
+        visibility: credentials.visibility,
+        organizationId: credentials.organizationId,
+      })
       .from(credentials)
       .where(
         and(
@@ -96,7 +102,8 @@ export async function createVerificationCheck(
         ),
       )
       .limit(1);
-    if (match) {
+    const visible = match && (match.visibility !== "controlled" || await callerMaySeeControlledRecord(requesterUserId, match.identifier, match.organizationId));
+    if (match && visible) {
       identifier = match.identifier;
       resolution = await resolveDocument(match.identifier);
     }
@@ -172,6 +179,24 @@ export async function listLabDefenseForUser(user: ChatGPTUser) {
       .limit(100),
   ]);
   return { membership, checks, cases };
+}
+
+async function callerMaySeeControlledRecord(userId: string | null, identifier: string, issuerOrganizationId: string) {
+  if (!userId) return false;
+  const membership = await getOrganizationForUser(userId);
+  if (!membership) return false;
+  if (membership.organization.id === issuerOrganizationId) return true;
+  const db = getDb();
+  const [receipt] = await db.select({ id: controllerEvidenceReceipts.id }).from(controllerEvidenceReceipts).where(and(
+    eq(controllerEvidenceReceipts.controllerOrganizationId, membership.organization.id),
+    eq(controllerEvidenceReceipts.credentialIdentifier, identifier),
+  )).limit(1);
+  if (receipt) return true;
+  const [delivery] = await db.select({ id: evidenceDeliveries.id }).from(evidenceDeliveries).where(and(
+    eq(evidenceDeliveries.recipientOrganizationId, membership.organization.id),
+    eq(evidenceDeliveries.credentialIdentifier, identifier),
+  )).limit(1);
+  return Boolean(delivery);
 }
 
 function normalizedText(value: unknown) {
