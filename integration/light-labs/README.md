@@ -46,6 +46,8 @@ node connector.mjs reserve reservation.json job.json
 node connector.mjs prepare job.json credential.json final-marked.pdf unsigned.json
 ```
 
+The canonical payload the laboratory signs includes the reserved TECRID, the SHA-256 of that final PDF, and the lot identifier when the report has one. Signing a payload that omits them will be rejected. The same PDF fingerprint can mint only one TECRID; a repeat returns the existing identifier.
+
 5. An authorized lab reviewer compares the PDF and canonical payload, analytical scope, qualifier/unit fidelity and disclosure. Then sign on the lab host:
 
 ```sh
@@ -74,4 +76,4 @@ Use the separately prepared `light-labs-handoff/drafts` JSON files and unchanged
 
 ## Corrections and revocation
 
-Never replace a signed payload in place. The issuer calls `POST /api/v1/credentials/{identifier}/canonicalize` with `action: "correct"` or `"revoke"` and a reason; signs the returned canonical revision locally; submits the same request plus proof to `/versions`. Verify current status again afterward. Historical versions and original source fingerprints remain linked. A changed original document requires explicit laboratory version reconciliation, not duplicate intake or a silent hash substitution.
+Never replace a signed payload in place. The issuer calls `POST /api/v1/credentials/{identifier}/canonicalize` with `action: "correct"` or `"revoke"` and a reason; signs the returned canonical revision locally; submits the same request plus proof to `/versions`. Verify current status again afterward. Historical versions and original source fingerprints remain linked. A changed original document requires explicit laboratory version reconciliation, not duplicate intake or a silent hash substitution. Revocation is permanent: a revoked TECRID cannot be corrected back to issued, and its lot binding does not move.
