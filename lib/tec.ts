@@ -1100,6 +1100,9 @@ export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scope
 
   let scopes: string[];
   try { scopes = normalizeApiScopes(scopesValue); } catch { throw new TecInputError("Choose valid API permissions."); }
+  if (scopes.some((scope) => scope !== "read") && (membership.organization.organizationType !== "laboratory" || membership.organization.issuerStatus !== "verified")) {
+    throw new TecAuthorizationError("Production write permissions require an ICS-verified laboratory.");
+  }
   const label = normalizeText(labelValue, 60) || "Default key";
   const secret = randomCharacters(42).toLowerCase();
   const plainTextKey = `tec_live_${secret}`;
@@ -1108,27 +1111,29 @@ export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scope
   const id = `key_${crypto.randomUUID().replaceAll("-", "")}`;
 
   const db = getDb();
-  await db.insert(apiKeys).values({
-    id,
-    organizationId: membership.organization.id,
-    label,
-    scopes: JSON.stringify(scopes),
-    keyPrefix: plainTextKey.slice(0, 13),
-    keyHash,
-    lastFour: plainTextKey.slice(-4),
-    createdByUserId: user.userId,
-    createdAt,
-  });
-  await db.insert(auditEvents).values({
-    id: `evt_${crypto.randomUUID().replaceAll("-", "")}`,
-    organizationId: membership.organization.id,
-    actorUserId: user.userId,
-    eventType: "api_key.created",
-    entityType: "api_key",
-    entityId: id,
-    payload: JSON.stringify({ label, prefix: plainTextKey.slice(0, 13) }),
-    createdAt,
-  });
+  await db.batch([
+    db.insert(apiKeys).values({
+      id,
+      organizationId: membership.organization.id,
+      label,
+      scopes: JSON.stringify(scopes),
+      keyPrefix: plainTextKey.slice(0, 13),
+      keyHash,
+      lastFour: plainTextKey.slice(-4),
+      createdByUserId: user.userId,
+      createdAt,
+    }),
+    db.insert(auditEvents).values({
+      id: `api_key_created:${id}`,
+      organizationId: membership.organization.id,
+      actorUserId: user.userId,
+      eventType: "api_key.created",
+      entityType: "api_key",
+      entityId: id,
+      payload: JSON.stringify({ scopes }),
+      createdAt,
+    }),
+  ]);
 
   return { id, plainTextKey, label, scopes, createdAt };
 }
@@ -1136,6 +1141,9 @@ export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scope
 export async function revokeApiKey(user: ChatGPTUser, keyIdValue: unknown) {
   const membership = await getOrganizationForUser(user.userId);
   if (!membership) throw new TecAuthorizationError("Complete organization setup first.");
+  if (membership.organization.organizationType === "laboratory") {
+    assertOrganizationManager(membership.role, "revoke laboratory API keys");
+  }
   const keyId = normalizeText(keyIdValue, 80);
   if (!keyId) throw new TecInputError("API key id is required.");
 
@@ -1151,18 +1159,21 @@ export async function revokeApiKey(user: ChatGPTUser, keyIdValue: unknown) {
     )
     .limit(1);
   if (!key) throw new TecAuthorizationError("API key not found for this organization.");
+  if (key.revokedAt) return { id: keyId, revokedAt: key.revokedAt };
 
   const revokedAt = now();
-  await db.update(apiKeys).set({ revokedAt }).where(eq(apiKeys.id, keyId));
-  await db.insert(auditEvents).values({
-    id: `evt_${crypto.randomUUID().replaceAll("-", "")}`,
-    organizationId: membership.organization.id,
-    actorUserId: user.userId,
-    eventType: "api_key.revoked",
-    entityType: "api_key",
-    entityId: keyId,
-    createdAt: revokedAt,
-  });
+  await db.batch([
+    db.update(apiKeys).set({ revokedAt }).where(and(eq(apiKeys.id, keyId), isNull(apiKeys.revokedAt))),
+    db.insert(auditEvents).values({
+      id: `api_key_revoked:${keyId}`,
+      organizationId: membership.organization.id,
+      actorUserId: user.userId,
+      eventType: "api_key.revoked",
+      entityType: "api_key",
+      entityId: keyId,
+      createdAt: revokedAt,
+    }),
+  ]);
   return { id: keyId, revokedAt };
 }
 
@@ -1183,7 +1194,9 @@ export async function authenticateApiRequest(request: Request) {
 
   const scopes: string[] = JSON.parse(record.key.scopes);
   const requiredScope = apiRequestScope(request);
-  if (!scopes.includes("*") && (!requiredScope || !scopes.includes(requiredScope))) {
+  const write = requiredScope !== "read";
+  const verifiedLaboratory = record.organization.organizationType === "laboratory" && record.organization.issuerStatus === "verified";
+  if (!requiredScope || (write && !verifiedLaboratory) || (!scopes.includes("*") && !scopes.includes(requiredScope))) {
     throw new TecAuthorizationError("This API key does not permit this operation.");
   }
 

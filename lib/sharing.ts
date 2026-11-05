@@ -175,6 +175,7 @@ export async function revokeEvidenceShareCode(user: ChatGPTUser, idValue: unknow
     eq(evidenceShareCodes.id, id),
     eq(evidenceShareCodes.controllerOrganizationId, membership.organization.id),
   )).limit(1);
+  assertOrganizationManager(membership.role, "revoke evidence share codes");
   if (!record || !["active", "redeemed"].includes(record.status)) {
     throw new TecAuthorizationError("An active or redeemed share code was not found for this controller.");
   }
@@ -254,7 +255,7 @@ function projectReceipt(snapshot: ReceiptSnapshot, accessLevel: string, analytes
   };
 }
 
-export async function redeemEvidenceShareCode(input: Record<string, unknown>) {
+export async function redeemEvidenceShareCode(input: Record<string, unknown>, user: ChatGPTUser | null = null) {
   const token = clean(input.code, 120);
   if (!/^tec_share_[A-Za-z0-9]+$/.test(token)) throw new TecAuthorizationError("A valid TECRID share code is required.");
   const recipientCode = normalizeCode(input.recipientOrganizationCode);
@@ -274,6 +275,10 @@ export async function redeemEvidenceShareCode(input: Record<string, unknown>) {
     eq(organizations.issuerCode, recipientCode),
   )).limit(1);
   if (!recipient) throw new TecAuthorizationError("This code was issued to a different receiving organization.");
+  const membership = user ? await getOrganizationForUser(user.userId) : null;
+  if (!membership || membership.organization.id !== recipient.id) {
+    throw new TecAuthorizationError("Sign in as a current member of the receiving organization to redeem this package.");
+  }
   if (match.share.status === "redeemed") {
     const [existing] = await db.select().from(evidenceShareRedemptions).where(eq(evidenceShareRedemptions.shareCodeId, match.share.id)).limit(1);
     if (!existing) throw new TecAuthorizationError("This code has been redeemed but its receipt is unavailable.");

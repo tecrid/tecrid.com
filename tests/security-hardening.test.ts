@@ -175,7 +175,8 @@ describe("security hardening", () => {
     await db.insert(controllerEvidenceReceipts).values({ id: "receipt-1", routingAuthorizationId: "route-1", controllerOrganizationId: "brand", laboratoryOrganizationId: "lab", credentialIdentifier: controlledId, credentialVersion: 1, snapshotJson: JSON.stringify({ tecrid: controlledId, subject: { productSku: "SKU-1", sampleName: "Synthetic oil" }, results: [{ analyte: "Lead", resultText: lead, numericValue: 17.125, unit: "ppb", loqText: "0.41 ppb" }, { analyte: "Cadmium", resultText: "1.5", numericValue: 1.5, unit: "ppb" }], integrity: { fingerprint: leadHash, issuerProof: { signature: leadSignature, signedPayloadHash: leadHash, signedPayload: `lead ${lead}` } } }), snapshotFingerprint: leadHash, deliveredAt: "2026-01-02T00:00:00.000Z" });
     const created = await createEvidenceShareCode(brandOwner, { recipientOrganizationCode: "RETAIL1", label: "Cadmium only", purpose: "Retail review", scopeMode: "sku_set", scopeValues: "SKU-1", accessLevel: "selected_analytes", analytes: ["Cadmium"], expiresInDays: 30 });
     mail.items.length = 0;
-    const first = await redeemEvidenceShareCode({ code: created.plainTextCode, recipientOrganizationCode: "RETAIL1" });
+    await expect(redeemEvidenceShareCode({ code: created.plainTextCode, recipientOrganizationCode: "RETAIL1" })).rejects.toThrow(/receiving organization/);
+    const first = await redeemEvidenceShareCode({ code: created.plainTextCode, recipientOrganizationCode: "RETAIL1" }, retailer);
     const serialized = JSON.stringify(first);
     expect(serialized).toContain("Cadmium");
     expect(serialized).toContain("1.5");
@@ -186,7 +187,7 @@ describe("security hardening", () => {
     const used = await env.DB.prepare("SELECT event_type FROM organization_notifications WHERE event_type IN ('evidence_share.redeemed','evidence_share.received')").all();
     expect(used.results.map((row: { event_type: string }) => row.event_type).sort()).toEqual(["evidence_share.received", "evidence_share.redeemed"]);
     expect(mail.items).toEqual([]);
-    await expect(redeemEvidenceShareCode({ code: created.plainTextCode, recipientOrganizationCode: "RETAIL1" })).resolves.toMatchObject({ receipt: { replayed: true } });
+    await expect(redeemEvidenceShareCode({ code: created.plainTextCode, recipientOrganizationCode: "RETAIL1" }, retailer)).resolves.toMatchObject({ receipt: { replayed: true } });
     const expiredToken = "tec_share_expiredtoken";
     await db.insert(evidenceShareCodes).values({ id: "share-expired", controllerOrganizationId: "brand", recipientOrganizationId: "retailer", label: "Expired", purpose: "Expiry check", scopeMode: "sku_set", scopeJson: JSON.stringify(["SKU-1"]), accessLevel: "selected_analytes", analyteScopeJson: JSON.stringify(["Cadmium"]), tokenHash: await sha256(expiredToken), tokenPrefix: expiredToken.slice(0, 16), tokenLastFour: "oken", status: "redeemed", createdByUserId: brandOwner.userId, createdAt: "2019-01-01T00:00:00.000Z", expiresAt: "2020-01-01T00:00:00.000Z", redeemedAt: "2019-06-01T00:00:00.000Z" });
     await db.insert(evidenceShareRedemptions).values({ id: "redemption-expired", shareCodeId: "share-expired", controllerOrganizationId: "brand", recipientOrganizationId: "retailer", packageJson: JSON.stringify({ evidence: [{ resultText: lead, integrity: { fingerprint: leadHash } }] }), packageFingerprint: "expired", recordCount: 1, redeemedAt: "2019-06-01T00:00:00.000Z" });
@@ -231,6 +232,9 @@ describe("security hardening", () => {
     expect(listedText).not.toContain(lead);
     expect(listedText).not.toContain(leadHash);
     expect(listedText).not.toContain(leadSignature);
+    await db.update(evidenceAccessGrants).set({ status: "revoked" }).where(eq(evidenceAccessGrants.id, "grant-insight"));
+    expect(JSON.stringify(await getEvidenceInsightsForOrganization("retailer"))).not.toContain("Cadmium");
+    expect(JSON.stringify(await listEvidenceDeliveriesForOrganization("brand"))).toContain(controlledId);
     const hidden = await createVerificationCheck({ documentSha256: "b".repeat(64) }, stranger.userId);
     const missing = await createVerificationCheck({ documentSha256: "d".repeat(64) }, stranger.userId);
     expect(hidden.outcome).toBe("not_found");

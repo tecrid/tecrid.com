@@ -8,6 +8,7 @@ import {
   evidenceDeliveries,
   organizationNotifications,
 } from "../db/schema";
+import { recipientMayReadDelivery } from "./evidence-routing";
 import { getOrganizationForUser, TecAuthorizationError } from "./tec";
 import { entitledSnapshotResults } from "./withheld-results";
 
@@ -92,7 +93,11 @@ export async function getEvidenceInsightsForOrganization(organizationId: string)
       missingAnalytes: snapshot.resultsAccess?.missingAnalytes ?? [],
     });
   }
+  const readableDeliveries = [];
   for (const delivery of recipientDeliveries) {
+    if (await recipientMayReadDelivery(delivery, organizationId)) readableDeliveries.push(delivery);
+  }
+  for (const delivery of readableDeliveries) {
     const snapshot = parseSnapshot(delivery.snapshotJson);
     records.push({
       tecrid: delivery.credentialIdentifier,

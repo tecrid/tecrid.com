@@ -215,7 +215,8 @@ describe("isolated real backend with D1/R2 and Ed25519",()=>{
   await getDb().insert(routingAuthorizations).values({id:"route-sec",controllerOrganizationId:brandUser.userId,laboratoryOrganizationId:lab.id,productName:"Example",productSku:"EXAMPLE-01",tokenHash:"route-sec-hash",tokenPrefix:"route-sec",tokenLastFour:"sec1",createdByUserId:brandUser.userId,expiresAt:new Date(Date.now()+86_400_000).toISOString()});
   await getDb().insert(controllerEvidenceReceipts).values({id:"receipt-sec",routingAuthorizationId:"route-sec",controllerOrganizationId:brandUser.userId,laboratoryOrganizationId:lab.id,credentialIdentifier:issued.identifier,credentialVersion:1,snapshotJson:JSON.stringify({record:{identifier:issued.identifier,status:"issued",version:1},subject:{productSku:"EXAMPLE-01",sampleName:"Example"},results:[{analyte:"Lead",resultText:"ND"}]}),snapshotFingerprint:"d".repeat(64)});
   const created=await createEvidenceShareCode(brandUser,shareInput);
-  const redeemed=await redeemEvidenceShareCode({code:created.plainTextCode,recipientOrganizationCode:"RETSEC"});
+  await expect(redeemEvidenceShareCode({code:created.plainTextCode,recipientOrganizationCode:"RETSEC"})).rejects.toThrow(/receiving organization/);
+  const redeemed=await redeemEvidenceShareCode({code:created.plainTextCode,recipientOrganizationCode:"RETSEC"},retailer);
   expect("evidence" in redeemed ? redeemed.evidence : []).toHaveLength(1);
   const expiredToken="tec_share_expiredtokenvalue1234567890abcd";
   await getDb().insert(evidenceShareCodes).values({id:"share-expired",controllerOrganizationId:brandUser.userId,recipientOrganizationId:"retailer-sec",label:"Expired",purpose:"Security test",scopeMode:"sku_set",scopeJson:JSON.stringify(["EXAMPLE-01"]),accessLevel:"status_only",tokenHash:createHash("sha256").update(expiredToken).digest("hex"),tokenPrefix:expiredToken.slice(0,16),tokenLastFour:expiredToken.slice(-4),status:"active",createdByUserId:brandUser.userId,createdAt:new Date(Date.now()-86_400_000).toISOString(),expiresAt:new Date(Date.now()-1000).toISOString()});
@@ -228,7 +229,7 @@ describe("isolated real backend with D1/R2 and Ed25519",()=>{
   await revokeEvidenceShareCode(brandUser,active.id);
   await expect(redeemEvidenceShareCode({code:active.plainTextCode,recipientOrganizationCode:"RETSEC"})).rejects.toThrow(/revoked/);
   const redeemedCode=await createEvidenceShareCode(brandUser,{...shareInput,label:"Redeemed then revoked"});
-  await redeemEvidenceShareCode({code:redeemedCode.plainTextCode,recipientOrganizationCode:"RETSEC"});
+  await redeemEvidenceShareCode({code:redeemedCode.plainTextCode,recipientOrganizationCode:"RETSEC"},retailer);
   expect((await revokeEvidenceShareCode(brandUser,redeemedCode.id)).status).toBe("revoked");
   await expect(redeemEvidenceShareCode({code:redeemedCode.plainTextCode,recipientOrganizationCode:"RETSEC"})).rejects.toThrow(/revoked/);
  });
