@@ -88,6 +88,7 @@ export default async function RecordPage({ params }: PageProps) {
 
       <section className="public-record-shell">
         <div className={`record-integrity-bar status-bar-${credential.status}`}><span><i /> {integrity.issuerSignatureVerified && integrity.fingerprintValid && integrity.currentVersionConsistent ? "Issuer signature, fingerprint, and current version verified" : integrity.fingerprintRecorded ? "Integrity proof incomplete or not independently verifiable" : "No integrity proof recorded"}</span><span>Status: {credential.status}</span></div>
+        {issuer.issuerStatus === "suspended" || issuer.issuerStatus === "revoked" ? <div className="review-boundary"><strong>Issuing laboratory is {issuer.issuerStatus}.</strong><span>This TECRID still resolves. The laboratory cannot mint another record while it is {issuer.issuerStatus}.</span></div> : null}
         <div className="public-record-summary">
           <article><span>Sample</span><strong>{credential.sampleName}</strong><small>{credential.productSku ? `${credential.productSku} · ` : ""}{credential.lotNumber || "No lot supplied"}</small></article>
           <article><span>Issued by</span><strong><a href={`/issuers/${encodeURIComponent(issuer.issuerCode)}`}>{issuer.name} ↗</a></strong><small>{issuer.issuerCode} · {issuer.issuerStatus.replaceAll("_", " ")}</small></article>

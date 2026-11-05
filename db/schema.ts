@@ -376,6 +376,7 @@ export const issuerApplications = sqliteTable(
     accreditationBody: text("accreditation_body"),
     accreditationNumber: text("accreditation_number"),
     accreditationUrl: text("accreditation_url"),
+    accreditationExpiresOn: text("accreditation_expires_on"),
     scopeSummary: text("scope_summary").notNull(),
     methodFamilies: text("method_families").notNull(),
     contactName: text("contact_name").notNull(),

@@ -25,7 +25,7 @@ const user = {userId:"email:fixture-lab",email:"lab@example.test",displayName:"F
 const admin = {...user,userId:"fixture-admin",email:"admin@example.test"};
 const secondAdmin = {...admin,userId:"fixture-admin-2",email:"admin-2@example.test"};
 const scopeFile = () => new File(["%PDF-1.7 synthetic accreditation scope"],"scope.pdf");
-const accreditation = {accreditationStatus:"accredited",accreditationBody:"SYNTHETIC accreditation body",accreditationNumber:"FAKE-17025",accreditationUrl:"https://register.example.test/FAKE"};
+const accreditation = {accreditationStatus:"accredited",accreditationBody:"SYNTHETIC accreditation body",accreditationNumber:"FAKE-17025",accreditationExpiresOn:"2027-12-31",accreditationUrl:"https://register.example.test/FAKE"};
 const register = {registerUrl:"https://register.example.test/FAKE",registerResult:"SYNTHETIC current certificate and scope match",registerCheckedAt:"2026-01-01"};
 async function confirmed(id:string,email:string){await env.DB.prepare("INSERT INTO auth_user(id,name,email,email_verified,created_at,updated_at) VALUES(?,?,?,1,0,0)").bind(id.slice(6),"Synthetic lab",email).run();}
 const brandUser = {...user,userId:"fixture-brand",email:"brand@example.test"};

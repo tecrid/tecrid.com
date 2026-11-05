@@ -263,6 +263,18 @@ export function IssuerApplicationPanel({
     } catch { setPending(false); setMessage("We could not send your application. Your details are still here. Try again."); }
   }
 
+  if (issuerStatus === "suspended" || issuerStatus === "revoked") {
+    return (
+      <section className="dashboard-panel issuer-application-panel" id="laboratory-verification">
+        <div className="panel-heading">
+          <div><p className="section-kicker">Issuance authority</p><h2>{issuerStatus === "suspended" ? "Issuance suspended" : "Issuance revoked"}</h2></div>
+          <span className="record-status record-revoked">{issuerStatus}</span>
+        </div>
+        <p className="panel-copy">{issuerStatus === "suspended" ? "ICS has suspended this laboratory. It cannot mint TECRiDs. Existing records stay public and show this status. Issuance resumes only if ICS reinstates the laboratory." : "ICS has revoked this laboratory. It cannot mint TECRiDs. Existing records stay public and show this status. Revocation is permanent."}</p>
+      </section>
+    );
+  }
+
   if (issuerStatus === "verified") {
     return (
       <section className="dashboard-panel issuer-application-panel verified-issuer-panel" id="laboratory-verification">
@@ -359,6 +371,7 @@ export function IssuerApplicationPanel({
           <label>Accreditation body<input name="accreditationBody" required /></label>
           <label>Accreditation number<input name="accreditationNumber" required /></label>
         </div>
+        <label>Certificate expiry<input name="accreditationExpiresOn" type="date" required /></label>
         <label>Public accreditation record URL<input name="accreditationUrl" required type="url" placeholder="https://…" /></label>
         </fieldset><fieldset hidden={step !== 2}>
         <label>Requested issuance scope<textarea name="scopeSummary" required rows={4} placeholder="Matrices, analyte families, authenticity claims, exclusions…" /></label>

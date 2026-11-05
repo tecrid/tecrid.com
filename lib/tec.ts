@@ -771,6 +771,20 @@ export async function getDashboardData(userId: string) {
   };
 }
 
+function accreditationExpiry(value: unknown) {
+  const text = normalizeText(typeof value === "string" ? value : "", 10);
+  if (!text) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    throw new TecInputError("Enter the ISO/IEC 17025 certificate expiry as YYYY-MM-DD.");
+  }
+  const [year, month, day] = text.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+    throw new TecInputError("Enter a real ISO/IEC 17025 certificate expiry date.");
+  }
+  return text;
+}
+
 export async function submitIssuerApplication(
   user: ChatGPTUser,
   value: Record<string, unknown>,
@@ -791,6 +805,7 @@ export async function submitIssuerApplication(
   const accreditationBody = normalizeText(value.accreditationBody, 180) || null;
   const accreditationNumber = normalizeText(value.accreditationNumber, 120) || null;
   const accreditationUrl = normalizeText(value.accreditationUrl, 300) || null;
+  const accreditationExpiresOn = accreditationExpiry(value.accreditationExpiresOn);
   const scopeSummary = normalizeText(value.scopeSummary, 1800);
   const methodFamilies = normalizeText(value.methodFamilies, 1000);
   const contactName = normalizeText(value.contactName, 180);
@@ -823,8 +838,8 @@ export async function submitIssuerApplication(
   } catch {
     throw new TecInputError("Laboratory website must be a complete http or https URL.");
   }
-  if (accreditationStatus !== "accredited" || !accreditationBody || !accreditationNumber || !accreditationUrl) {
-    throw new TecInputError("ISO/IEC 17025 accreditation body, certificate number and public register URL are required.");
+  if (accreditationStatus !== "accredited" || !accreditationBody || !accreditationNumber || !accreditationUrl || !accreditationExpiresOn) {
+    throw new TecInputError("ISO/IEC 17025 accreditation body, certificate number, expiry, and public register URL are required.");
   }
   await requireConfirmedLaboratoryMailbox(user, laboratoryWebsite, contactEmail);
   const scope = await scopePdf(scopeDocument);
@@ -881,6 +896,7 @@ export async function submitIssuerApplication(
     accreditationBody,
     accreditationNumber,
     accreditationUrl,
+    accreditationExpiresOn,
     scopeSummary,
     methodFamilies,
     contactName,
@@ -906,6 +922,7 @@ export async function submitIssuerApplication(
     payload: JSON.stringify({
       accreditationBody,
       accreditationNumber,
+      accreditationExpiresOn,
       accreditationStatus,
       laboratoryWebsite,
       keyId,
@@ -1089,6 +1106,60 @@ export async function reviewIssuerApplication(
     issuerStatus,
     reviewedAt,
   };
+}
+
+export async function setLaboratoryAuthority(
+  user: ChatGPTUser,
+  organizationIdValue: string,
+  actionValue: unknown,
+  reasonValue: unknown,
+) {
+  if (!isIcsAdmin(user)) throw new TecAuthorizationError("ICS administrator access required.");
+  const organizationId = normalizeText(organizationIdValue, 120);
+  const action = normalizeText(typeof actionValue === "string" ? actionValue : "", 32);
+  const reason = normalizeText(typeof reasonValue === "string" ? reasonValue : "", 1200);
+  if (!organizationId || !["suspend", "revoke", "reinstate"].includes(action)) {
+    throw new TecInputError("Choose suspend, revoke, or reinstate.");
+  }
+  if (!reason) throw new TecInputError("A reason is required.");
+  const db = getDb();
+  const [organization] = await db.select().from(organizations).where(eq(organizations.id, organizationId)).limit(1);
+  if (!organization || organization.organizationType !== "laboratory") {
+    throw new TecInputError("Laboratory not found.");
+  }
+  await requireIndependentLabReviewer(user, organization.id, organization.ownerEmail);
+  const from = organization.issuerStatus;
+  const to = action === "suspend" ? "suspended" : action === "revoke" ? "revoked" : "verified";
+  if (action === "suspend" && from !== "verified") throw new TecInputError("Only a verified laboratory can be suspended.");
+  if (action === "revoke" && !["verified", "suspended"].includes(from)) throw new TecInputError("Only a verified or suspended laboratory can be revoked.");
+  if (action === "reinstate" && from !== "suspended") throw new TecInputError("Only a suspended laboratory can be reinstated. Revocation is permanent.");
+  const changedAt = now();
+  const eventType = action === "suspend" ? "issuer.suspended" : action === "revoke" ? "issuer.revoked" : "issuer.reinstated";
+  await db.batch([
+    db.update(organizations).set({ issuerStatus: to, updatedAt: changedAt }).where(and(eq(organizations.id, organization.id), eq(organizations.issuerStatus, from))),
+    db.insert(auditEvents).values({
+      id: `evt_${crypto.randomUUID().replaceAll("-", "")}`,
+      organizationId: organization.id,
+      actorUserId: user.userId,
+      eventType,
+      entityType: "organization",
+      entityId: organization.id,
+      payload: JSON.stringify({ from, to, reason }),
+      createdAt: changedAt,
+    }),
+    db.insert(organizationNotifications).values({
+      id: `notice_${crypto.randomUUID().replaceAll("-", "")}`,
+      organizationId: organization.id,
+      eventType: `issuer.${action}`,
+      entityType: "organization",
+      entityId: organization.id,
+      title: action === "suspend" ? "Laboratory suspended" : action === "revoke" ? "Laboratory revoked" : "Laboratory reinstated",
+      body: reason,
+      actionPath: "/dashboard/laboratory",
+      createdAt: changedAt,
+    }),
+  ]);
+  return { id: organization.id, issuerStatus: to, changedAt };
 }
 
 export async function createApiKey(user: ChatGPTUser, labelValue: unknown, scopesValue?: unknown) {
@@ -1316,6 +1387,9 @@ export async function createCredential(
   options: CredentialCreationOptions = {},
 ) {
   requireOrganizationIdentity(organization);
+  if (organization.issuerStatus === "suspended" || organization.issuerStatus === "revoked") {
+    throw new TecAuthorizationError(`This laboratory is ${organization.issuerStatus} and cannot mint TECRiDs.`);
+  }
   const input = validateCredentialInput(value);
   const canPublish =
     organization.organizationType === "laboratory" &&
@@ -1997,13 +2071,14 @@ export async function getIssuer(issuerCodeValue: string) {
     .from(organizations)
     .where(eq(organizations.issuerCode, issuerCode))
     .limit(1);
-  if (!organization || organization.organizationType !== "laboratory" || organization.issuerStatus !== "verified") return null;
+  if (!organization || organization.organizationType !== "laboratory" || !["verified", "suspended", "revoked"].includes(organization.issuerStatus)) return null;
   const [application] = await db
     .select({
       legalName: issuerApplications.legalName,
       accreditationBody: issuerApplications.accreditationBody,
       accreditationNumber: issuerApplications.accreditationNumber,
       accreditationUrl: issuerApplications.accreditationUrl,
+      accreditationExpiresOn: issuerApplications.accreditationExpiresOn,
       scopeSummary: issuerApplications.scopeSummary,
       methodFamilies: issuerApplications.methodFamilies,
       status: issuerApplications.status,
@@ -2020,21 +2095,16 @@ export async function getIssuer(issuerCodeValue: string) {
     legalName: application?.legalName ?? organization.name,
     website: organization.website,
     issuerStatus: organization.issuerStatus,
-    accreditation:
-      organization.issuerStatus === "verified"
-        ? {
-            body: application?.accreditationBody ?? null,
-            number: application?.accreditationNumber ?? null,
-            url: application?.accreditationUrl ?? null,
-          }
-        : null,
-    verifiedScope:
-      organization.issuerStatus === "verified"
-        ? {
-            summary: application?.scopeSummary ?? null,
-            methodFamilies: application?.methodFamilies ?? null,
-          }
-        : null,
+    accreditation: {
+      body: application?.accreditationBody ?? null,
+      number: application?.accreditationNumber ?? null,
+      url: application?.accreditationUrl ?? null,
+      expiresOn: application?.accreditationExpiresOn ?? null,
+    },
+    verifiedScope: {
+      summary: application?.scopeSummary ?? null,
+      methodFamilies: application?.methodFamilies ?? null,
+    },
     signingKey:
       organization.issuerStatus === "verified" && organization.issuerKeyVerifiedAt
         ? {

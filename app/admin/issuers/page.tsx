@@ -5,7 +5,7 @@ import { requireChatGPTUser } from "../../chatgpt-auth";
 import { adminGate } from "../../../lib/admin-mfa";
 import { listIssuerApplicationsForAdmin } from "../../../lib/tec";
 import { ProductFooter, ProductNav } from "../../site-nav";
-import { ReviewControls, VerificationCheckControl } from "./review-controls";
+import { AuthorityControls, ReviewControls, VerificationCheckControl } from "./review-controls";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "ICS issuer review — TEC Registry", robots: { index: false, follow: false } };
@@ -35,7 +35,7 @@ export default async function IssuerReviewPage() {
               <div><dt>Contact</dt><dd>{application.contactName} · {application.contactEmail}</dd></div>
               <div><dt>Website</dt><dd>{application.laboratoryWebsite || organizationWebsite || "Not supplied"}</dd></div>
               <div><dt>Authority role</dt><dd>{application.authorityRole || "Not supplied"}</dd></div>
-              <div><dt>Accreditation</dt><dd>{application.accreditationStatus.replaceAll("_", " ")} · {application.accreditationBody || "No body claimed"}{application.accreditationNumber ? ` · ${application.accreditationNumber}` : ""}{application.accreditationUrl ? <small><a href={application.accreditationUrl} target="_blank" rel="noreferrer">Open public accreditation record ↗</a></small> : null}</dd></div>
+              <div><dt>Accreditation</dt><dd>{application.accreditationStatus.replaceAll("_", " ")} · {application.accreditationBody || "No body claimed"}{application.accreditationNumber ? ` · ${application.accreditationNumber}` : ""}{application.accreditationExpiresOn ? ` · expires ${application.accreditationExpiresOn}` : " · expiry not recorded"}{application.accreditationUrl ? <small><a href={application.accreditationUrl} target="_blank" rel="noreferrer">Open public accreditation record ↗</a></small> : null}</dd></div>
               <div><dt>Requested scope</dt><dd>{application.scopeSummary}</dd></div>
               <div><dt>Methods</dt><dd>{application.methodFamilies}</dd></div>
               <div><dt>Signing key</dt><dd>{application.keyId ? <><code>{application.keyId}</code><small>{application.keyAlgorithm} public JWK submitted</small></> : "Not submitted"}</dd></div>
@@ -53,6 +53,7 @@ export default async function IssuerReviewPage() {
             </section>
             {application.reviewNote ? <p className="admin-review-note"><strong>Review note</strong>{application.reviewNote}</p> : null}
             {application.status === "submitted" ? <ReviewControls applicationId={application.id} approvalReady={approvalReady} /> : null}
+            {["verified", "suspended"].includes(issuerStatus) ? <AuthorityControls organizationId={application.organizationId} issuerStatus={issuerStatus} /> : null}
           </article>
           );
         }) : <div className="empty-registry"><strong>No issuer applications.</strong><p>Submitted applications will appear here with their complete review record.</p></div>}
