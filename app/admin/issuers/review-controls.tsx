@@ -49,6 +49,38 @@ export function VerificationCheckControl({
   );
 }
 
+export function AuthorityControls({ organizationId, issuerStatus }: { organizationId: string; issuerStatus: string }) {
+  const [reason, setReason] = useState("");
+  const [message, setMessage] = useState("");
+  const [pending, setPending] = useState(false);
+
+  async function act(action: "suspend" | "revoke" | "reinstate") {
+    if (!reason.trim()) return setMessage("Record why this laboratory is changing status.");
+    setPending(true);
+    setMessage("");
+    const response = await fetch(`/api/admin/organizations/${encodeURIComponent(organizationId)}/authority`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action, reason }),
+    });
+    const body = await response.json();
+    setPending(false);
+    if (!response.ok) return setMessage(body.error ?? "The laboratory status was not changed.");
+    setMessage("Status recorded. Reloading…");
+    window.location.reload();
+  }
+
+  return (
+    <div className="review-controls">
+      <textarea value={reason} onChange={(event) => setReason(event.target.value)} rows={3} placeholder="Why issuance is being suspended, revoked, or reinstated. This is stored in the audit log." />
+      {issuerStatus === "verified" ? <button type="button" disabled={pending} onClick={() => act("suspend")}>Suspend laboratory</button> : null}
+      {issuerStatus === "suspended" ? <button type="button" disabled={pending} onClick={() => act("reinstate")}>Reinstate laboratory</button> : null}
+      <button type="button" disabled={pending} onClick={() => act("revoke")}>Revoke laboratory</button>
+      <small role="status">{message || "Suspended and revoked laboratories cannot mint. Existing TECRiDs stay public and show the laboratory status. Revocation is permanent."}</small>
+    </div>
+  );
+}
+
 export function ReviewControls({ applicationId, approvalReady }: { applicationId: string; approvalReady: boolean }) {
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);

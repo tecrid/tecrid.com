@@ -20,23 +20,30 @@ export default async function IssuerPage({ params }: PageProps) {
   const issuer = await getIssuer(decodeURIComponent(issuerCode));
   if (!issuer) notFound();
   const verified = issuer.issuerStatus === "verified";
+  const authority = issuer.issuerStatus === "suspended"
+    ? "Issuance is suspended. Existing TECRiDs remain public and show this status. This laboratory cannot mint."
+    : issuer.issuerStatus === "revoked"
+      ? "Issuance is revoked. Existing TECRiDs remain public and show this status. Revocation is permanent."
+      : verified
+        ? "Credentials still require a valid signature from the reviewed issuer key."
+        : "Applications, drafts, and organization accounts do not confer public issuer status.";
   return (
     <main className="product-page issuer-page">
       <ProductNav compact />
       <header className="record-page-hero issuer-record-hero">
         <div><p className="section-kicker light">TEC issuer register</p><h1>{issuer.name}</h1><p>Issuer code {issuer.issuerCode}</p></div>
-        <span className={verified ? "public-verified" : "public-unverified"}><i /> {verified ? "ICS verified" : "Not authorized"}</span>
+        <span className={verified ? "public-verified" : "public-unverified"}><i /> {issuer.issuerStatus.replaceAll("_", " ")}</span>
       </header>
       <section className="issuer-record-shell">
         <div className="issuer-status-statement">
           <span>Current issuance authority</span>
-          <strong>{verified ? "Active within the scope recorded below" : "No public issuance authority"}</strong>
-          <p>{verified ? "Credentials still require a valid signature from the reviewed issuer key." : "Applications, drafts, and organization accounts do not confer public issuer status."}</p>
+          <strong>{verified ? "Active within the scope recorded below" : issuer.issuerStatus === "suspended" ? "Suspended" : issuer.issuerStatus === "revoked" ? "Revoked" : "No public issuance authority"}</strong>
+          <p>{authority}</p>
         </div>
         <dl className="issuer-facts">
           <div><dt>Legal identity</dt><dd>{issuer.legalName}</dd></div>
           <div><dt>Website</dt><dd>{issuer.website ? <a href={issuer.website} target="_blank" rel="noreferrer">{issuer.website} ↗</a> : "Not published"}</dd></div>
-          <div><dt>Accreditation</dt><dd>{issuer.accreditation?.body ? `${issuer.accreditation.body}${issuer.accreditation.number ? ` · ${issuer.accreditation.number}` : ""}` : "No public accreditation claim recorded"}</dd></div>
+          <div><dt>Accreditation</dt><dd>{issuer.accreditation?.body ? `${issuer.accreditation.body}${issuer.accreditation.number ? ` · ${issuer.accreditation.number}` : ""}${issuer.accreditation.expiresOn ? ` · expires ${issuer.accreditation.expiresOn}` : ""}` : "No public accreditation claim recorded"}</dd></div>
           <div><dt>Signing key</dt><dd>{issuer.signingKey ? <><code>{issuer.signingKey.keyId}</code><small>{issuer.signingKey.algorithm} · reviewed {new Date(issuer.signingKey.verifiedAt).toLocaleDateString()}</small></> : "No reviewed signing key published"}</dd></div>
         </dl>
         <div className="issuer-scope-grid">

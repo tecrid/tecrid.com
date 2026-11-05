@@ -21,6 +21,7 @@ it("keeps the laboratory signup evidence in one multipart form with four stages"
  expect(container.querySelectorAll("form")).toHaveLength(1);
  expect(form.getAttribute("enctype")).toBe("multipart/form-data");expect(form.querySelectorAll("fieldset")).toHaveLength(4);
  expect(form.querySelector<HTMLInputElement>('input[name="scopeDocument"]')!.required).toBe(true);
+ expect(form.querySelector<HTMLInputElement>('input[name="accreditationExpiresOn"]')!.required).toBe(true);
  expect(form.querySelector<HTMLInputElement>('input[name="contactEmail"]')!.value).toBe("quality@synthetic.test");
  expect(form.querySelector('select[name="accreditationStatus"]')).toBeNull();
  expect(form.querySelector('a[href="/dashboard"]')).toBeNull();
