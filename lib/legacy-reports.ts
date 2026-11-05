@@ -11,6 +11,7 @@ import {
 } from "../db/schema";
 import type { ChatGPTUser } from "../app/chatgpt-auth";
 import {
+  assertOrganizationManager,
   canonicalizeCredential,
   createCredential,
   generateTecridIdentifier,
@@ -23,6 +24,8 @@ import {
 } from "./tec";
 
 const MAX_PDF_BYTES = 20 * 1024 * 1024;
+export const LEGACY_CONFIRMATION_TTL_MS = 24 * 60 * 60 * 1000;
+const CONFIRMATION_STATES = new Set(["awaiting_lab_claim", "needs_submitter_correction", "ready_for_signature", "awaiting_issuer_verification", "issued"]);
 
 type LegacyResultInput = CredentialResultInput;
 
@@ -460,7 +463,7 @@ async function getLegacyReportForToken(user: ChatGPTUser, tokenValue: string) {
     .from(legacyReports)
     .where(eq(legacyReports.confirmationTokenHash, tokenHash))
     .limit(1);
-  if (!report) return null;
+  if (!report || !await confirmationIsCurrent(report)) return null;
   const bundle = await getLegacyReportBundle(report.id);
   if (!bundle) return null;
   const membership = await getOrganizationForUser(user.userId);
@@ -471,6 +474,57 @@ async function getLegacyReportForToken(user: ChatGPTUser, tokenValue: string) {
     user.email.toLowerCase() === report.confirmationEmail.toLowerCase();
   if (!authorized) return null;
   return { ...bundle, membership };
+}
+
+function parsedTime(value: string) {
+  const normalized = /^\d{4}-\d{2}-\d{2} \d{2}:/.test(value) ? `${value.replace(" ", "T")}Z` : value;
+  return Date.parse(normalized);
+}
+
+async function confirmationIsCurrent(report: typeof legacyReports.$inferSelect) {
+  if (!CONFIRMATION_STATES.has(report.status)) return false;
+  const events = await getDb().select().from(auditEvents).where(and(
+    eq(auditEvents.entityId, report.id),
+    or(eq(auditEvents.eventType, "legacy_report.confirmation_rotated"), eq(auditEvents.eventType, "legacy_report.confirmation_revoked")),
+  ));
+  const matching = events.find((event) => {
+    try { return JSON.parse(event.payload || "{}").tokenHash === report.confirmationTokenHash; } catch { return false; }
+  });
+  if ((events.length && !matching) || matching?.eventType === "legacy_report.confirmation_revoked") return false;
+  const issuedAt = parsedTime(matching?.createdAt || report.createdAt);
+  const age = Date.now() - issuedAt;
+  return Number.isFinite(issuedAt) && age >= 0 && age < LEGACY_CONFIRMATION_TTL_MS;
+}
+
+export async function manageLegacyConfirmation(user: ChatGPTUser, reportId: string, action: unknown) {
+  if (action !== "rotate" && action !== "revoke") throw new TecInputError("Choose rotate or revoke.");
+  const membership = await getOrganizationForUser(user.userId);
+  if (!membership) throw new TecAuthorizationError("Report confirmation management is restricted to its organization administrators.");
+  assertOrganizationManager(membership.role, "rotate or revoke a confirmation link");
+  const [report] = await getDb().select().from(legacyReports).where(eq(legacyReports.id, reportId)).limit(1);
+  if (!report || ![report.submittingOrganizationId, report.issuerOrganizationId].includes(membership.organization.id)) {
+    throw new TecAuthorizationError("Report confirmation management is restricted to its organization administrators.");
+  }
+  if (action === "rotate" && !CONFIRMATION_STATES.has(report.status)) throw new TecAuthorizationError("This report workflow is closed.");
+  const token = randomToken();
+  const tokenHash = await sha256Text(token);
+  const at = now();
+  await getDb().batch([
+    getDb().update(legacyReports).set({ confirmationTokenHash: tokenHash, confirmationTokenLastFour: token.slice(-4), updatedAt: at }).where(and(eq(legacyReports.id, report.id), eq(legacyReports.confirmationTokenHash, report.confirmationTokenHash))),
+    getDb().insert(auditEvents).values({
+      id: crypto.randomUUID(),
+      organizationId: membership.organization.id,
+      actorUserId: user.userId,
+      eventType: action === "rotate" ? "legacy_report.confirmation_rotated" : "legacy_report.confirmation_revoked",
+      entityType: "legacy_report",
+      entityId: report.id,
+      payload: JSON.stringify({ tokenHash, ttlSeconds: LEGACY_CONFIRMATION_TTL_MS / 1000 }),
+      createdAt: at,
+    }),
+  ]);
+  return action === "rotate"
+    ? { id: report.id, confirmationPath: `/confirm/${token}`, expiresAt: new Date(Date.parse(at) + LEGACY_CONFIRMATION_TTL_MS).toISOString() }
+    : { id: report.id, revoked: true as const };
 }
 
 export async function getLegacyConfirmation(user: ChatGPTUser, token: string) {

@@ -9,11 +9,23 @@ export function prepareContentSecurityPolicy(request: Request) {
   return { request: new Request(request, { headers }), policy };
 }
 
-export function applyContentSecurityPolicy(response: Response, policy: string) {
-  if (!response.headers.get("content-type")?.includes("text/html")) return response;
+export function applyContentSecurityPolicy(response: Response, policy: string, request?: Request) {
   const headers = new Headers(response.headers);
-  headers.set("content-security-policy", policy);
-  // A nonce belongs to this response; do not let a shared cache reuse the document.
+  const html = headers.get("content-type")?.includes("text/html") ?? false;
+  const api = request ? new URL(request.url).pathname.startsWith("/api/") : false;
+  const carriesIdentity = Boolean(request?.headers.has("cookie") || request?.headers.has("authorization"));
+  if (!html && !api && !carriesIdentity) return response;
+  // A nonce belongs to this response, and an API error must not be reused for another viewer.
   headers.set("cache-control", "private, no-store, max-age=0");
+  const vary = new Set((headers.get("vary") || "").split(",").map((value) => value.trim()).filter(Boolean));
+  vary.add("Cookie");
+  vary.add("Authorization");
+  headers.set("vary", [...vary].join(", "));
+  headers.set("referrer-policy", "no-referrer");
+  headers.set("x-content-type-options", "nosniff");
+  if (html) {
+    headers.set("content-security-policy", policy);
+    headers.set("x-frame-options", "DENY");
+  }
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }

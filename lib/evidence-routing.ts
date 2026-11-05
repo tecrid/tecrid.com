@@ -270,6 +270,7 @@ export async function revokeEvidenceGrant(user: ChatGPTUser, grantIdValue: unkno
 
 export async function createRoutingAuthorization(user: ChatGPTUser, input: Record<string, unknown>) {
   const membership = await requireMembership(user);
+  assertOrganizationManager(membership.role, "authorize laboratory routing");
   if (!CONTROLLER_TYPES.has(membership.organization.organizationType)) {
     throw new TecAuthorizationError("Only a brand or ingredient supplier can authorize laboratory routing.");
   }
@@ -316,6 +317,7 @@ export async function createRoutingAuthorization(user: ChatGPTUser, input: Recor
 
 export async function revokeRoutingAuthorization(user: ChatGPTUser, authorizationIdValue: unknown) {
   const membership = await requireMembership(user);
+  assertOrganizationManager(membership.role, "revoke laboratory routing");
   const id = clean(authorizationIdValue, 100);
   const db = getDb();
   const [record] = await db.select().from(routingAuthorizations).where(and(eq(routingAuthorizations.id, id), eq(routingAuthorizations.controllerOrganizationId, membership.organization.id))).limit(1);
@@ -539,6 +541,17 @@ export async function routeExistingCredential(request: Request, input: Record<st
   return deliverCredentialWithAuthorization(authorization, input.tecrid ?? input.identifier);
 }
 
+export async function recipientMayReadDelivery(delivery: { controllerOrganizationId: string; recipientOrganizationId: string; grantId: string; routingAuthorizationId: string }, viewerOrganizationId: string) {
+  if (delivery.controllerOrganizationId === viewerOrganizationId) return true;
+  if (delivery.recipientOrganizationId !== viewerOrganizationId) return false;
+  const db = getDb();
+  const [grant] = await db.select().from(evidenceAccessGrants).where(eq(evidenceAccessGrants.id, delivery.grantId)).limit(1);
+  if (!grant || grant.recipientOrganizationId !== viewerOrganizationId || !["active", "fulfilled"].includes(grant.status)) return false;
+  const [authorization] = await db.select().from(routingAuthorizations).where(eq(routingAuthorizations.id, delivery.routingAuthorizationId)).limit(1);
+  if (!authorization || authorization.status !== "active" || Date.parse(authorization.expiresAt) <= Date.now()) return false;
+  return authorization.controllerOrganizationId === delivery.controllerOrganizationId;
+}
+
 export async function listEvidenceDeliveriesForOrganization(organizationId: string) {
   const db = getDb();
   const deliveries = await db
@@ -550,7 +563,11 @@ export async function listEvidenceDeliveriesForOrganization(organizationId: stri
     ))
     .orderBy(desc(evidenceDeliveries.deliveredAt))
     .limit(100);
-  return Promise.all(deliveries.map(async (delivery) => {
+  const readable = [];
+  for (const delivery of deliveries) {
+    if (await recipientMayReadDelivery(delivery, organizationId)) readable.push(delivery);
+  }
+  return Promise.all(readable.map(async (delivery) => {
     const snapshot = redactUnentitledCommitments(JSON.parse(delivery.snapshotJson));
     return {
       id: delivery.id,
@@ -578,7 +595,11 @@ export async function listEvidenceRoutingForUser(user: ChatGPTUser) {
     db.select().from(controllerEvidenceReceipts).where(eq(controllerEvidenceReceipts.controllerOrganizationId, organizationId)).orderBy(desc(controllerEvidenceReceipts.deliveredAt)).limit(100),
     db.select().from(routingAuthorizations).where(eq(routingAuthorizations.controllerOrganizationId, organizationId)).orderBy(desc(routingAuthorizations.createdAt)).limit(100),
   ]);
-  const visibleDeliveries = await Promise.all(deliveries.map(async (delivery) => {
+  const readableDeliveries = [];
+  for (const delivery of deliveries) {
+    if (await recipientMayReadDelivery(delivery, organizationId)) readableDeliveries.push(delivery);
+  }
+  const visibleDeliveries = await Promise.all(readableDeliveries.map(async (delivery) => {
     const snapshot = redactUnentitledCommitments(JSON.parse(delivery.snapshotJson));
     const snapshotJson = JSON.stringify(snapshot);
     return {
@@ -591,7 +612,7 @@ export async function listEvidenceRoutingForUser(user: ChatGPTUser) {
     organizationId,
     ...requests.flatMap((request) => [request.requesterOrganizationId, request.controllerOrganizationId]),
     ...grants.flatMap((grant) => [grant.controllerOrganizationId, grant.recipientOrganizationId]),
-    ...deliveries.flatMap((delivery) => [delivery.controllerOrganizationId, delivery.recipientOrganizationId]),
+    ...readableDeliveries.flatMap((delivery) => [delivery.controllerOrganizationId, delivery.recipientOrganizationId]),
     ...controllerReceipts.map((receipt) => receipt.laboratoryOrganizationId),
     ...authorizations.map((authorization) => authorization.laboratoryOrganizationId),
   ]);

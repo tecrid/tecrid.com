@@ -1,6 +1,7 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { guardMutationRequest } from "../lib/abuse-budget";
 import { prepareContentSecurityPolicy, applyContentSecurityPolicy } from "../lib/content-security-policy";
 import { removeClientIdentityHeaders } from "../lib/request-security";
 
@@ -10,6 +11,9 @@ interface Env {
   DOCUMENTS: R2Bucket;
   ICS_ADMIN_EMAILS?: string;
   TECRID_PLATFORM_IDENTITY_SECRET?: string;
+  TECRID_API_IP_LIMIT?: string;
+  TECRID_API_PRINCIPAL_LIMIT?: string;
+  TECRID_API_GLOBAL_LIMIT?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -62,8 +66,10 @@ const worker = {
     const headers = new Headers(request.headers);
     removeClientIdentityHeaders(headers, env.TECRID_PLATFORM_IDENTITY_SECRET);
     const security = prepareContentSecurityPolicy(new Request(request, { headers }));
-    const response = await handler.fetch(security.request, env, ctx);
-    return applyContentSecurityPolicy(response, security.policy);
+    const guarded = await guardMutationRequest(security.request, env);
+    if (guarded instanceof Response) return applyContentSecurityPolicy(guarded, security.policy, security.request);
+    const response = await handler.fetch(guarded, env, ctx);
+    return applyContentSecurityPolicy(response, security.policy, guarded);
   },
 };
 
