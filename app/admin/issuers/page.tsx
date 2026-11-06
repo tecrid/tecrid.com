@@ -10,19 +10,21 @@ import { AuthorityControls, ReviewControls, VerificationCheckControl } from "./r
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "ICS issuer review — TEC Registry", robots: { index: false, follow: false } };
 
-export default async function IssuerReviewPage() {
+export default async function IssuerReviewPage({searchParams}: {searchParams: Promise<{page?:string}>}) {
+  const requestedPage=Number((await searchParams).page);
+  const page=Number.isSafeInteger(requestedPage)&&requestedPage>0?Math.min(requestedPage,100000):1;
   const user = await requireChatGPTUser("/admin/issuers");
   const token = (await cookies()).get("tecrid_admin_mfa")?.value;
   const gate = await adminGate(user, token ? `tecrid_admin_mfa=${token}` : null);
   if (gate === "denied") notFound();
   if (gate !== "ok") redirect("/admin/security");
-  const applications = await listIssuerApplicationsForAdmin(user);
+  const applications = await listIssuerApplicationsForAdmin(user,page);
   return (
     <main className="product-page admin-page">
       <ProductNav compact />
       <header className="dashboard-header"><div><p className="section-kicker light">ICS restricted operation</p><h1>Issuer applications</h1><p>Identity, scope, accreditation evidence, and signing-key review</p></div><span className="workspace-code">Applications <strong>{applications.length}</strong></span></header>
       <section className="admin-application-list">
-        <div className="admin-switcher"><strong>Issuer applications</strong><a href="/admin/reports">Report intake audit</a><a href="/admin/founding">Founding launches</a></div>
+        <div className="admin-switcher"><strong>Issuer applications</strong><a href="/admin/labs">Public lab applications</a><a href="/admin/reports">Report intake audit</a><a href="/admin/founding">Founding launches</a></div>
         {applications.length ? applications.map(({ application, organizationName, organizationWebsite, issuerCode, issuerStatus, documents, checks }) => {
           const checkByType = new Map(checks.map((check) => [check.checkType, check]));
           const required = ["identity", "accreditation", "scope", "key_control", "conformance"];
@@ -58,7 +60,8 @@ export default async function IssuerReviewPage() {
           );
         }) : <div className="empty-registry"><strong>No issuer applications.</strong><p>Submitted applications will appear here with their complete review record.</p></div>}
       </section>
-      <ProductFooter />
+      <nav aria-label="Issuer queue pagination">{page>1&&<a href={`/admin/issuers?page=${page-1}`}>Previous page</a>}{applications.length===25&&<a href={`/admin/issuers?page=${page+1}`}>Next page</a>}</nav><ProductFooter />
     </main>
   );
 }
+

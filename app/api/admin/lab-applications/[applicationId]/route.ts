@@ -1,0 +1,12 @@
+import {env} from 'cloudflare:workers';
+import {getChatGPTUser} from '../../../../chatgpt-auth';
+import {requireAdminFactor} from '../../../../../lib/admin-mfa';
+import {isIcsAdmin} from '../../../../../lib/tec';
+import {reviewPublicLab} from '../../../../../lib/public-lab-applications';
+import {boundedRequest,errorResponse,sameOrigin,reply} from '../../../../../lib/onboarding-common.js';
+type Context={params:Promise<{applicationId:string}>};
+async function authorize(request:Request){const user=await getChatGPTUser();if(!user||!isIcsAdmin(user))return null;await requireAdminFactor(user,request);return user;}
+function failure(error:unknown){if(error instanceof Error&&'status' in error)return reply({error:error.message},Number(error.status));return errorResponse(error);}
+export async function POST(request:Request,{params}:Context){try{sameOrigin(request);const user=await authorize(request);if(!user)return reply({error:'ICS administrator required.'},403);const {applicationId}=await params;const data=await (await boundedRequest(request,4096)).json();return reply({application:await reviewPublicLab(user,applicationId,data.decision,data.reviewNote)});}catch(error){return failure(error);}}
+export async function GET(request:Request,{params}:Context){try{if(!await authorize(request))return reply({error:'ICS administrator required.'},403);const {applicationId}=await params;const row=await env.DB.prepare('SELECT certificate_key FROM lab_applications WHERE id=?').bind(applicationId).first<{certificate_key:string}>();const file=row?await env.DOCUMENTS.get(row.certificate_key):null;if(!file)return reply({error:'Certificate not found.'},404);return new Response(file.body,{headers:{'Content-Type':'application/pdf','Content-Disposition':'attachment; filename="accreditation-certificate.pdf"','Cache-Control':'private, no-store','Content-Security-Policy':"default-src 'none'; sandbox",'X-Content-Type-Options':'nosniff'}});}catch(error){return failure(error);}}
+export async function DELETE(request:Request,{params}:Context){try{sameOrigin(request);if(!await authorize(request))return reply({error:'ICS administrator required.'},403);const {applicationId}=await params;const row=await env.DB.prepare("DELETE FROM lab_applications WHERE id=? AND status='PENDING' RETURNING certificate_key").bind(applicationId).first<{certificate_key:string}>();if(!row)return reply({error:'Pending application not found.'},404);await env.DOCUMENTS.delete(row.certificate_key);return reply({deleted:true});}catch(error){return failure(error);}}
