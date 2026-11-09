@@ -2,8 +2,11 @@ import { env } from 'cloudflare:workers';
 import {getDb} from '../db';
 import * as schema from '../db/schema';
 import {createEmailAuth} from './email-auth-factory';
-export function emailAuthReady(){const e=env as unknown as Record<string,string>;return !!(e.TECRID_AUTH_SECRET&&e.TECRID_MAIL_ISSUANCE_SECRET&&e.TECRID_EMAIL_RELAY_SECRET&&e.TECRID_EMAIL_RELAY_URL);}
-export function emailAuth(){const e=env as unknown as Record<string,string>;return createEmailAuth(getDb(),schema,{secret:e.TECRID_AUTH_SECRET,baseURL:e.TECRID_AUTH_URL||'https://tecrid.com',relaySecret:e.TECRID_EMAIL_RELAY_SECRET,issuanceSecret:e.TECRID_MAIL_ISSUANCE_SECRET,relayURL:e.TECRID_EMAIL_RELAY_URL});}
+import {emailConfigFrom,emailConfigured} from './email-sender';
+// Sessions need only the auth secret, so existing sign-ins survive an email outage.
+export function emailAuthReady(){const e=env as unknown as Record<string,string>;return !!e.TECRID_AUTH_SECRET;}
+export function emailDeliveryReady(){return emailConfigured(emailConfigFrom(env as unknown as Record<string,unknown>));}
+export function emailAuth(){const e=env as unknown as Record<string,string>;return createEmailAuth(getDb(),schema,{secret:e.TECRID_AUTH_SECRET,baseURL:e.TECRID_AUTH_URL||'https://tecrid.com',email:emailConfigFrom(e)});}
 export async function getEmailUser(headers:Headers){
  if(!emailAuthReady())return null;
  const origin=headers.get('origin');

@@ -1,12 +1,12 @@
-import {signedServiceInit} from "./service-assertion.js";
 import {privateFetch} from './private-fetch';
+import {sendEmail,sha256Hex,type EmailConfig} from './email-sender';
 import { betterAuth } from 'better-auth';
 import { magicLink } from 'better-auth/plugins';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 
 // The factory also allows isolated tests to substitute email transport, never a
 // production route or environment flag that can bypass mailbox verification.
-export function createEmailAuth(db:any, schema:any, config:{secret:string;baseURL:string;relaySecret:string;relayURL:string;issuanceSecret:string}, transport:typeof fetch=privateFetch){
+export function createEmailAuth(db:any, schema:any, config:{secret:string;baseURL:string;email:EmailConfig}, transport:typeof fetch=privateFetch){
  if(!config.secret || config.secret.length<32)throw Error('Email authentication is not configured.');
   return betterAuth({
   logger:{disabled:true},
@@ -19,14 +19,15 @@ export function createEmailAuth(db:any, schema:any, config:{secret:string;baseUR
   rateLimit:{enabled:true,storage:'database',window:60,max:60},
   plugins:[magicLink({expiresIn:600,storeToken:'hashed',rateLimit:{window:60,max:3},
    async sendMagicLink({email,url}){
-    if(config.issuanceSecret===config.secret)throw Error('Mail issuance requires a distinct credential.');
-    if(!config.relaySecret||!config.relayURL)throw Error('Email delivery is not configured.');
-    const assertion=await signedServiceInit(config.relayURL,{email,url},{TECRID_MAIL_ISSUANCE_SECRET:config.issuanceSecret,TECRID_EMAIL_RELAY_SECRET:config.relaySecret},'mail-issuance');
-    const response=await transport(config.relayURL,{
-     ...assertion,redirect:'error',signal:AbortSignal.timeout(15000),headers:{...assertion.headers,authorization:`Bearer ${config.relaySecret}`,'x-tecrid-mail-issuance':assertion.headers.authorization}
-    });
-    // Never log provider responses or the link: both can contain credentials.
-    if(!response.ok)throw Error('Email delivery failed. Please try again shortly.');
+    // Only a verification link for this site is ever mailed, with fixed content.
+    const link=new URL(url);
+    if(link.origin!==new URL(config.baseURL).origin||link.pathname!=='/api/auth/magic-link/verify'||!link.searchParams.get('token'))throw Error('Invalid sign-in link.');
+    await sendEmail(config.email,{
+     to:[email],
+     subject:'Your TECRID sign-in link',
+     text:`Sign in to TECRID\n\n${link.href}\n\nThis link expires in 10 minutes and works once. If you did not request it, ignore this email.`,
+     idempotencyKey:'tecrid-signin-'+await sha256Hex(email.toLowerCase()+'\n'+link.href),
+    },transport);
    }
   })],
  });

@@ -11,15 +11,13 @@ Better Auth handles verified mailbox sessions, hashed single-use magic-link toke
 Runtime configuration is stored as Sites secrets, never source:
 - `TECRID_AUTH_SECRET`: independent TECRID session secret.
 - `TECRID_AUTH_URL`: `https://tecrid.com`.
-- `TECRID_EMAIL_RELAY_URL`: `https://vle.exchange/api/tecrid-email`.
-- `TECRID_EMAIL_RELAY_SECRET`: shared only with the narrow VLE server relay.
+- `RESEND_API_KEY`: a key from TECRID's own Resend account (sending access only).
+- `TECRID_EMAIL_FROM`: a tecrid.com sender, for example `TECRID <no-reply@tecrid.com>`, on a domain verified in that Resend account.
 
-The VLE relay uses its existing Resend credential and approved `VLE_EMAIL_FROM` sender. It accepts authenticated requests containing a recipient and only a TECRID magic-link verification URL, validates callback origins, and supplies a fixed TECRID subject/body. It does not expose the provider key or accept arbitrary mail content. Messages currently come from the existing VLE sender address and explain the shared delivery service.
-
-If delivery fails, the client displays an error instead of claiming success. Check provider delivery in the existing VLE/Resend account; do not log tokens, URLs or provider response bodies. Rotating the relay secret requires updating both Sites and redeploying both. VLE relay availability is currently a dependency for new sign-in links. Existing sessions remain valid independently of email delivery.
+TECRID sends sign-in mail directly through Resend. There is no relay and no dependency on VLE. The message has a fixed subject and body and contains only the verification link for this site. If either email setting is missing, `POST /api/auth/sign-in/magic-link` returns 503 "Sign-in email is temporarily unavailable" and sends nothing. Existing sessions need only `TECRID_AUTH_SECRET` and keep working during an email outage. Never log provider responses, keys or links. Check delivery in TECRID's Resend dashboard.
 
 ## Validation
 
 `npx vitest run tests/email-auth.test.ts` exercises isolated real D1 with mocked email transport: verified login, expiry and one-use behavior, separate mailboxes, secure cookie, sign-out revocation, hostile origin/redirect rejection, persisted rate limits, provider failure, laboratory creation, public profile, issuer application and production issuance denial before approval. Real recipient inbox delivery is a separate deployment smoke test performed by the account holder.
 
-The VLE source includes `tests/tecrid-email-relay.mjs` for relay authorization and link/destination restrictions. No email bypass, test-login endpoint, credentials or real private PDFs are included.
+No email bypass, test-login endpoint, credentials or real private PDFs are included.

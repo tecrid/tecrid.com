@@ -26,7 +26,7 @@ export function sampleLabReference(identifier: string) {
     jsonUrl: `https://tecrid.com/api/v1/credentials/${encodeURIComponent(report.testIdentifier)}`,
     vleDisplayLabel: "TEST identifier · Light Labs confirmation pending",
     cardUrl: `https://tecrid.com/records/${encodeURIComponent(report.testIdentifier)}#report-panel-title`,
-    cardAccessPolicy: "Verified email and an active Kasandrinos digital card grant required. Kasandrinos team owners and administrators manage TEST access at /dashboard/kasandrinos.",
+    cardAccessPolicy: "Verified email and an active Kasandrinos digital card grant required. Kasandrinos TEST organization owners and administrators in TECRID manage TEST access at /dashboard/kasandrinos.",
     sourceProfileUrl: "https://tecrid.com/participants/LLTEST",
     controllerProfileUrl: "https://tecrid.com/participants/KASTEST",
     vleSamplingId: null,
