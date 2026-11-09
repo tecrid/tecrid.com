@@ -36,7 +36,9 @@ const mail = vi.hoisted(() => ({ items: [] as Array<{ url: string; body: { notic
 vi.mock("../app/chatgpt-auth", () => ({ getChatGPTUser: async () => current.user }));
 vi.mock("../lib/private-fetch", () => ({
   privateFetch: async (url: string, init: { body?: string }) => {
-    mail.items.push({ url: String(url), body: JSON.parse(init.body ?? "{}") });
+    const body = JSON.parse(init.body ?? "{}");
+    // Normalize direct Resend messages to the event and recipient they carry.
+    mail.items.push({ url: String(url), body: { ...body, email: body.to?.[0], noticeType: body.tags?.find((tag: { name: string }) => tag.name === "event")?.value.replace("-", ".") } });
     return new Response("{}", { status: 200 });
   },
 }));
@@ -108,8 +110,8 @@ describe("security hardening", () => {
     env.DB = await mf.getD1Database("DB");
     env.DOCUMENTS = await mf.getR2Bucket("DOCUMENTS");
     env.ICS_ADMIN_EMAILS = admin.email;
-    env.TECRID_EMAIL_RELAY_URL = "https://relay.test/email";
-    env.TECRID_EMAIL_RELAY_SECRET = "relay-secret";
+    env.RESEND_API_KEY = "synthetic-resend-key";
+    env.TECRID_EMAIL_FROM = "TECRID <no-reply@tecrid.com>";
     for (const file of readdirSync("drizzle").filter((name) => name.endsWith(".sql")).sort()) {
       for (const sql of readFileSync(`drizzle/${file}`, "utf8").split("--> statement-breakpoint")) {
         if (sql.trim()) await env.DB.prepare(sql).run();
@@ -308,7 +310,7 @@ describe("security hardening", () => {
     expect(notices.map((notice) => notice.organizationId).sort()).toEqual(["brand", "retailer"]);
     const emailed = mail.items.filter((item) => item.body.noticeType === "credential.corrected");
     expect(emailed.map((item) => item.body.email).sort()).toEqual([brandMember.email, brandOwner.email, retailer.email].sort());
-    expect(emailed.every((item) => item.body.kind === "tecrid-notice" && !item.body.text?.includes(lead))).toBe(true);
+    expect(emailed.every((item) => item.url === "https://api.resend.com/emails" && (item.body as { from?: string }).from === "TECRID <no-reply@tecrid.com>" && !item.body.text?.includes(lead))).toBe(true);
     expect(mail.items.some((item) => item.body.email === labOwner.email)).toBe(false);
     const revoke = { action: "revoke" as const, reason: "Synthetic revocation" };
     const revokeCanonical = await canonicalizeCredentialRevision(lab, publicId, revoke);
