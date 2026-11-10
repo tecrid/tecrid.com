@@ -942,7 +942,7 @@ export async function submitIssuerApplication(
   return { id, status: "submitted", submittedAt };
 }
 
-export async function listIssuerApplicationsForAdmin(user: ChatGPTUser) {
+export async function listIssuerApplicationsForAdmin(user: ChatGPTUser, page = 1) {
   if (!isIcsAdmin(user)) throw new TecAuthorizationError("ICS administrator access required.");
   const db = getDb();
   const applications = await db
@@ -958,7 +958,8 @@ export async function listIssuerApplicationsForAdmin(user: ChatGPTUser) {
       organizations,
       eq(issuerApplications.organizationId, organizations.id),
     )
-    .orderBy(desc(issuerApplications.submittedAt));
+    .orderBy(desc(issuerApplications.submittedAt), desc(issuerApplications.id))
+    .limit(25).offset((Math.max(1, Math.min(100000, Math.floor(page) || 1)) - 1) * 25);
   return Promise.all(applications.map(async (record) => {
     const [documents, checks] = await Promise.all([
       db
@@ -2108,6 +2109,7 @@ export async function getIssuer(issuerCodeValue: string) {
     legalName: application?.legalName ?? organization.name,
     website: organization.website,
     issuerStatus: organization.issuerStatus,
+    productionAuthority: organization.issuerStatus === "verified" && Boolean(organization.issuerKeyVerifiedAt && organization.issuerPublicKeyJwk),
     accreditation: {
       body: application?.accreditationBody ?? null,
       number: application?.accreditationNumber ?? null,
@@ -2306,3 +2308,4 @@ export async function completeWorkspaceDetails(user: ChatGPTUser, input: { name?
   ]);
   return getOrganizationForUser(user.userId);
 }
+

@@ -395,6 +395,7 @@ export const issuerApplications = sqliteTable(
       table.organizationId,
     ),
     index("idx_issuer_applications_status").on(table.status),
+    index("issuer_applications_review_queue").on(table.submittedAt,table.id),
   ],
 );
 
@@ -1296,3 +1297,14 @@ export const notificationReads = sqliteTable("notification_reads", {
  notificationId: text("notification_id").notNull().references(()=>organizationNotifications.id,{onDelete:"cascade"}),
  recipientEmail: text("recipient_email").notNull(), readAt: text("read_at").notNull(),
 }, table=>[primaryKey({columns:[table.notificationId,table.recipientEmail]})]);
+
+
+
+export const labApplications = sqliteTable("lab_applications", {
+ id:text("id").primaryKey(), labName:text("lab_name").notNull(), normalizedName:text("normalized_name").notNull().unique(),
+ contactEmail:text("contact_email").notNull().unique(), accreditationBody:text("accreditation_body").notNull(), accreditationNumber:text("accreditation_number").notNull(),
+ scopeMetals:text("scope_metals").notNull(), certificateKey:text("certificate_key").notNull(), certificateFilename:text("certificate_filename").notNull(), certificateSha256:text("certificate_sha256").notNull(),
+ status:text("status").notNull().default("PENDING"), issuerApplicationId:text("issuer_application_id").references(()=>issuerApplications.id), organizationId:text("organization_id").references(()=>organizations.id),
+ reviewedBy:text("reviewed_by"),reviewNote:text("review_note"),reviewedAt:text("reviewed_at"),createdAt:text("created_at").notNull(),
+},t=>[index("lab_applications_queue").on(t.status,t.createdAt,t.id),index("lab_applications_all_queue").on(t.createdAt,t.id)]);
+export const onboardingRateLimits = sqliteTable("onboarding_rate_limits", {key:text("key").primaryKey(),count:integer("count").notNull(),startedAt:integer("started_at").notNull()},t=>[index("onboarding_rate_started").on(t.startedAt)]);
