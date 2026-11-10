@@ -47,9 +47,22 @@ export function removeClientIdentityHeaders(headers: Headers, secret?: string) {
   headers.delete("x-tecrid-platform-identity");
 }
 
+const TRUSTED_ORIGINS = new Set(["https://tecrid.com", "https://www.tecrid.com"]);
+
+function sameSiteOrigin(origin: string, request: Request) {
+  if (origin === new URL(request.url).origin || TRUSTED_ORIGINS.has(origin)) return true;
+  // Behind the hosting proxy request.url can carry an internal host, so also
+  // accept the public host the browser actually used.
+  for (const name of ["x-forwarded-host", "host"]) {
+    const host = request.headers.get(name)?.split(",")[0]?.trim();
+    if (host && origin === `https://${host}`) return true;
+  }
+  return false;
+}
+
 export function rejectCrossOriginWrite(request: Request) {
   const origin = request.headers.get("origin");
-  if (!origin || origin === new URL(request.url).origin) return null;
+  if (!origin || sameSiteOrigin(origin, request)) return null;
   return Response.json(
     { error: "Cross-origin state changes are not allowed." },
     { status: 403 },
