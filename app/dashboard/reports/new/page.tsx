@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { requireChatGPTUser } from "../../../chatgpt-auth";
 import { getOrganizationForUser } from "../../../../lib/tec";
-import { ProductFooter, ProductNav } from "../../../site-nav";
 import { LegacyReportIntakeForm } from "./report-intake-form";
 
 export const dynamic = "force-dynamic";
@@ -17,8 +16,8 @@ export default async function NewLegacyReportPage() {
   if (!membership) redirect("/dashboard");
   if (membership.organization.slug.startsWith("setup--")) redirect("/dashboard/setup?return_to=/dashboard/reports/new");
   return (
-    <main className="product-page">
-      <ProductNav compact />
+    <div className="product-page">
+
       <header className="app-heading">
         <p className="section-kicker">{membership.organization.name}</p>
         <h1>Add a report</h1>
@@ -27,7 +26,7 @@ export default async function NewLegacyReportPage() {
       <section className="legacy-intake-shell">
         <LegacyReportIntakeForm />
       </section>
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

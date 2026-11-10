@@ -74,7 +74,7 @@ export function WorkQueue({ rows, empty }: { rows: QueueRow[]; empty: string }) 
             ))}
           </tbody>
         </table>
-      ) : <div className="queue-empty"><strong>{query || filter !== "All" ? "No matching reports." : empty}</strong></div>}
+      ) : <div className="queue-empty"><strong>{query || filter !== "All" ? "No matching reports." : empty}</strong><p>{query || filter !== "All" ? "Try another search or status filter." : "Use the action above to add, issue, or request your first report."}</p></div>}
     </section>
   );
 }

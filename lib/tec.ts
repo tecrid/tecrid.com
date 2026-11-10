@@ -807,6 +807,7 @@ export async function submitIssuerApplication(
     );
   }
 
+  assertOrganizationManager(membership.role, "apply for laboratory issuance authority");
   const legalName = normalizeText(value.legalName, 180);
   const laboratoryAddress = normalizeText(value.laboratoryAddress, 300);
   const laboratoryWebsite = normalizeText(value.laboratoryWebsite, 300);
@@ -1922,6 +1923,7 @@ export function publicCredentialDocument(
 export async function createCredentialForUser(user: ChatGPTUser, value: unknown) {
   const membership = await getOrganizationForUser(user.userId);
   if (!membership) throw new TecAuthorizationError("Complete organization setup first.");
+  assertOrganizationManager(membership.role, "issue laboratory reports");
   return createCredential(membership.organization, user.userId, value);
 }
 

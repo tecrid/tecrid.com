@@ -57,7 +57,7 @@ describe("laboratory verification progress", () => {
       signOutHref="/signout"
     />);
     const navigation = screen.getByRole("navigation", { name: "Workspace navigation" });
-    assert.deepEqual([...navigation.querySelectorAll("a")].map(link => link.textContent), ["Home", "Issue", "Approvals", "Settings"]);
-    assert.equal(navigation.querySelectorAll("a").length, 4);
+    assert.deepEqual([...navigation.querySelectorAll("a")].map(link => link.textContent), ["Home", "Issue", "Approvals", "Settings", "Members"]);
+    assert.equal(navigation.querySelectorAll("a").length, 5);
   });
 });

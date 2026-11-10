@@ -4,7 +4,6 @@ import { notFound, redirect } from "next/navigation";
 import { requireChatGPTUser } from "../../../chatgpt-auth";
 import { adminGate } from "../../../../lib/admin-mfa";
 import { listInvitedLaboratoriesForAdmin } from "../../../../lib/lab-invite";
-import { ProductFooter } from "../../../site-nav";
 import { InviteLabForm } from "./invite-form";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +17,7 @@ export default async function InviteLabPage() {
   if (gate !== "ok") redirect("/admin/security");
   const invited = await listInvitedLaboratoriesForAdmin(user);
   return (
-    <main className="product-page app-page">
+    <div className="product-page app-page">
       <header className="app-heading">
         <p className="section-kicker">ICS</p>
         <h1>Invite a lab</h1>
@@ -44,7 +43,7 @@ export default async function InviteLabPage() {
           </table>
         ) : <div className="queue-empty"><strong>No laboratory invites waiting.</strong></div>}
       </section>
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

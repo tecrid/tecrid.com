@@ -26,7 +26,7 @@ export function ApiKeyPanel({ keys }: { keys: KeySummary[] }) {
     setPending(false);
     if (!response.ok) return setMessage(body.error ?? "Could not create API key.");
     setNewKey(body.key.plainTextKey);
-    setMessage("Copy this key now. TEC stores only its cryptographic hash.");
+    setMessage("Copy this key now. TECRID stores only its cryptographic hash.");
   }
 
   async function copyKey() {

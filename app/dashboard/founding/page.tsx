@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { getFoundingOnboardingForUser, getOrganizationForUser } from "../../../lib/tec";
-import { ProductFooter, ProductNav } from "../../site-nav";
 import { FoundingLaunchForm } from "./founding-launch-form";
 
 export const dynamic = "force-dynamic";
@@ -17,8 +16,8 @@ export default async function FoundingLaunchPage() {
   const existing = membership ? await getFoundingOnboardingForUser(user.userId) : null;
 
   return (
-    <main className="product-page founding-launch-page">
-      <ProductNav compact />
+    <div className="product-page founding-launch-page">
+
       <header className="form-page-header">
         <div><p className="section-kicker light">Founding Organization</p><h1>Your first 30 days.</h1><p>One defined pilot, an implementation queue, and a clear path to the first laboratory-confirmed TECRID.</p></div>
         <a href="/dashboard">← Dashboard</a>
@@ -38,7 +37,7 @@ export default async function FoundingLaunchPage() {
           <FoundingLaunchForm email={user.email} existing={existing} />
         </section>
       )}
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

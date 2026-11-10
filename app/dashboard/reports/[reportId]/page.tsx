@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireChatGPTUser } from "../../../chatgpt-auth";
 import { getLegacyReportForUser } from "../../../../lib/legacy-reports";
-import { ProductFooter, ProductNav } from "../../../site-nav";
 import { TranscriptionCorrectionForm } from "./transcription-correction-form";
 
 export const dynamic = "force-dynamic";
@@ -24,8 +23,8 @@ export default async function LegacyReportPage({ params }: PageProps) {
   if (!bundle) notFound();
   const { report, results, events, submitter, issuer } = bundle;
   return (
-    <main className="product-page private-report-page">
-      <ProductNav compact />
+    <div className="product-page private-report-page">
+
       <header className="record-page-hero private-record-hero">
         <div><p className="section-kicker light">Private evidence intake</p><h1>{report.id}</h1><p>{statusLabel(report.status)} · submitted {new Date(report.createdAt).toLocaleString()}</p></div>
         <span className={`record-status record-${report.status}`}>{statusLabel(report.status)}</span>
@@ -88,7 +87,7 @@ export default async function LegacyReportPage({ params }: PageProps) {
         <div><p className="section-kicker">Append-only activity</p><h2>Custody and confirmation history</h2></div>
         <ol>{events.map((event) => <li key={event.id}><span>{new Date(event.createdAt).toLocaleString()}</span><strong>{event.eventType.replaceAll(".", " · ").replaceAll("_", " ")}</strong></li>)}</ol>
       </section>
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

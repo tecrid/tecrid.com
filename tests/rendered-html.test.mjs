@@ -978,3 +978,49 @@ test("publishes the exact earlier-attempts article with discovery and search met
   assert.equal(dom.window.document.querySelector('meta[http-equiv="refresh"]'), null);
   dom.window.close();
  });
+
+test('workspace Members page and sidebar render inside the Blue Atlas Shell with authenticated data',async()=>{
+  const { workspaceFixture } = await import('./support/workspace-fixture.mjs');
+  const { JSDOM } = await import('jsdom');
+  const fixture=await workspaceFixture();
+  const bindings=globalThis.__TECRID_WORKER_TEST_BINDINGS__ ||= {};
+  const previous={...bindings};
+  Object.assign(bindings,fixture.bindings);
+  try {
+    const {default:worker}=await import(new URL('../dist/server/index.js?workspace-render',import.meta.url).href);
+    for(const path of ['/dashboard','/dashboard/settings','/dashboard/settings/members','/admin/issuers/invite']) {
+      const response=await worker.fetch(new Request(`http://localhost${path}`,{headers:fixture.headers}),{...fixture.bindings,ASSETS:{fetch:async()=>new Response('',{status:404})}},{waitUntil(){},passThroughOnException(){}});
+      assert.equal(response.status,200,`${path} must render`);
+      const dom=new JSDOM(await response.text());const document=dom.window.document;
+      assert.equal(document.querySelectorAll('main').length,1);
+      assert.ok(document.querySelector('.atlas.atlas-workspace main#main-content'));
+      assert.equal(document.querySelectorAll('h1').length,1);
+      if(path.startsWith('/dashboard')) assert.ok(document.querySelector('nav[aria-label="Workspace navigation"] a[href="/dashboard/settings/members"]'));
+      if(path.endsWith('/members')) {
+        assert.equal(document.querySelector('h1').textContent,'Members');
+        assert.match(document.body.textContent,/Alex Morgan/);assert.match(document.body.textContent,/sam@atlas.example/);assert.match(document.body.textContent,/Nov 1, 2026/);assert.match(document.body.textContent,/Pending invites/);
+      }
+      document.querySelectorAll('script,style,pre,code').forEach(el=>el.remove());
+      assert.doesNotMatch(document.body.textContent,/\bregistry\b|[\u2014\u2013]/i);
+      dom.window.close();
+    }
+    // The layout must not relax the existing admin second factor guard.
+    const headers={...fixture.headers,cookie:fixture.headers.cookie.split(';')[0]};
+    const response=await worker.fetch(new Request('http://localhost/admin/issuers/invite',{headers}),fixture.bindings,{waitUntil(){},passThroughOnException(){}});
+    assert.ok([302,303,307,308].includes(response.status));assert.match(response.headers.get('location'),/\/admin\/security/);
+    // A verified sign-in consumes the pending invitation without onboarding forms.
+    await fixture.bindings.DB.prepare("INSERT INTO auth_user (id,name,email,email_verified,created_at,updated_at) VALUES ('fixture-invitee','Jordan Reed','jordan@atlas.example',1,0,0)").run();
+    await fixture.bindings.DB.prepare("UPDATE auth_session SET user_id='fixture-invitee'").run();
+    const joined=await worker.fetch(new Request('http://localhost/dashboard/settings/members',{headers:fixture.headers}),fixture.bindings,{waitUntil(){},passThroughOnException(){}});
+    assert.equal(joined.status,200);
+    const joinedDom=new JSDOM(await joined.text());
+    assert.match(joinedDom.window.document.body.textContent,/Jordan Reed/);
+    assert.equal(joinedDom.window.document.querySelector('.member-invite-form'),null);
+    assert.equal((await fixture.bindings.DB.prepare("SELECT count(*) AS total FROM workspace_invites WHERE email='jordan@atlas.example'").first()).total,0);
+    assert.equal((await fixture.bindings.DB.prepare("SELECT count(*) AS total FROM audit_events WHERE event_type='workspace.joined'").first()).total,1);
+    joinedDom.window.close();
+  } finally {
+    for(const key of Object.keys(bindings)) delete bindings[key];Object.assign(bindings,previous);
+    await fixture.mf.dispose();
+  }
+});

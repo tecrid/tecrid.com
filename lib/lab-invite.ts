@@ -190,6 +190,7 @@ export async function confirmInvitedLaboratory(user: ChatGPTUser) {
   if (!membership || membership.organization.organizationType !== "laboratory") {
     throw new TecAuthorizationError("This confirmation is only for an invited laboratory owner.");
   }
+  if (!["owner", "admin"].includes(membership.role)) throw new TecAuthorizationError("Only a laboratory Owner or Admin can confirm verification details.");
   const db = getDb();
   const [application] = await db.select().from(issuerApplications).where(eq(issuerApplications.organizationId, membership.organization.id)).orderBy(desc(issuerApplications.submittedAt)).limit(1);
   if (!application || application.status !== "invited") throw new TecInputError("There is no laboratory invitation waiting for confirmation.");

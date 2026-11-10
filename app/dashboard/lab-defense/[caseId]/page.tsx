@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireChatGPTUser } from "../../../chatgpt-auth";
 import { getDisputeCaseForUser } from "../../../../lib/lab-defense";
-import { ProductFooter } from "../../../site-nav";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Evidence case | TECRID" };
@@ -43,14 +42,14 @@ export default async function DisputeCasePage({ params }: RouteContext) {
   const comparison = readComparison(record.comparisonJson);
   if (!comparison) {
     return (
-      <main className="product-page app-page">
+      <div className="product-page app-page">
         <header className="app-heading"><p className="section-kicker">Evidence case</p><h1>{record.title}</h1><p>This case could not be read. The stored comparison is incomplete.</p><Link href="/dashboard/lab-defense">Back to evidence cases</Link></header>
-        <ProductFooter />
-      </main>
+
+      </div>
     );
   }
   return (
-    <main className="product-page app-page">
+    <div className="product-page app-page">
       <header className="app-heading">
         <p className="section-kicker">Evidence case</p>
         <h1>{record.title}</h1>
@@ -73,7 +72,7 @@ export default async function DisputeCasePage({ params }: RouteContext) {
         {comparison.missingContext.length ? <section className="dispute-missing"><h2>Still needed for a technical review</h2><ul>{comparison.missingContext.map((item) => <li key={item}>{item}</li>)}</ul></section> : null}
         <div className="dispute-download"><p>The download freezes both public records and this comparison. It does not decide safety.</p><a className="button-dark" href={`/api/disputes/${record.id}/manifest`}>Download evidence manifest</a></div>
       </div>
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

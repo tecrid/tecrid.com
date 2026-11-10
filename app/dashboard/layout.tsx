@@ -1,3 +1,4 @@
+import { Shell } from "../blue-atlas/shared";
 import type { ReactNode } from "react";
 import { getChatGPTUser, chatGPTSignOutPath } from "../chatgpt-auth";
 import { getDashboardData } from "../../lib/tec";
@@ -11,10 +12,10 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   if (user) await claimInvitedLaboratory(user);
   const data = user ? await getDashboardData(user.userId) : null;
 
-  if (!user || !data) return children;
+  if (!user || !data) return <Shell compact className="atlas-workspace">{children}</Shell>;
 
   return (
-    <div className="dashboard-workspace-frame">
+    <Shell minimal className="atlas-workspace has-sidebar"><div className="dashboard-workspace-frame">
       <WorkspaceSidebar
         organization={{
           name: data.organization.name,
@@ -32,6 +33,6 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         signOutHref={chatGPTSignOutPath("/")}
       />
       <div className="dashboard-workspace-main">{children}</div>
-    </div>
+    </div></Shell>
   );
 }

@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { listSharingForUser } from "../../../lib/sharing";
 import { organizationRole } from "../../../lib/roles";
-import { ProductFooter, ProductNav } from "../../site-nav";
 import { SharingClient } from "./sharing-client";
 
 export const dynamic = "force-dynamic";
@@ -44,8 +43,8 @@ export default async function SharingPage() {
     };
   });
   return (
-    <main className="product-page app-page">
-      <ProductNav compact />
+    <div className="product-page app-page">
+
       <header className="app-heading">
         <p className="section-kicker">{data.membership.organization.name}</p>
         <h1>Sharing</h1>
@@ -69,7 +68,7 @@ export default async function SharingPage() {
           participationStatus: data.profile.participationStatus,
         } : null}
       />
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

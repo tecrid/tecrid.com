@@ -12,6 +12,7 @@ import "./simple.css";
 import "./blue-atlas/continuity.css";
 import "./blue-atlas/atlas.css";
 import "./blue-atlas/public.css";
+import "./blue-atlas/workspace.css";
 import { NotificationProvider } from "./notification-center";
 import { MobileNavigation } from "./mobile-navigation";
 import {

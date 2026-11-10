@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { listLabDefenseForUser } from "../../../lib/lab-defense";
-import { ProductFooter, ProductNav } from "../../site-nav";
 import { LabDefenseClient } from "./lab-defense-client";
 
 export const dynamic = "force-dynamic";
@@ -13,8 +12,8 @@ export default async function LabDefensePage() {
   const data = await listLabDefenseForUser(user);
   const verified = data.checks.filter((check) => check.outcome === "verified_match").length;
   return (
-    <main className="product-page lab-defense-page">
-      <ProductNav compact />
+    <div className="product-page lab-defense-page">
+
       <header className="app-heading"><p className="section-kicker">{data.membership.organization.name}</p><h1>Evidence cases</h1><p>Compare two public reports. TECRID checks that each record is real. It does not choose a winner.</p></header>
       <div className="lab-defense-shell">
         <section className="dashboard-summary">
@@ -29,7 +28,7 @@ export default async function LabDefensePage() {
           <aside className="dashboard-panel dispute-case-panel"><div className="panel-heading"><div><p className="section-kicker light">Evidence cases</p><h2>Structured dispute handoffs</h2></div></div><div className="lab-defense-list dark-list">{data.cases.length ? data.cases.map((record) => <Link key={record.id} href={`/dashboard/lab-defense/${record.id}`}><span>{record.comparisonStatus.replaceAll("_", " ")}</span><div><strong>{record.title}</strong><small>{record.leftCredentialIdentifier} ↔ {record.rightCredentialIdentifier}</small></div><i>→</i></Link>) : <div className="empty-state dark"><strong>No evidence cases yet.</strong><p>Create one above, or open the fictional demo to inspect the output first.</p><a href="/demo/lab-defense">View fictional demonstration →</a></div>}</div></aside>
         </section>
       </div>
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

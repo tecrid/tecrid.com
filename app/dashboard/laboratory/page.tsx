@@ -3,7 +3,6 @@ import { requireChatGPTUser } from "../../chatgpt-auth";
 import { getDashboardData } from "../../../lib/tec";
 import { IssuerApplicationPanel } from "../issuer-application";
 import { IssuerKeyButton } from "../issuer-key-button";
-import { ProductFooter } from "../../site-nav";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Laboratory", robots: { index: false, follow: false } };
@@ -23,7 +22,7 @@ export default async function LaboratorySetup() {
         ? "ICS filled in this laboratory. Confirm the details. Issuing stays locked until two different ICS admins approve."
         : "Finish verification before you can issue a report.";
   return (
-    <main className="product-page app-page">
+    <div className="product-page app-page">
       <header className="app-heading">
         <p className="section-kicker">Laboratory</p>
         <h1>{title}</h1>
@@ -32,7 +31,7 @@ export default async function LaboratorySetup() {
         {verified ? <IssuerKeyButton /> : null}
       </header>
       <IssuerApplicationPanel application={data.issuerApplication} issuerStatus={data.organization.issuerStatus} documents={data.issuerDocuments} checks={data.issuerChecks} confirmedEmail={user.userId.startsWith("email:") ? user.email : null} />
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }
