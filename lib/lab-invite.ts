@@ -2,6 +2,7 @@ import { and, desc, eq } from "drizzle-orm";
 import type { ChatGPTUser } from "../app/chatgpt-auth";
 import { getDb } from "../db";
 import { auditEvents, issuerApplications, organizationMembers, organizationNotifications, organizations } from "../db/schema";
+import { parseScopeList } from "./accreditation-scope";
 import { laboratoryMailbox, requireConfirmedLaboratoryMailbox } from "./lab-signup-policy";
 import { getOrganizationForUser, isIcsAdmin, TecAuthorizationError, TecInputError } from "./tec";
 
@@ -67,8 +68,13 @@ export async function inviteLaboratoryForAdmin(user: ChatGPTUser, input: Record<
   const accreditationNumber = clean(input.accreditationNumber, 120);
   const accreditationExpiresOn = expiry(input.accreditationExpiresOn);
   const scopeSummary = clean(input.scopeSummary, 1800);
+  const accreditedSites = parseScopeList(input.accreditedSites);
+  const accreditedAnalytes = parseScopeList(input.accreditedAnalytes);
   if (!legalName || !laboratoryAddress || !ownerName || !accreditationBody || !accreditationNumber || !scopeSummary) {
     throw new TecInputError("Laboratory name, address, owner, accreditation body, certificate number, expiry, and scope are required.");
+  }
+  if (!accreditedSites.length || !accreditedAnalytes.length) {
+    throw new TecInputError("List the sites covered by the certificate and the analytes on the accredited scope. One name per line.");
   }
   if (ownerEmail === user.email.toLowerCase()) {
     throw new TecInputError("Invite the laboratory owner. An ICS admin cannot invite their own email.");
@@ -118,6 +124,8 @@ export async function inviteLaboratoryForAdmin(user: ChatGPTUser, input: Record<
       accreditationNumber,
       accreditationExpiresOn,
       scopeSummary,
+      accreditedSites: JSON.stringify(accreditedSites),
+      accreditedAnalytes: JSON.stringify(accreditedAnalytes),
       methodFamilies: "Pending laboratory confirmation",
       contactName: ownerName,
       contactEmail: ownerEmail,
@@ -132,7 +140,7 @@ export async function inviteLaboratoryForAdmin(user: ChatGPTUser, input: Record<
       eventType: "issuer.laboratory_invited",
       entityType: "issuer_application",
       entityId: applicationId,
-      payload: JSON.stringify({ accreditationBody, accreditationNumber, accreditationExpiresOn, ownerEmail, issuerCode }),
+      payload: JSON.stringify({ accreditationBody, accreditationNumber, accreditationExpiresOn, ownerEmail, issuerCode, accreditedSites, accreditedAnalytes }),
       createdAt,
     }),
   ]);
@@ -216,4 +224,46 @@ export async function confirmInvitedLaboratory(user: ChatGPTUser) {
     }),
   ]);
   return { id: application.id, status: "submitted" as const, issuerStatus: "application_submitted" as const };
+}
+
+export async function recordIssuerPublicKey(user: ChatGPTUser, value: Record<string, unknown>) {
+  const membership = await getOrganizationForUser(user.userId);
+  if (!membership || membership.organization.organizationType !== "laboratory") {
+    throw new TecAuthorizationError("A laboratory owner account is required.");
+  }
+  if (!["owner", "admin"].includes(membership.role)) {
+    throw new TecAuthorizationError("Only a laboratory owner or admin can record the signing key.");
+  }
+  const db = getDb();
+  const [application] = await db.select().from(issuerApplications).where(eq(issuerApplications.organizationId, membership.organization.id)).orderBy(desc(issuerApplications.submittedAt)).limit(1);
+  if (!application || application.status !== "submitted") {
+    throw new TecInputError("Confirm the laboratory application before recording a signing key.");
+  }
+  if (application.publicKeyJwk) throw new TecInputError("A signing key is already recorded for this application.");
+  const keyId = clean(value.keyId, 180);
+  const publicKeyJwk = clean(value.publicKeyJwk, 2000);
+  if (!keyId || !publicKeyJwk) throw new TecInputError("Provide both an Ed25519 public JWK and its key ID.");
+  let normalizedJwk: string;
+  try {
+    const jwk = JSON.parse(publicKeyJwk) as JsonWebKey;
+    if (jwk.kty !== "OKP" || jwk.crv !== "Ed25519" || !jwk.x || jwk.d) throw new Error();
+    normalizedJwk = JSON.stringify({ kty: "OKP", crv: "Ed25519", x: jwk.x, use: "sig" });
+  } catch {
+    throw new TecInputError("The signing key must be a public Ed25519 JWK and must not contain private key material.");
+  }
+  const recordedAt = now();
+  await db.batch([
+    db.update(issuerApplications).set({ publicKeyJwk: normalizedJwk, keyId, keyAlgorithm: "Ed25519" }).where(eq(issuerApplications.id, application.id)),
+    db.insert(auditEvents).values({
+      id: `evt_${crypto.randomUUID().replaceAll("-", "")}`,
+      organizationId: membership.organization.id,
+      actorUserId: user.userId,
+      eventType: "issuer.public_key_recorded",
+      entityType: "issuer_application",
+      entityId: application.id,
+      payload: JSON.stringify({ keyId }),
+      createdAt: recordedAt,
+    }),
+  ]);
+  return { id: application.id, keyId, status: application.status };
 }

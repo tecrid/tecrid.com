@@ -18,6 +18,8 @@ type ApplicationSummary = {
   accreditationNumber?: string | null;
   accreditationExpiresOn?: string | null;
   scopeSummary?: string;
+  accreditedSites?: string | null;
+  accreditedAnalytes?: string | null;
   contactName?: string;
 } | null;
 
@@ -35,6 +37,16 @@ type CheckSummary = {
   evidenceNote: string | null;
   reviewedAt: string | null;
 };
+
+function scopeText(value?: string | null) {
+  if (!value) return "Not recorded";
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    return Array.isArray(parsed) ? parsed.filter((item) => typeof item === "string").join(", ") || "Not recorded" : "Not recorded";
+  } catch {
+    return "Not recorded";
+  }
+}
 
 type SigningChallenge = {
   id: string;
@@ -295,6 +307,31 @@ export function IssuerApplicationPanel({
     );
   }
 
+  async function savePublicKey(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPending(true);
+    setMessage("");
+    const form = new FormData(event.currentTarget);
+    try {
+      const response = await fetch("/api/issuer-application/key", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ keyId: form.get("keyId"), publicKeyJwk: form.get("publicKeyJwk") }),
+      });
+      const body = await response.json() as { error?: string };
+      if (!response.ok) {
+        setMessage(body.error ?? "The signing key could not be recorded.");
+        setPending(false);
+        return;
+      }
+      setMessage("Public key recorded. Reloading.");
+      window.location.reload();
+    } catch {
+      setPending(false);
+      setMessage("The signing key could not be recorded.");
+    }
+  }
+
   async function confirmInvite() {
     setPending(true);
     setMessage("Confirming.");
@@ -326,6 +363,8 @@ export function IssuerApplicationPanel({
           <div><dt>Certificate number</dt><dd>{application.accreditationNumber}</dd></div>
           <div><dt>Expiry</dt><dd>{application.accreditationExpiresOn}</dd></div>
           <div><dt>Scope</dt><dd>{application.scopeSummary}</dd></div>
+          <div><dt>Covered sites</dt><dd>{scopeText(application.accreditedSites)}</dd></div>
+          <div><dt>Accredited analytes</dt><dd>{scopeText(application.accreditedAnalytes)}</dd></div>
           <div><dt>Owner</dt><dd>{application.contactName} · {application.contactEmail}</dd></div>
         </dl>
         <p>Confirming sends this application to ICS review. It does not verify the laboratory. Two different ICS admins still have to approve it.</p>
@@ -374,6 +413,7 @@ export function IssuerApplicationPanel({
           <div className="issuer-key-conformance">
             <div><p className="section-kicker">Cryptographic gate</p><h3>{keyComplete ? "Key control verified" : "Prove control of the issuer key"}</h3><p>{keyComplete ? "The submitted public key verified a canonical TECRID challenge and signing-format test." : "TECRID issues a single-use canonical payload. The laboratory must sign its exact UTF-8 bytes with the private key corresponding to the submitted public key."}</p></div>
             {keyComplete ? <div className="key-conformance-complete"><strong>Passed</strong><span>Key control and signing conformance are recorded separately from ICS identity and scope review.</span></div> : <>
+              {!application.publicKeyJwk ? <form className="issuer-evidence-form" onSubmit={savePublicKey}><div><p className="section-kicker">Signing key</p><h3>Record the public key</h3><p>Submit only the public Ed25519 key. This does not approve the laboratory.</p></div><label>Key ID<input name="keyId" required /></label><label>Public JWK<textarea name="publicKeyJwk" required rows={4} /></label><button className="button-dark" type="submit" disabled={pending}>Save public signing key</button>{message ? <p className="form-message" role="status">{message}</p> : null}</form> : null}
               <button className="button-dark" type="button" onClick={createChallenge} disabled={pending}>{challenge ? "Replace challenge" : "Create 15-minute challenge"} →</button>
               {challenge ? <>
                 <label>Canonical challenge payload<textarea readOnly rows={7} value={challenge.canonicalPayload} /></label>

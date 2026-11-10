@@ -159,6 +159,7 @@ export default function DevelopersPage() {
           <a href="#canonicalize">Canonicalize</a>
           <a href="#report-mark">Print TECRID on report</a>
           <a href="#create">Issue credential</a>
+          <a href="#batch">Batch issuance</a>
           <a href="#list">List credentials</a>
           <a href="#resolve">Resolve credential</a>
           <a href="#versions">Correct or revoke</a>
@@ -166,6 +167,7 @@ export default function DevelopersPage() {
           <a href="#share-codes">Share-code redemption</a>
           <a href="#certification-intake">Certification intake</a>
           <a href="#legacy-api">Legacy reports</a>
+          <a href="#backfill">Backfill past reports</a>
           <a href="#insights">Portfolio insights</a>
           <a href="#connectors">LIMS connector profiles</a>
           <a href="#errors">Errors</a>
@@ -206,6 +208,56 @@ Content-Type: application/json
             <p>Creates a private draft when <code>publish</code> is false. Public issuance additionally requires verified laboratory status, a reviewed key, and a valid Ed25519 signature over the canonical payload. Successful issuance returns a permanent TECRID.</p>
             <p>For a historical PDF, include <code>sourceDocument</code>. Its SHA-256 fingerprint, report reference, submitting party, and release date become part of the signed payload; the private PDF itself is not exposed by the public API.</p>
             <pre><code>{createExample}</code></pre>
+          </section>
+          <section id="batch">
+            <p className="doc-index">03B / BATCH</p>
+            <h2>POST /api/v1/credentials/batch</h2>
+            <p>Send up to 500 credential payloads in one call. Each item uses the same validation and Ed25519 signature check as a single issuance. The call can succeed for some items and fail for others. A repeated <code>reportId</code> or <code>sampleId</code> returns the existing TECRID and does not create a duplicate.</p>
+            <p>Limit: 500 credentials per call, 10 calls per minute for each laboratory, and a 2 MB JSON body. For 10,000 or more, split the work into chunks of 500. Retries are safe because the laboratory report or sample ID is the idempotency key. Set <code>async</code> to true when you want a job id you can read again. Each job is still one chunk of 500.</p>
+            <p><code>laboratorySite</code> is compared with the sites on the certificate. A report from a site that is not covered is not labeled accredited. An analyte that is outside the accredited scope is still issued and marked <code>Not on the accredited scope.</code> TECRID does not decide whether a result is acceptable.</p>
+            <pre><code>{`curl https://tecrid.com/api/v1/credentials/batch \\
+  -H "Authorization: Bearer $TECRID_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "credentials": [
+      {
+        "reportId": "LL-240518",
+        "sampleId": "S-240518",
+        "laboratorySite": "Ann Arbor, MI",
+        "sampleName": "Olive oil",
+        "lotNumber": "LOT-240518",
+        "matrix": "Olive oil",
+        "method": "ICP-MS",
+        "releasedAt": "2026-08-28",
+        "publish": true,
+        "sourceDocument": {
+          "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+          "filename": "LL-240518.pdf",
+          "reportNumber": "LL-240518"
+        },
+        "proof": {
+          "keyId": "lab.example/key/2026-01",
+          "algorithm": "Ed25519",
+          "signature": "BASE64URL_SIGNATURE"
+        },
+        "results": [
+          { "analyte": "Lead", "resultText": "0.02", "unit": "mg/kg" }
+        ]
+      }
+    ]
+  }'`}</code></pre>
+            <p>Each result is <code>created</code>, <code>existing</code>, or <code>error</code> with a reason. Read a stored chunk with <code>GET /api/v1/credentials/batch/jobs/:jobId</code>.</p>
+            <pre><code>{`# 10,000 credentials: 20 files of 500. Pause after each 10 calls.
+i=0
+for f in chunks/chunk-*.json; do
+  curl -sS https://tecrid.com/api/v1/credentials/batch \\
+    -H "Authorization: Bearer $TECRID_API_KEY" \\
+    -H "Content-Type: application/json" \\
+    --data-binary @"$f"
+  i=$((i+1))
+  if [ $((i % 10)) -eq 0 ]; then sleep 60; fi
+done`}</code></pre>
+            <p>Add <code>&quot;async&quot;: true</code> next to the credentials array when you want HTTP 202 and a job id. Poll <code>GET /api/v1/credentials/batch/jobs/:jobId</code> with the same bearer key. The job still holds at most 500 credentials.</p>
           </section>
           <section id="report-mark">
             <p className="doc-index">03A / REPORT MARK</p>
@@ -302,6 +354,37 @@ Content-Type: application/json
   -F 'results=[{"analyte":"Lead","resultText":"42","unit":"µg/kg"}]' \\
   -F "attested=on"`}</code></pre>
           </section>
+          <section id="backfill">
+            <p className="doc-index">09A / BACKFILL</p>
+            <h2>POST /api/v1/legacy-reports/batch</h2>
+            <p>A verified laboratory can import past reports as a JSON manifest, a CSV manifest, or PDF URLs plus SHA-256. The original report date is kept, and the record is marked backfilled. The same PDF SHA-256 returns the existing record. The response includes the exact canonical payload to sign. Add that signature on a retry, or post the returned credential to the batch issuance endpoint.</p>
+            <p>Limit: 25 reports per call, 20 MB per PDF, and 10 calls per minute for each laboratory. For a larger history, send the next chunk. PDF URLs must be public https addresses.</p>
+            <pre><code>{`curl https://tecrid.com/api/v1/legacy-reports/batch \\
+  -H "Authorization: Bearer $TECRID_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "items": [
+      {
+        "reportId": "LL-2024-100",
+        "sampleId": "S-100",
+        "sampleName": "Olive oil",
+        "originalReportDate": "2024-03-15",
+        "laboratorySite": "Ann Arbor, MI",
+        "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "filename": "LL-2024-100.pdf",
+        "pdfUrl": "https://reports.example/LL-2024-100.pdf",
+        "results": [
+          { "analyte": "Lead", "resultText": "0.01", "unit": "mg/kg" }
+        ]
+      }
+    ]
+  }'`}</code></pre>
+            <pre><code>{`curl https://tecrid.com/api/v1/legacy-reports/batch \\
+  -H "Authorization: Bearer $TECRID_API_KEY" \\
+  -F "manifest=@manifest.json;type=application/json" \\
+  -F "document=@LL-2024-100.pdf;type=application/pdf"`}</code></pre>
+            <p>A CSV manifest uses one row per analyte and groups rows that share a <code>sha256</code>. Columns: <code>reportId,sampleId,sampleName,originalReportDate,laboratorySite,sha256,filename,pdfUrl,lotNumber,matrix,method,analyte,resultText,unit</code>.</p>
+          </section>
           <section id="insights">
             <p className="doc-index">10 / INSIGHTS</p>
             <h2>GET /api/v1/insights</h2>
@@ -322,7 +405,7 @@ Content-Type: application/json
           <section id="errors">
             <p className="doc-index">12 / ERRORS</p>
             <h2>Stable, inspectable responses.</h2>
-            <div className="error-table"><div><code>400</code><span>invalid_request</span><p>Required fields, result structure, revision reason, or proof shape is invalid.</p></div><div><code>403</code><span>not_authorized</span><p>The API key, issuer authority, reviewed signing key, or signature verification failed.</p></div><div><code>404</code><span>not_found</span><p>No public TECRID matches the identifier.</p></div></div>
+            <div className="error-table"><div><code>400</code><span>invalid_request</span><p>Required fields, result structure, revision reason, or proof shape is invalid. A batch above 500 credentials or a backfill above 25 reports is rejected before any item is written.</p></div><div><code>403</code><span>not_authorized</span><p>The API key, issuer authority, reviewed signing key, or signature verification failed.</p></div><div><code>404</code><span>not_found</span><p>No public TECRID matches the identifier.</p></div><div><code>429</code><span>rate_limited</span><p>The laboratory sent more batch or backfill calls than the limit. Wait and retry. Repeated report IDs, sample IDs, and PDF fingerprints return the existing record.</p></div></div>
           </section>
         </div>
       </section>

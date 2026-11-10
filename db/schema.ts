@@ -158,6 +158,13 @@ export const credentials = sqliteTable(
     issuanceBasis: text("issuance_basis"),
     laboratoryReportNumber: text("laboratory_report_number"),
     laboratoryOrderNumber: text("laboratory_order_number"),
+    issuerReportId: text("issuer_report_id"),
+    issuerSampleId: text("issuer_sample_id"),
+    laboratorySite: text("laboratory_site"),
+    siteOnCertificate: integer("site_on_certificate", { mode: "boolean" }),
+    accreditationLabel: text("accreditation_label"),
+    backfilled: integer("backfilled", { mode: "boolean" }).notNull().default(false),
+    originalReportDate: text("original_report_date"),
     publicRecord: integer("public_record", { mode: "boolean" })
       .notNull()
       .default(false),
@@ -172,6 +179,8 @@ export const credentials = sqliteTable(
     index("idx_credentials_public_record").on(table.publicRecord),
     uniqueIndex("idx_credentials_legacy_report_id").on(table.legacyReportId),
     uniqueIndex("idx_credentials_source_document_hash").on(table.sourceDocumentHash),
+    uniqueIndex("idx_credentials_org_report_id").on(table.organizationId, table.issuerReportId),
+    uniqueIndex("idx_credentials_org_sample_id").on(table.organizationId, table.issuerSampleId),
   ],
 );
 
@@ -223,6 +232,7 @@ export const credentialResults = sqliteTable(
     unit: text("unit").notNull(),
     loqText: text("loq_text"),
     method: text("method"),
+    onAccreditedScope: integer("on_accredited_scope", { mode: "boolean" }),
     sequence: integer("sequence").notNull().default(0),
   },
   (table) => [
@@ -268,6 +278,8 @@ export const legacyReports = sqliteTable(
     sourceSize: integer("source_size").notNull(),
     sourceSha256: text("source_sha256").notNull(),
     documentVisibility: text("document_visibility").notNull().default("private"),
+    backfilled: integer("backfilled", { mode: "boolean" }).notNull().default(false),
+    originalReportDate: text("original_report_date"),
     discrepancyNote: text("discrepancy_note"),
     issuedCredentialIdentifier: text("issued_credential_identifier").references(
       () => credentials.identifier,
@@ -378,6 +390,8 @@ export const issuerApplications = sqliteTable(
     accreditationUrl: text("accreditation_url"),
     accreditationExpiresOn: text("accreditation_expires_on"),
     scopeSummary: text("scope_summary").notNull(),
+    accreditedSites: text("accredited_sites"),
+    accreditedAnalytes: text("accredited_analytes"),
     methodFamilies: text("method_families").notNull(),
     contactName: text("contact_name").notNull(),
     contactEmail: text("contact_email").notNull(),
@@ -1291,6 +1305,27 @@ export const adminFactorSessions = sqliteTable("admin_factor_sessions", {
   expiresAt: text("expires_at").notNull(),
   createdAt: text("created_at").notNull(),
 }, (table) => [uniqueIndex("idx_admin_factor_token").on(table.tokenHash)]);
+
+export const credentialBatchJobs = sqliteTable(
+  "credential_batch_jobs",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    status: text("status").notNull(),
+    total: integer("total").notNull(),
+    createdCount: integer("created_count").notNull().default(0),
+    existingCount: integer("existing_count").notNull().default(0),
+    errorCount: integer("error_count").notNull().default(0),
+    resultsJson: text("results_json").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    completedAt: text("completed_at"),
+  },
+  (table) => [
+    index("idx_credential_batch_jobs_org").on(table.organizationId, table.createdAt),
+  ],
+);
 
 export const notificationReads = sqliteTable("notification_reads", {
  notificationId: text("notification_id").notNull().references(()=>organizationNotifications.id,{onDelete:"cascade"}),

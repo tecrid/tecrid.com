@@ -19,6 +19,8 @@ const input = {
   accreditationNumber: "EX-17025",
   accreditationExpiresOn: "2027-12-31",
   scopeSummary: "Example olive oil metals scope",
+  accreditedSites: "Ann Arbor, MI",
+  accreditedAnalytes: "Lead",
 };
 let mf: Miniflare;
 
@@ -42,6 +44,9 @@ it("lets an ICS admin prefill a lab and still requires two different admins", as
   const invite = await inviteLaboratoryForAdmin(admin, input);
   expect(invite.issuerStatus).toBe("pending");
   expect(invite.applicationStatus).toBe("invited");
+  const stored = await env.DB.prepare("SELECT accredited_sites, accredited_analytes FROM issuer_applications WHERE id=?").bind(invite.applicationId).first<{ accredited_sites: string; accredited_analytes: string }>();
+  expect(JSON.parse(stored!.accredited_sites)).toEqual(["Ann Arbor, MI"]);
+  expect(JSON.parse(stored!.accredited_analytes)).toEqual(["Lead"]);
   expect(invite.mailto.startsWith("mailto:")).toBe(true);
   expect(decodeURIComponent(invite.mailto)).toContain(owner.email);
   expect(await getOrganizationForUser(owner.userId)).toBeNull();

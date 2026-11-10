@@ -1,5 +1,6 @@
 import { notifyRevisionAudience } from "./record-notices";
 import { redactUnentitledCommitments } from "./withheld-results";
+import { evaluateAccreditationScope, parseScopeList, storedScopeList } from "./accreditation-scope";
 import { requireConfirmedLaboratoryMailbox, requireIndependentLabReviewer, scopePdf } from "./lab-signup-policy";
 import { parseRole, roles } from "./roles";
 import { apiRequestScope, normalizeApiScopes } from "./api-scopes";
@@ -110,6 +111,15 @@ export class TecDuplicateDocumentError extends TecInputError {
   existingTecrid: string;
   constructor(existingTecrid: string) {
     super(`This PDF has already been minted as ${existingTecrid}. A new TECRID was not issued.`);
+    this.status = 409;
+    this.existingTecrid = existingTecrid;
+  }
+}
+
+export class TecExistingReferenceError extends TecInputError {
+  existingTecrid: string;
+  constructor(existingTecrid: string) {
+    super(`This report or sample ID already has TECRID ${existingTecrid}.`);
     this.status = 409;
     this.existingTecrid = existingTecrid;
   }
@@ -807,6 +817,8 @@ export async function submitIssuerApplication(
   const accreditationUrl = normalizeText(value.accreditationUrl, 300) || null;
   const accreditationExpiresOn = accreditationExpiry(value.accreditationExpiresOn);
   const scopeSummary = normalizeText(value.scopeSummary, 1800);
+  const accreditedSites = parseScopeList(value.accreditedSites);
+  const accreditedAnalytes = parseScopeList(value.accreditedAnalytes);
   const methodFamilies = normalizeText(value.methodFamilies, 1000);
   const contactName = normalizeText(value.contactName, 180);
   const contactEmail = normalizeText(value.contactEmail, 254).toLowerCase();
@@ -898,6 +910,8 @@ export async function submitIssuerApplication(
     accreditationUrl,
     accreditationExpiresOn,
     scopeSummary,
+    accreditedSites: accreditedSites.length ? JSON.stringify(accreditedSites) : null,
+    accreditedAnalytes: accreditedAnalytes.length ? JSON.stringify(accreditedAnalytes) : null,
     methodFamilies,
     contactName,
     contactEmail,
@@ -1370,6 +1384,55 @@ export function canonicalizeCredential(value: unknown) {
   };
 }
 
+function readIssuanceAnnotation(value: unknown) {
+  const input = (value ?? {}) as Record<string, unknown>;
+  const originalReportDate = normalizeText(input.originalReportDate, 10) || null;
+  return {
+    reportId: normalizeText(input.reportId, 120) || null,
+    sampleId: normalizeText(input.sampleId, 120) || null,
+    laboratorySite: normalizeText(input.laboratorySite, 180) || null,
+    backfill: input.backfill === true,
+    originalReportDate,
+    originalReportDateValid: !originalReportDate || /^\d{4}-\d{2}-\d{2}$/.test(originalReportDate),
+  };
+}
+
+async function findCredentialReference(organizationId: string, reportId: string | null, sampleId: string | null) {
+  if (!reportId && !sampleId) return null;
+  const matches = [
+    ...(reportId ? [eq(credentials.issuerReportId, reportId)] : []),
+    ...(sampleId ? [eq(credentials.issuerSampleId, sampleId)] : []),
+  ];
+  const identity = matches.length === 1 ? matches[0] : or(...matches);
+  const rows = await getDb()
+    .select({ identifier: credentials.identifier })
+    .from(credentials)
+    .where(and(eq(credentials.organizationId, organizationId), identity));
+  const identifiers = [...new Set(rows.map((row) => row.identifier))];
+  if (identifiers.length > 1) {
+    throw new TecInputError("The report ID and sample ID already belong to different TECRIDs.");
+  }
+  return identifiers[0] ?? null;
+}
+
+async function accreditationScopeFor(organizationId: string) {
+  const [application] = await getDb()
+    .select({
+      sites: issuerApplications.accreditedSites,
+      analytes: issuerApplications.accreditedAnalytes,
+    })
+    .from(issuerApplications)
+    .where(eq(issuerApplications.organizationId, organizationId))
+    .orderBy(desc(issuerApplications.submittedAt))
+    .limit(1);
+  const sites = storedScopeList(application?.sites);
+  const analytes = storedScopeList(application?.analytes);
+  return {
+    sites: sites.length ? sites : null,
+    analytes: analytes.length ? analytes : null,
+  };
+}
+
 async function existingCredentialForPdf(hash: string) {
   const [row] = await getDb()
     .select({ identifier: credentials.identifier })
@@ -1379,18 +1442,26 @@ async function existingCredentialForPdf(hash: string) {
   return row ?? null;
 }
 
-function isPdfHashConflict(error: unknown) {
+function errorMessages(error: unknown) {
   const pending: unknown[] = [error];
   const seen = new Set<unknown>();
+  const messages: string[] = [];
   while (pending.length) {
     const current = pending.pop();
     if (!current || seen.has(current)) continue;
     seen.add(current);
-    const message = current instanceof Error ? current.message : typeof current === "string" ? current : "";
-    if (/unique/i.test(message) && message.includes("source_document_hash")) return true;
+    if (current instanceof Error || typeof current === "string") messages.push(String(current instanceof Error ? current.message : current));
     if (typeof current === "object" && current && "cause" in current) pending.push((current as { cause?: unknown }).cause);
   }
-  return false;
+  return messages;
+}
+
+function isPdfHashConflict(error: unknown) {
+  return errorMessages(error).some((message) => /unique/i.test(message) && message.includes("source_document_hash"));
+}
+
+function isReferenceConflict(error: unknown) {
+  return errorMessages(error).some((message) => /unique/i.test(message) && /issuer_report_id|issuer_sample_id|idx_credentials_org_report_id|idx_credentials_org_sample_id/.test(message));
 }
 
 export async function createCredential(
@@ -1403,7 +1474,24 @@ export async function createCredential(
   if (organization.issuerStatus === "suspended" || organization.issuerStatus === "revoked") {
     throw new TecAuthorizationError(`This laboratory is ${organization.issuerStatus} and cannot mint TECRiDs.`);
   }
+  const annotation = readIssuanceAnnotation(value);
+  const existingReference = await findCredentialReference(organization.id, annotation.reportId, annotation.sampleId);
+  if (existingReference) throw new TecExistingReferenceError(existingReference);
+  if (!annotation.originalReportDateValid) throw new TecInputError("originalReportDate must use YYYY-MM-DD.");
   const input = validateCredentialInput(value);
+  if (annotation.backfill && !annotation.originalReportDate) {
+    throw new TecInputError("A backfilled record requires the original report date as YYYY-MM-DD.");
+  }
+  if (annotation.originalReportDate && input.releasedAt && input.releasedAt !== annotation.originalReportDate) {
+    throw new TecInputError("The original report date must match releasedAt.");
+  }
+  const scope = await accreditationScopeFor(organization.id);
+  const evaluated = evaluateAccreditationScope({
+    laboratorySite: annotation.laboratorySite,
+    analytes: input.results.map((row) => row.analyte),
+    sites: scope.sites,
+    accreditedAnalytes: scope.analytes,
+  });
   const canPublish =
     organization.organizationType === "laboratory" &&
     organization.issuerStatus === "verified";
@@ -1490,9 +1578,16 @@ export async function createCredential(
     sourceDocumentHash: input.sourceDocument?.sha256 ?? null,
     sourceDocumentName: input.sourceDocument?.filename ?? null,
     issuanceBasis:
-      options.issuanceBasis ?? input.sourceDocument?.issuanceBasis ?? null,
+      options.issuanceBasis ?? (annotation.backfill ? "backfill" : input.sourceDocument?.issuanceBasis ?? null),
     laboratoryReportNumber: input.sourceDocument?.reportNumber ?? null,
     laboratoryOrderNumber: input.sourceDocument?.orderNumber ?? null,
+    issuerReportId: annotation.reportId,
+    issuerSampleId: annotation.sampleId,
+    laboratorySite: annotation.laboratorySite,
+    siteOnCertificate: evaluated.siteOnCertificate,
+    accreditationLabel: evaluated.accreditationLabel,
+    backfilled: annotation.backfill,
+    originalReportDate: annotation.originalReportDate,
     publicRecord: issued,
     visibility: input.visibility ?? "public",
     createdByUserId: actorUserId,
@@ -1509,6 +1604,7 @@ export async function createCredential(
       unit: row.unit,
       loqText: row.loqText ?? null,
       method: row.method ?? input.method ?? null,
+      onAccreditedScope: evaluated.analyteOnScope[sequence],
       sequence,
     }),
   );
@@ -1563,6 +1659,10 @@ export async function createCredential(
     if (input.sourceDocument && isPdfHashConflict(error)) {
       const existing = await existingCredentialForPdf(input.sourceDocument.sha256);
       if (existing) throw new TecDuplicateDocumentError(existing.identifier);
+    }
+    if (isReferenceConflict(error)) {
+      const existing = await findCredentialReference(organization.id, annotation.reportId, annotation.sampleId);
+      if (existing) throw new TecExistingReferenceError(existing);
     }
     throw error;
   }
@@ -1726,6 +1826,24 @@ export function publicCredentialDocument(
           publicDocument: false,
         }
       : null,
+    accreditation: credential.accreditationLabel
+      ? {
+          label: credential.accreditationLabel,
+          site: credential.laboratorySite,
+          siteOnCertificate: credential.siteOnCertificate === true,
+          note: credential.accreditationLabel === "accredited"
+            ? "The laboratory site is covered by the recorded certificate."
+            : "This record is not labeled accredited. The laboratory site is not covered by the recorded certificate.",
+        }
+      : null,
+    backfill: credential.backfilled
+      ? {
+          backfilled: true,
+          originalReportDate: credential.originalReportDate,
+          recordedAt: credential.createdAt,
+          note: "Backfilled from a laboratory report. The original report date is preserved. The TECRID signature was recorded later.",
+        }
+      : null,
     results: resultsControlled ? [] : results.map((row) => ({
       analyte: row.analyte,
       symbol: row.symbol,
@@ -1735,6 +1853,8 @@ export function publicCredentialDocument(
       loqText: row.loqText,
       method: row.method,
       sequence: row.sequence,
+      onAccreditedScope: row.onAccreditedScope,
+      ...(row.onAccreditedScope === false ? { scopeNote: "Not on the accredited scope." } : {}),
     })),
     integrity: {
       ...integrity,

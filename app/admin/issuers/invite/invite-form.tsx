@@ -42,6 +42,8 @@ export function InviteLabForm() {
       <label>Certificate number<input name="accreditationNumber" required /></label>
       <label>Certificate expiry<input name="accreditationExpiresOn" type="date" required /></label>
       <label>Scope<textarea name="scopeSummary" required rows={4} /></label>
+      <label>Sites covered by the certificate<textarea name="accreditedSites" required rows={3} placeholder="One site per line" /></label>
+      <label>Analytes on the accredited scope<textarea name="accreditedAnalytes" required rows={3} placeholder="One analyte per line" /></label>
       <button className="button-dark" type="submit" disabled={pending}>{pending ? "Saving…" : "Prepare invite"}</button>
       {message ? <p className="form-message" role="status">{message}</p> : null}
       {mailto ? <p><a className="button-dark" href={mailto}>Send invite email</a></p> : null}

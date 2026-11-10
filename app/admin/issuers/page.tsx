@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { adminGate } from "../../../lib/admin-mfa";
+import { storedScopeList } from "../../../lib/accreditation-scope";
 import { listIssuerApplicationsForAdmin } from "../../../lib/tec";
 import { ProductFooter, ProductNav } from "../../site-nav";
 import { AuthorityControls, ReviewControls, VerificationCheckControl } from "./review-controls";
@@ -37,6 +38,8 @@ export default async function IssuerReviewPage() {
               <div><dt>Authority role</dt><dd>{application.authorityRole || "Not supplied"}</dd></div>
               <div><dt>Accreditation</dt><dd>{application.accreditationStatus.replaceAll("_", " ")} · {application.accreditationBody || "No body claimed"}{application.accreditationNumber ? ` · ${application.accreditationNumber}` : ""}{application.accreditationExpiresOn ? ` · expires ${application.accreditationExpiresOn}` : " · expiry not recorded"}{application.accreditationUrl ? <small><a href={application.accreditationUrl} target="_blank" rel="noreferrer">Open public accreditation record ↗</a></small> : null}</dd></div>
               <div><dt>Requested scope</dt><dd>{application.scopeSummary}</dd></div>
+              <div><dt>Covered sites</dt><dd>{storedScopeList(application.accreditedSites).join(", ") || "Not recorded"}</dd></div>
+              <div><dt>Accredited analytes</dt><dd>{storedScopeList(application.accreditedAnalytes).join(", ") || "Not recorded"}</dd></div>
               <div><dt>Methods</dt><dd>{application.methodFamilies}</dd></div>
               <div><dt>Signing key</dt><dd>{application.keyId ? <><code>{application.keyId}</code><small>{application.keyAlgorithm} public JWK submitted</small></> : "Not submitted"}</dd></div>
               <div><dt>Current issuer state</dt><dd>{issuerStatus.replaceAll("_", " ")}</dd></div>
