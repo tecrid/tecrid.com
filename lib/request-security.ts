@@ -63,6 +63,9 @@ function sameSiteOrigin(origin: string, request: Request) {
 export function rejectCrossOriginWrite(request: Request) {
   const origin = request.headers.get("origin");
   if (!origin || sameSiteOrigin(origin, request)) return null;
+  // Pages send Referrer-Policy: no-referrer, so browsers send Origin: null on
+  // plain form posts. Trust that only when the browser says it's same-origin.
+  if (origin === "null" && request.headers.get("sec-fetch-site") === "same-origin") return null;
   return Response.json(
     { error: "Cross-origin state changes are not allowed." },
     { status: 403 },

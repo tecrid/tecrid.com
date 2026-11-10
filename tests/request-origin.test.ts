@@ -13,3 +13,18 @@ describe("rejectCrossOriginWrite", () => {
     expect(rejectCrossOriginWrite(post("https://tecrid.com/api/email-signout", { origin: "https://evil.example", host: "tecrid.com" }))?.status).toBe(403);
   });
 });
+
+describe("rejectCrossOriginWrite with Origin null", () => {
+  it("allows a same-origin form post sent with Origin null", () => {
+    const req = new Request("https://internal.example/api/email-signout", { method: "POST", headers: { origin: "null", "sec-fetch-site": "same-origin" } });
+    expect(rejectCrossOriginWrite(req)).toBeNull();
+  });
+  it("refuses Origin null from another site", () => {
+    const req = new Request("https://internal.example/api/email-signout", { method: "POST", headers: { origin: "null", "sec-fetch-site": "cross-site" } });
+    expect(rejectCrossOriginWrite(req)?.status).toBe(403);
+  });
+  it("refuses Origin null with no fetch metadata", () => {
+    const req = new Request("https://internal.example/api/email-signout", { method: "POST", headers: { origin: "null" } });
+    expect(rejectCrossOriginWrite(req)?.status).toBe(403);
+  });
+});
