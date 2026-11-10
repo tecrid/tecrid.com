@@ -4,7 +4,7 @@ import { getEvidenceInsightsForUser } from "../../../lib/insights";
 import { ProductFooter, ProductNav } from "../../site-nav";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Evidence insights — TEC Registry" };
+export const metadata: Metadata = { title: "Evidence insights, TECRID" };
 
 export default async function InsightsPage() {
   const user = await requireChatGPTUser("/dashboard/insights");

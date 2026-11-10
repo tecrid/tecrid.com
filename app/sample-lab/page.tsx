@@ -2,7 +2,7 @@ import {ProductNav,ProductFooter} from "../site-nav";
 import {getChatGPTUser,chatGPTSignInPath} from "../chatgpt-auth";
 import {SampleLabClient} from "./sample-lab-client";
 export const dynamic="force-dynamic";
-export const metadata={title:"Sample laboratory · Kasandrinos integration — TECRID",robots:{index:false,follow:false}};
+export const metadata={title:"Sample laboratory · Kasandrinos integration, TECRID",robots:{index:false,follow:false}};
 export default async function SampleLabPage(){
  const user=await getChatGPTUser();
  return <main className="product-page sample-lab-page"><ProductNav compact/>

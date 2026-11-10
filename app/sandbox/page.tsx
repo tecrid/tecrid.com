@@ -4,11 +4,11 @@ import { ProductFooter, ProductNav } from "../site-nav";
 import { SandboxClient } from "./sandbox-client";
 
 export const metadata: Metadata = {
-  title: "Interactive sandbox — TEC Registry",
+  title: "Interactive sandbox, TECRID",
   description: "Try controlled TEC evidence routing as a fictional brand, laboratory, supplier, retailer, or third-party certifier.",
   robots: { index: false, follow: true },
-  openGraph: { title: "Interactive sandbox — TEC Registry", description: "A resettable demonstration workspace with fictional data.", images: [] },
-  twitter: { title: "Interactive sandbox — TEC Registry", description: "A resettable demonstration workspace with fictional data.", images: [] },
+  openGraph: { title: "Interactive sandbox, TECRID", description: "A resettable demonstration workspace with fictional data.", images: [] },
+  twitter: { title: "Interactive sandbox, TECRID", description: "A resettable demonstration workspace with fictional data.", images: [] },
 };
 
 export const dynamic = "force-dynamic";
@@ -35,7 +35,7 @@ export default async function SandboxPage({ searchParams }: SandboxPageProps) {
           <h1>Run the workflow from every side.</h1>
           <p>Switch between five organizations and run a controlled record from laboratory issuance through recipient-specific certification and retailer delivery.</p>
         </div>
-        <span className="sandbox-boundary">Isolated from the live registry</span>
+        <span className="sandbox-boundary">Isolated from live TECRID records</span>
       </header>
       <SandboxClient
         viewer={user ? { displayName: user.displayName, email: user.email } : null}

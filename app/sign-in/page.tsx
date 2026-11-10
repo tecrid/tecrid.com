@@ -5,7 +5,7 @@ import {safeReturnPath} from '../../lib/auth-return-path';
 import {ProductNav,ProductFooter} from '../site-nav';
 import {EmailSignInForm} from './sign-in-form';
 export const dynamic='force-dynamic';
-export const metadata={title:'Sign in with work email — TECRID',robots:{index:false,follow:false}};
+export const metadata={title:'Sign in with work email | TECRID',robots:{index:false,follow:false}};
 export default async function SignIn({searchParams}:{searchParams:Promise<Record<string,string|string[]|undefined>>}){
  const query=await searchParams;const returnTo=safeReturnPath(query.return_to);
  if(await getChatGPTUser())redirect(returnTo);

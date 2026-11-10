@@ -6,8 +6,8 @@ import { FoundingLaunchForm } from "./founding-launch-form";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Founding launch — TEC Registry",
-  description: "Turn a TEC Registry Founding Organization membership into a defined evidence pilot.",
+  title: "Founding launch, TECRID",
+  description: "Turn a TECRID Founding Organization membership into a defined evidence pilot.",
   robots: { index: false, follow: false },
 };
 

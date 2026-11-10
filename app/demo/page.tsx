@@ -3,11 +3,11 @@ import { demoLaboratory, demoRecords } from "../../lib/demo-records";
 import { ProductFooter, ProductNav } from "../site-nav";
 
 export const metadata: Metadata = {
-  title: "Demonstration library — TEC Registry",
-  description: "Fictional laboratory and record demonstrations that are isolated from the live TEC Registry.",
+  title: "Demonstration library, TECRID",
+  description: "Fictional laboratory and record demonstrations that are isolated from live TECRID records.",
   robots: { index: false, follow: true },
-  openGraph: { title: "Demonstration library — TEC Registry", description: "Invented interface examples, not public TEC records.", images: [] },
-  twitter: { title: "Demonstration library — TEC Registry", description: "Invented interface examples, not public TEC records.", images: [] },
+  openGraph: { title: "Demonstration library, TECRID", description: "Invented interface examples, not public TEC records.", images: [] },
+  twitter: { title: "Demonstration library, TECRID", description: "Invented interface examples, not public TEC records.", images: [] },
 };
 
 export default function DemoLibraryPage() {

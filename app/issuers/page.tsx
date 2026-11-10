@@ -6,10 +6,10 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   alternates: { canonical: "https://tecrid.com/issuers" },
-  title: "Verified laboratory issuers — TEC Registry",
+  title: "Verified laboratory issuers, TECRID",
   description: "Inspect the laboratories authorized by ICS to issue signed public TEC records.",
-  openGraph: { title: "Verified laboratory issuers — TEC Registry", description: "The public TEC issuer register.", images: [] },
-  twitter: { title: "Verified laboratory issuers — TEC Registry", description: "The public TEC issuer register.", images: [] },
+  openGraph: { title: "Verified laboratory issuers, TECRID", description: "The public TEC issuer register.", images: [] },
+  twitter: { title: "Verified laboratory issuers, TECRID", description: "The public TEC issuer register.", images: [] },
 };
 
 export default async function IssuersPage() {
@@ -34,7 +34,7 @@ export default async function IssuersPage() {
             </a>
           ))}</div>
         ) : (
-          <div className="empty-registry"><strong>No laboratory has completed public issuer review yet.</strong><p>The registry does not populate this list with demonstrations or applicants. An issuer appears only after ICS completes its review.</p></div>
+          <div className="empty-registry"><strong>No laboratory has completed public issuer review yet.</strong><p>TECRID does not populate this list with demonstrations or applicants. An issuer appears only after ICS completes its review.</p></div>
         )}
       </section>
       <section className="record-boundary">

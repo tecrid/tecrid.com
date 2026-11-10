@@ -8,7 +8,7 @@ import { ProductFooter, ProductNav } from "../../site-nav";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "ICS founding implementation queue — TEC Registry",
+  title: "ICS founding implementation queue, TECRID",
   robots: { index: false, follow: false },
 };
 

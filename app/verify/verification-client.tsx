@@ -13,13 +13,13 @@ type VerificationResult = {
 };
 
 const OUTCOME_COPY: Record<string, [string, string]> = {
-  verified_match: ["Verified registry match", "The current record, issuer authority, fingerprint, signature, and version checks passed."],
+  verified_match: ["Verified TECRID match", "The current record, issuer authority, fingerprint, signature, and version checks passed."],
   sample_only: ["Resolver sample only", "This fictional sample demonstrates the workflow and has no production authority."],
   revoked: ["Record revoked", "The TECRID resolves, but the current record is revoked."],
   not_currently_issued: ["Not currently issued", "The record exists but is not an issued public credential."],
   issuer_not_verified: ["Issuer not verified", "The record exists, but its issuing laboratory does not currently hold verified status."],
   proof_incomplete: ["Integrity proof incomplete", "The record exists, but one or more signature, fingerprint, or version checks did not pass."],
-  not_found: ["No registry match", "No public TECRID or source-document fingerprint matched this lookup."],
+  not_found: ["No TECRID match", "No public TECRID or source-document fingerprint matched this lookup."],
 };
 
 async function fileSha256(file: File) {
@@ -58,7 +58,7 @@ export function VerificationClient({ sampleTecrid, sampleFingerprint }: { sample
   async function check(payload: { identifier?: string; documentSha256?: string }) {
     setBusy(true);
     setResult(null);
-    setMessage("Checking the current public registry…");
+    setMessage("Checking current public TECRID records…");
     try {
       const response = await fetch("/api/verification/check", {
         method: "POST",
@@ -68,7 +68,7 @@ export function VerificationClient({ sampleTecrid, sampleFingerprint }: { sample
       const body = await response.json() as { result?: VerificationResult; error?: string };
       if (!response.ok || !body.result) throw new Error(body.error || "Verification failed.");
       setResult(body.result);
-      setMessage("A fingerprinted registry verification receipt has been created.");
+      setMessage("A fingerprinted TECRID verification receipt has been created.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Verification failed.");
     } finally {
@@ -108,8 +108,8 @@ export function VerificationClient({ sampleTecrid, sampleFingerprint }: { sample
           <div><span>{result.outcome.replaceAll("_", " ")}</span><h2>{outcome[0]}</h2><p>{outcome[1]}</p></div>
           <dl>
             <div><dt>TECRID</dt><dd>{result.credentialIdentifier || "No match"}</dd></div>
-            <div><dt>Issuer</dt><dd>{result.record?.issuer?.name || "—"}</dd></div>
-            <div><dt>Sample</dt><dd>{result.record?.subject?.sampleName || "—"}</dd></div>
+            <div><dt>Issuer</dt><dd>{result.record?.issuer?.name || "Not provided"}</dd></div>
+            <div><dt>Sample</dt><dd>{result.record?.subject?.sampleName || "Not provided"}</dd></div>
             <div><dt>Production authority</dt><dd>{result.productionAuthority ? "Yes" : "No"}</dd></div>
           </dl>
           <div className="verification-result-actions"><a href={`/verification/receipts/${encodeURIComponent(result.receiptId)}`}>Open verification receipt →</a>{result.record?.links?.human ? <a href={result.record.links.human}>Open public record ↗</a> : null}</div>

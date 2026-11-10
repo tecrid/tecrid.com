@@ -8,7 +8,7 @@ import { ProductFooter, ProductNav } from "../../site-nav";
 import { AuthorityControls, ReviewControls, VerificationCheckControl } from "./review-controls";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "ICS issuer review — TEC Registry", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "ICS issuer review, TECRID", robots: { index: false, follow: false } };
 
 export default async function IssuerReviewPage() {
   const user = await requireChatGPTUser("/admin/issuers");

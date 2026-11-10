@@ -7,7 +7,7 @@ import { ProductFooter, ProductNav } from "../../site-nav";
 import { AdminMfaClient } from "./mfa-client";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Admin second factor — TEC Registry", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Admin second factor | TECRID", robots: { index: false, follow: false } };
 
 export default async function AdminSecurityPage() {
   const user = await requireChatGPTUser("/admin/security");

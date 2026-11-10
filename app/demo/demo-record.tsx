@@ -13,7 +13,7 @@ export function DemoRecordPage({ record }: { record: DemoRecord }) {
       </header>
 
       <section className="public-record-shell demo-record-shell">
-        <div className="record-integrity-bar"><span>{resolverSample ? "Bound to the reserved sample record; no issuer signature asserted" : "No registry fingerprint or issuer signature asserted"}</span><span>Status: fictional</span></div>
+        <div className="record-integrity-bar"><span>{resolverSample ? "Bound to the reserved sample record; no issuer signature asserted" : "No record fingerprint or issuer signature asserted"}</span><span>Status: fictional</span></div>
         <div className="public-record-summary">
           <article><span>Sample</span><strong>{record.sample}</strong><small>{record.lot}</small></article>
           <article><span>Example laboratory</span><strong><a href="/demo/lab">{demoLaboratory.name} ↗</a></strong><small>{demoLaboratory.status}</small></article>

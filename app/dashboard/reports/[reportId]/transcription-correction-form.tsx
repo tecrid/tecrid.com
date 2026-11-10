@@ -60,7 +60,7 @@ export function TranscriptionCorrectionForm({ report, initialResults }: {
   return (
     <section className="transcription-correction-panel">
       <p className="section-kicker">Submitter correction gate</p>
-      <h2>Correct the transcription—never the source file.</h2>
+      <h2>Correct the transcription, never the source file.</h2>
       <p>The PDF fingerprint remains immutable. Every corrected field is recorded as a new activity event and returned to the laboratory for another decision.</p>
       <form onSubmit={submit}>
         <div className="form-pair">

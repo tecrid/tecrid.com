@@ -9,9 +9,9 @@ type PageProps = { params: Promise<{ organizationSlug: string; batchId: string }
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { organizationSlug, batchId } = await params;
   const record = await getPublicDisclosureBatch(decodeURIComponent(organizationSlug), decodeURIComponent(batchId));
-  if (!record) return { title: "Disclosure not found — TEC Registry" };
+  if (!record) return { title: "Disclosure not found, TECRID" };
   return {
-    title: `${record.product.name} · ${record.batch.batchCode} — Analytical disclosure`,
+    title: `${record.product.name} · ${record.batch.batchCode}, Analytical disclosure`,
     description: `Published production-aggregate results for ${record.product.name}, ${record.batch.batchCode}.`,
     alternates: { canonical: `https://tecrid.com/disclosures/${encodeURIComponent(decodeURIComponent(organizationSlug))}/${encodeURIComponent(decodeURIComponent(batchId))}` },
   };
@@ -24,7 +24,7 @@ export default async function PublicDisclosurePage({ params }: PageProps) {
   const authority = record.batch.labConfirmed
     ? record.batch.linkedTecrid ? "Laboratory-confirmed · TECRID linked" : "Laboratory-confirmed disclosure"
     : "Brand disclosure · laboratory confirmation pending";
-  const citation = `${record.organization.name}. “${record.product.name}: production aggregate ${record.batch.batchCode}.” TEC Registry analytical disclosure, published ${record.batch.publishedAt?.slice(0, 10) || "date unavailable"}. https://tecrid.com/disclosures/${record.organization.slug}/${record.batch.id}`;
+  const citation = `${record.organization.name}. “${record.product.name}: production aggregate ${record.batch.batchCode}.” TECRID analytical disclosure, published ${record.batch.publishedAt?.slice(0, 10) || "date unavailable"}. https://tecrid.com/disclosures/${record.organization.slug}/${record.batch.id}`;
 
   return (
     <main className="product-page public-disclosure-page">
@@ -38,7 +38,7 @@ export default async function PublicDisclosurePage({ params }: PageProps) {
         <div className="disclosure-authority-banner">
           <span>Authority</span>
           <strong>{authority}</strong>
-          <p>{record.batch.labConfirmed ? "The named laboratory has confirmed this disclosed data." : "The publishing brand attributes these values to the named report. The laboratory has not yet confirmed this registry record."}</p>
+          <p>{record.batch.labConfirmed ? "The named laboratory has confirmed this disclosed data." : "The publishing brand attributes these values to the named report. The laboratory has not yet confirmed this TECRID record."}</p>
         </div>
 
         <div className="public-record-summary disclosure-record-summary">

@@ -6,8 +6,8 @@ import { ProductFooter, ProductNav } from "../../site-nav";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Welcome to TEC Registry",
-  description: "Continue Founding Organization onboarding with TEC Registry.",
+  title: "Welcome to TECRID",
+  description: "Continue Founding Organization onboarding with TECRID.",
 };
 
 export default async function JoinSuccessPage() {

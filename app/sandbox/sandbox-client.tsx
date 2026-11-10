@@ -208,7 +208,7 @@ export function SandboxClient({ viewer, signInHref, signOutHref, initialRole = "
           <div className="sandbox-aside-note sandbox-personal-note">
             <small>Signed in as</small>
             <strong>{viewer.displayName}</strong>
-            <p>{viewer.email}<br />Your stage and sandbox keys are saved. Fictional organizations remain isolated from the live registry.</p>
+            <p>{viewer.email}<br />Your stage and sandbox keys are saved. Fictional organizations remain isolated from the live TECRID service.</p>
             <a href="/dashboard">Open real workspace →</a><a href={signOutHref}>Sign out</a>
           </div>
         ) : (
@@ -441,7 +441,7 @@ function OrganizationSettings({ viewer, active, signInHref, signOutHref, persist
       <div className="sandbox-portal-panel-head"><div><p className="section-kicker">Account</p><h3>Organization settings</h3></div><span>{persistent ? "Saved" : "Preview"}</span></div>
       <div className="sandbox-settings-grid">
         <dl><div><dt>Workspace name</dt><dd>{active.name}</dd></div><div><dt>Organization type</dt><dd>{active.label}</dd></div><div><dt>Environment</dt><dd>Fictional personal sandbox</dd></div><div><dt>Production issuance</dt><dd>Disabled</dd></div></dl>
-        <div className="sandbox-account-card"><span>Sandbox owner</span><strong>{viewer?.displayName ?? "Anonymous visitor"}</strong><small>{viewer?.email ?? "No saved identity"}</small><p>{viewer ? "Your identity owns the saved sandbox state. It does not authenticate any fictional laboratory role or grant registry authority." : "Sign in to own this sandbox. Creating a live organization happens separately so demo state never leaks into production."}</p>{viewer ? <><a className="button-dark" href="/dashboard">Open my real organization workspace →</a><a href={signOutHref}>Sign out</a></> : <a className="button-dark" href={signInHref}>Create my sandbox →</a>}</div>
+        <div className="sandbox-account-card"><span>Sandbox owner</span><strong>{viewer?.displayName ?? "Anonymous visitor"}</strong><small>{viewer?.email ?? "No saved identity"}</small><p>{viewer ? "Your identity owns the saved sandbox state. It does not authenticate any fictional laboratory role or grant issuance authority." : "Sign in to own this sandbox. Creating a live organization happens separately so demo state never leaks into production."}</p>{viewer ? <><a className="button-dark" href="/dashboard">Open my real organization workspace →</a><a href={signOutHref}>Sign out</a></> : <a className="button-dark" href={signInHref}>Create my sandbox →</a>}</div>
       </div>
     </section>
   );
@@ -487,7 +487,7 @@ function BrandPortal({ stage, certificationRequestStatus, certifierDeliveryStatu
 
 function LaboratoryPortal({ stage, pending, certificationRequestStatus, certifierDeliveryStatus, retailerGrantStatus, retailerDeliveryStatus, advance, routeEvidence }: { stage: Stage; pending: boolean; certificationRequestStatus: string; certifierDeliveryStatus: string; retailerGrantStatus: string; retailerDeliveryStatus: string; advance: (action: Action) => void; routeEvidence: (action: RoutingAction) => void }) {
   const action = stage === "submitted" ? "claim" : stage === "claimed" ? "confirm" : stage === "confirmed" ? "issue" : null;
-  const button = stage === "submitted" ? "Claim this report" : stage === "claimed" ? "Confirm the transcription" : stage === "confirmed" ? "Sign and issue sandbox TECRID" : "Issued — no action required";
+  const button = stage === "submitted" ? "Claim this report" : stage === "claimed" ? "Confirm the transcription" : stage === "confirmed" ? "Sign and issue sandbox TECRID" : "Issued. No action required";
   const routeAvailable = stage === "issued" && ((certificationRequestStatus === "approved" && certifierDeliveryStatus !== "delivered") || (retailerGrantStatus === "granted" && retailerDeliveryStatus !== "delivered"));
   return (
     <section className="sandbox-panel">
@@ -532,9 +532,9 @@ function RetailerPortal({ stage, retailerGrantStatus, retailerDeliveryStatus, sw
       <div className="sandbox-panel-heading"><div><p className="section-kicker">Procurement review PR-901</p><h3>Atlas Pantry Avocado Oil Sea Salt Chips</h3></div><span className={`sandbox-procurement ${received ? "pass" : "hold"}`}>{received ? "Evidence received" : "Evidence gated"}</span></div>
       <div className="sandbox-gates">
         <div className="complete"><span>✓</span><strong>Supplier and lot identified</strong><small>SI-AVO-260812</small></div>
-        <div className={retailerGrantStatus === "granted" ? "complete" : ""}><span>{retailerGrantStatus === "granted" ? "✓" : "—"}</span><strong>Brand permission {retailerGrantStatus === "revoked" ? "revoked" : "active"}</strong><small>{retailerGrantStatus === "granted" ? "SKU-specific retailer grant" : retailerGrantStatus === "revoked" ? "Future delivery stopped; prior package retained" : "Atlas has not ungated this recipient"}</small></div>
-        <div className={issued ? "complete" : ""}><span>{issued ? "✓" : "—"}</span><strong>Laboratory TECRID issued</strong><small>{issued ? "Sandbox signature valid" : "No issued TECRID"}</small></div>
-        <div className={received ? "complete" : ""}><span>{received ? "✓" : "—"}</span><strong>Recipient view delivered</strong><small>{received ? "Status and approved panel frozen" : "No evidence package in this account"}</small></div>
+        <div className={retailerGrantStatus === "granted" ? "complete" : ""}><span>{retailerGrantStatus === "granted" ? "✓" : "Pending"}</span><strong>Brand permission {retailerGrantStatus === "revoked" ? "revoked" : "active"}</strong><small>{retailerGrantStatus === "granted" ? "SKU-specific retailer grant" : retailerGrantStatus === "revoked" ? "Future delivery stopped; prior package retained" : "Atlas has not ungated this recipient"}</small></div>
+        <div className={issued ? "complete" : ""}><span>{issued ? "✓" : "Pending"}</span><strong>Laboratory TECRID issued</strong><small>{issued ? "Sandbox signature valid" : "No issued TECRID"}</small></div>
+        <div className={received ? "complete" : ""}><span>{received ? "✓" : "Pending"}</span><strong>Recipient view delivered</strong><small>{received ? "Status and approved panel frozen" : "No evidence package in this account"}</small></div>
       </div>
       <div className="sandbox-retailer-action"><p>{received ? "Market Square received its own fingerprinted view. The ICS Certification grant neither created nor enlarged this retailer grant." : "A resolvable TECRID may exist, but controlled findings do not enter the retailer account until Atlas grants this recipient and Northstar routes the record."}</p><button type="button" onClick={() => switchRole(received ? "brand" : retailerGrantStatus === "granted" ? "laboratory" : "brand")}>{received ? "Inspect controller grants →" : retailerGrantStatus === "granted" ? "Route as the laboratory →" : "Request brand permission →"}</button></div>
     </section>

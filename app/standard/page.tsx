@@ -15,7 +15,7 @@ import {
 const canonicalUrl = "https://tecrid.com/standard";
 
 export const metadata: Metadata = {
-  title: "TEC Registry standard — Draft 1.0",
+  title: "TECRID standard, Draft 1.0",
   description: "The public technical and governance contract for TEC credentials and TECRIDs.",
   alternates: { canonical: canonicalUrl },
 };
@@ -24,7 +24,7 @@ const standardJsonLd = {
   "@context": "https://schema.org",
   "@type": ["CreativeWork", "TechArticle"],
   "@id": `${canonicalUrl}#standard`,
-  name: "TEC Registry standard — Draft 1.0",
+  name: "TECRID standard, Draft 1.0",
   headline: "A public contract for analytical evidence",
   description: "The public technical and governance contract for TEC credentials and TECRIDs.",
   url: canonicalUrl,
@@ -64,7 +64,7 @@ const requirements = [
   ["Signed payload", "Publication requires an Ed25519 signature that verifies against the issuer key reviewed by ICS."],
   ["Append-only versions", "Corrections and revocations append a signed version; database triggers reject updates or deletion of prior version rows."],
   ["Structured evidence", "Results preserve analytes, reported values, units, limits, methods, sample context, and timestamps as issued."],
-  ["Interpretation boundary", "A TEC proves attribution, integrity, and status—not representative sampling, regulatory compliance, or safety."],
+  ["Interpretation boundary", "A TEC proves attribution, integrity, and status, not representative sampling, regulatory compliance, or safety."],
 ];
 
 export default function StandardPage() {
@@ -75,7 +75,7 @@ export default function StandardPage() {
       <header className="product-hero standard-hero">
         <p className="section-kicker light">TEC Protocol · Draft 1.0</p>
         <h1>A public contract<br />for analytical evidence.</h1>
-        <p>The standard separates what the registry can verify from what remains an analytical, accreditation, sampling, or regulatory judgment.</p>
+        <p>The standard separates what TECRID can verify from what remains an analytical, accreditation, sampling, or regulatory judgment.</p>
         <div className="draft-standard-badge"><i /> Public draft · implementations must not claim final conformance</div>
       </header>
       <section className="standard-requirements">
@@ -91,7 +91,7 @@ export default function StandardPage() {
         </div>
       </section>
       <section className="standard-status">
-        <div><p className="section-kicker">Implementation status</p><h2>What the registry enforces now.</h2></div>
+        <div><p className="section-kicker">Implementation status</p><h2>What TECRID enforces now.</h2></div>
         <dl>
           <div><dt>Implemented</dt><dd>Permanent TECRID generation, public resolution, structured JSON, organization-scoped API keys, issuer application intake, Ed25519 issuance enforcement, independently verifiable public proof bundles, live fingerprint/signature checks, and append-only version records.</dd></div>
           <div><dt>Requires ICS operation</dt><dd>Identity review, scope decisions, signing-key control verification, suspensions, appeals, and governance publication.</dd></div>

@@ -7,7 +7,7 @@ import { ProductFooter } from "../../site-nav";
 import { EvidenceRoutingClient } from "./routing-client";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Approvals | TEC Registry" };
+export const metadata: Metadata = { title: "Approvals | TECRID" };
 
 export default async function EvidenceRoutingPage() {
   const user = await requireChatGPTUser("/dashboard/evidence-routing");

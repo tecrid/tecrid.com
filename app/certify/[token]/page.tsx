@@ -6,7 +6,7 @@ import { ProductFooter, ProductNav } from "../../site-nav";
 import { CertificationSubmissionClient } from "./submission-client";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Submit TECRIDs for certification — TEC Registry" };
+export const metadata: Metadata = { title: "Submit TECRIDs for certification | TECRID" };
 type RouteContext = { params: Promise<{ token: string }> };
 export default async function CertificationSubmissionPage({ params }: RouteContext) {
   const { token } = await params;

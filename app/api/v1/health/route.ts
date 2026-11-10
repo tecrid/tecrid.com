@@ -10,7 +10,7 @@ export async function GET() {
     return Response.json(
       {
         status: "operational",
-        service: "TEC Registry API",
+        service: "TECRID API",
         apiVersion: "v1",
         schemaVersion: "tec-registry/1.0-draft",
         checks: { registryDatabase: "operational" },
@@ -22,7 +22,7 @@ export async function GET() {
     return Response.json(
       {
         status: "degraded",
-        service: "TEC Registry API",
+        service: "TECRID API",
         apiVersion: "v1",
         checks: { registryDatabase: "unavailable" },
         checkedAt,

@@ -1,29 +1,11 @@
-import type { Metadata } from "next";
-import { SAMPLE_SOURCE_FINGERPRINT, SAMPLE_TECRID } from "../../lib/sample-tecrid";
-import { ProductFooter, ProductNav } from "../site-nav";
-import { VerificationClient } from "./verification-client";
-
+import type {Metadata} from 'next';
+import {SAMPLE_SOURCE_FINGERPRINT,SAMPLE_TECRID} from '../../lib/sample-tecrid';
+import {VerificationClient} from './verification-client';
+import {Shell,Kicker} from '../blue-atlas/shared';
 export const metadata: Metadata = {
   alternates: { canonical: "https://tecrid.com/verify" },
-  title: "Verify a laboratory report — TEC Registry",
-  description: "Check a TECRID or compare a local PDF fingerprint with the public registry.",
+  title: "TECRID | Verify a lab report",
+  description: "Check a TECRID or compare a local PDF fingerprint with the public TECRID records.",
 };
 
-export default function VerifyPage() {
-  return (
-    <main className="product-page verification-page">
-      <ProductNav compact />
-      <header className="product-hero verification-hero">
-        <p className="section-kicker light">Public verification · free</p>
-        <h1>Did this report come<br />from the registry?</h1>
-        <p>Enter a TECRID or choose a PDF. Your browser computes the PDF&apos;s SHA-256 fingerprint; the document itself is not uploaded to this check.</p>
-      </header>
-      <VerificationClient sampleTecrid={SAMPLE_TECRID} sampleFingerprint={SAMPLE_SOURCE_FINGERPRINT} />
-      <section className="verification-boundary">
-        <div><p className="section-kicker">What a match means</p><h2>Identity and integrity—not a safety verdict.</h2></div>
-        <div><p>A verified match shows that the current public registry record is issued, its laboratory is verified, and its recorded fingerprint and issuer signature pass the registry checks.</p><p>It does not prove the sample represented an entire lot, resolve measurement uncertainty, or determine regulatory compliance.</p></div>
-      </section>
-      <ProductFooter />
-    </main>
-  );
-}
+export default function VerifyPage(){return <Shell><section className="atlas-about-hero"><div className="atlas-container"><div><Kicker>Verify at the source</Kicker><h1>A report.<br/><span>A source you can check.</span></h1><p>Look up a TECRID or compare the fingerprint of a PDF. Your browser computes the fingerprint locally; the document is not uploaded for this check.</p></div></div></section><div className="atlas-live-verifier"><VerificationClient sampleTecrid={SAMPLE_TECRID} sampleFingerprint={SAMPLE_SOURCE_FINGERPRINT}/></div><section className="atlas-end-cta"><div className="atlas-container"><Kicker>What a match means</Kicker><h2>Identity and integrity.</h2><p>A verified match means the current public record, laboratory authority, fingerprint, signature, and version checks pass. It does not establish representative sampling, resolve uncertainty, or determine product safety or compliance.</p></div></section></Shell>}

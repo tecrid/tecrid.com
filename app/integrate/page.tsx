@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ProductFooter, ProductNav } from "../site-nav";
 
 export const metadata: Metadata = {
-  title: "Integrate TECRID with Codex or Claude Code — One-Word Setup",
+  title: "Integrate TECRID with Codex or Claude Code, One-Word Setup",
   description: "Open the TECRID Connect repository in an advanced coding agent, type integrate, and follow a role-aware setup for laboratories, brands, suppliers, retailers, certifiers, or government programs.",
   alternates: { canonical: "https://tecrid.com/integrate" },
   keywords: ["TECRID integration", "laboratory API integration", "LIMS integration", "Codex repository instructions", "Claude Code TECRID"],
@@ -41,7 +41,7 @@ export default function IntegratePage() {
         <ul><li><strong>Identity</strong><span>A person signs in, creates or selects the organization, and completes any issuer or program verification.</span></li><li><strong>Secrets</strong><span>A person places the TECRID API key and any laboratory signing key into approved custody. Keys are never requested in chat.</span></li><li><strong>Release authority</strong><span>A laboratory owner approves the mapped release event; a brand approves disclosures; a recipient approves its reliance rules.</span></li><li><strong>Production</strong><span>Deployment and the first production write require explicit approval after the integration report is reviewed.</span></li></ul>
       </section>
 
-      <section className="integration-start"><div><p className="section-kicker">Start free</p><h2>Create the workspace first—or let the agent build until it reaches the credential gate.</h2><p>TECRID account creation, public resolution, laboratory verification, and the founding pilot are free.</p></div><div><a href="/join">Create a workspace <span>↗</span></a><a href="https://github.com/tecrid/tecrid-connect" target="_blank" rel="noreferrer">Open TECRID Connect <span>↗</span></a></div></section>
+      <section className="integration-start"><div><p className="section-kicker">Start free</p><h2>Create the workspace first, or let the agent build until it reaches the credential gate.</h2><p>TECRID account creation, public resolution, laboratory verification, and the founding pilot are free.</p></div><div><a href="/join">Create a workspace <span>↗</span></a><a href="https://github.com/tecrid/tecrid-connect" target="_blank" rel="noreferrer">Open TECRID Connect <span>↗</span></a></div></section>
       <ProductFooter />
     </main>
   );

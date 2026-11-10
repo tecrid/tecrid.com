@@ -6,7 +6,7 @@ import { getDisputeCaseForUser } from "../../../../lib/lab-defense";
 import { ProductFooter } from "../../../site-nav";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Evidence case | TEC Registry" };
+export const metadata: Metadata = { title: "Evidence case | TECRID" };
 type RouteContext = { params: Promise<{ caseId: string }> };
 type ContextRow = { field?: string; left?: unknown; right?: unknown; state?: string };
 type AnalyteRow = { analyte?: string; left?: { resultText?: string; unit?: string } | null; right?: { resultText?: string; unit?: string } | null; unitCompatibility?: string; foldDifference?: number | null };

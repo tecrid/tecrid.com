@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ProductFooter, ProductNav } from "../../site-nav";
 
 export const metadata: Metadata = {
-  title: "Disclosure operations demonstration — TEC Registry",
+  title: "Disclosure operations demonstration, TECRID",
   description: "A fictional end-to-end demonstration of production-aggregate validation and disclosure reuse.",
   robots: { index: false, follow: true },
 };
@@ -60,8 +60,8 @@ export default function DisclosureOperationsDemoPage() {
         </section>
 
         <section className="disclosure-demo-measurement">
-          <div><p className="section-kicker">The 10× test</p><h2>Measure duplicate handling eliminated—not prettier pages.</h2></div>
-          <div className="disclosure-math"><article><span>Manual model</span><strong>12 × 5 = 60</strong><p>Potential batch-to-surface handling events each month.</p></article><article><span>Registry model</span><strong>12 + 1</strong><p>Twelve validated rows, plus one exception requiring attention.</p></article></div>
+          <div><p className="section-kicker">The 10× test</p><h2>Measure duplicate handling eliminated, not prettier pages.</h2></div>
+          <div className="disclosure-math"><article><span>Manual model</span><strong>12 × 5 = 60</strong><p>Potential batch-to-surface handling events each month.</p></article><article><span>TECRID model</span><strong>12 + 1</strong><p>Twelve validated rows, plus one exception requiring attention.</p></article></div>
           <p className="measurement-boundary">This is workflow math, not a claimed customer result. A pilot should measure preparation time, corrections, publication latency, support contacts, and retailer re-entry before TECRID makes a quantified savings claim.</p>
         </section>
 
