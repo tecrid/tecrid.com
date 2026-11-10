@@ -1,3 +1,4 @@
+import { sameSiteOrigin } from "../../../../../lib/request-security";
 import { getChatGPTUser } from "../../../../chatgpt-auth";
 import {
   claimLegacyReport,
@@ -11,7 +12,7 @@ type RouteContext = { params: Promise<{ token: string }> };
 
 export async function POST(request: Request, { params }: RouteContext) {
   const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) {
+  if (origin && !sameSiteOrigin(origin, request)) {
     return Response.json({ error: "Cross-origin confirmation is not allowed." }, { status: 403 });
   }
   const user = await getChatGPTUser();

@@ -22,3 +22,9 @@ it('retains stale-write conflicts and fails closed when the permissions service 
 it('forwards an opaque review-request ID only through a verified session',async()=>{
  identity.user={userId:'email:owner',email:'owner@company.test'};const id='12345678-1234-4234-8234-123456789abc';const transport=vi.fn(async(_url:any,o:any)=>{expect(JSON.parse(o.body)).toMatchObject({action:'workspace',requestId:id,actor:{email:identity.user.email,emailVerified:true}});return Response.json({sandbox:true,productionAuthority:false});});expect((await kasandrinosTestWorkspace(new Request('https://tecrid.com/api/kasandrinos-test?request='+id),transport)).status).toBe(200);
 });
+it('allows a public-origin write through the hosting proxy',async()=>{
+ identity.user={userId:'email:owner',email:'owner@company.test'};
+ const transport=vi.fn(async()=>Response.json({ok:true}));
+ const response=await kasandrinosTestWorkspace(new Request('http://internal.local/api/kasandrinos-test',{method:'POST',headers:{origin:'https://tecrid.com'},body:JSON.stringify({action:'status'})}),transport);
+ expect(response.status).toBe(200);expect(transport).toHaveBeenCalledOnce();
+});

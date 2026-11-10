@@ -57,3 +57,32 @@ it('notifies the controller and recipient for native TECRID request decisions',a
  await respondToEvidenceRequest(controller,second.id,{decision:'decline'});
  expect((await ownNotifications(env.DB,recipient)).map(n=>n.kind)).toContain('evidence_access.declined');
 });
+
+it('builds record, application, and request destinations with existing page routes',async()=>{
+ const {existsSync}=await import('node:fs');
+ for(const [path,page] of [
+  ['/records/TECRID%C2%B7DEMO-26-HM0001','app/records/[identifier]/page.tsx'],
+  ['/dashboard/laboratory','app/dashboard/laboratory/page.tsx'],
+  ['/dashboard/evidence-routing#request-example','app/dashboard/evidence-routing/page.tsx'],
+ ]){
+  expect(existsSync(page)).toBe(true);
+  expect(new URL(safeInboxHref(path,'tecrid')).pathname+new URL(safeInboxHref(path,'tecrid')).hash).toBe(path);
+ }
+});
+
+it('marks all owned TECRID notifications beyond the feed cap without affecting other recipients or organizations',async()=>{
+ await getDb().insert(organizations).values({id:'other',name:'Other',slug:'other',organizationType:'brand',ownerUserId:'other',ownerEmail:'other@example.test',issuerCode:'OTHER'});
+ await getDb().insert(organizationNotifications).values({id:'private-notice',organizationId:'other',eventType:'credential.issued',title:'Private',body:'Private',actionPath:'/notifications',entityType:'credential',entityId:'private'});
+ for(let index=0;index<101;index++)await getDb().insert(organizationNotifications).values({id:`bulk-${index}`,organizationId:'test',eventType:'credential.issued',title:'Bulk',body:'Synthetic',actionPath:'/notifications',entityType:'credential',entityId:`bulk-${index}`});
+ const items=await ownNotifications(env.DB,bob,undefined,false,true);expect(items).toHaveLength(100);expect(items.every(item=>item.read)).toBe(true);
+ const count=await env.DB.prepare("SELECT count(*) AS count FROM notification_reads WHERE recipient_email=? AND notification_id LIKE 'bulk-%'").bind(bob.email).first<{count:number}>();expect(count?.count).toBe(101);
+ expect(await env.DB.prepare("SELECT * FROM notification_reads WHERE notification_id='private-notice'").first()).toBeNull();
+ expect(await env.DB.prepare("SELECT * FROM notification_reads WHERE recipient_email=? AND notification_id LIKE 'bulk-%'").bind(alice.email).first()).toBeNull();
+});
+it('marks VLE unread items through the existing authenticated ownership-checked relay',async()=>{
+ const calls:unknown[]=[];
+ const transport=async(_url:unknown,options:any)=>{const body=JSON.parse(options.body);calls.push(body);return Response.json({items:[{id:'vle:unread',read:body.action==='notification-read',href:'/notifications'},{id:'vle:read',read:true,href:'/notifications'}]});};
+ const items=await vleNotifications(bob,undefined,transport as typeof fetch,true);
+ expect(calls).toEqual([{action:'notifications',actor:{...bob,emailVerified:true}},{action:'notification-read',id:'vle:unread',actor:{...bob,emailVerified:true}}]);expect(items.every(item=>item.read)).toBe(true);
+ await expect(vleNotifications(bob,undefined,(async()=>new Response(null,{status:503})) as typeof fetch,true)).rejects.toThrow();
+});

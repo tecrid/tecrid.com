@@ -125,7 +125,7 @@ export default async function DashboardPage() {
       <section className="workspace-summary" aria-label="Workspace summary"><article><strong>{rows.length}</strong><span>Reports and requests</span></article><article><strong>{rows.filter(row => row.needsAction).length}</strong><span>Need action</span></article><article><strong>{rows.filter(row => row.status === "received" || row.status === "issued" || row.status === "active").length}</strong><span>Ready to use</span></article></section>
       {lab && !verified ? <p className="simple-lab-status" role="status">{labNext.copy} <a href="/dashboard/laboratory">{labNext.label}</a></p> : null}
       <section className="simple-primary-actions" aria-label="Your next steps">
-        <a href={action.href}><h2>{action.label}</h2><p>{action.copy}</p><span aria-hidden="true">↗</span></a>
+        <a href={action.href}><h2>{action.label}</h2><p>{action.copy}</p></a>
       </section>
       {role !== "public" ? <WorkQueue rows={rows} empty={recipient ? "No reports yet." : lab ? "Your laboratory records will appear here." : "New reports will appear here."} /> : null}
       {controller ? <KasandrinosWorkspaceLink /> : null}

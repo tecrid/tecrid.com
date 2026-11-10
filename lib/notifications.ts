@@ -10,10 +10,13 @@ export function safeInboxHref(value: unknown, source: 'tecrid' | 'vle') {
 }
 // Local callers must supply a validated session. The bridge supplies an exact
 // verified email only after service authentication; never take it from a browser.
-export async function ownNotifications(db: D1Database, user: Pick<ChatGPTUser, 'userId' | 'email'>, readId?: string, bridge = false) {
+export async function ownNotifications(db: D1Database, user: Pick<ChatGPTUser, 'userId' | 'email'>, readId?: string, bridge = false, readAll = false) {
   const email = user.email.trim().toLowerCase();
   const membership = bridge ? 'lower(m.email)=?' : 'm.user_id=?';
   const identity = bridge ? email : user.userId;
+  if (readAll) {
+    await db.prepare(`INSERT OR IGNORE INTO notification_reads (notification_id,recipient_email,read_at) SELECT DISTINCT n.id,?,? FROM organization_notifications n JOIN organization_members m ON m.organization_id=n.organization_id WHERE ${membership}`).bind(email, new Date().toISOString(), identity).run();
+  }
   if (readId) {
     if (!readId.startsWith('tecrid:') || readId.length > 180) throw new Error('Unknown notification');
     const id = readId.slice(7);
@@ -24,7 +27,7 @@ export async function ownNotifications(db: D1Database, user: Pick<ChatGPTUser, '
   const rows = (await db.prepare(`SELECT DISTINCT n.id,n.event_type,n.title,n.body,n.action_path,n.created_at,r.read_at FROM organization_notifications n JOIN organization_members m ON m.organization_id=n.organization_id LEFT JOIN notification_reads r ON r.notification_id=n.id AND r.recipient_email=? WHERE ${membership} ORDER BY n.created_at DESC,n.id DESC LIMIT 100`).bind(email, identity).all<any>()).results;
   return rows.map(row => ({ id: `tecrid:${row.id}`, source: 'tecrid' as const, kind: row.event_type, title: row.title, body: row.body, href: safeInboxHref(row.action_path, 'tecrid'), createdAt: row.created_at, read: !!row.read_at }));
 }
-export async function vleNotifications(user: Pick<ChatGPTUser, 'userId' | 'email'>, readId?: string, transport: typeof fetch = privateFetch): Promise<InboxItem[]> {
+export async function vleNotifications(user: Pick<ChatGPTUser, 'userId' | 'email'>, readId?: string, transport: typeof fetch = privateFetch, readAll = false): Promise<InboxItem[]> {
   const secret = (env as any).TECRID_EMAIL_RELAY_SECRET;
   if (!secret) throw new Error('VLE connection unavailable');
   const response = await transport('https://vle.exchange/api/tecrid-report-permissions', {
@@ -35,7 +38,20 @@ export async function vleNotifications(user: Pick<ChatGPTUser, 'userId' | 'email
   if (!response.ok) throw new Error('VLE connection unavailable');
   const body = await response.json() as { items?: InboxItem[] };
   if (!Array.isArray(body.items)) throw new Error('VLE connection unavailable');
-  return body.items.map(item => ({ ...item, source: 'vle', href: safeInboxHref(item.href, 'vle') }));
+  const items = body.items.slice(0,100);
+  if (readAll) {
+    // Use the existing ownership-checked VLE read operation; do not invent a
+    // bulk relay action that the independently deployed service may not support.
+    const unread = items.filter(item => !item.read);
+    for (let offset = 0; offset < unread.length; offset += 5) {
+      await Promise.all(unread.slice(offset, offset + 5).map(async item => {
+        if (!item.id.startsWith('vle:')) throw new Error('Unknown VLE notification');
+        await vleNotifications(user, item.id, transport);
+        item.read = true;
+      }));
+    }
+  }
+  return items.map(item => ({ ...item, source: 'vle', href: safeInboxHref(item.href, 'vle') }));
 }
 export async function serviceAuthorized(request: Request, secret: string | undefined) {
   if (!secret) return false;

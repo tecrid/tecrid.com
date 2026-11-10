@@ -1,0 +1,38 @@
+TECRID notifications verification, 2026-11-10
+
+Story: signed-in dashboard bell -> inbox API -> membership-scoped D1 notifications -> inbox actions and destination pages.
+
+Chrome, signed-in isolated workspaceFixture database:
+- At 1440px, original bell center (1320.40625, 108): elementFromPoint returned the bell's SVG.
+- At 1280px, original bell center (1166.8046875, 108): elementFromPoint returned the bell's SVG.
+- No covering element was found. No CSS stacking change was needed.
+- Original click stayed on /dashboard and logged Uncaught TypeError: e is not a function in the built next/link chunk (also RSC prefetch errors).
+- Native anchor fix: clicking the bell opened /notifications. Both fixture updates rendered with Open update and Mark read actions, without arrows.
+- Mark read changed Unread (2) to Unread (1). Local auth baseURL must include the preview port so POST session validation matches the browser Origin.
+- Final 1280px hit test: onTop=true, count=2, native href=/notifications.
+- The existing CSP blocks the external Google Fonts stylesheet; unrelated to notification navigation.
+- VLE has no service credentials in this isolated fixture; the inbox correctly reports VLE unavailable while showing TECRID items.
+
+Destination checks:
+- Both seeded Open update destinations returned 200 locally: /records/TECRID%C2%B7DEMO-26-HM0001 and /dashboard/laboratory.
+- /dashboard/evidence-routing and /dashboard/settings/members also returned 200 with the signed-in fixture.
+- Read-only inspection of the current live inbox found its Open update links targeting the existing /dashboard/settings/members page. No missing destination was found, so no speculative link remapping was introduced.
+
+Regression coverage:
+- Shared sameSiteOrigin accepts canonical public, request URL, forwarded host, and Host origins; rejects hostile, missing, null, lookalike and wrong-scheme origins.
+- Notifications, legacy submissions, confirmations, and corrections retain hostile-origin 403 while accepting public proxy origins.
+- Kasandrinos writes, verified email session lookup, and magic-link confirmation cover proxy origins.
+- Bell unit test verifies native navigation does not cancel the click, href and unread badge; list actions omit decorative arrows.
+- Notification destination unit test checks record/application/request route files exist.
+- jsdom has no layout/hit testing; the topmost-element check was performed in real Chrome instead of a fake unit assertion.
+
+Reproduce signed-in browser checks after npm run build (do not rebuild while preview runs):
+  node --import ./tests/support/register-worker-env.mjs tests/support/notifications-preview.mjs
+  Open http://localhost:3100/dashboard in Chrome responsive mode at 1440 and 1280 pixels.
+  At the console:
+    const b=document.querySelector('.simple-dashboard-heading .notification-bell'), r=b.getBoundingClientRect();
+    console.assert(b.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)));
+  Click the bell and verify both fixture items, Open update destinations and Mark read.
+  Preview binds only to loopback and uses synthetic test identities in an isolated database.
+
+Final npm test: PASS (build, 37 rendered tests, 165 unit tests across 33 files).

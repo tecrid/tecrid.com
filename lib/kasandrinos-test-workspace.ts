@@ -1,10 +1,11 @@
+import { sameSiteOrigin } from "./request-security";
 import {privateFetch} from './private-fetch';
 import {env} from 'cloudflare:workers';
 import {getEmailUser} from './email-auth';
 import {privateReportHeaders} from './test-report-access';
 const failure=(error:string,status:number)=>Response.json({error},{status,headers:privateReportHeaders});
 export async function kasandrinosTestWorkspace(request:Request,transport:typeof fetch=privateFetch){
- if(request.method==='POST'&&request.headers.get('origin')!==new URL(request.url).origin)return failure('Same-origin request required.',403);
+ if(request.method==='POST'&&!sameSiteOrigin(request.headers.get('origin'), request))return failure('Same-origin request required.',403);
  let user;try{user=await getEmailUser(request.headers);}catch{return failure('Please sign in again.',401);}
  if(!user)return failure('Sign in with your work email.',401);
  let input:any={action:'workspace'};
