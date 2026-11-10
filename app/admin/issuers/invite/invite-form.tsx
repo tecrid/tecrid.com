@@ -1,18 +1,21 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function InviteLabForm() {
+  const router = useRouter();
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
   const [mailto, setMailto] = useState<string | null>(null);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const formElement = event.currentTarget;
     setPending(true);
     setMessage("Preparing the invite.");
     setMailto(null);
-    const form = new FormData(event.currentTarget);
+    const form = new FormData(formElement);
     try {
       const response = await fetch("/api/admin/laboratories/invite", {
         method: "POST",
@@ -23,7 +26,8 @@ export function InviteLabForm() {
       if (!response.ok || !body.result?.mailto) throw new Error(body.error || "The invite could not be prepared.");
       setMailto(body.result.mailto);
       setMessage(`${body.result.legalName ?? "The laboratory"} is saved and still unverified. Send the invite email. Two different ICS admins approve it later.`);
-      event.currentTarget.reset();
+      formElement.reset();
+      router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The invite could not be prepared.");
     } finally {
