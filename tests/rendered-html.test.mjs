@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { access, readFile } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
 async function render(path = "/") {
@@ -19,6 +19,78 @@ async function render(path = "/") {
     { waitUntil() {}, passThroughOnException() {} },
   );
 }
+
+async function publicSources(directory = new URL("../app/", import.meta.url)) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    if (entry.isDirectory()) {
+      if (!["admin", "dashboard", "api"].includes(entry.name)) files.push(...await publicSources(new URL(`${entry.name}/`, directory)));
+    } else if (entry.name.endsWith(".tsx")) files.push(new URL(entry.name, directory));
+  }
+  return files;
+}
+
+test("every public page renders an Atlas body, including empty and unavailable states", async () => {
+  const { JSDOM } = await import("jsdom");
+  const { Miniflare } = await import("miniflare");
+  const mf = new Miniflare({ modules: true, script: "export default {fetch(){return new Response('test')}}", compatibilityDate: "2026-05-22", d1Databases: ["DB"] });
+  const bindings = globalThis.__TECRID_WORKER_TEST_BINDINGS__ ||= {};
+  const previousDb = bindings.DB;
+  try {
+    bindings.DB = await mf.getD1Database("DB");
+    const migrations = new URL("../drizzle/", import.meta.url);
+    for (const file of (await readdir(migrations)).filter(file => file.endsWith(".sql")).sort()) {
+      for (const sql of (await readFile(new URL(file, migrations), "utf8")).split("--> statement-breakpoint").filter(sql => sql.trim())) await bindings.DB.prepare(sql).run();
+    }
+    const app = new URL("../app/", import.meta.url);
+    const sources = await publicSources(app);
+    // Inspect all public branches too: signed-in and real-record branches must
+    // not reintroduce a legacy body that an anonymous fixture cannot reach.
+    for (const file of sources) {
+      const source = await readFile(file, "utf8");
+      assert.doesNotMatch(source, /\bproduct-page\b/, `${file.pathname} still contains a legacy public body`);
+      assert.doesNotMatch(source, /[\u2014\u2013]/, `${file.pathname} contains retired punctuation`);
+    }
+    assert.doesNotMatch(await readFile(new URL("../lib/demo-records.ts", import.meta.url), "utf8"), /[\u2014\u2013]/);
+    const routes = sources.filter(file => file.pathname.endsWith("/page.tsx")).map(file => {
+      const relative = file.pathname.slice(app.pathname.length).replace(/\/?page\.tsx$/, "");
+      return "/" + relative.replace(/\[[^/]+\]/g, "atlas-missing-fixture");
+    });
+    routes.push("/join?role=laboratory", "/records/TECRID%C2%B7DEMO-26-HM0001", "/atlas-page-that-does-not-exist");
+    for (const path of routes) {
+      const response = await render(path);
+      if ([302, 303, 307, 308].includes(response.status)) {
+        assert.ok(response.headers.get("location"), `${path} retains its existing redirect`);
+        continue;
+      }
+      assert.ok([200, 404].includes(response.status), `${path} returned ${response.status}`);
+      const dom = new JSDOM(await response.text());
+      const document = dom.window.document;
+      assert.ok(document.querySelector(".atlas main#main-content"), `${path} is missing the Atlas shell`);
+      assert.equal(document.querySelectorAll("main").length, 1, `${path} must have one main landmark`);
+      assert.equal(document.querySelector(".product-page, .product-hero, .why-hero, .role-hero"), null, `${path} rendered the old public body`);
+      document.querySelectorAll("script,style,pre,code").forEach(element => element.remove());
+      assert.doesNotMatch(document.body.textContent || "", /\bTEC(?:s)?\b|\bregistry\b|[\u2014\u2013]/i, `${path} contains retired public copy`);
+      dom.window.close();
+    }
+  } finally {
+    bindings.DB = previousDb;
+    await mf.dispose();
+  }
+});
+
+test("the Atlas not-found page is a 404 with noindex only", async () => {
+  const { JSDOM } = await import("jsdom");
+  const response = await render("/atlas-page-that-does-not-exist");
+  assert.equal(response.status, 404);
+  const dom = new JSDOM(await response.text());
+  assert.match(dom.window.document.querySelector("main")?.textContent || "", /Page not found/);
+  const robots = [...dom.window.document.querySelectorAll('meta[name="robots"]')].map(element => element.content).join(",");
+  assert.match(robots, /noindex/);
+  assert.doesNotMatch(robots, /nofollow/);
+  dom.window.close();
+});
 
 test("retired pricing URLs return plain 404 without a redirect", async () => {
   for (const path of ["/pricing", "/pricing/", "/pricing?source=old-link", "/pricing/?source=old-link"]) {
@@ -271,7 +343,7 @@ test("publishes a portable, minification-safe TECRID identity mark and email-sig
   assert.match(nav, /\/icons\/tecrid\.svg/);
   assert.match(sharingClient, /Copy email-signature HTML/);
   assert.match(sharingClient, /tecrid-profile-badge\.png/);
-  assert.match(participantDirectory, /className="product-hero participants-hero"/);
+  assert.match(participantDirectory, /<PageHero className="atlas-participants-hero"/);
   assert.match(participantRoute, /getPublicParticipant/);
   assert.match(participantRoute, /What this profile proves/);
   assert.match(participantRoute, /\/brand\/tecrid-logo\.png/);

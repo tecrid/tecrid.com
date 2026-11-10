@@ -1,5 +1,5 @@
+import { PublicPage, PageHero } from "../blue-atlas/public-page";
 import type { Metadata } from "next";
-import { ProductFooter, ProductNav } from "../site-nav";
 
 export const metadata: Metadata = {
   title: "Laboratory Go-Time Pack, Test TECRID Today",
@@ -45,30 +45,30 @@ const sampleReportPayload = `{
 
 export default function LaboratoryGoTimePage() {
   return (
-    <main className="product-page lab-gotime-page">
-      <ProductNav compact />
-      <section className="lab-gotime-hero">
+    <PublicPage className="atlas-lab-gotime-page">
+
+      <PageHero className="atlas-lab-gotime-hero">
         <div>
-          <p className="section-kicker light">Lab go-time pack · sandbox first</p>
+          <p className="atlas-kicker">Lab go-time pack · sandbox first</p>
           <h1>If your laboratory says GO tomorrow, start here.</h1>
           <p>Run a sandbox issuance, authenticate a test API call, and exercise the candidate VLE sample-link contract today. Production authority remains locked until the laboratory passes every issuer-verification gate.</p>
-          <div><a className="button-mint" href="/sandbox?role=laboratory&amp;section=integrations">Create a laboratory sandbox key →</a><a href="/join?role=laboratory">Create the real lab workspace →</a></div>
+          <div><a className="atlas-button" href="/sandbox?role=laboratory&amp;section=integrations">Create a laboratory sandbox key →</a><a href="/join?role=laboratory">Create the real lab workspace →</a></div>
         </div>
         <aside><span>Same-day outcome</span><strong>One issued sandbox TECRID</strong><small>One authenticated scenario call · one sample-code match test · zero production claims</small></aside>
+      </PageHero>
+
+      <section className="atlas-lab-gotime-definition">
+        <div><p className="atlas-kicker">The object</p><h2>A TECRID is the record, not a label pasted onto a file.</h2></div>
+        <div><p>A TECRID is a persistent identifier for a laboratory-issued, structured, signed, and versioned report record. It binds issuer identity, findings, sample context, document fingerprint, status, and lifecycle history to a resolvable TECRID record.</p><div className="atlas-lab-gotime-warning"><strong>PDF/COA ≠ TECRID</strong><span>A PDF or Certificate of Analysis does not become a TECRID merely because an identifier or badge appears on it. The authenticated laboratory must finalize the canonical TECRID record.</span></div></div>
       </section>
 
-      <section className="lab-gotime-definition">
-        <div><p className="section-kicker">The object</p><h2>A TECRID is the record, not a label pasted onto a file.</h2></div>
-        <div><p>A TECRID is a persistent identifier for a laboratory-issued, structured, signed, and versioned report record. It binds issuer identity, findings, sample context, document fingerprint, status, and lifecycle history to a resolvable TECRID record.</p><div className="lab-gotime-warning"><strong>PDF/COA ≠ TECRID</strong><span>A PDF or Certificate of Analysis does not become a TECRID merely because an identifier or badge appears on it. The authenticated laboratory must finalize the canonical TECRID record.</span></div></div>
-      </section>
-
-      <section className="lab-gotime-flow">
-        <div><p className="section-kicker light">Mint and authenticate</p><h2>From released result to maintained evidence.</h2><p>Correction and revocation do not erase an issued record. They append traceable status history. If replacement evidence receives a new TECRID, every downstream system must explicitly bind and evaluate the replacement.</p></div>
+      <section className="atlas-lab-gotime-flow">
+        <div><p className="atlas-kicker">Mint and authenticate</p><h2>From released result to maintained evidence.</h2><p>Correction and revocation do not erase an issued record. They append traceable status history. If replacement evidence receives a new TECRID, every downstream system must explicitly bind and evaluate the replacement.</p></div>
         <ol>{mintFlow.map(([title, copy], index) => <li key={title}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{title}</strong><p>{copy}</p></div></li>)}</ol>
       </section>
 
-      <section className="lab-gotime-sandbox">
-        <div><p className="section-kicker">End-to-end sandbox</p><h2>Request. Issue. Call. Match.</h2><p>The test key is created inside your signed-in sandbox and shown once. Only its one-way hash is stored. It is limited to <code>/api/sandbox/v1/*</code> and cannot issue or read production records.</p></div>
+      <section className="atlas-lab-gotime-sandbox">
+        <div><p className="atlas-kicker">End-to-end sandbox</p><h2>Request. Issue. Call. Match.</h2><p>The test key is created inside your signed-in sandbox and shown once. Only its one-way hash is stored. It is limited to <code>/api/sandbox/v1/*</code> and cannot issue or read production records.</p></div>
         <ol>
           <li><span>01</span><div><strong>Request access and create a key</strong><p>Open the laboratory role directly at API &amp; integrations. Sign in, create a personal sandbox, and copy the <code>tec_sandbox_…</code> key when it is shown.</p><a href="/sandbox?role=laboratory&amp;section=integrations">Open laboratory API settings →</a></div></li>
           <li><span>02</span><div><strong>Issue the fictional sandbox record</strong><p>Use Evidence workflow to claim, confirm, and issue <code>SBX·NORTHSTAR-26-AVO8F2C1</code>. The fictional record has no production authority.</p><a href="/sandbox?role=laboratory&amp;section=evidence">Run the issuance flow →</a></div></li>
@@ -77,24 +77,24 @@ export default function LaboratoryGoTimePage() {
         </ol>
       </section>
 
-      <section className="lab-gotime-vle">
-        <div><p className="section-kicker light">TECRID × VLE</p><h2>Link evidence to the sample. Keep the claims separate.</h2><p>VLE owns the PhysicalLot, SamplingOrder, Sample, qualification profile, decision, and listing. The candidate contract asks TECRID to authenticate the evidence envelope and its laboratory-declared <code>sampleCode</code>; VLE then compares that value with its existing Sample before evaluation. This contract is sandbox-only today. Production schema and adapter activation require joint approval.</p></div>
-        <div className="lab-gotime-contract">
+      <section className="atlas-lab-gotime-vle">
+        <div><p className="atlas-kicker">TECRID × VLE</p><h2>Link evidence to the sample. Keep the claims separate.</h2><p>VLE owns the PhysicalLot, SamplingOrder, Sample, qualification profile, decision, and listing. The candidate contract asks TECRID to authenticate the evidence envelope and its laboratory-declared <code>sampleCode</code>; VLE then compares that value with its existing Sample before evaluation. This contract is sandbox-only today. Production schema and adapter activation require joint approval.</p></div>
+        <div className="atlas-lab-gotime-contract">
           <div><span>Request</span><code>{`{ tecridId, expectedSampleCode }`}</code></div>
           <div><span>TECRID response</span><code>{`{ tecridId, sampleCode, issuer, status, results, payloadHash, authentication }`}</code></div>
           <div><span>Boundary</span><strong>A matching code links two records. It does not prove representative sampling, custody, analytical correctness, certification, or qualification.</strong></div>
           <div><span>VLE decision</span><strong>VLE QUALIFIED is a separate deterministic outcome. It must never appear without authenticated TECRID-linked evidence and every applicable VLE requirement.</strong></div>
         </div>
-        <div className="lab-gotime-vle-links"><a href="https://vle-navy.vercel.app/for-laboratories" target="_blank" rel="noreferrer">Open the current VLE laboratory page ↗</a><a href="https://vle.exchange/for-laboratories" target="_blank" rel="noreferrer">vle.exchange laboratory page · use after domain cutover ↗</a></div>
+        <div className="atlas-lab-gotime-vle-links"><a href="https://vle-navy.vercel.app/for-laboratories" target="_blank" rel="noreferrer">Open the current VLE laboratory page ↗</a><a href="https://vle.exchange/for-laboratories" target="_blank" rel="noreferrer">vle.exchange laboratory page · use after domain cutover ↗</a></div>
       </section>
 
-      <section className="lab-gotime-checklist">
-        <div><p className="section-kicker">Lab says GO tomorrow</p><h2>Six checks before the first live report.</h2></div>
+      <section className="atlas-lab-gotime-checklist">
+        <div><p className="atlas-kicker">Lab says GO tomorrow</p><h2>Six checks before the first live report.</h2></div>
         <ol>{checklist.map(([title, copy], index) => <li key={title}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{title}</strong><p>{copy}</p>{title === "Report payload" ? <><pre><code>{sampleReportPayload}</code></pre><p><a href="/developers#report-mark">Open the implemented reserve and finalize reference →</a></p></> : null}{title === "Support" ? <p><a href="https://contaminantstandards.com/contact" target="_blank" rel="noreferrer">ICS contact page ↗</a> · <a href="mailto:karen@paleofoundation.com">karen@paleofoundation.com</a></p> : null}</div></li>)}</ol>
       </section>
 
-      <section className="role-cta"><div><p className="section-kicker light">Test before production</p><h2>Prove the handoff with one fictional record.</h2><p>The sandbox proves integration behavior only. It does not verify a real laboratory, certify a report, grant production authority, or create VLE QUALIFIED status.</p></div><a href="/sandbox?role=laboratory&amp;section=integrations">Start the lab sandbox <span>↗</span></a></section>
-      <ProductFooter />
-    </main>
+      <section className="atlas-role-cta"><div><p className="atlas-kicker">Test before production</p><h2>Prove the handoff with one fictional record.</h2><p>The sandbox proves integration behavior only. It does not verify a real laboratory, certify a report, grant production authority, or create VLE QUALIFIED status.</p></div><a href="/sandbox?role=laboratory&amp;section=integrations">Start the lab sandbox <span>↗</span></a></section>
+
+    </PublicPage>
   );
 }
