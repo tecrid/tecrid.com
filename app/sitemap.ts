@@ -5,6 +5,7 @@ const lastModified = new Date("2026-08-29T00:00:00.000Z");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
+    { url: `${origin}/learn/why-earlier-attempts-fell-short`, lastModified: new Date("2026-11-10T00:00:00.000Z"), changeFrequency: "monthly", priority: 0.8 },
     { url: `${origin}/`, lastModified, changeFrequency: "weekly", priority: 1 },
     { url: `${origin}/what-is-a-tecrid`, lastModified, changeFrequency: "monthly", priority: 1 },
     { url: `${origin}/faq`, lastModified: new Date("2026-09-07T00:00:00.000Z"), changeFrequency: "monthly", priority: 0.9 },
