@@ -247,6 +247,7 @@ export async function respondToEvidenceRequest(user: ChatGPTUser, requestIdValue
 
 export async function revokeEvidenceGrant(user: ChatGPTUser, grantIdValue: unknown) {
   const membership = await requireMembership(user);
+  assertOrganizationManager(membership.role, "revoke evidence access");
   const grantId = clean(grantIdValue, 100);
   const db = getDb();
   const [grant] = await db.select().from(evidenceAccessGrants).where(and(eq(evidenceAccessGrants.id, grantId), eq(evidenceAccessGrants.controllerOrganizationId, membership.organization.id))).limit(1);
@@ -325,6 +326,11 @@ export async function revokeRoutingAuthorization(user: ChatGPTUser, authorizatio
   const revokedAt = new Date().toISOString();
   await db.batch([
     db.update(routingAuthorizations).set({ status: "revoked", revokedAt, revokedByUserId: user.userId }).where(eq(routingAuthorizations.id, id)),
+    db.insert(organizationNotifications).values({
+      id: crypto.randomUUID(), organizationId: record.laboratoryOrganizationId, eventType: "evidence_routing.revoked",
+      title: `Routing revoked for ${record.productSku}`, body: `${membership.organization.name} revoked future routing for ${record.productSku}. Copies already delivered stay with the recipient.`,
+      actionPath: "/dashboard", entityType: "routing_authorization", entityId: id, createdAt: revokedAt,
+    }),
     db.insert(auditEvents).values({
       id: crypto.randomUUID(), organizationId: membership.organization.id, actorUserId: user.userId,
       eventType: "evidence_routing.revoked", entityType: "routing_authorization", entityId: id,

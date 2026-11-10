@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { workspaceFixture } from '../tests/support/workspace-fixture.mjs';
 const fixture=await workspaceFixture();
+if(process.env.WORKSPACE_ACCESS_PREVIEW) {const {seedAccessFixture}=await import("../tests/support/workspace-access-fixture.mjs");await seedAccessFixture(fixture.bindings.DB);}
 Object.assign(globalThis.__TECRID_WORKER_TEST_BINDINGS__ ||= {},fixture.bindings);
 const current=await import('../dist/server/index.js');
 const before=process.env.WORKSPACE_BEFORE_DIST ? await import(resolve(process.env.WORKSPACE_BEFORE_DIST,'server/index.js')) : current;
