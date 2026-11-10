@@ -1,4 +1,6 @@
 // @vitest-environment node
+import {confirmMagicLink} from "../lib/magic-link-confirm";
+import ConfirmPage from "../app/sign-in/confirm/page";
 import {it} from "vitest";
 import {env} from "./support/cloudflare-env";
 import {getEmailUser} from "../lib/email-auth";
@@ -25,14 +27,26 @@ let mail=[],ip=1;
 const auth=createEmailAuth(drizzle(db,{schema}),schema,{secret:'local-test-only-'.repeat(4),baseURL:'https://tecrid.test',relaySecret:'test-key',issuanceSecret:'synthetic-issuance-'.repeat(4),relayURL:'https://relay.test/email'},async(url,options)=>{assert.equal(url,'https://relay.test/email');assert.equal(options.headers.authorization==='Bearer test-key',true);assert.equal(options.headers['x-tecrid-mail-issuance'].startsWith('TECRID-HMAC '),true);mail.push(JSON.parse(options.body));return Response.json({id:'test-message'});});
 const call=(path,body,cookie='',origin='https://tecrid.test')=>auth.handler(new Request('https://tecrid.test/api/auth/'+path,{method:body?'POST':'GET',headers:{origin,'Content-Type':'application/json','cf-connecting-ip':`192.0.2.${ip++}`,cookie},...(body?{body:JSON.stringify(body)}:{})}));
 const send=async(email)=>{let r=await call('sign-in/magic-link',{email,callbackURL:'/email-sign-in'});assert.equal(r.status,200);return mail.at(-1).url;};
-const link=await send('buyer@company.test');assert.equal(mail[0].email,'buyer@company.test');
+const confirm = (link, origin='https://tecrid.test') => confirmMagicLink(new Request('https://tecrid.test/api/auth/magic-link/confirm',{method:'POST',headers:{origin,'content-type':'application/json','cf-connecting-ip':`192.0.2.${ip++}`},body:JSON.stringify(Object.fromEntries(new URL(link).searchParams))}),auth);
+const verify = async(link) => {const result=await confirm(link);if(result.status!==200)return Response.redirect('https://tecrid.test/sign-in?error=INVALID_TOKEN');const body=await result.json();return new Response(null,{status:302,headers:[['location',body.url],...result.headers.getSetCookie().map(v=>['set-cookie',v])]});};
+const link=await send('buyer@company.test');
+assert.equal(new URL(link).pathname,'/sign-in/confirm');
+const before=await db.prepare('SELECT * FROM auth_verification').all();
+for(let scan=0;scan<3;scan++)await ConfirmPage({searchParams:Promise.resolve(Object.fromEntries(new URL(link).searchParams))});
+assert.deepEqual((await db.prepare('SELECT * FROM auth_verification').all()).results,before.results,'Scanner GET rendering must leave the token untouched');
+assert.equal((await confirmMagicLink(new Request(link),auth)).status,405);
+assert.equal((await confirm(link,'https://evil.test')).status,403);
+const expires=await db.prepare('SELECT expires_at FROM auth_verification').first();
+assert(expires.expires_at > Date.now()+19*60*1000 && expires.expires_at <= Date.now()+20*60*1000);
+assert.equal(mail[0].email,'buyer@company.test');
 const pending=await db.prepare('SELECT identifier FROM auth_verification').first();assert(!pending.identifier.includes(new URL(link).searchParams.get('token')));
-let r=await auth.handler(new Request(link));assert.equal(r.status,302);let cookie=r.headers.getSetCookie().map(s=>s.split(';')[0]).join('; ');assert(cookie.includes('tecrid.session_token'));assert(r.headers.get('set-cookie').includes('HttpOnly'));assert(r.headers.get('set-cookie').includes('Secure'));
+let r=await verify(link);assert.equal(r.status,302);let cookie=r.headers.getSetCookie().map(s=>s.split(';')[0]).join('; ');assert(cookie.includes('tecrid.session_token'));assert(r.headers.get('set-cookie').includes('HttpOnly'));assert(r.headers.get('set-cookie').includes('Secure'));
 let s=await auth.api.getSession({headers:new Headers({cookie})});assert.equal(s.user.email,'buyer@company.test');assert.equal(s.user.emailVerified,true);
-r=await auth.handler(new Request(link));assert(new URL(r.headers.get('location')).searchParams.has('error'));assert(!r.headers.get('set-cookie')?.includes('session_token='));
+assert.equal((await confirm(link)).status,400,'Second POST must fail');
+r=await verify(link);assert(new URL(r.headers.get('location')).searchParams.has('error'));assert(!r.headers.get('set-cookie')?.includes('session_token='));
 // No recipient allowlist: an unrelated supplier email creates a separate verified identity.
 const supplierLink=await send('supplier@independent-ingredients.test');assert.equal(mail.at(-1).email,'supplier@independent-ingredients.test');
-r=await auth.handler(new Request(supplierLink,{headers:{'cf-connecting-ip':'192.0.2.210'}}));assert.equal(r.status,302);const supplierCookie=r.headers.getSetCookie().map(v=>v.split(';')[0]).join('; ');const supplierSession=await auth.api.getSession({headers:new Headers({cookie:supplierCookie})});assert.equal(supplierSession.user.email,'supplier@independent-ingredients.test');assert.equal(supplierSession.user.emailVerified,true);assert.notEqual(supplierSession.user.id,s.user.id);assert.equal((await auth.api.getSession({headers:new Headers({cookie})})).user.email,'buyer@company.test');
+r=await verify(supplierLink);assert.equal(r.status,302);const supplierCookie=r.headers.getSetCookie().map(v=>v.split(';')[0]).join('; ');const supplierSession=await auth.api.getSession({headers:new Headers({cookie:supplierCookie})});assert.equal(supplierSession.user.email,'supplier@independent-ingredients.test');assert.equal(supplierSession.user.emailVerified,true);assert.notEqual(supplierSession.user.id,s.user.id);assert.equal((await auth.api.getSession({headers:new Headers({cookie})})).user.email,'buyer@company.test');
 const report=sampleLabReports[0];let protectedCalls=0;
 const reportTransport=async(_url,options)=>{protectedCalls++;const body=JSON.parse(options.body);assert.equal(body.actor.email,'buyer@company.test');assert.equal(body.actor.emailVerified,true);return Response.json({reportNumber:report.reportNumber,sourceSha256:report.sourceSha256,sandbox:true,productionAuthority:false,reviewStatus:'UNAPPROVED_TRANSCRIPTION',results:[{analyte:'Synthetic',resultText:'ND'}]});};
 assert.equal((await protectedTestReport(new Request('https://tecrid.test/api/test-reports/id/results',{headers:{cookie}}),report.testIdentifier,'card',reportTransport)).status,200);assert.equal(protectedCalls,1);
@@ -48,7 +62,7 @@ const application=await submitIssuerApplication(principal,{legalName:'Synthetic 
 await assert.rejects(reserveReportTecrid(membership.organization,{productName:'X',productSku:'X'}));
 assert.equal(await getEmailUser(new Headers({cookie,origin:'https://evil.test'})),null);
 assert.equal(safeReturnPath('//evil.test'),'/dashboard');assert.equal(safeReturnPath('/dashboard#laboratory-verification'),'/dashboard#laboratory-verification');
-const expired=await send('expired@company.test');await db.prepare('UPDATE auth_verification SET expires_at=0').run();r=await auth.handler(new Request(expired));assert(new URL(r.headers.get('location')).searchParams.has('error'));
+const expired=await send('expired@company.test');await db.prepare('UPDATE auth_verification SET expires_at=0').run();r=await verify(expired);assert(new URL(r.headers.get('location')).searchParams.has('error'));
 r=await call('sign-out',{},cookie,'https://evil.test');assert.equal(r.status,403);assert(await auth.api.getSession({headers:new Headers({cookie})}));
 r=await call('sign-out',{},cookie);assert.equal(r.status,200);assert.equal(await auth.api.getSession({headers:new Headers({cookie})}),null);
 assert.equal((await protectedTestReport(new Request('https://tecrid.test/api/test-reports/id/results',{headers:{cookie}}),report.testIdentifier,'card',reportTransport)).status,401);assert.equal(protectedCalls,1);

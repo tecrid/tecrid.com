@@ -69,6 +69,13 @@ const worker = {
     const guarded = await guardMutationRequest(security.request, env);
     if (guarded instanceof Response) return applyContentSecurityPolicy(guarded, security.policy, security.request);
     const response = await handler.fetch(guarded, env, ctx);
+    if (url.pathname === "/sign-in/confirm" || url.pathname === "/sign-in/confirm/") {
+      const uncached = new Response(response.body, response);
+      uncached.headers.set("Cache-Control", "no-store");
+      uncached.headers.set("X-Robots-Tag", "noindex, nofollow");
+      uncached.headers.set("Referrer-Policy", "no-referrer");
+      return applyContentSecurityPolicy(uncached, security.policy, guarded);
+    }
     return applyContentSecurityPolicy(response, security.policy, guarded);
   },
 };

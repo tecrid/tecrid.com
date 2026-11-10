@@ -889,3 +889,20 @@ test("publishes the exact earlier-attempts article with discovery and search met
   }
   assert.match(await (await render("/sitemap.xml")).text(), /https:\/\/tecrid.com\/learn\/why-earlier-attempts-fell-short/);
 });
+
+ test("magic-link scanner GET is uncached, unindexed and offers one explicit sign-in button", async () => {
+  const {JSDOM} = await import("jsdom");
+  const response = await render("/sign-in/confirm?token=scanner-fixture&callbackURL=%2Fdashboard");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("cache-control"), /(?:^|,\s*)no-store(?:,|$)/);
+  assert.match(response.headers.get("x-robots-tag"), /noindex/);
+  assert.equal(response.headers.get("set-cookie"), null);
+  const dom = new JSDOM(await response.text());
+  assert.match(dom.window.document.querySelector('meta[name="robots"]').content, /noindex/);
+  const buttons = dom.window.document.querySelectorAll("button");
+  assert.equal(buttons.length, 1);
+  assert.equal(buttons[0].textContent, "Sign in to TECRID");
+  assert.equal(buttons[0].getAttribute("type"), "submit");
+  assert.equal(dom.window.document.querySelector('meta[http-equiv="refresh"]'), null);
+  dom.window.close();
+ });
