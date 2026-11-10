@@ -575,9 +575,10 @@ test("wires controller-gated evidence routing for certifiers, retailers, and gov
   assert.match(sandboxPage, /Approve certifier request/);
   assert.match(sandboxPage, /Revoke future delivery/);
   assert.match(sandboxPage, /invented sandbox values/);
-  assert.match(dashboardPage, /Issuer authority is not disclosure authority/);
-  assert.match(dashboardClient, /One recipient does not imply another/);
-  assert.match(dashboardClient, /recipient-specific evidence packages/);
+  assert.match(dashboardPage, /Approve or revoke who can receive evidence/);
+  assert.match(dashboardClient, /Approve/);
+  assert.match(dashboardClient, /Revoke/);
+  assert.match(dashboardClient, /No access decisions yet/);
   for (const route of [browserRequestRoute, browserGrantRoute, browserAuthorizationRoute]) {
     assert.match(route, /rejectCrossOriginWrite/);
     assert.match(route, /getChatGPTUser/);
@@ -627,7 +628,7 @@ test("wires two-pass report marking, controller receipts, legacy API intake, and
   assert.match(insights, /descriptive portfolio summaries/);
   assert.match(insights, /latestTecrid/);
   assert.match(dashboard, /Every source remains resolvable/);
-  assert.match(routingPage, /The brand or supplier receives the complete signed record first/);
+  assert.match(routingPage, /Revoke stops future delivery/);
   const developerHtml = await developers.text();
   assert.match(developerHtml, /Reserve\. Render\. Fingerprint\. Sign\. Finalize/);
   assert.match(developerHtml, /POST \/api\/v1\/report-reservations/);

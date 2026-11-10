@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { listSharingForUser } from "../../../lib/sharing";
+import { organizationRole } from "../../../lib/roles";
 import { ProductFooter, ProductNav } from "../../site-nav";
 import { SharingClient } from "./sharing-client";
 
@@ -13,6 +14,8 @@ export default async function SharingPage() {
   const data = await listSharingForUser(user);
   const organizationId = data.membership.organization.id;
   if (data.membership.organization.slug.startsWith("setup--")) redirect("/dashboard/setup?return_to=/dashboard/sharing");
+  const role = organizationRole(data.membership.organization.organizationType);
+  if (role === "retailer" || role === "certification_body") redirect("/dashboard/received");
   const name = (id: string) => data.organizationMap[id]?.name ?? "Unknown organization";
   const codes = data.codes.map((code) => ({
     ...code,
@@ -41,11 +44,12 @@ export default async function SharingPage() {
     };
   });
   return (
-    <main className="product-page sharing-page">
+    <main className="product-page app-page">
       <ProductNav compact />
-      <header className="dashboard-header sharing-hero">
-        <div><p className="section-kicker light">Brand-controlled disclosure</p><h1>Share the evidence.<br />Keep the boundary.</h1><p>Create one-time, recipient-bound packages for selected TECRIDs, selected SKUs, or an explicitly broad portfolio. Every redemption is fingerprinted and receipted.</p></div>
-        <span className="workspace-code">Organization <strong>{data.membership.organization.issuerCode}</strong></span>
+      <header className="app-heading">
+        <p className="section-kicker">{data.membership.organization.name}</p>
+        <h1>Sharing</h1>
+        <p>Create a one-time code for selected SKUs, selected TECRIDs, or the current portfolio.</p>
       </header>
       <SharingClient
         organization={{

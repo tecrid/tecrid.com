@@ -26,7 +26,7 @@ export function LabDefenseClient() {
 
   return (
     <section className="lab-case-builder">
-      <div className="lab-case-builder-copy"><p className="section-kicker light">New evidence case</p><h2>Compare what is comparable.<br />Expose what is missing.</h2><p>TECRID normalizes compatible units and lines up report context. A qualified reviewer—not this workflow—interprets method effects, uncertainty, sample representativeness, and compliance.</p><a href="/demo/lab-defense">See a fictional worked example →</a></div>
+      <div className="lab-case-builder-copy"><p className="section-kicker">New evidence case</p><h2>Compare two reports</h2><p>TECRID lines up context and units. A qualified reviewer, not this workflow, interprets method effects, uncertainty, and sample representativeness.</p><a href="/demo/lab-defense">See a fictional worked example</a></div>
       <div className="lab-case-form">
         <label>Case title<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Lot 24-08 interlaboratory review" /></label>
         <label>Purpose<textarea value={purpose} onChange={(event) => setPurpose(event.target.value)} placeholder="Document the context needed for a technical review." /></label>

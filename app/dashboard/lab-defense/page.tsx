@@ -15,7 +15,7 @@ export default async function LabDefensePage() {
   return (
     <main className="product-page lab-defense-page">
       <ProductNav compact />
-      <header className="dashboard-header lab-defense-hero"><div><p className="section-kicker light">Laboratory verification desk</p><h1>Answer the report question<br />with a durable receipt.</h1><p>See authenticity checks against your issued records and assemble two-record evidence cases without pretending software can choose the scientifically correct result.</p></div><span className="workspace-code">Workspace <strong>{data.membership.organization.name}</strong></span></header>
+      <header className="app-heading"><p className="section-kicker">{data.membership.organization.name}</p><h1>Evidence cases</h1><p>Compare two public reports. TECRID checks that each record is real. It does not choose a winner.</p></header>
       <div className="lab-defense-shell">
         <section className="dashboard-summary">
           <article><span>Verification checks</span><strong>{data.checks.length}</strong><small>Latest 100 against this issuer</small></article>
