@@ -22,7 +22,7 @@ export default async function InviteLabPage() {
       <header className="app-heading">
         <p className="section-kicker">ICS</p>
         <h1>Invite a lab</h1>
-        <p>Create a laboratory workspace and a pending application. The owner signs in and confirms. The laboratory stays unverified until two different ICS admins approve it.</p>
+        <p>Create a laboratory workspace and a pending application. Record every site on the certificate and the analytes on the accredited scope. The owner signs in and confirms. The laboratory stays unverified until two different ICS admins approve it.</p>
         <nav className="app-tabs" aria-label="ICS review"><a href="/admin/issuers">Issuer applications</a><a href="/admin/reports">Report intake audit</a><a href="/admin/founding">Founding launches</a></nav>
       </header>
       <InviteLabForm />

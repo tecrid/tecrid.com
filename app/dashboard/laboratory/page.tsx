@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { getDashboardData } from "../../../lib/tec";
 import { IssuerApplicationPanel } from "../issuer-application";
+import { IssuerKeyButton } from "../issuer-key-button";
 import { ProductFooter } from "../../site-nav";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +29,7 @@ export default async function LaboratorySetup() {
         <h1>{title}</h1>
         <p>{summary}</p>
         {verified ? <a className="button-dark" href="/dashboard/issuance">Issue a report</a> : <a href="/dashboard">Back to Home</a>}
+        {verified ? <IssuerKeyButton /> : null}
       </header>
       <IssuerApplicationPanel application={data.issuerApplication} issuerStatus={data.organization.issuerStatus} documents={data.issuerDocuments} checks={data.issuerChecks} confirmedEmail={user.userId.startsWith("email:") ? user.email : null} />
       <ProductFooter />

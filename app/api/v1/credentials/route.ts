@@ -4,6 +4,7 @@ import {
   listCredentialsForApi,
   TecAuthorizationError,
   TecDuplicateDocumentError,
+  TecExistingReferenceError,
   TecInputError,
 } from "../../../../lib/tec";
 import {
@@ -14,7 +15,9 @@ import {
 function errorResponse(error: unknown) {
   const known = error instanceof TecAuthorizationError || error instanceof TecInputError;
   const status = known ? error.status : 500;
-  const tecrid = error instanceof TecDuplicateDocumentError ? error.existingTecrid : undefined;
+  const tecrid = error instanceof TecDuplicateDocumentError || error instanceof TecExistingReferenceError
+    ? error.existingTecrid
+    : undefined;
   return Response.json(
     {
       error: {

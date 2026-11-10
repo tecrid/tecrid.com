@@ -1,5 +1,7 @@
 export const API_SCOPES = ["read", "reports:write", "credentials:write", "legacy:write", "*"] as const;
 
+export const ISSUER_API_SCOPES = ["read", "reports:write", "credentials:write", "legacy:write"] as const;
+
 export function normalizeApiScopes(value: unknown): string[] {
   if (value === undefined) return ["read"];
   if (!Array.isArray(value) || !value.length || value.some((scope) => !API_SCOPES.includes(scope))) {
@@ -15,6 +17,6 @@ export function apiRequestScope(request: Request): string | null {
   const path = new URL(request.url).pathname;
   if (/^\/api\/v1\/report-reservations(?:\/|$)/.test(path)) return "reports:write";
   if (/^\/api\/v1\/credentials(?:\/|$)/.test(path)) return "credentials:write";
-  if (path === "/api/v1/legacy-reports") return "legacy:write";
+  if (path === "/api/v1/legacy-reports" || path === "/api/v1/legacy-reports/batch") return "legacy:write";
   return null;
 }

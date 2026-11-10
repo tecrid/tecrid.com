@@ -7,7 +7,7 @@ type BudgetStatement = {
   };
 };
 
-type BudgetDb = {
+export type BudgetDb = {
   prepare(query: string): BudgetStatement;
 };
 
@@ -84,7 +84,10 @@ export async function guardMutationRequest(request: Request, env: BudgetEnv) {
     }
     if (request.headers.get("content-type")?.includes("application/json")) {
       try {
-        const text = await boundedText(request, 128_000);
+        const jsonLimit = url.pathname === "/api/v1/credentials/batch" || url.pathname === "/api/v1/legacy-reports/batch"
+          ? 2_000_000
+          : 128_000;
+        const text = await boundedText(request, jsonLimit);
         return new Request(request, { body: text });
       } catch {
         return failure(413, "JSON request is too large.");
