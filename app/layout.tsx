@@ -14,6 +14,7 @@ import "./blue-atlas/atlas.css";
 import "./blue-atlas/public.css";
 import "./blue-atlas/workspace.css";
 import "./blue-atlas/results.css";
+import "./blue-atlas/remaining.css";
 import { NotificationProvider } from "./notification-center";
 import { MobileNavigation } from "./mobile-navigation";
 import {
