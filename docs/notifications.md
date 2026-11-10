@@ -1,6 +1,6 @@
 # In-app notifications and VLE bridge
 
-TECRID `/notifications` and VLE `/notifications` show credential issuance/delivery, incoming evidence requests, and access decisions. The mobile Alerts tab and signed-in navigation display unread counts. Feeds refresh every 45 seconds while visible and on return to the app; no device push subscription or background delivery is implemented.
+TECRID `/notifications` and VLE `/notifications` show credential issuance/delivery, incoming evidence requests, and access decisions. The mobile Alerts tab and signed-in navigation display unread counts. The inbox shows compact linked rows, All/Unread filters, and 20 more rows per “See previous notifications” click. Opening a row starts a keepalive read POST and follows its destination immediately. Feeds refresh every 45 seconds while visible and on return to the app; no device push subscription or background delivery is implemented.
 
 TECRID stores organization events alongside the associated issuance/request/decision transaction. Existing controller receipts and authorized recipient deliveries also feed the inbox. Drafts and unapproved TEST reports are not reported as issued production credentials. Each organization member gets a personal read marker; opening an update does not approve or mark it read.
 
@@ -8,7 +8,7 @@ VLE remains the permission authority for Kasandrinos TEST digital cards. Request
 
 ## Endpoints
 
-- TECRID browser: `GET /api/notifications`, `POST /api/notifications` with `{ "action": "read", "id": "tecrid:…" }` or a `vle:…` ID. Requires a validated session; VLE items require work-email sign-in. Writes require the same Origin.
+- TECRID browser: `GET /api/notifications`, `POST /api/notifications` with `{ "action": "read", "id": "tecrid:…" }` or a `vle:…` ID. Requires a validated session; VLE items require work-email sign-in. The toolbar also accepts `{ "action": "read-all" }`. Writes require the same Origin. TECRID bulk reads cover all membership-owned notifications, including those beyond the 100-item feed; VLE bulk reads use the existing authenticated per-item relay for unread items in its capped feed.
 - VLE browser: `GET /api/evidence-notifications`, corresponding same-origin `POST` with the same read shape. Requires a validated email session; account membership and manager role are rechecked server-side.
 - TECRID service: `POST /api/integrations/vle/notifications` with `action: list|read` and `actor: {email,emailVerified:true}`. VLE derives the actor exclusively from its validated email session. Organization membership is resolved by exact normalized email.
 - VLE service: existing `POST /api/tecrid-report-permissions`, extended with `action: notifications|notification-read`, optional `id`, and the existing verified TECRID actor. Only owner/admin roles see incoming TEST requests; recipients see only their own decisions.

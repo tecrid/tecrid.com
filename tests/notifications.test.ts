@@ -69,3 +69,20 @@ it('builds record, application, and request destinations with existing page rout
   expect(new URL(safeInboxHref(path,'tecrid')).pathname+new URL(safeInboxHref(path,'tecrid')).hash).toBe(path);
  }
 });
+
+it('marks all owned TECRID notifications beyond the feed cap without affecting other recipients or organizations',async()=>{
+ await getDb().insert(organizations).values({id:'other',name:'Other',slug:'other',organizationType:'brand',ownerUserId:'other',ownerEmail:'other@example.test',issuerCode:'OTHER'});
+ await getDb().insert(organizationNotifications).values({id:'private-notice',organizationId:'other',eventType:'credential.issued',title:'Private',body:'Private',actionPath:'/notifications',entityType:'credential',entityId:'private'});
+ for(let index=0;index<101;index++)await getDb().insert(organizationNotifications).values({id:`bulk-${index}`,organizationId:'test',eventType:'credential.issued',title:'Bulk',body:'Synthetic',actionPath:'/notifications',entityType:'credential',entityId:`bulk-${index}`});
+ const items=await ownNotifications(env.DB,bob,undefined,false,true);expect(items).toHaveLength(100);expect(items.every(item=>item.read)).toBe(true);
+ const count=await env.DB.prepare("SELECT count(*) AS count FROM notification_reads WHERE recipient_email=? AND notification_id LIKE 'bulk-%'").bind(bob.email).first<{count:number}>();expect(count?.count).toBe(101);
+ expect(await env.DB.prepare("SELECT * FROM notification_reads WHERE notification_id='private-notice'").first()).toBeNull();
+ expect(await env.DB.prepare("SELECT * FROM notification_reads WHERE recipient_email=? AND notification_id LIKE 'bulk-%'").bind(alice.email).first()).toBeNull();
+});
+it('marks VLE unread items through the existing authenticated ownership-checked relay',async()=>{
+ const calls:unknown[]=[];
+ const transport=async(_url:unknown,options:any)=>{const body=JSON.parse(options.body);calls.push(body);return Response.json({items:[{id:'vle:unread',read:body.action==='notification-read',href:'/notifications'},{id:'vle:read',read:true,href:'/notifications'}]});};
+ const items=await vleNotifications(bob,undefined,transport as typeof fetch,true);
+ expect(calls).toEqual([{action:'notifications',actor:{...bob,emailVerified:true}},{action:'notification-read',id:'vle:unread',actor:{...bob,emailVerified:true}}]);expect(items.every(item=>item.read)).toBe(true);
+ await expect(vleNotifications(bob,undefined,(async()=>new Response(null,{status:503})) as typeof fetch,true)).rejects.toThrow();
+});
