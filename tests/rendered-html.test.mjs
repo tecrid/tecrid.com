@@ -853,3 +853,39 @@ test("all eight Kasandrinos report views expose source metadata while keeping fi
  }
  assert.equal(details['43297'].analytes.length,1);assert.equal(details['43296'].analytes.length,23);
 });
+
+test("publishes the exact earlier-attempts article with discovery and search metadata", async () => {
+  const { JSDOM } = await import("jsdom");
+  const path = "/learn/why-earlier-attempts-fell-short";
+  const source = await readFile(new URL("./fixtures/article-v2.md", import.meta.url), "utf8");
+  const response = await render(path);
+  assert.equal(response.status, 200);
+  const dom = new JSDOM(await response.text());
+  const doc = dom.window.document;
+  const originalBlocks = source.trim().split(/\n\n/);
+  const plain = value => value.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+  assert.equal(doc.querySelector("article h1").textContent, originalBlocks[0].slice(2));
+  const expectedBlocks = originalBlocks.slice(1).flatMap(block =>
+    block.startsWith("- ") ? block.split("\n").map(line => plain(line.slice(2))) : [plain(block.replace(/^## /, ""))]);
+  const renderedBlocks = [...doc.querySelectorAll(".atlas-article-copy > p, .atlas-article-copy > h2, .atlas-article-sources > li")].map(el => el.textContent);
+  assert.deepEqual(renderedBlocks, expectedBlocks);
+  const originalLinks = [...source.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)].map(match => [match[1], match[2]]);
+  assert.deepEqual([...doc.querySelectorAll(".atlas-article-copy a")].map(a => [a.textContent, a.getAttribute("href")]), originalLinks);
+  assert.equal(doc.querySelectorAll(".atlas-article-sources li").length, 10);
+  assert.doesNotMatch(doc.querySelector(".atlas").textContent, /registry|[—–]/i);
+  assert.equal(doc.querySelector('link[rel="canonical"]').getAttribute("href"), `https://tecrid.com${path}`);
+  assert.ok(doc.querySelector('meta[name="description"]').getAttribute("content"));
+  assert.doesNotMatch(doc.querySelector('meta[name="robots"]').getAttribute("content"), /noindex|nofollow/);
+  const article = [...doc.querySelectorAll('script[type="application/ld+json"]')].map(script => JSON.parse(script.textContent)).find(data => data["@type"] === "Article");
+  assert.equal(article.headline, originalBlocks[0].slice(2));
+  assert.equal(article.author.name, "Institute of Contaminant Standards");
+  assert.equal(article.author["@type"], "Organization");
+  assert.equal(article.mainEntityOfPage, `https://tecrid.com${path}`);
+  dom.window.close();
+  for (const entry of ["/", "/what-is-a-tecrid"]) {
+    const entryDom = new JSDOM(await (await render(entry)).text());
+    assert.equal(entryDom.window.document.querySelector(`a[href="${path}"]`).textContent, "Read: what earlier attempts ran into");
+    entryDom.window.close();
+  }
+  assert.match(await (await render("/sitemap.xml")).text(), /https:\/\/tecrid.com\/learn\/why-earlier-attempts-fell-short/);
+});
