@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { listEvidenceRoutingForUser } from "../../../lib/evidence-routing";
 import { organizationRole } from "../../../lib/roles";
-import { ProductFooter } from "../../site-nav";
 import { EvidenceRoutingClient } from "./routing-client";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +41,7 @@ export default async function EvidenceRoutingPage() {
       ? "Ask a brand for evidence, then follow the decision here."
       : "Approve or revoke who can receive evidence.";
   return (
-    <main className="product-page app-page">
+    <div className="product-page app-page">
       <header className="app-heading">
         <p className="section-kicker">{data.membership.organization.name}</p>
         <h1>{title}</h1>
@@ -56,7 +55,7 @@ export default async function EvidenceRoutingPage() {
         controllerReceipts={[]}
         authorizations={authorizations}
       />
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

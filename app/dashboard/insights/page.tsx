@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { getEvidenceInsightsForUser } from "../../../lib/insights";
-import { ProductFooter, ProductNav } from "../../site-nav";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Evidence insights, TECRID" };
@@ -10,8 +9,8 @@ export default async function InsightsPage() {
   const user = await requireChatGPTUser("/dashboard/insights");
   const { membership, insights } = await getEvidenceInsightsForUser(user);
   return (
-    <main className="product-page insights-page">
-      <ProductNav compact />
+    <div className="product-page insights-page">
+
       <header className="app-heading">
         <p className="section-kicker">{membership.organization.name}</p>
         <h1>Reports</h1>
@@ -32,7 +31,7 @@ export default async function InsightsPage() {
         <section className="insight-panel insight-records insight-notifications"><div className="panel-heading"><div><p className="section-kicker">Notification center</p><h2>Report and routing events.</h2></div><span>{insights.summary.unreadNotifications} unread</span></div>{insights.notifications.length ? <div>{insights.notifications.map((item) => <article key={item.id}><span className={`record-status record-${item.status === "unread" ? "pending" : "issued"}`}>{item.status}</span><div><strong>{item.title}</strong><small>{item.body}</small></div><code>{new Date(item.createdAt).toLocaleString()}</code>{item.actionPath ? <a href={item.actionPath}>Open ↗</a> : <span />}</article>)}</div> : <div className="empty-state"><strong>No report events yet.</strong><p>Reserved, issued, and routed TECRIDs will create durable in-product notifications here.</p></div>}</section>
         <section className="record-boundary insight-boundary"><p className="section-kicker">Interpretation boundary</p><h2>Portfolio visibility is not a safety decision.</h2><p>{insights.interpretationBoundary}</p></section>
       </div>
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

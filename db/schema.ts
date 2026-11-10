@@ -47,6 +47,7 @@ export const organizationMembers = sqliteTable(
       .references(() => organizations.id, { onDelete: "cascade" }),
     userId: text("user_id").notNull(),
     email: text("email").notNull(),
+    displayName: text("display_name").notNull().default(""),
     role: text("role").notNull().default("member"),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   },
@@ -1331,3 +1332,12 @@ export const notificationReads = sqliteTable("notification_reads", {
  notificationId: text("notification_id").notNull().references(()=>organizationNotifications.id,{onDelete:"cascade"}),
  recipientEmail: text("recipient_email").notNull(), readAt: text("read_at").notNull(),
 }, table=>[primaryKey({columns:[table.notificationId,table.recipientEmail]})]);
+
+export const workspaceInvites = sqliteTable("workspace_invites", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  email: text("email").notNull(),
+  role: text("role").notNull(),
+  invitedBy: text("invited_by").notNull(),
+  createdAt: text("created_at").notNull(),
+}, table => [uniqueIndex("idx_workspace_invites_email").on(table.email), index("idx_workspace_invites_organization").on(table.organizationId)]);

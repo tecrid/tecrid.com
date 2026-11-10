@@ -4,7 +4,6 @@ import { notFound, redirect } from "next/navigation";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { adminGate } from "../../../lib/admin-mfa";
 import { listFoundingOnboardingForAdmin } from "../../../lib/tec";
-import { ProductFooter, ProductNav } from "../../site-nav";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -21,8 +20,8 @@ export default async function FoundingAdminPage() {
   const launches = await listFoundingOnboardingForAdmin(user);
 
   return (
-    <main className="product-page admin-page">
-      <ProductNav compact />
+    <div className="product-page admin-page">
+
       <header className="dashboard-header"><div><p className="section-kicker light">ICS restricted operation</p><h1>Founding implementation queue</h1><p>Paid operational work kept separate from issuer-verification decisions</p></div><span className="workspace-code">Launches <strong>{launches.length}</strong></span></header>
       <section className="admin-application-list">
         <div className="admin-switcher"><a href="/admin/issuers">Issuer applications</a><a href="/admin/reports">Report intake audit</a><strong>Founding launches</strong></div>
@@ -38,9 +37,9 @@ export default async function FoundingAdminPage() {
               <div><dt>Updated</dt><dd>{new Date(onboarding.updatedAt).toLocaleString()}</dd></div>
             </dl>
           </article>
-        )) : <div className="empty-registry"><strong>No founding launch briefs.</strong><p>Activated customers will appear here after defining their first pilot.</p></div>}
+        )) : <div className="workspace-empty"><strong>No founding launch briefs.</strong><p>Activated customers will appear here after defining their first pilot.</p></div>}
       </section>
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

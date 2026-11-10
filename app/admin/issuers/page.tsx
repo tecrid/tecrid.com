@@ -5,7 +5,6 @@ import { requireChatGPTUser } from "../../chatgpt-auth";
 import { adminGate } from "../../../lib/admin-mfa";
 import { storedScopeList } from "../../../lib/accreditation-scope";
 import { listIssuerApplicationsForAdmin } from "../../../lib/tec";
-import { ProductFooter, ProductNav } from "../../site-nav";
 import { AuthorityControls, ReviewControls, VerificationCheckControl } from "./review-controls";
 
 export const dynamic = "force-dynamic";
@@ -19,8 +18,8 @@ export default async function IssuerReviewPage() {
   if (gate !== "ok") redirect("/admin/security");
   const applications = await listIssuerApplicationsForAdmin(user);
   return (
-    <main className="product-page admin-page">
-      <ProductNav compact />
+    <div className="product-page admin-page">
+
       <header className="dashboard-header"><div><p className="section-kicker light">ICS restricted operation</p><h1>Issuer applications</h1><p>Identity, scope, accreditation evidence, and signing-key review</p></div><span className="workspace-code">Applications <strong>{applications.length}</strong></span></header>
       <section className="admin-application-list">
         <div className="admin-switcher"><strong>Issuer applications</strong><a href="/admin/issuers/invite">Invite a lab</a><a href="/admin/reports">Report intake audit</a><a href="/admin/founding">Founding launches</a></div>
@@ -59,9 +58,9 @@ export default async function IssuerReviewPage() {
             {["verified", "suspended"].includes(issuerStatus) ? <AuthorityControls organizationId={application.organizationId} issuerStatus={issuerStatus} /> : null}
           </article>
           );
-        }) : <div className="empty-registry"><strong>No issuer applications.</strong><p>Submitted applications will appear here with their complete review record.</p></div>}
+        }) : <div className="workspace-empty"><strong>No issuer applications.</strong><p>Submitted applications will appear here with their complete review record.</p></div>}
       </section>
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

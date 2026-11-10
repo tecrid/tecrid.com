@@ -27,7 +27,7 @@ export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
   if((requestHeaders.get("cookie")||"").includes("tecrid.session_token=")){
     const {getEmailUser}=await import("../lib/email-auth");
     const emailUser=await getEmailUser(new Headers(requestHeaders));
-    if(emailUser)return emailUser;
+    if(emailUser){await acceptWorkspaceInvite(emailUser);return emailUser;}
   }
   const userId = requestHeaders.get(USER_ID_HEADER);
   const email = requestHeaders.get(USER_EMAIL_HEADER);
@@ -40,12 +40,14 @@ export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
       ? safeDecodeURIComponent(encodedFullName)
       : null;
 
-  return {
+  const user = {
     userId,
     displayName: fullName ?? email,
     email,
     fullName,
   };
+  await acceptWorkspaceInvite(user);
+  return user;
 }
 
 export async function requireChatGPTUser(
@@ -96,4 +98,9 @@ function safeDecodeURIComponent(value: string): string | null {
   } catch {
     return null;
   }
+}
+
+async function acceptWorkspaceInvite(user: ChatGPTUser) {
+  const { claimWorkspaceInvite } = await import("../lib/workspace-members");
+  await claimWorkspaceInvite(user);
 }

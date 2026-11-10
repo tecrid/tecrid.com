@@ -4,7 +4,6 @@ import { notFound, redirect } from "next/navigation";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { adminGate } from "../../../lib/admin-mfa";
 import { listAllLegacyReportsForAdmin } from "../../../lib/legacy-reports";
-import { ProductFooter, ProductNav } from "../../site-nav";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -20,8 +19,8 @@ export default async function LegacyReportAdminPage() {
   if (gate !== "ok") redirect("/admin/security");
   const reports = await listAllLegacyReportsForAdmin(user);
   return (
-    <main className="product-page admin-page">
-      <ProductNav compact />
+    <div className="product-page admin-page">
+
       <header className="dashboard-header"><div><p className="section-kicker light">ICS restricted operation</p><h1>Legacy-report intake audit</h1><p>Private source custody, laboratory claims, discrepancies, and signed issuance</p></div><span className="workspace-code">Intakes <strong>{reports.length}</strong></span></header>
       <section className="admin-application-list legacy-admin-list">
         <div className="admin-switcher"><a href="/admin/issuers">Issuer applications</a><strong>Report intake audit</strong><a href="/admin/founding">Founding launches</a></div>
@@ -37,9 +36,9 @@ export default async function LegacyReportAdminPage() {
               <div><dt>Issued TECRID</dt><dd>{report.issuedCredentialIdentifier || "Not issued"}<small>{report.confirmedAt ? `Confirmed ${new Date(report.confirmedAt).toLocaleString()}` : "No signed confirmation"}</small></dd></div>
             </dl>
           </article>
-        )) : <div className="empty-registry"><strong>No private report intakes.</strong><p>New submissions will appear here without exposing their PDFs publicly.</p></div>}
+        )) : <div className="workspace-empty"><strong>No private report intakes.</strong><p>New submissions will appear here without exposing their PDFs publicly.</p></div>}
       </section>
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

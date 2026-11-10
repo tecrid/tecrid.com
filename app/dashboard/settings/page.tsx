@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { requireChatGPTUser, chatGPTSignOutPath } from "../../chatgpt-auth";
-import { ProductFooter } from "../../site-nav";
 import { getDashboardData } from "../../../lib/tec";
 import { listSharingForUser } from "../../../lib/sharing";
 import { organizationRole } from "../../../lib/roles";
@@ -23,7 +22,7 @@ export default async function DashboardSettingsPage() {
   const [data, sharing] = await Promise.all([getDashboardData(user.userId), listSharingForUser(user)]);
   if (!data) redirect("/dashboard");
   if (data.organization.slug.startsWith("setup--")) {
-    if (data.organization.organizationType === "other") return <main className="product-page simple-dashboard"><header className="simple-dashboard-heading"><h1>Your account</h1><p>{user.email}</p><a href={chatGPTSignOutPath("/")}>Sign out</a></header><ProductFooter /></main>;
+    if (data.organization.organizationType === "other") return <div className="product-page simple-dashboard"><header className="simple-dashboard-heading"><h1>Your account</h1><p>{user.email}</p><a href={chatGPTSignOutPath("/")}>Sign out</a></header></div>;
     redirect("/dashboard/setup?return_to=/dashboard/settings");
   }
   const role = organizationRole(data.organization.organizationType);
@@ -37,12 +36,14 @@ export default async function DashboardSettingsPage() {
   } : null;
 
   return (
-    <main className="product-page app-page">
+    <div className="product-page app-page">
       <header className="app-heading">
         <p className="section-kicker">Settings</p>
-        <h1>{data.organization.name}</h1>
+        <h1>Settings</h1>
+        <p>{data.organization.name}</p>
         <nav className="app-tabs" aria-label="Settings sections">
           <a href="#account">Account</a>
+          <a href="/dashboard/settings/members">Members</a>
           {showProfile ? <a href="#profile">Profile</a> : null}
           {showKeys ? <a href="#api-keys">API keys</a> : null}
         </nav>
@@ -63,7 +64,7 @@ export default async function DashboardSettingsPage() {
         {showProfile ? <section className="settings-section" id="profile"><ProfileSettingsForm organization={{ name: data.organization.name, code: data.organization.issuerCode, website: data.organization.website }} profile={profile} /></section> : null}
         {showKeys ? <section className="settings-section"><ApiKeyPanel keys={data.keys} /></section> : null}
       </div>
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

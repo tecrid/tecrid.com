@@ -4,7 +4,6 @@ import { requireChatGPTUser } from "../../chatgpt-auth";
 import { listEvidenceRoutingForUser } from "../../../lib/evidence-routing";
 import { listSharingForUser } from "../../../lib/sharing";
 import { organizationRole } from "../../../lib/roles";
-import { ProductFooter } from "../../site-nav";
 import { WorkQueue, type QueueRow } from "../work-queue";
 
 export const dynamic = "force-dynamic";
@@ -55,7 +54,7 @@ export default async function ReceivedPage() {
     });
   }
   return (
-    <main className="product-page app-page">
+    <div className="product-page app-page">
       <header className="app-heading">
         <p className="section-kicker">{organization.name}</p>
         <h1>Received</h1>
@@ -63,7 +62,7 @@ export default async function ReceivedPage() {
         <a className="button-dark" href="/dashboard/evidence-routing">Request a report</a>
       </header>
       <WorkQueue rows={rows} empty="No reports yet." />
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { adminGate } from "../../../lib/admin-mfa";
-import { ProductFooter, ProductNav } from "../../site-nav";
 import { AdminMfaClient } from "./mfa-client";
 
 export const dynamic = "force-dynamic";
@@ -16,11 +15,11 @@ export default async function AdminSecurityPage() {
   if (gate === "denied") notFound();
   if (gate === "ok") redirect("/admin/issuers");
   return (
-    <main className="product-page admin-page">
-      <ProductNav compact />
+    <div className="product-page admin-page">
+
       <header className="dashboard-header"><div><p className="section-kicker light">ICS restricted operation</p><h1>Second factor</h1><p>The email link alone no longer opens admin tools.</p></div></header>
       <AdminMfaClient enrolled={gate === "challenge"} />
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

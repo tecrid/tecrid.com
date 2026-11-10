@@ -169,6 +169,13 @@
       "when": 1794000000000,
       "tag": "0023_batch_backfill_scope",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1794319200000,
+      "tag": "0024_workspace_members",
+      "breakpoints": true
     }
   ]
 }

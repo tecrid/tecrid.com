@@ -3,7 +3,6 @@ import { getDashboardData } from "../../lib/tec";
 import { listLegacyReportsForUser } from "../../lib/legacy-reports";
 import { listEvidenceRoutingForUser } from "../../lib/evidence-routing";
 import { organizationRole } from "../../lib/roles";
-import { ProductNav, ProductFooter } from "../site-nav";
 import { RolePicker } from "../role-picker";
 import { NotificationBell } from "../notification-center";
 import { KasandrinosWorkspaceLink } from "./kasandrinos/workspace";
@@ -25,7 +24,7 @@ function subjectOf(snapshotJson: string) {
 export default async function DashboardPage() {
   const user = await requireChatGPTUser("/dashboard");
   const data = await getDashboardData(user.userId);
-  if (!data) return <main className="product-page"><ProductNav /><RolePicker onboarding /><ProductFooter /></main>;
+  if (!data) return <div className="product-page"><RolePicker onboarding /></div>;
   const role = organizationRole(data.organization.organizationType);
   const lab = role === "laboratory";
   const controller = role === "brand" || role === "supplier";
@@ -115,21 +114,22 @@ export default async function DashboardPage() {
       ? { href: "/verify", label: "Verify a report", copy: "Enter a TECRID to check its source and status." }
       : { href: "/dashboard/evidence-routing", label: "Request a report", copy: "Ask a brand for the evidence you need." };
   return (
-    <main className="product-page simple-dashboard app-page">
-      <ProductNav compact />
+    <div className="product-page simple-dashboard app-page">
+
       <header className="simple-dashboard-heading app-heading">
         <p className="section-kicker">Your workspace</p>
-        <h1>Welcome back.</h1>
+        <h1>Home</h1>
         <p>{data.organization.name}</p>
         <NotificationBell />
       </header>
+      <section className="workspace-summary" aria-label="Workspace summary"><article><strong>{rows.length}</strong><span>Reports and requests</span></article><article><strong>{rows.filter(row => row.needsAction).length}</strong><span>Need action</span></article><article><strong>{rows.filter(row => row.status === "received" || row.status === "issued" || row.status === "active").length}</strong><span>Ready to use</span></article></section>
       {lab && !verified ? <p className="simple-lab-status" role="status">{labNext.copy} <a href="/dashboard/laboratory">{labNext.label}</a></p> : null}
       <section className="simple-primary-actions" aria-label="Your next steps">
         <a href={action.href}><h2>{action.label}</h2><p>{action.copy}</p><span aria-hidden="true">↗</span></a>
       </section>
       {role !== "public" ? <WorkQueue rows={rows} empty={recipient ? "No reports yet." : lab ? "Your laboratory records will appear here." : "New reports will appear here."} /> : null}
       {controller ? <KasandrinosWorkspaceLink /> : null}
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }

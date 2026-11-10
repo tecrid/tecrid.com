@@ -3,7 +3,6 @@ import Link from "next/link";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { listDisclosureOperations } from "../../../lib/disclosures";
 import { getOrganizationForUser } from "../../../lib/tec";
-import { ProductFooter, ProductNav } from "../../site-nav";
 import { DisclosureOperationsClient } from "./disclosure-operations-client";
 
 export const dynamic = "force-dynamic";
@@ -20,8 +19,8 @@ export default async function DisclosureOperationsPage() {
   const data = supported ? await listDisclosureOperations(user) : null;
 
   return (
-    <main className="product-page disclosure-ops-page">
-      <ProductNav compact />
+    <div className="product-page disclosure-ops-page">
+
       <header className="app-heading">
         <p className="section-kicker">Disclosures</p>
         <h1>Disclosures</h1>
@@ -49,7 +48,7 @@ export default async function DisclosureOperationsPage() {
           exceptions={data.exceptions}
         />
       ) : null}
-      <ProductFooter />
-    </main>
+
+    </div>
   );
 }
