@@ -57,3 +57,30 @@
 
 .atlas .atlas-article-link{padding-block:44px 56px;border-top:1px solid var(--line)}
 .atlas .atlas-article-link .atlas-text-link{gap:16px;max-width:100%;line-height:1.6}
+
+/* Plain-language definition, with an inspectable example rather than an abstract diagram. */
+.atlas-definition-hero{background:var(--navy);color:white;padding:56px 0 64px}
+.atlas-definition-hero h1{max-width:1050px;font-size:clamp(36px,4.2vw,64px);letter-spacing:-2.5px;line-height:1.12}
+.atlas-definition-hero>.atlas-container>p{color:#c1d5f0;font-size:18px;max-width:920px;margin-top:22px;line-height:1.65}
+.atlas-tag-proof{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:center;margin-top:36px}
+.atlas-example-tag{background:#f5f9ff;color:var(--navy);border:1px solid #afc8ed;border-radius:14px;padding:26px;box-shadow:0 18px 50px #0002}
+.atlas-tag-heading{display:flex;gap:10px;align-items:center;font-size:15px}
+.atlas-tag-heading>span{margin-left:auto;font-size:10px;color:var(--muted)}
+.atlas-example-tag .atlas-tag-id{font-size:clamp(17px,2vw,26px);font-weight:600;color:var(--blue);padding:18px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.atlas-example-tag dl{margin:16px 0;display:grid;gap:8px;font-size:13px}
+.atlas-example-tag dl>div{display:grid;grid-template-columns:112px 1fr;gap:10px}
+.atlas-example-tag dt{color:var(--muted)}.atlas-example-tag dd{margin:0}
+.atlas-tag-fingerprint{display:flex;gap:12px;align-items:center;padding:14px;background:#e4efff;border-radius:6px;margin-bottom:12px}
+.atlas-tag-fingerprint>div{min-width:0}.atlas-tag-fingerprint span{display:block;font-size:11px;color:var(--muted)}
+.atlas-tag-fingerprint code{display:block;overflow-wrap:anywhere;font-size:10px}
+.atlas-tag-proofs{display:grid;gap:30px}.atlas-tag-proofs article{display:flex;gap:22px;align-items:flex-start}
+.atlas-tag-proofs svg{color:var(--sky);margin-top:7px}.atlas-tag-proofs h2{font-size:32px;letter-spacing:-1px}
+.atlas-tag-proofs p{color:#c1d5f0;margin-top:7px;max-width:340px;font-size:15px}
+.atlas-definition-how{display:grid;grid-template-columns:1fr 1.2fr;gap:70px;padding-block:75px}
+.atlas-definition-audiences{background:var(--ice);padding-block:65px}.atlas-definition-audiences h2{max-width:700px}
+.atlas-definition-audiences ul{list-style:none;padding:0;margin-top:28px;display:grid;grid-template-columns:1fr 1fr;gap:28px 50px}
+.atlas-definition-audiences li p{margin-top:10px}.atlas-definition-audiences .atlas-text-link{font-size:20px}
+.atlas-definition-limits{padding-block:70px;border-bottom:1px solid var(--line)}
+.atlas-definition-limits>p{margin-top:22px;max-width:760px}.atlas-definition-limits ul{margin:20px 0 0;padding-left:22px;color:var(--muted)}
+.atlas-definition-limits li+li{margin-top:10px}
+@media(max-width:650px){.atlas-definition-hero{padding-block:32px 42px}.atlas-definition-hero h1{letter-spacing:-1.4px;font-size:36px}.atlas-definition-hero>.atlas-container>p{font-size:16px}.atlas-tag-proof{grid-template-columns:1fr;gap:32px;margin-top:28px}.atlas-example-tag{padding:20px}.atlas-tag-heading>span{max-width:95px;text-align:right}.atlas-example-tag dl>div{grid-template-columns:90px 1fr}.atlas-tag-proofs{gap:24px}.atlas-tag-proofs h2{font-size:28px}.atlas-definition-how{grid-template-columns:1fr;gap:32px;padding-block:45px}.atlas-definition-audiences{padding-block:42px}.atlas-definition-audiences ul{grid-template-columns:1fr;gap:18px}.atlas-definition-limits{padding-block:45px}}

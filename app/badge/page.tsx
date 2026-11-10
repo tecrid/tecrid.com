@@ -12,7 +12,7 @@ type PageProps = { searchParams: Promise<{ code?: string }> };
 
 export default async function BadgePage({ searchParams }: PageProps) {
   const search = await searchParams;
-  const code = (search.code ?? "YOUR-CODE").toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 24) || "YOUR-CODE";
+  const code = (search.code ?? "").toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 24) || "";
   return (
     <PublicPage className="atlas-badge-page">
 

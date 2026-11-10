@@ -22,7 +22,7 @@ export function BadgeBuilder({ initialCode }: { initialCode: string }) {
       <div className="badge-builder-card">
         <label htmlFor="badge-code">TECRID organization code</label>
         <input id="badge-code" value={code} onChange={(event) => setCode(event.target.value)} placeholder="PFND" autoComplete="off" />
-        <div className="signature-preview"><span>Email signature preview</span><a href={profileUrl} target="_blank" rel="noreferrer"><img src="/brand/tecrid-profile-badge.svg" width="224" height="52" alt="View TECRID profile" /></a></div>
+        <div className="signature-preview"><span>Email signature preview</span><a href={normalizedCode ? profileUrl : "/participants"} target="_blank" rel="noreferrer"><img src="/brand/tecrid-profile-badge.svg" width="224" height="52" alt="View TECRID profile" /></a></div>
         <div className="badge-profile-url"><span>Profile destination</span><code>{profileUrl}</code></div>
         <div className="badge-copy-actions"><button type="button" disabled={!normalizedCode} onClick={() => void copy(signatureHtml, "Email-signature HTML copied.")}>Copy email-signature HTML</button><button type="button" disabled={!normalizedCode} onClick={() => void copy(profileUrl, "Profile link copied.")}>Copy profile link</button></div>
         <p aria-live="polite">{message}</p>
