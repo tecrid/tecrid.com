@@ -49,7 +49,8 @@ export function removeClientIdentityHeaders(headers: Headers, secret?: string) {
 
 const TRUSTED_ORIGINS = new Set(["https://tecrid.com", "https://www.tecrid.com"]);
 
-function sameSiteOrigin(origin: string, request: Request) {
+export function sameSiteOrigin(origin: string | null, request: Pick<Request, "url" | "headers">) {
+  if (!origin) return false;
   if (origin === new URL(request.url).origin || TRUSTED_ORIGINS.has(origin)) return true;
   // Behind the hosting proxy request.url can carry an internal host, so also
   // accept the public host the browser actually used.

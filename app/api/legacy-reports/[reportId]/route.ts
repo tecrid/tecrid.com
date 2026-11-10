@@ -1,3 +1,4 @@
+import { sameSiteOrigin } from "../../../../lib/request-security";
 import { getChatGPTUser } from "../../../chatgpt-auth";
 import { updateLegacyReportTranscription } from "../../../../lib/legacy-reports";
 import { TecAuthorizationError, TecInputError } from "../../../../lib/tec";
@@ -6,7 +7,7 @@ type RouteContext = { params: Promise<{ reportId: string }> };
 
 export async function PATCH(request: Request, { params }: RouteContext) {
   const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) {
+  if (origin && !sameSiteOrigin(origin, request)) {
     return Response.json({ error: "Cross-origin correction is not allowed." }, { status: 403 });
   }
   const user = await getChatGPTUser();

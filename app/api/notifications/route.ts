@@ -1,3 +1,4 @@
+import { sameSiteOrigin } from "../../../lib/request-security";
 import { env } from 'cloudflare:workers';
 import { getChatGPTUser } from '../../chatgpt-auth';
 import { getEmailUser } from '../../../lib/email-auth';
@@ -9,7 +10,7 @@ async function handle(request: Request) {
   if (!user) return json({error:'Sign in to view your notifications.'},401);
   let readId: string | undefined;
   if (request.method === 'POST') {
-    if(request.headers.get('origin')!==new URL(request.url).origin)return json({error:'Same-origin request required.'},403);
+    if(!sameSiteOrigin(request.headers.get('origin'), request))return json({error:'Same-origin request required.'},403);
     try { const text=await request.text(); if(text.length>1000)return json({error:'Request too large.'},413); const body=JSON.parse(text); if(body.action!=='read'||typeof body.id!=='string'||body.id.length>240)throw Error(); readId=body.id; } catch { return json({error:'Choose a notification to mark read.'},400); }
   }
   const emailUser = await getEmailUser(request.headers);

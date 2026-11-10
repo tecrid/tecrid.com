@@ -1,10 +1,11 @@
+import { sameSiteOrigin } from "./request-security";
 // Only an explicit same-origin POST may exchange the one-time token.
 export async function confirmMagicLink(request: Request, auth: {handler(request: Request): Promise<Response>}) {
  const headers = {'cache-control':'no-store','x-robots-tag':'noindex, nofollow'};
  const fail = (status: number, error: string) => Response.json({error}, {status, headers});
  if (request.method !== 'POST') return fail(405, 'Use the sign-in button to continue.');
- const origin = new URL(request.url).origin;
- if (request.headers.get('origin') !== origin) return fail(403, 'Invalid request origin.');
+ const origin = request.headers.get('origin') || new URL(request.url).origin;
+ if (!sameSiteOrigin(request.headers.get('origin'), request)) return fail(403, 'Invalid request origin.');
  const body = await request.json().catch(() => null);
  if (typeof body?.token !== 'string' || !body.token || body.token.length > 512) return fail(400, 'Invalid sign-in link.');
  const verification = new URL('/api/auth/magic-link/verify', origin);

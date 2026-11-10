@@ -57,3 +57,15 @@ it('notifies the controller and recipient for native TECRID request decisions',a
  await respondToEvidenceRequest(controller,second.id,{decision:'decline'});
  expect((await ownNotifications(env.DB,recipient)).map(n=>n.kind)).toContain('evidence_access.declined');
 });
+
+it('builds record, application, and request destinations with existing page routes',async()=>{
+ const {existsSync}=await import('node:fs');
+ for(const [path,page] of [
+  ['/records/TECRID%C2%B7DEMO-26-HM0001','app/records/[identifier]/page.tsx'],
+  ['/dashboard/laboratory','app/dashboard/laboratory/page.tsx'],
+  ['/dashboard/evidence-routing#request-example','app/dashboard/evidence-routing/page.tsx'],
+ ]){
+  expect(existsSync(page)).toBe(true);
+  expect(new URL(safeInboxHref(path,'tecrid')).pathname+new URL(safeInboxHref(path,'tecrid')).hash).toBe(path);
+ }
+});

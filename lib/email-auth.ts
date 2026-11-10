@@ -1,3 +1,4 @@
+import { sameSiteOrigin } from "./request-security";
 import { env } from 'cloudflare:workers';
 import {getDb} from '../db';
 import * as schema from '../db/schema';
@@ -7,7 +8,7 @@ export function emailAuth(){const e=env as unknown as Record<string,string>;retu
 export async function getEmailUser(headers:Headers){
  if(!emailAuthReady())return null;
  const origin=headers.get('origin');
- if(origin&&!['https://tecrid.com','https://www.tecrid.com','https://tec-registry.kmfp.chatgpt.site',(env as any).TECRID_AUTH_URL].filter(Boolean).includes(origin))return null;
+ if(origin&&!sameSiteOrigin(origin, {headers, url:(env as any).TECRID_AUTH_URL || 'https://tecrid.com'}))return null;
  const result=await emailAuth().api.getSession({headers});
  if(!result?.user.emailVerified)return null;
  return {userId:`email:${result.user.id}`,email:result.user.email.toLowerCase(),displayName:result.user.name||result.user.email,fullName:result.user.name||null};

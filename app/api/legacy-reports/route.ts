@@ -1,3 +1,4 @@
+import { sameSiteOrigin } from "../../../lib/request-security";
 import { getChatGPTUser } from "../../chatgpt-auth";
 import {
   createLegacyReport,
@@ -8,7 +9,7 @@ import { TecAuthorizationError, TecInputError } from "../../../lib/tec";
 
 export async function POST(request: Request) {
   const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) {
+  if (origin && !sameSiteOrigin(origin, request)) {
     return Response.json({ error: "Cross-origin report submission is not allowed." }, { status: 403 });
   }
   const user = await getChatGPTUser();
