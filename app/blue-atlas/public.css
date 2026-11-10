@@ -1,0 +1,113 @@
+/* Public Atlas bodies use their own layout vocabulary, independently of workspace styles. */
+.atlas-page{min-height:65vh;background:#fff;overflow-wrap:anywhere}
+.atlas-page h1{font-size:clamp(40px,5.2vw,76px);line-height:1.12;letter-spacing:-.045em;max-width:1040px}
+.atlas-page h2{font-size:clamp(28px,3vw,44px);line-height:1.2;letter-spacing:-.035em;margin-bottom:24px}
+.atlas-page h3{font-size:22px;line-height:1.4;letter-spacing:-.025em;margin-bottom:14px}
+.atlas-page p{margin-block:16px;line-height:1.85}
+.atlas-page :is(ul,ol){padding-left:22px}.atlas-page li{margin-block:12px;line-height:1.8;color:var(--muted)}
+.atlas-page :is(p,li,dd) a{color:var(--blue);text-decoration:underline;text-underline-offset:4px}
+.atlas-page small{font-size:12px;line-height:1.7;color:var(--muted)}
+.atlas-page .atlas-kicker{margin-top:0;margin-bottom:22px!important}
+.atlas-page .atlas-button{color:#fff;text-decoration:none}
+.atlas-page-hero{padding:76px 8% 84px;background:linear-gradient(120deg,#f6faff,#e8f2ff);border-bottom:1px solid var(--line);position:relative}
+.atlas-page-hero:has(>aside){display:grid;grid-template-columns:minmax(0,1.55fr) minmax(240px,.8fr);gap:7%;align-items:center}
+.atlas-page-hero>div,.atlas-page-hero>aside{min-width:0}.atlas-page-hero p:not(.atlas-kicker){font-size:17px;max-width:760px}
+.atlas-page-hero>aside{padding:32px;border:1px solid #cfdef5;border-radius:16px;background:#ffffffb8}
+.atlas-page-hero aside :is(span,small){display:block;font-size:11px;color:var(--muted);letter-spacing:.06em}
+.atlas-page-hero aside strong{display:block;font:500 22px/1.5 'Manrope',Arial,sans-serif;color:var(--navy)}
+.atlas-page-hero aside>div+div{border-top:1px solid var(--line);margin-top:20px;padding-top:20px}
+.atlas-page-hero blockquote{margin:18px 0;font:500 24px/1.55 'Manrope',Arial,sans-serif;letter-spacing:-.025em}
+.atlas-page :is(.atlas-page-actions,.atlas-explainer-actions,.atlas-role-hero-actions,.atlas-sell-hero-actions,.atlas-integration-hero-actions){display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:30px}
+.atlas-page :is(.atlas-sell-hero-actions,.atlas-integration-hero-actions)>a:first-child{display:inline-flex;background:var(--blue);border:1px solid var(--blue);color:#fff;padding:14px 22px;border-radius:7px;font-size:14px}
+.atlas-page :is(.atlas-explainer-text-link,.atlas-faq-answer-link,.atlas-evidence-link){display:inline-block;color:var(--blue);border-bottom:1px solid #bed2f4;padding:8px 0;font-size:14px}
+.atlas-page>section:not(.atlas-page-hero),.atlas-lab-value-sheet>section:not(.atlas-page-hero){padding:76px 8%;border-bottom:1px solid var(--line)}
+.atlas-page>section:nth-of-type(even){background:#f7faff}
+.atlas-page>[class*="-shell"],.atlas-lab-value-sheet{width:84%;max-width:1280px;margin:54px auto}
+.atlas-page>[class*="-shell"]>section{margin-bottom:44px}
+.atlas-page :is(.atlas-section-title-row,.atlas-participants-head,.atlas-panel-heading,.atlas-disclosure-panel-heading,.atlas-demo-record-heading){display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px;margin-bottom:28px}
+.atlas-page :is(.atlas-section-title-row,.atlas-participants-head) h2{margin-bottom:0}
+.atlas-page :is(.atlas-role-problem,.atlas-role-workflow,.atlas-role-boundaries,.atlas-lab-value-sell,.atlas-standard-requirements,.atlas-standard-status,.atlas-naming-section,.atlas-ingredient-integrity-section,.atlas-integration-steps,.atlas-integration-agent-contract,.atlas-integration-roles,.atlas-integration-human-gates,.atlas-lab-value-problem,.atlas-lab-value-investment){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:8%}
+.atlas-page :is(.atlas-role-proof-grid,.atlas-role-benefits>div,.atlas-trust-model-grid,.atlas-claim-matrix,.atlas-participant-grid,.atlas-issuer-scope-grid,.atlas-demo-grid,.atlas-demo-fact-grid,.atlas-policy-grid,.atlas-privacy-promises,.atlas-lab-value-benefits,.atlas-verification-demo-strip){display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:22px}
+.atlas-page :is(.atlas-role-proof-grid,.atlas-role-benefits>div,.atlas-trust-model-grid,.atlas-claim-matrix,.atlas-participant-grid,.atlas-issuer-scope-grid,.atlas-demo-grid,.atlas-demo-fact-grid,.atlas-policy-grid,.atlas-privacy-promises,.atlas-lab-value-benefits,.atlas-verification-demo-strip)>:is(article,a,div){padding:28px;background:#fff;border:1px solid var(--line);border-radius:12px;min-width:0}
+.atlas-page :is(.atlas-role-proof-grid,.atlas-demo-fact-grid) strong{display:block;color:var(--blue);font:500 36px/1.3 'Manrope',Arial,sans-serif;margin-bottom:12px}
+.atlas-page :is(.atlas-role-proof-grid,.atlas-role-benefits,.atlas-trust-model-grid,.atlas-claim-matrix,.atlas-policy-grid,.atlas-demo-card,.atlas-lab-value-benefits) :is(article>span,a>span){display:block;color:var(--blue);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:20px}
+.atlas-role-benefits>div{margin-top:40px}.atlas-role-benefits h3{font-size:24px}.atlas-page .atlas-role-proof-grid{align-content:start}
+.atlas-page :is(.atlas-role-workflow,.atlas-standard-requirements,.atlas-integration-steps,.atlas-lab-value-investment) ol{padding:0;list-style:none}
+.atlas-page :is(.atlas-role-workflow,.atlas-standard-requirements,.atlas-integration-steps,.atlas-lab-value-investment) li{border-top:1px solid var(--line);padding:24px 0;display:grid;grid-template-columns:36px 1fr;gap:16px;margin:0}
+.atlas-page :is(.atlas-role-workflow,.atlas-standard-requirements,.atlas-integration-steps,.atlas-lab-value-investment) li>span{color:var(--blue);font-size:12px;padding-top:4px}
+.atlas-page :is(.atlas-role-workflow,.atlas-standard-requirements,.atlas-integration-steps,.atlas-lab-value-investment) li strong{font-size:19px;font-weight:500;color:var(--navy)}
+.atlas-page :is(.atlas-integration-steps,.atlas-lab-value-investment) li :is(p,small){grid-column:2;margin:0}
+.atlas-page :is(.atlas-name-system,.atlas-standard-status dl,.atlas-issuer-facts,.atlas-participant-profile-facts,.atlas-provenance-register dl) div{padding:22px 0;border-top:1px solid var(--line)}
+.atlas-page dt{font-size:11px;color:var(--blue);font-weight:500;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
+.atlas-page dd{margin:0;color:var(--muted);font-size:15px}.atlas-page dd small{display:block;margin-top:8px}
+.atlas-page :is(.atlas-explainer-section,.atlas-evidence-section){display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr);gap:9%}
+.atlas-explainer-faq>div:last-child>article{padding:30px 0;border-top:1px solid var(--line)}
+.atlas-explainer-faq>div:last-child>article:first-child{padding-top:0;border-top:0}
+.atlas-explainer-faq h3{font-size:24px}.atlas-explainer-faq p{font-size:15px}
+.atlas-page .atlas-source-row{display:grid;grid-template-columns:64px 1fr 20px;gap:24px;padding:28px 0;border-top:1px solid var(--line)}
+.atlas-source-date{color:var(--blue);font-size:12px;padding-top:4px}.atlas-source-copy strong{display:block;font-size:19px;font-weight:500;margin-top:8px;line-height:1.5}
+.atlas-source-copy small{text-transform:uppercase;letter-spacing:.1em;font-size:9px}.atlas-source-copy p{font-size:14px!important;margin-bottom:0}.atlas-source-arrow{color:var(--blue)}
+.atlas-page .atlas-proof-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:25px;padding-block:30px;background:#edf5ff}
+.atlas-proof-strip strong,.atlas-proof-strip span{display:block}.atlas-proof-strip strong{font-size:15px;font-weight:500}.atlas-proof-strip span{font-size:12px;color:var(--muted);margin-top:4px}
+.atlas-page :is(.atlas-role-cta,.atlas-why-cta,.atlas-explainer-cta,.atlas-disclosure-demo-cta,.atlas-integration-start){display:flex;align-items:center;justify-content:space-between;gap:50px;background:#eaf3ff!important}
+.atlas-page :is(.atlas-role-cta,.atlas-why-cta,.atlas-explainer-cta,.atlas-disclosure-demo-cta,.atlas-integration-start)>div{max-width:740px}
+.atlas-page :is(.atlas-role-cta,.atlas-why-cta,.atlas-explainer-cta,.atlas-disclosure-demo-cta,.atlas-integration-start)>a{background:var(--blue);border:1px solid var(--blue);padding:16px 24px;border-radius:7px;color:#fff;flex-shrink:0;font-size:14px}
+.atlas-page :is(.atlas-draft-standard-badge,.atlas-api-status,.atlas-workspace-code){display:inline-block;margin-top:25px;padding:10px 16px;background:#fff;border:1px solid #c9dbf7;border-radius:8px;font-size:12px;color:var(--muted)}
+.atlas-page .atlas-workspace-code strong{display:block;color:var(--navy);margin-top:5px;font-size:15px}
+.atlas-page :is(.atlas-verified-pill,.atlas-public-verified,.atlas-public-unverified,.atlas-record-status,.atlas-claim-status,.atlas-demo-result-status){display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--line);background:#edf4ff;border-radius:6px;color:#285ba8;font-size:11px;line-height:1.5}
+.atlas-page :is(.atlas-empty-state,.atlas-demo-warning,.atlas-demo-sandbox-callout,.atlas-review-boundary,.atlas-record-integrity-bar,.atlas-controlled-results-gate,.atlas-disclosure-public-boundary,.atlas-verification-receipt-boundary,.atlas-sample-lab-boundary,.atlas-sandbox-boundary,.atlas-kas-test-notice,.atlas-document-proof-panel,.atlas-policy-callout,.atlas-disclosure-demo-boundary,.atlas-dispute-missing){padding:30px;border:1px solid var(--line);border-radius:12px;background:#f0f6ff;margin:24px 0}
+.atlas-page :is(.atlas-empty-state,.atlas-demo-warning,.atlas-review-boundary,.atlas-record-integrity-bar) strong{display:block;font-size:20px;font-weight:500;color:var(--navy)}
+.atlas-page :is(.atlas-empty-state,.atlas-demo-warning,.atlas-record-integrity-bar) p{font-size:14px;margin-bottom:0}
+.atlas-page .atlas-issuer-list>a{display:grid;grid-template-columns:120px 1.5fr 1fr 24px;gap:24px;align-items:center;padding:28px 0;border-top:1px solid var(--line)}
+.atlas-page .atlas-issuer-list>a>span{font-size:12px;color:var(--blue)}.atlas-page .atlas-issuer-list strong{font-weight:500;font-size:21px}
+.atlas-page :is(.atlas-public-record-summary,.atlas-sample-timeline-grid,.atlas-confirmation-parties,.atlas-disclosure-demo-summary,.atlas-disclosure-math){display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:24px;margin:32px 0}
+.atlas-page :is(.atlas-public-record-summary,.atlas-sample-timeline-grid,.atlas-confirmation-parties,.atlas-disclosure-demo-summary,.atlas-disclosure-math)>:is(article,div){padding:24px;border:1px solid var(--line);border-radius:10px;min-width:0}
+.atlas-page :is(.atlas-public-record-summary,.atlas-sample-timeline-grid,.atlas-confirmation-parties) :is(span,small){display:block;font-size:11px;color:var(--muted);margin-block:8px}
+.atlas-page :is(.atlas-public-record-summary,.atlas-sample-timeline-grid,.atlas-confirmation-parties) strong{font-size:17px;font-weight:500}
+.atlas-page :is(.atlas-provenance-register,.atlas-source-document-register,.atlas-version-register,.atlas-public-results,.atlas-source-list){margin-top:48px}
+.atlas-page table{width:100%;border-collapse:collapse;text-align:left;margin:24px 0;font-size:14px;line-height:1.7}
+.atlas-page :is(th,td){padding:17px 14px;border-bottom:1px solid var(--line);vertical-align:top}.atlas-page th{font-weight:500;color:var(--navy);background:#f3f7fe}.atlas-page td{color:var(--muted)}
+.atlas-page :is(.atlas-results-wrap,.results-wrap){overflow:auto;max-width:100%}.atlas-page .atlas-element-badge{display:inline-block;padding:3px 8px;background:#edf4ff;color:var(--blue);border-radius:4px;margin-right:10px;font-size:11px}
+.atlas-page :is(.atlas-results-note,.atlas-measurement-boundary){font-size:12px}.atlas-page :is(.atlas-privacy-shell,.atlas-api-layout){display:grid;grid-template-columns:220px minmax(0,1fr);gap:7%;padding:60px 8%!important}
+.atlas-page :is(.atlas-privacy-index,.atlas-api-toc){position:sticky;top:24px;align-self:start;border:1px solid var(--line);border-radius:12px;padding:24px;font-size:12px}
+.atlas-page :is(.atlas-privacy-index,.atlas-api-toc)>a{display:block;padding:8px 0;color:var(--muted)}
+.atlas-page :is(.atlas-privacy-index,.atlas-api-toc)>span{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);display:block;margin-bottom:14px}
+.atlas-page :is(.atlas-privacy-index,.atlas-api-toc)>.atlas-button{padding:12px;margin-top:18px;color:#fff}
+.atlas-page :is(.atlas-api-docs,.atlas-privacy-policy){min-width:0}.atlas-page :is(.atlas-api-docs,.atlas-privacy-policy)>section{padding:0 0 54px;margin:0 0 48px;border-bottom:1px solid var(--line)}
+.atlas-page .atlas-api-docs h2{font-size:28px;letter-spacing:-.025em}.atlas-page .atlas-api-docs h3{font-size:21px}
+.atlas-page :is(.atlas-doc-index,.atlas-policy-number){font-size:10px;letter-spacing:.16em;color:var(--blue);margin-top:0}
+.atlas-page :is(.atlas-api-agent-onboarding,.atlas-home-evidence-context){display:grid;grid-template-columns:1.35fr 1fr;gap:8%;background:#f7faff}
+.atlas-page .atlas-api-agent-onboarding>div:last-child{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:20px}
+.atlas-page pre{margin:24px 0;padding:25px;background:#f0f5ff;border:1px solid #d5e2f7;border-radius:10px;overflow:auto;white-space:pre;max-width:100%;color:#214875;font-size:12px;line-height:1.9;tab-size:2;letter-spacing:0}
+.atlas-page code{font-family:var(--font-geist-mono),monospace;font-size:.86em;letter-spacing:0;overflow-wrap:anywhere}.atlas-page pre code{font-size:inherit;overflow-wrap:normal}
+.atlas-page .atlas-error-table>div{display:grid;grid-template-columns:45px 160px 1fr;gap:18px;padding:20px 0;border-top:1px solid var(--line);font-size:13px}.atlas-error-table p{margin:0}
+.atlas-page :is(.atlas-email-auth-shell,.atlas-simple-welcome){max-width:780px;margin:0 auto;padding:80px 28px;background:#fff;border:0}
+.atlas-page .atlas-email-auth-shell h1,.atlas-page .atlas-simple-welcome h1{font-size:clamp(38px,4.5vw,60px)}
+.atlas-page :is(input,textarea,select){max-width:100%;padding:13px 15px;border:1px solid #bfd2ed;border-radius:7px;background:#fff;color:var(--navy);font:inherit}
+.atlas-page input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),.atlas-page textarea{width:100%}
+.atlas-page label{display:block;font-size:13px;color:var(--muted);margin:18px 0}.atlas-page label>input,.atlas-page label>textarea,.atlas-page label>select{margin-top:9px}
+.atlas-page :is(button:not(.atlas-button),.button-dark,.button-mint){display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:44px;padding:12px 20px;border:1px solid var(--blue);border-radius:7px;background:var(--blue);color:#fff;font:inherit;font-size:14px;text-decoration:none}
+.atlas-page button[disabled]{opacity:.55}.atlas-page :is(form,.role-picker){max-width:100%}
+.atlas-page .role-picker{width:84%;max-width:1100px;margin:0 auto 70px}.atlas-page .role-picker button{background:#f4f8ff;color:var(--navy);border-color:var(--line);text-align:left}
+.atlas-page :is(.atlas-demo-hub,.atlas-badge-builder,.atlas-certification-submit-shell){width:84%;max-width:1280px;margin:50px auto}
+.atlas-page .atlas-lab-value-toolbar{display:flex;justify-content:space-between;align-items:center;padding:22px 0;border-bottom:1px solid var(--line);font-size:12px}.atlas-lab-value-toolbar>div{display:flex;align-items:center;gap:15px}
+.atlas-page .atlas-lab-value-sheet .atlas-page-hero{margin-inline:-9.5%;padding-inline:9.5%}
+.atlas-page .atlas-lab-value-cta{padding:40px 0}.atlas-page .atlas-lab-value-cta a{display:inline-block;color:var(--blue);margin:8px 20px 8px 0}
+.atlas-page :is(.badge-builder,.sandbox-shell,.certification-submit-shell,.confirmation-signature-panel,.notification-center){width:84%;max-width:1280px;margin:48px auto;padding-inline:0}
+.atlas-page :is(.badge-builder-card,.sandbox-console,.certification-applicant-form,.certification-csv-form,.local-signing-form,.confirmation-controls){background:#f3f7ff;border:1px solid var(--line);border-radius:12px;color:var(--navy)}
+.atlas-page :is(.certification-csv-form,.confirmation-controls,.sandbox-console) :is(h2,h3,strong,label){color:var(--navy)}
+.atlas-page :is(.certification-csv-form,.confirmation-controls,.sandbox-console) p{color:var(--muted)}
+.atlas-page .certification-csv-form>a{color:var(--blue)}
+.atlas .atlas-page :is(.button-mint,.button-dark){background:var(--blue);color:#fff;border-color:var(--blue);border-radius:7px}
+.atlas-page .sandbox-workspaces{border:0;gap:8px}.atlas-page .sandbox-workspaces button{display:grid;border:1px solid var(--line);background:#f4f8ff;color:var(--navy);border-radius:8px;justify-content:start;gap:5px}
+.atlas-page .sandbox-workspaces button.active{background:#e5efff;border-color:#8eaff0;color:var(--blue)}
+.atlas-page :is(.atlas-sample-lab-guide,.atlas-lab-gotime-contract){display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-block:30px}
+.atlas-page .atlas-sample-lab-guide article{padding:26px;border:1px solid var(--line);border-radius:12px;background:#f5f9ff}
+.atlas-page .atlas-public-results{overflow-x:auto}
+.atlas-page .role-choices button[aria-pressed=true]{background:#e2edff;border-color:var(--blue);color:#143fa4}
+.atlas-page .button-light{display:inline-flex;padding:12px 20px;background:#fff;color:var(--blue);border:1px solid #b9cff2;border-radius:7px}
+@media(max-width:760px){.atlas-page :is(.atlas-sample-lab-guide,.atlas-lab-gotime-contract){grid-template-columns:1fr}.atlas-page :is(.badge-builder,.sandbox-shell,.certification-submit-shell,.confirmation-signature-panel,.notification-center){width:88%;margin-block:32px}}
+.atlas-page :is(.atlas-ics-section,.atlas-lab-value-proof-boundary){display:grid;grid-template-columns:1fr 1fr;gap:8%}.atlas-page .atlas-ics-monogram{font:500 100px/1.2 'Manrope',Arial,sans-serif;color:#adc9f2}
+@media(max-width:1000px){.atlas-page-hero:has(>aside){grid-template-columns:1.4fr 1fr;gap:5%}.atlas-page-hero aside{padding:24px}.atlas-page h1{font-size:52px}.atlas-page :is(.atlas-privacy-shell,.atlas-api-layout){grid-template-columns:180px minmax(0,1fr);gap:5%}.atlas-page .atlas-proof-strip{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.atlas-page h1{font-size:clamp(36px,9vw,52px)}.atlas-page h2{font-size:32px}.atlas-page-hero,.atlas-page>section:not(.atlas-page-hero),.atlas-lab-value-sheet>section:not(.atlas-page-hero){padding:48px 6%}.atlas-page-hero:has(>aside){display:block}.atlas-page-hero>aside{margin-top:30px}.atlas-page-hero p:not(.atlas-kicker){font-size:15px}.atlas-page :is(.atlas-role-problem,.atlas-role-workflow,.atlas-role-boundaries,.atlas-lab-value-sell,.atlas-standard-requirements,.atlas-standard-status,.atlas-naming-section,.atlas-ingredient-integrity-section,.atlas-integration-steps,.atlas-integration-agent-contract,.atlas-integration-roles,.atlas-integration-human-gates,.atlas-lab-value-problem,.atlas-lab-value-investment,.atlas-explainer-section,.atlas-evidence-section,.atlas-api-agent-onboarding,.atlas-home-evidence-context,.atlas-ics-section,.atlas-lab-value-proof-boundary){grid-template-columns:1fr;gap:30px}.atlas-page :is(.atlas-role-cta,.atlas-why-cta,.atlas-explainer-cta,.atlas-disclosure-demo-cta,.atlas-integration-start){display:block}.atlas-page :is(.atlas-role-cta,.atlas-why-cta,.atlas-explainer-cta,.atlas-disclosure-demo-cta,.atlas-integration-start)>a{display:inline-flex;margin-top:22px}.atlas-page :is(.atlas-privacy-shell,.atlas-api-layout){display:block;padding:48px 6%!important}.atlas-page :is(.atlas-privacy-index,.atlas-api-toc){position:static;margin-bottom:40px}.atlas-page .atlas-issuer-list>a{grid-template-columns:1fr;gap:8px}.atlas-page .atlas-error-table>div{grid-template-columns:40px 1fr}.atlas-error-table p{grid-column:1/-1}.atlas-page .atlas-source-row{grid-template-columns:44px 1fr 16px;gap:15px}.atlas-page>[class*="-shell"],.atlas-lab-value-sheet{width:88%;margin:36px auto}.atlas-page .atlas-email-auth-shell{padding-inline:0}.atlas-page :is(.atlas-page-actions,.atlas-explainer-actions,.atlas-role-hero-actions){gap:14px}.atlas-page pre{padding:18px;font-size:11px}.atlas-page :is(th,td){padding:12px 8px}.atlas-page .atlas-proof-strip{gap:20px}.atlas-page .atlas-lab-value-sheet .atlas-page-hero{margin-inline:-6.8%;padding-inline:6.8%}}
+@media print{.atlas-page .atlas-lab-value-sheet{width:100%;margin:0}.atlas-page .atlas-lab-value-toolbar button{display:none}.atlas-page .atlas-lab-value-sheet>section{break-inside:avoid;padding:25px 0}.atlas-page .atlas-lab-value-sheet .atlas-page-hero{margin:0;padding:30px 0}}

@@ -1,6 +1,6 @@
+import { PublicPage, PageHero } from "../blue-atlas/public-page";
 import type { Metadata } from "next";
 import { ICS_ORGANIZATION_ID, TECRID_WEBSITE_ID } from "../../lib/entity-graph";
-import { ProductFooter, ProductNav } from "../site-nav";
 
 const canonicalUrl = "https://tecrid.com/faq";
 
@@ -66,16 +66,16 @@ const jsonLd = {
 
 export default function FaqPage() {
   return (
-    <main className="product-page explainer-page">
-      <ProductNav compact />
+    <PublicPage className="atlas-explainer-page">
+
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replaceAll("<", "\\u003c") }} />
 
-      <header className="explainer-hero faq-hero">
+      <PageHero className="atlas-explainer-hero atlas-faq-hero">
         <div>
-          <p className="section-kicker light">TECRID FAQ</p>
+          <p className="atlas-kicker">TECRID FAQ</p>
           <h1>Short answers.<br />Hard boundaries.</h1>
-          <p className="explainer-definition"><strong>TECRID authenticates laboratory evidence.</strong> It does not turn a detached document into an issued record, sell credibility, or certify that a product is safe.</p>
-          <div className="explainer-actions"><a className="button-mint" href="/laboratory-go-time">Laboratory go-time →</a><a className="explainer-text-link" href="/join">Join the free core →</a></div>
+          <p className="atlas-explainer-definition"><strong>TECRID authenticates laboratory evidence.</strong> It does not turn a detached document into an issued record, sell credibility, or certify that a product is safe.</p>
+          <div className="atlas-explainer-actions"><a className="atlas-button" href="/laboratory-go-time">Laboratory go-time →</a><a className="atlas-explainer-text-link" href="/join">Join the free core →</a></div>
         </div>
         <aside aria-label="TECRID trust boundaries">
           <div><span>Authenticates</span><strong>Evidence provenance</strong></div>
@@ -83,17 +83,17 @@ export default function FaqPage() {
           <div><span>Payment</span><strong>Workflow, not credibility</strong></div>
           <div><span>Safety claim</span><strong>Not provided by TECRID</strong></div>
         </aside>
-      </header>
+      </PageHero>
 
-      <section className="explainer-section explainer-faq" aria-labelledby="faq-title">
-        <div><p className="section-kicker">Direct answers</p><h2 id="faq-title">What TECRID proves and what it does not.</h2></div>
+      <section className="atlas-explainer-section atlas-explainer-faq" aria-labelledby="faq-title">
+        <div><p className="atlas-kicker">Direct answers</p><h2 id="faq-title">What TECRID proves and what it does not.</h2></div>
         <div>
-          {questions.map((item) => <article key={item.question}><h3>{item.question}</h3><p>{item.answer}</p>{item.href ? <a className="faq-answer-link" href={item.href}>{item.linkLabel}</a> : null}</article>)}
+          {questions.map((item) => <article key={item.question}><h3>{item.question}</h3><p>{item.answer}</p>{item.href ? <a className="atlas-faq-answer-link" href={item.href}>{item.linkLabel}</a> : null}</article>)}
         </div>
       </section>
 
-      <section className="explainer-cta"><div><p className="section-kicker light">Independent sampling and diligence</p><h2>VLE questions<br />stay with VLE.</h2></div><a className="button-mint" href="https://vle.exchange/faq">Open the VLE FAQ →</a></section>
-      <ProductFooter />
-    </main>
+      <section className="atlas-explainer-cta"><div><p className="atlas-kicker">Independent sampling and diligence</p><h2>VLE questions<br />stay with VLE.</h2></div><a className="atlas-button" href="https://vle.exchange/faq">Open the VLE FAQ →</a></section>
+
+    </PublicPage>
   );
 }

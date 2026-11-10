@@ -1,10 +1,10 @@
+import { PublicPage, PageHero } from "../blue-atlas/public-page";
 import type { Metadata } from "next";
-import { ProductFooter, ProductNav } from "../site-nav";
 import { EvidenceValue } from "../evidence-value";
 
 export const metadata: Metadata = {
   alternates: { canonical: "https://tecrid.com/why" },
-  title: "Why TEC exists, TECRID",
+  title: "Why TECRID exists, TECRID",
   description:
     "Replace PDF trust with checkable, issuer-signed laboratory evidence. Free core verification, with commercial paths through VLE QUALIFIED and HMTc certification.",
 };
@@ -62,28 +62,28 @@ const sources = [
 
 export default function WhyTec() {
   return (
-    <main className="why-page">
-      <ProductNav compact />
+    <PublicPage className="atlas-why-page">
 
-      <header className="why-hero">
-        <div className="why-hero-copy">
-          <p className="eyebrow"><span /> Why TEC exists</p>
+
+      <PageHero className="atlas-why-hero">
+        <div className="atlas-why-hero-copy">
+          <p className="atlas-kicker"><span /> Why TECRID exists</p>
           <h1>A PDF travels.<br />Proof should travel with it.</h1>
           <p>
             An unverifiable COA makes every recipient start again. Counsel and retailers spend time reconciling folders of PDFs, matching lots, chasing the issuing laboratory, and locating corrections. Replace that PDF trust and discovery friction with checkable, issuer-signed evidence whose source, integrity, and current status can be verified.
           </p>
-          <div className="sell-hero-actions"><a href="https://vle.exchange/for-suppliers">Explore VLE QUALIFIED ↗</a><a href="https://heavymetalcertified.com/apply">Apply for HMTc certification ↗</a></div>
+          <div className="atlas-sell-hero-actions"><a href="https://vle.exchange/for-suppliers">Explore VLE QUALIFIED ↗</a><a href="https://heavymetalcertified.com/apply">Apply for HMTc certification ↗</a></div>
         </div>
-        <aside className="problem-statement">
+        <aside className="atlas-problem-statement">
           <span>The infrastructure gap</span>
           <blockquote>
             Organizations lack a universal, authoritative way to exchange and verify laboratory evidence after it leaves the issuing laboratory.
           </blockquote>
           <small>TECRID problem statement · v1.0</small>
         </aside>
-      </header>
+      </PageHero>
 
-      <section className="proof-strip" aria-label="Evidence summary">
+      <section className="atlas-proof-strip" aria-label="Evidence summary">
         <div><strong>Document fraud</strong><span>Officially recognized</span></div>
         <div><strong>COA reliability</strong><span>Recurring enforcement concern</span></div>
         <div><strong>Digital exchange</strong><span>Active standards work</span></div>
@@ -92,98 +92,98 @@ export default function WhyTec() {
 
       <EvidenceValue />
 
-      <section className="lab-value-sell" aria-labelledby="lab-value-sell-title">
-        <div><p className="section-kicker">For the issuing laboratory</p><h2 id="lab-value-sell-title">Issue once. Fewer phone calls.<br />More sealed volume.</h2></div>
+      <section className="atlas-lab-value-sell" aria-labelledby="lab-value-sell-title">
+        <div><p className="atlas-kicker">For the issuing laboratory</p><h2 id="lab-value-sell-title">Issue once. Fewer phone calls.<br />More sealed volume.</h2></div>
         <div><p>Every “did you issue this?” call puts your team back on a report it already finished. Issue a signed record once, let authorized recipients check it, and keep corrections attached to the same identifier.</p><p>VLE connects laboratory evidence to sealed samples and recorded custody. As buyers request TECRID-linked evidence, your laboratory gains a path to more testing of independently sealed samples. Pilots must establish the actual time saved and volume gained.</p><a href="/for-laboratories">See the laboratory path →</a></div>
       </section>
 
-      <section className="evidence-section" id="evidence" aria-labelledby="evidence-title">
-        <div className="evidence-intro">
-          <p className="section-kicker">The documented need</p>
+      <section className="atlas-evidence-section" id="evidence" aria-labelledby="evidence-title">
+        <div className="atlas-evidence-intro">
+          <p className="atlas-kicker">The documented need</p>
           <h2 id="evidence-title">This is not a hypothetical problem.</h2>
           <p>
             Independent institutions have documented fraudulent certificates, incomplete testing, unreliable supplier evidence, and the need for machine-readable analytical records. No single incident proves a global market, but together they establish a serious, verifiable infrastructure failure.
           </p>
         </div>
-        <div className="source-list">
+        <div className="atlas-source-list">
           {sources.map((source) => (
-            <a key={source.title} className="source-row" href={source.href} target="_blank" rel="noreferrer">
-              <span className="source-date">{source.date}</span>
-              <span className="source-copy">
+            <a key={source.title} className="atlas-source-row" href={source.href} target="_blank" rel="noreferrer">
+              <span className="atlas-source-date">{source.date}</span>
+              <span className="atlas-source-copy">
                 <small>{source.authority}</small>
                 <strong>{source.title}</strong>
                 <p>{source.detail}</p>
               </span>
-              <span className="source-arrow" aria-hidden="true">↗</span>
+              <span className="atlas-source-arrow" aria-hidden="true">↗</span>
             </a>
           ))}
         </div>
       </section>
 
-      <section className="evidence-boundary" aria-labelledby="boundary-evidence-title">
+      <section className="atlas-evidence-boundary" aria-labelledby="boundary-evidence-title">
         <div>
-          <p className="section-kicker light">Evidence, with discipline</p>
+          <p className="atlas-kicker">Evidence, with discipline</p>
           <h2 id="boundary-evidence-title">What is established and what remains to prove.</h2>
         </div>
-        <div className="claim-matrix">
+        <div className="atlas-claim-matrix">
           <article>
-            <span className="claim-status established">Established</span>
+            <span className="atlas-claim-status atlas-established">Established</span>
             <h3>False and altered laboratory documents exist.</h3>
             <p>Government alerts and prosecutions demonstrate occurrence and potentially severe consequences.</p>
           </article>
           <article>
-            <span className="claim-status established">Established</span>
+            <span className="atlas-claim-status atlas-established">Established</span>
             <h3>Supplier COAs cannot simply be trusted.</h3>
             <p>Quality systems must establish supplier reliability, methods, sampling context, and applicability.</p>
           </article>
           <article>
-            <span className="claim-status established">Established</span>
+            <span className="atlas-claim-status atlas-established">Established</span>
             <h3>Document-based exchange blocks automation.</h3>
             <p>NIST and industry initiatives are already developing structured, machine-readable certificates.</p>
           </article>
           <article>
-            <span className="claim-status open">Open question</span>
+            <span className="atlas-claim-status atlas-open">Open question</span>
             <h3>Will buyers require a shared evidence network?</h3>
-            <p>TEC must earn that answer through real laboratory, brand, and retailer pilots, not assertion.</p>
+            <p>TECRID must earn that answer through real laboratory, brand, and retailer pilots, not assertion.</p>
           </article>
         </div>
       </section>
 
-      <section className="naming-section" aria-labelledby="naming-title">
+      <section className="atlas-naming-section" aria-labelledby="naming-title">
         <div>
-          <p className="section-kicker">A durable architecture</p>
-          <h2 id="naming-title">One mark. Four clear meanings.</h2>
+          <p className="atlas-kicker">A durable architecture</p>
+          <h2 id="naming-title">One mark. Clear meanings.</h2>
           <p>
-            TEC names the evidence credential. TECRID names its permanent record identifier. TECRID provides the public resolver and operating platform.
+            The Test Evidence Credential is the laboratory record. TECRID names its permanent record identifier. TECRID provides the public resolver and operating platform.
           </p>
         </div>
-        <dl className="name-system">
+        <dl className="atlas-name-system">
           <div><dt>TECRID</dt><dd>The public resolver and operating platform</dd></div>
           <div><dt>Test Evidence Credential</dt><dd>The lab-issued digital record</dd></div>
-          <div><dt>TECRID</dt><dd>The permanent TEC Record Identifier</dd></div>
-          <div><dt>TEC Protocol</dt><dd>The open technical and governance standard</dd></div>
+          <div><dt>TECRID</dt><dd>The permanent Test Evidence Credential Record Identifier</dd></div>
+          <div><dt>TECRID Protocol</dt><dd>The open technical and governance standard</dd></div>
           <div><dt>ICS</dt><dd>The standards steward and public-interest home</dd></div>
         </dl>
       </section>
 
-      <section className="ingredient-integrity-section" aria-labelledby="ingredient-integrity-title">
+      <section className="atlas-ingredient-integrity-section" aria-labelledby="ingredient-integrity-title">
         <div>
-          <p className="section-kicker">Proposed vertical · not yet implemented</p>
+          <p className="atlas-kicker">Proposed vertical · not yet implemented</p>
           <h2 id="ingredient-integrity-title">Preserve what was claimed.<br />Test what was present.</h2>
           <p>A supplier declaration and a laboratory result answer different questions. This proposed application would link them to the same physical lot without pretending that the declaration itself is analytical proof.</p>
         </div>
-        <ol className="integrity-chain">
+        <ol className="atlas-integrity-chain">
           <li><span>01</span><div><strong>Supplier declares</strong><p>“Lot AO-1842 is 100% avocado oil.” The named supplier signs and timestamps that representation.</p></div></li>
           <li><span>02</span><div><strong>Custody connects</strong><p>Shipment, containers, seals, receiving, sampling, and laboratory receipt point to the same lot.</p></div></li>
-          <li><span>03</span><div><strong>The laboratory issues</strong><p>An authenticity TEC records the method, analytical markers, results, uncertainty, issuer proof, and TECRID.</p></div></li>
+          <li><span>03</span><div><strong>The laboratory issues</strong><p>An authenticity Test Evidence Credential records the method, analytical markers, results, uncertainty, issuer proof, and TECRID.</p></div></li>
           <li><span>04</span><div><strong>A future application compares</strong><p>The resulting state could be consistent, inconsistent, inconclusive, or custody not established, not a marketing badge.</p></div></li>
         </ol>
       </section>
 
-      <section className="ics-section" aria-labelledby="ics-title">
-        <div className="ics-monogram" aria-hidden="true">ICS</div>
+      <section className="atlas-ics-section" aria-labelledby="ics-title">
+        <div className="atlas-ics-monogram" aria-hidden="true">ICS</div>
         <div>
-          <p className="section-kicker">A natural extension</p>
+          <p className="atlas-kicker">A natural extension</p>
           <h2 id="ics-title">Built for the Institute of Contaminant Standards.</h2>
           <p>
             ICS is positioned to define the contaminant evidence schema, convene laboratories and buyers, maintain the public-interest rules, and make the boundary between authentic evidence and safety interpretation unmistakable.
@@ -197,15 +197,15 @@ export default function WhyTec() {
         </div>
       </section>
 
-      <section className="why-cta">
+      <section className="atlas-why-cta">
         <div>
-          <p className="section-kicker light">The opportunity</p>
+          <p className="atlas-kicker">The opportunity</p>
           <h2>Make evidence portable before making it powerful.</h2>
         </div>
         <a href="/join">Join TECRID <span aria-hidden="true">↗</span></a>
       </section>
 
-      <ProductFooter />
-    </main>
+
+    </PublicPage>
   );
 }
