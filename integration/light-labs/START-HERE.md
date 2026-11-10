@@ -4,7 +4,7 @@ This package is ready for an integration pilot. It is not a completed installati
 
 ## Sign in and create your lab profile
 
-Go to https://tecrid.com/sign-in and enter your work email. Open the single-use link within 10 minutes. No password is required. In the dashboard, create your laboratory profile, then complete issuer onboarding at https://tecrid.com/dashboard/issuance. Email verification does not grant production issuance approval; identity, scope and signing-key review are separate.
+Go to https://tecrid.com/sign-in and enter your work email. Open the single-use link within 20 minutes. No password is required. In the dashboard, create your laboratory profile, then complete issuer onboarding at https://tecrid.com/dashboard/issuance. Email verification does not grant production issuance approval; identity, scope and signing-key review are separate.
 
 Email accounts are separate from legacy accounts and are not automatically merged. See [work-email setup and operations](../../docs/WORK-EMAIL-SIGN-IN.md).
 

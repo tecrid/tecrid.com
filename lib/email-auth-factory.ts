@@ -17,11 +17,12 @@ export function createEmailAuth(db:any, schema:any, config:{secret:string;baseUR
   session:{expiresIn:60*60*24*7,updateAge:60*60*24,cookieCache:{enabled:false}},
   advanced:{disableOriginCheck:false,disableCSRFCheck:false,cookiePrefix:'tecrid',useSecureCookies:config.baseURL.startsWith('https:'),ipAddress:{ipAddressHeaders:['cf-connecting-ip']},defaultCookieAttributes:{httpOnly:true,sameSite:'lax',path:'/'}},
   rateLimit:{enabled:true,storage:'database',window:60,max:60},
-  plugins:[magicLink({expiresIn:600,storeToken:'hashed',rateLimit:{window:60,max:3},
+  plugins:[magicLink({expiresIn:1200,storeToken:'hashed',rateLimit:{window:60,max:3},
    async sendMagicLink({email,url}){
     if(config.issuanceSecret===config.secret)throw Error('Mail issuance requires a distinct credential.');
     if(!config.relaySecret||!config.relayURL)throw Error('Email delivery is not configured.');
-    const assertion=await signedServiceInit(config.relayURL,{email,url},{TECRID_MAIL_ISSUANCE_SECRET:config.issuanceSecret,TECRID_EMAIL_RELAY_SECRET:config.relaySecret},'mail-issuance');
+    const confirmation=new URL(url);confirmation.pathname='/sign-in/confirm';
+    const assertion=await signedServiceInit(config.relayURL,{email,url:confirmation.href},{TECRID_MAIL_ISSUANCE_SECRET:config.issuanceSecret,TECRID_EMAIL_RELAY_SECRET:config.relaySecret},'mail-issuance');
     const response=await transport(config.relayURL,{
      ...assertion,redirect:'error',signal:AbortSignal.timeout(15000),headers:{...assertion.headers,authorization:`Bearer ${config.relaySecret}`,'x-tecrid-mail-issuance':assertion.headers.authorization}
     });
