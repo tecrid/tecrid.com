@@ -24,7 +24,7 @@ export function RolePicker({ onboarding = false, returnTo = "/dashboard", prefer
   return <section className="role-picker" aria-labelledby="role-question">
     <p className="section-kicker">A place for you</p><h2 id="role-question">Who are you?</h2>
     <div className="role-choices">{roles.map(item => <button type="button" key={item.id} disabled={pending !== null} aria-pressed={(preferredRole ?? role) === item.id} onClick={() => choose(item.id)}>
-      <span>{pending === item.id ? "Opening your workspace..." : item.label}</span>{" "}<small>{item.detail}</small><b aria-hidden="true">↗</b>
+      <span>{pending === item.id ? "Opening your workspace..." : item.label}</span>{" "}<small>{item.detail}</small>
     </button>)}</div><p role="status">{message}</p>
   </section>;
 }
