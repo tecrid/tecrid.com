@@ -54,3 +54,6 @@
 .atlas .atlas-selected-role span,.atlas .atlas-fingerprint>div,.atlas .atlas-lab-status{color:#536f92}
 .atlas .atlas-lab-card dt{color:#a3c5ee}
 @media(max-width:650px){.atlas .full-results td:before{color:#536f92}}
+
+.atlas .atlas-article-link{padding-block:44px 56px;border-top:1px solid var(--line)}
+.atlas .atlas-article-link .atlas-text-link{gap:16px;max-width:100%;line-height:1.6}

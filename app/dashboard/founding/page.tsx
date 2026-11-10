@@ -26,7 +26,7 @@ export default async function FoundingLaunchPage() {
       {!membership ? (
         <section className="missing-workspace"><h2>Create your organization workspace first.</h2><a className="button-dark" href="/dashboard">Create workspace →</a></section>
       ) : membership.organization.plan !== "founding" ? (
-        <section className="missing-workspace"><h2>Founding onboarding begins after membership activation.</h2><p>The free registry remains available without payment.</p><a className="button-dark" href="/join">Review Founding Organization →</a></section>
+        <section className="missing-workspace"><h2>Founding onboarding begins after membership activation.</h2><p>TECRID is free.</p><a className="button-dark" href="/join">Review Founding Organization →</a></section>
       ) : (
         <section className="founding-launch-shell">
           <div className="founding-delivery-strip" aria-label="Founding launch sequence">
