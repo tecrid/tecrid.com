@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 
 export function AdminMfaClient({ enrolled }: { enrolled: boolean }) {
   const [secret, setSecret] = useState<string | null>(null);
@@ -28,7 +29,7 @@ export function AdminMfaClient({ enrolled }: { enrolled: boolean }) {
       <h2>{enrolled ? "Enter your authentication code." : "Add an authenticator before using admin tools."}</h2>
       <p>ICS admin accounts need the email link and a second factor. Use an authenticator app, or a one-time recovery code.</p>
       {!enrolled && !secret ? <button className="button-dark" type="button" disabled={pending} onClick={() => void post({ action: "enroll" }).then((result) => { if (!result) return; setSecret(result.secret); setOtpauthUrl(result.otpauthUrl); })}>Create authenticator setup</button> : null}
-      {secret ? <div><p>Add this secret to your authenticator. It is shown once.</p><code>{secret}</code>{otpauthUrl ? <p><a href={otpauthUrl}>Open authenticator setup</a></p> : null}</div> : null}
+      {secret ? <div className="admin-mfa-setup">{otpauthUrl ? <QRCodeSVG value={otpauthUrl} size={224} marginSize={4} level="M" role="img" title="Scan to set up your TECRID authenticator" /> : null}<div><p>Scan the QR code with your authenticator, or enter this setup key. It is shown once.</p><code>{secret}</code>{otpauthUrl ? <p><a href={otpauthUrl}>Open authenticator setup</a></p> : null}</div></div> : null}
       <form onSubmit={(event) => {
         event.preventDefault();
         const code = String(new FormData(event.currentTarget).get("code") ?? "");

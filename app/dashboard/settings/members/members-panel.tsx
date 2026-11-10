@@ -28,7 +28,7 @@ export function MembersPanel({people,pending,canManage,laboratory,website}: {peo
     } catch(error) {setMessage(error instanceof Error ? error.message : 'Try again shortly.');return false;}
     finally {setBusy(false);}
   }
-  async function invite(event:FormEvent) {event.preventDefault();if(await save({action:'invite',email,role})){setEmail('');setMessage('Invite saved. A TECRID sign-in email is on its way.');}}
+  async function invite(event:FormEvent) {event.preventDefault();if(await save({action:'invite',email,role})){setEmail('');setMessage(`We emailed ${email.trim().toLowerCase()} a sign-in link. When they sign in, they join this workspace.`);}}
   const owners = people.filter(person=>person.role==='owner').length;
   return <>
     <section className="workspace-summary" aria-label="Membership summary"><article><strong>{people.length}</strong><span>Members</span></article><article><strong>{pending.length}</strong><span>Pending invites</span></article><article><strong>{owners}</strong><span>{owners===1?'Owner':'Owners'}</span></article></section>

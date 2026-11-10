@@ -101,3 +101,15 @@ html[data-tecrid-design="blue-atlas"] .atlas-workspace .access-items p {margin-t
 html[data-tecrid-design="blue-atlas"] .atlas-workspace .access-table td:first-child {display:table-cell;min-width:190px}
 html[data-tecrid-design="blue-atlas"] .atlas-workspace .access-table td:nth-child(4),html[data-tecrid-design="blue-atlas"] .atlas-workspace .access-table td:nth-child(6) {min-width:96px}
 html[data-tecrid-design="blue-atlas"] .atlas-workspace .access-revoke-note {font-size:12px;min-width:200px}
+/* Shared Blue Atlas navigation palette for workspace and ICS administration. */
+html[data-tecrid-design="blue-atlas"] .atlas-workspace :is(.workspace-sidebar,.admin-workspace-sidebar) {background:#0a2046;color:#fff;border-color:#24416a}
+html[data-tecrid-design="blue-atlas"] .atlas-workspace :is(.workspace-sidebar,.admin-workspace-sidebar) :is(.workspace-sidebar-brand,.workspace-identity strong) {color:#fff}
+html[data-tecrid-design="blue-atlas"] .atlas-workspace :is(.workspace-sidebar,.admin-workspace-sidebar) :is(.atlas-kicker,.workspace-sidebar-nav:before,nav>span) {color:#8cbcff!important}
+html[data-tecrid-design="blue-atlas"] .atlas-workspace :is(.workspace-sidebar,.admin-workspace-sidebar) nav a {color:#c2d3eb}
+html[data-tecrid-design="blue-atlas"] .atlas-workspace :is(.workspace-sidebar,.admin-workspace-sidebar) nav a:hover {background:#173868;color:#fff}
+html[data-tecrid-design="blue-atlas"] .atlas-workspace .workspace-sidebar .workspace-sidebar-nav>a.active {background:#193f78;color:#fff;box-shadow:inset 3px 0 #8cbcff;border-left-color:#8cbcff}
+html[data-tecrid-design="blue-atlas"] .atlas-workspace .workspace-sidebar footer {border-color:#24416a}
+html[data-tecrid-design="blue-atlas"] .atlas-workspace .workspace-sidebar footer :is(strong,small,a) {color:#c2d3eb}
+.admin-mfa-setup {display:flex;align-items:center;flex-wrap:wrap;gap:24px;margin-block:24px}
+.admin-mfa-setup>div {flex:1;min-width:200px}
+.admin-mfa-setup code {overflow-wrap:anywhere}
