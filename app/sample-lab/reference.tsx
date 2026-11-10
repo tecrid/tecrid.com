@@ -2,7 +2,7 @@ import {ProtectedResults} from "./protected-results";
 import {sampleLabReference, sampleLabReports} from "../../lib/sample-lab";
 import {ProductNav,ProductFooter} from "../site-nav";
 
-function date(value:string){return new Date(`${value}T12:00:00Z`).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"});}
+function date(value:string){return new Date(`${value}T12:00:00Z`).toLocaleDateString("en-US",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"});}
 export function SampleLabReferencePage({identifier}:{identifier:string}){
  const record=sampleLabReference(identifier)!;
  const detail=record.reportDetails;
@@ -37,7 +37,7 @@ export function SampleLabReferencePage({identifier}:{identifier:string}){
     <div><span>Machine-readable reference</span><a href={record.jsonUrl}>Open JSON reference ↗</a><small>TEST status, report metadata and gated digital card link; no analytical values</small></div>
    </div>
   </section>
-  <section className="version-register"><div className="section-title-row"><div><p className="section-kicker">Source and registry status</p><h2>Report history, without implied issuance.</h2></div></div><ol><li><span>Source</span><div><strong>Original report released</strong><p>{date(record.releasedAt)} · report {record.reportNumber}, order {detail.orderNumber}. Source revision number is not stated.</p></div></li><li><span>TEST</span><div><strong>Original imported into private storage</strong><p>22 October 2026 · exact source fingerprint preserved. This test view does not create a signed credential version.</p></div></li><li><span>Pending</span><div><strong>Light Labs approval and signing</strong><p>Production issuance remains blocked. No issuance date or verified issuer signature is asserted.</p></div></li></ol></section>
+  <section className="version-register"><div className="section-title-row"><div><p className="section-kicker">Source and TECRID status</p><h2>Report history, without implied issuance.</h2></div></div><ol><li><span>Source</span><div><strong>Original report released</strong><p>{date(record.releasedAt)} · report {record.reportNumber}, order {detail.orderNumber}. Source revision number is not stated.</p></div></li><li><span>TEST</span><div><strong>Original imported into private storage</strong><p>October 22, 2026 · exact source fingerprint preserved. This test view does not create a signed credential version.</p></div></li><li><span>Pending</span><div><strong>Light Labs approval and signing</strong><p>Production issuance remains blocked. No issuance date or verified issuer signature is asserted.</p></div></li></ol></section>
   <section className="record-boundary"><p className="section-kicker">Related evidence</p><h2>More reports for lot {record.lotNumber}.</h2><div className="kas-related-reports">{related.map(r=><a key={r.reportNumber} href={`/records/${encodeURIComponent(r.testIdentifier)}`}>Report {r.reportNumber} · TEST →</a>)}</div><p><a href="https://vle.exchange/suppliers/kasandrinos#tecrid-test-reports">View Kasandrinos on VLE ↗</a> · <a href="/sample-lab">All eight test reports →</a></p><p>Source metadata is transcribed for integration testing and remains subject to laboratory review. This page does not establish product safety, accreditation scope, certification or VLE qualification.</p></section>
   <ProductFooter/>
  </main>;

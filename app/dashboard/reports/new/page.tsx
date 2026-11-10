@@ -7,7 +7,7 @@ import { LegacyReportIntakeForm } from "./report-intake-form";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Private report intake — TEC Registry",
+  title: "Private report intake, TECRID",
   robots: { index: false, follow: false },
 };
 

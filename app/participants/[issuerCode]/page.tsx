@@ -14,9 +14,9 @@ const TYPE_LABELS: Record<string, string> = {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { issuerCode } = await params;
   const participant = await getPublicParticipant(decodeURIComponent(issuerCode));
-  if (!participant) return { title: "Participant not found — TECRID", openGraph: { images: [] }, twitter: { images: [] } };
-  const title = `${participant.profile.displayName} — TECRID participant profile`;
-  const description = `${TYPE_LABELS[participant.organization.organizationType] ?? "Organization"} participating in TECRID under registry code ${participant.organization.issuerCode}.`;
+  if (!participant) return { title: "Participant not found, TECRID", openGraph: { images: [] }, twitter: { images: [] } };
+  const title = `${participant.profile.displayName}, TECRID participant profile`;
+  const description = `${TYPE_LABELS[participant.organization.organizationType] ?? "Organization"} participating in TECRID under TECRID code ${participant.organization.issuerCode}.`;
   return { title, description, robots: participant.profile.participationStatus === "test_pending_approval" ? {index:false,follow:false} : undefined, alternates: { canonical: `https://tecrid.com/participants/${participant.organization.issuerCode}` }, openGraph: { title, description, images: [] }, twitter: { title, description, images: [] } };
 }
 

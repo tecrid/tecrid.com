@@ -19,7 +19,7 @@ export function ProfileSettingsForm({ organization, profile }: {
     isPublic: profile?.isPublic ?? false,
   }));
   const [pending, setPending] = useState(false);
-  const [message, setMessage] = useState("Public listing is optional. Registry participation never makes private evidence public.");
+  const [message, setMessage] = useState("Public listing is optional. TECRID participation never makes private evidence public.");
 
   async function save(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

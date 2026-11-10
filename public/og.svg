@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1734" height="907" viewBox="0 0 1734 907">
+<defs><linearGradient id="background" x2="1" y2="1"><stop stop-color="#0b234b"/><stop offset="1" stop-color="#163b73"/></linearGradient></defs>
+<rect width="1734" height="907" fill="url(#background)"/>
+<circle cx="1470" cy="447" r="340" fill="none" stroke="#8cbcff" stroke-opacity=".12"/><circle cx="1470" cy="447" r="265" fill="none" stroke="#8cbcff" stroke-opacity=".14"/>
+<image x="105" y="78" width="66" height="66" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIzIiBmaWxsPSIjMTc0M2UzIi8+PHBhdGggZD0iTTI3IDI4SDczVjQxSDU4VjY2SDUxVjc4SDQzVjQxSDI3WiIgZmlsbD0id2hpdGUiLz48L3N2Zz4K"/>
+<g fill="white" font-family="Arial, Helvetica, sans-serif"><text x="190" y="108" font-size="32" font-weight="700">TECRID</text><text x="190" y="135" font-size="18" fill="#bcd1ee">Institute of Contaminant Standards</text>
+<text x="108" y="317" font-size="106" letter-spacing="-4">Evidence.</text><text x="108" y="445" font-size="106" letter-spacing="-4">With a source.</text><text x="108" y="573" font-size="106" letter-spacing="-4" fill="#8cbcff">Without guesswork.</text>
+<text x="113" y="674" font-size="30" fill="#ccdcf2">Lab results that you can verify.</text><text x="113" y="778" font-size="24" fill="#ccdcf2">AN OPEN AND FREE INITIATIVE OF ICS</text><text x="1460" y="813" font-size="24" text-anchor="end" letter-spacing="3" fill="#ccdcf2">TECRID.COM</text></g>
+</svg>

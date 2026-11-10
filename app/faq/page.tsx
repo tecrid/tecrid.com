@@ -25,7 +25,7 @@ const questions = [
   },
   {
     question: "Can payment buy credibility or issuer approval?",
-    answer: "No. The core registry is free. Paid Founding Organization support covers optional white-glove workflow implementation only. Payment cannot approve a laboratory, strengthen a verification result, change record status, or purchase credibility.",
+    answer: "No. TECRID is free. Paid Founding Organization support covers optional white-glove workflow implementation only. Payment cannot approve a laboratory, strengthen a verification result, change record status, or purchase credibility.",
   },
   {
     question: "Who operates TECRID?",
@@ -40,7 +40,7 @@ const questions = [
 ];
 
 export const metadata: Metadata = {
-  title: "TECRID FAQ — Evidence authentication, governance and access",
+  title: "TECRID FAQ, Evidence authentication, governance and access",
   description: "Direct answers about what TECRID authenticates, why a PDF or COA is not a TECRID, paid support, governance, laboratory onboarding and VLE diligence.",
   alternates: { canonical: canonicalUrl },
 };
@@ -86,7 +86,7 @@ export default function FaqPage() {
       </header>
 
       <section className="explainer-section explainer-faq" aria-labelledby="faq-title">
-        <div><p className="section-kicker">Direct answers</p><h2 id="faq-title">What TECRID proves—and what it does not.</h2></div>
+        <div><p className="section-kicker">Direct answers</p><h2 id="faq-title">What TECRID proves and what it does not.</h2></div>
         <div>
           {questions.map((item) => <article key={item.question}><h3>{item.question}</h3><p>{item.answer}</p>{item.href ? <a className="faq-answer-link" href={item.href}>{item.linkLabel}</a> : null}</article>)}
         </div>

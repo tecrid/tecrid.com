@@ -9,9 +9,9 @@ type PageProps = { params: Promise<{ organizationSlug: string }> };
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { organizationSlug } = await params;
   const portfolio = await getPublicDisclosurePortfolio(decodeURIComponent(organizationSlug));
-  if (!portfolio) return { title: "Disclosure portfolio not found — TEC Registry" };
+  if (!portfolio) return { title: "Disclosure portfolio not found, TECRID" };
   return {
-    title: `${portfolio.organization.name} disclosures — TEC Registry`,
+    title: `${portfolio.organization.name} disclosures, TECRID`,
     description: `Public production-aggregate analytical disclosures published by ${portfolio.organization.name}.`,
     alternates: { canonical: `https://tecrid.com/disclosures/${encodeURIComponent(decodeURIComponent(organizationSlug))}` },
   };

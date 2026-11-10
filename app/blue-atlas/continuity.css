@@ -1,0 +1,713 @@
+/* Carry the new visual system through existing operational pages. Status colors remain semantic. */
+html[data-tecrid-design="blue-atlas"]{--paper:#ffffff;--ink:#0a2046;--blue:#245aea;--line:#dce8fa;--muted:#56708f;--atlas-font:'Manrope',Arial,sans-serif}
+html[data-tecrid-design="blue-atlas"] body{font-family:'DM Sans',Arial,sans-serif;background:white}
+html[data-tecrid-design="blue-atlas"] .product-hero{background:linear-gradient(120deg,#0b234b,#12366b)}
+html[data-tecrid-design="blue-atlas"] .product-page{background:#fff}
+html[data-tecrid-design="blue-atlas"] :is(.issuer-application-form,.verification-workbench,.sharing-ledger,.sharing-form,.participant-grid>article){border-radius:12px;overflow:hidden}
+html[data-tecrid-design="blue-atlas"] :is(.button-dark,.button-outline,.button-light){border-radius:7px;min-height:48px}
+html[data-tecrid-design="blue-atlas"] :is(.form-field input,.form-field select,.form-field textarea){border-radius:7px}
+html[data-tecrid-design="blue-atlas"] :is(.workspace-sidebar-brand,.brand){font-family:Arial,Helvetica,sans-serif}
+@media(max-width:767px){html[data-tecrid-design="blue-atlas"] body:not(:has(.mobile-tab-bar)){padding-bottom:env(safe-area-inset-bottom,0px)}}
+/* Generated presentation-only overrides. Preserve semantic status colors and logo rules. */
+html[data-tecrid-design="blue-atlas"] .sharing-hero { background: #102f5d
+}
+html[data-tecrid-design="blue-atlas"] .sharing-rule { background: #eff6ff
+}
+html[data-tecrid-design="blue-atlas"] .sharing-rule a { color: #102f5d
+}
+html[data-tecrid-design="blue-atlas"] .sharing-form { background: #f4f8ff; border: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .sharing-form > div:first-child h2,
+html[data-tecrid-design="blue-atlas"] .sharing-ledger > div:first-child h2,
+html[data-tecrid-design="blue-atlas"] .sharing-invitation-history h2 { color: #102f5d
+}
+html[data-tecrid-design="blue-atlas"] .sharing-form input,
+html[data-tecrid-design="blue-atlas"] .sharing-form select,
+html[data-tecrid-design="blue-atlas"] .sharing-form textarea { border: 1px solid #c7d9ee
+}
+html[data-tecrid-design="blue-atlas"] .sharing-redeem { background: #102f5d; border-color: #102f5d
+}
+html[data-tecrid-design="blue-atlas"] .sharing-confirm { border: 1px solid #c7d9ee
+}
+html[data-tecrid-design="blue-atlas"] .sharing-secret button { border: 1px solid #102f5d; color: #102f5d
+}
+html[data-tecrid-design="blue-atlas"] .sharing-ledger { background: #f4f8ff; border: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .sharing-ledger > article { border-top: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .redemption-ledger { background: #102f5d; border-color: #102f5d
+}
+html[data-tecrid-design="blue-atlas"] .sharing-profile-card h2 { font: 500 clamp(1.8rem, 3vw, 2.6rem)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .participants-head h2 { font: 500 clamp(38px, 4.5vw, 62px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .participant-grid > article { background: #edf5ff
+}
+html[data-tecrid-design="blue-atlas"] .participant-grid h2 { font: 500 clamp(27px, 3vw, 38px)/1.03 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .participants-note { background: #edf5ff
+}
+html[data-tecrid-design="blue-atlas"] .participants-note strong { font: 500 22px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .badge-hero h1 { font: 500 clamp(54px, 7vw, 100px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .badge-builder-intro h2 { font: 500 clamp(42px, 5vw, 72px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .badge-builder-intro > p { color: #4f6683
+}
+html[data-tecrid-design="blue-atlas"] .badge-builder-card { background: #edf5ff
+}
+html[data-tecrid-design="blue-atlas"] .badge-profile-url code { border: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .badge-boundary { background: #102f5d
+}
+html[data-tecrid-design="blue-atlas"] .badge-boundary h2 { font: 500 clamp(42px, 5vw, 72px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .record-page-hero.participant-profile-hero h1 { font-family: var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .participant-profile-summary { background: #edf5ff
+}
+html[data-tecrid-design="blue-atlas"] .participant-profile-summary p { font: 500 clamp(24px, 3vw, 36px)/1.18 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .participant-profile-badge h2 { font: 500 38px/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .participant-profile-boundary { background: #edf5ff
+}
+html[data-tecrid-design="blue-atlas"] .participant-profile-boundary strong { font: 500 22px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .home-evidence-context h2 { font: 500 clamp(32px, 3.5vw, 46px)/1.08 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .evidence-value h2,
+html[data-tecrid-design="blue-atlas"] .lab-value-sell h2 { font: 500 clamp(36px, 4.8vw, 64px)/1.08 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .evidence-value-grid h3 { font: 500 29px/1.15 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .hero h1 { font: 500 clamp(54px, 7.2vw, 108px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .definition h2 { font: 500 clamp(39px, 5.5vw, 75px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .section-title-row h2,
+html[data-tecrid-design="blue-atlas"] .why-heading h2,
+html[data-tecrid-design="blue-atlas"] .boundary-section h2 { font: 500 clamp(38px, 4.5vw, 62px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .record-card { box-shadow: 8px 8px 0 #d4e4fa
+}
+html[data-tecrid-design="blue-atlas"] .record-label,
+html[data-tecrid-design="blue-atlas"] .record-summary span { color: #536b88
+}
+html[data-tecrid-design="blue-atlas"] .record-summary small { color: #536b88
+}
+html[data-tecrid-design="blue-atlas"] .record-tabs { background: #f4f8ff
+}
+html[data-tecrid-design="blue-atlas"] .record-tabs button { color: #536b88
+}
+html[data-tecrid-design="blue-atlas"] .results-note small { color: #536b88
+}
+html[data-tecrid-design="blue-atlas"] th { color: #536b88
+}
+html[data-tecrid-design="blue-atlas"] td { border-bottom: 1px solid #dce7f5; color: #4f6683
+}
+html[data-tecrid-design="blue-atlas"] .provenance-grid dl > div { border-bottom: 1px solid #dce7f5
+}
+html[data-tecrid-design="blue-atlas"] .record-footer { color: #536b88
+}
+html[data-tecrid-design="blue-atlas"] .protocol-intro h2 { font: 500 clamp(43px, 5.5vw, 74px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .protocol-intro > p:last-child { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .steps strong { font: 500 24px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .steps p { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .compare-card.muted { background: #e7f0fc
+}
+html[data-tecrid-design="blue-atlas"] .compare-card h3 { font: 500 34px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .boundary-grid p { color: #4f6683
+}
+html[data-tecrid-design="blue-atlas"] .cta-section h2 { font: 500 clamp(46px, 6vw, 82px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .site-footer { background: #081c40
+}
+html[data-tecrid-design="blue-atlas"] .why-hero h1 { font: 500 clamp(56px, 7vw, 102px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .problem-statement blockquote { font: 500 25px/1.25 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .evidence-intro h2,
+html[data-tecrid-design="blue-atlas"] .naming-section h2,
+html[data-tecrid-design="blue-atlas"] .free-intro h2,
+html[data-tecrid-design="blue-atlas"] .ics-section h2 { font: 500 clamp(43px, 5.3vw, 72px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .source-copy strong { font: 500 22px/1.2 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .evidence-boundary h2 { font: 500 clamp(43px, 5.3vw, 72px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .claim-matrix h3 { font: 500 23px/1.16 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .name-system dt { font: 500 23px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .economics-grid h3 { font: 500 33px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .free-principle p { font: 500 clamp(42px, 5.5vw, 76px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .why-cta h2 { font: 500 clamp(46px, 6vw, 82px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .api-agent-onboarding h2 { font: 500 clamp(38px, 4.6vw, 66px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .product-hero h1 { font: 500 clamp(55px, 7vw, 102px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .join-role-doors h2 { font: 500 clamp(40px, 5vw, 68px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .join-role-door h3 { font: 500 27px/1.07 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .pricing-grid .free-card { background: #edf5ff
+}
+html[data-tecrid-design="blue-atlas"] .price-card h2 { font: 500 clamp(36px, 4vw, 56px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .plan-outcome strong { font: 500 18px/1.2 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .purchase-clarity-intro h2 { font: 500 clamp(43px, 5.5vw, 74px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .purchase-steps h3 { font: 500 23px/1.15 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .founding-boundaries h2 { font: 500 clamp(43px, 5.5vw, 74px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .independence-callout h2 { font: 500 clamp(43px, 5.5vw, 74px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .dashboard-header h1,
+html[data-tecrid-design="blue-atlas"] .form-page-header h1,
+html[data-tecrid-design="blue-atlas"] .record-page-hero h1 { font: 500 clamp(45px, 6vw, 82px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .workspace-identity strong { font: 500 22px/1.06 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .dashboard-launch-path h2 { font: 500 38px/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .settings-section-heading h2 { font: 500 38px/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .settings-integration-card h2 { font: 500 43px/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .onboarding-form { box-shadow: 8px 8px 0 #d4e4fa
+}
+html[data-tecrid-design="blue-atlas"] .form-intro h2 { font: 500 44px/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .onboarding-form input,
+html[data-tecrid-design="blue-atlas"] .onboarding-form select,
+html[data-tecrid-design="blue-atlas"] .credential-form input { background: #ffffff
+}
+html[data-tecrid-design="blue-atlas"] .dashboard-summary strong { font: 500 25px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .panel-heading h2 { font: 500 38px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .key-form input { background: #ffffff
+}
+html[data-tecrid-design="blue-atlas"] .billing-panel h2 { font: 500 40px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .billing-panel p:last-child { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .form-section-content h2 { font: 500 38px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .publish-choice.disabled { background: #eaf1fb
+}
+html[data-tecrid-design="blue-atlas"] .credential-success { box-shadow: 9px 9px 0 #d4e4fa
+}
+html[data-tecrid-design="blue-atlas"] .public-record-shell { box-shadow: 8px 8px 0 #d4e4fa
+}
+html[data-tecrid-design="blue-atlas"] .record-boundary h2 { font: 500 clamp(42px, 5.5vw, 72px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .success-hero h1 { font: 500 clamp(52px, 7vw, 96px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .post-checkout-sequence strong { font: 500 22px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .founding-delivery-strip { background: #edf5ff
+}
+html[data-tecrid-design="blue-atlas"] .founding-delivery-strip strong { font: 500 22px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .founding-launch-form { box-shadow: 8px 8px 0 #d4e4fa
+}
+html[data-tecrid-design="blue-atlas"] .founding-form-intro h2 { font: 500 clamp(38px, 5vw, 62px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .founding-launch-form input,
+html[data-tecrid-design="blue-atlas"] .founding-launch-form select,
+html[data-tecrid-design="blue-atlas"] .founding-launch-form textarea { background: #ffffff
+}
+html[data-tecrid-design="blue-atlas"] .api-docs h2 { font: 500 clamp(36px, 5vw, 58px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .version-register li strong { font: 500 21px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .ingredient-integrity-section h2 { font: 500 clamp(43px, 5.3vw, 72px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .integrity-chain strong { font: 500 24px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .issuer-list > a > strong { font: 500 26px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .empty-registry strong { font: 500 22px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .issuer-record-hero h1 { font-family: var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .issuer-record-shell { box-shadow: 8px 8px 0 #d4e4fa
+}
+html[data-tecrid-design="blue-atlas"] .issuer-status-statement strong { font: 500 32px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .standard-requirements h2,
+html[data-tecrid-design="blue-atlas"] .standard-status h2 { font: 500 clamp(43px, 5.3vw, 72px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .standard-requirements strong { font: 500 23px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .trust-model h2 { font: 500 clamp(43px, 5.3vw, 72px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .trust-model-grid strong { font: 500 24px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .trust-model-grid p { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .issuer-application-form input,
+html[data-tecrid-design="blue-atlas"] .issuer-application-form textarea,
+html[data-tecrid-design="blue-atlas"] .credential-draft-form input,
+html[data-tecrid-design="blue-atlas"] .credential-draft-form textarea,
+html[data-tecrid-design="blue-atlas"] .review-controls input { background: #ffffff
+}
+html[data-tecrid-design="blue-atlas"] .credential-draft-form legend { font: 500 19px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .admin-application-list h2 { font: 500 30px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .demo-warning strong { font: 500 20px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .demo-card h3 { font: 500 35px/1.05 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .demo-finding h2 { font: 500 clamp(29px, 4vw, 48px)/1.05 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .demo-source a { font: 500 21px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-hero h1 { font: 500 clamp(48px, 6.5vw, 88px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-aside-note strong { font: 500 18px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-console-heading h2 { font: 500 42px/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-progress { background: #f4f8ff
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-progress span { border: 1px solid #c7d9ee
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-summary strong { font: 500 22px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-panel-heading h3 { font: 500 clamp(22px, 2.6vw, 34px)/1.05 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-next-action strong { font: 500 25px/1.1 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-next-action p { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-document-match { background: #eff6ff
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-document-match strong { font: 500 21px/1.2 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-lab-action strong { font: 500 19px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-boundary-card strong { font: 500 24px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-boundary-card p { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-gates > div { background: #f4f8ff
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-gates > div > span { border: 1px solid #c7d9ee
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-routing-control strong { font: 500 19px/1.15 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-activity h3 { font: 500 27px/1.08 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-api-intro h3 { font: 500 clamp(28px, 3vw, 39px)/1.03 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-api-request { background: #081c40
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-api-note { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-portal-nav { background: #f4f8ff
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-portal-welcome h3,
+html[data-tecrid-design="blue-atlas"] .sandbox-portal-panel-head h3 { font: 500 clamp(27px, 3vw, 39px)/1.04 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-empty-panel strong { font: 500 28px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-signin-gate strong { font: 500 25px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-account-card { background: #eff6ff
+}
+html[data-tecrid-design="blue-atlas"] .sandbox-account-card > strong { font: 500 25px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sample-explainer h2 { font: 500 clamp(33px, 4.5vw, 58px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sample-identity-grid { background: #edf5ff
+}
+html[data-tecrid-design="blue-atlas"] .sample-identity-grid strong { font: 500 24px/1.05 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .sample-visibility-register { background: #eff6ff
+}
+html[data-tecrid-design="blue-atlas"] .demo-sandbox-callout h2,
+html[data-tecrid-design="blue-atlas"] .join-sandbox-callout h2 { font: 500 clamp(30px, 4vw, 47px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .demo-sandbox-callout p:last-child,
+html[data-tecrid-design="blue-atlas"] .join-sandbox-callout p:last-child { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .legacy-entry-section h2 { font: 500 clamp(40px, 5.2vw, 72px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .legacy-entry-section > div:last-child p { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .intake-trust-strip strong { font: 500 26px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .intake-boundary-section h2 { font: 500 clamp(42px, 5vw, 68px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .intake-form-intro h2,
+html[data-tecrid-design="blue-atlas"] .intake-created-card h2,
+html[data-tecrid-design="blue-atlas"] .confirmation-action-panel h2 { font: 500 clamp(31px, 4vw, 48px)/1.04 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .legacy-intake-form legend { font: 500 22px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .legacy-intake-form input,
+html[data-tecrid-design="blue-atlas"] .legacy-intake-form textarea,
+html[data-tecrid-design="blue-atlas"] .decision-note textarea,
+html[data-tecrid-design="blue-atlas"] .signing-inputs input,
+html[data-tecrid-design="blue-atlas"] .browser-key-generator input { background: #ffffff
+}
+html[data-tecrid-design="blue-atlas"] .file-drop-label { border: 1px dashed #b8cbe5; background: #f4f8ff
+}
+html[data-tecrid-design="blue-atlas"] .document-proof-panel { background: #eff6ff
+}
+html[data-tecrid-design="blue-atlas"] .legacy-timeline h2 { font: 500 clamp(36px, 4.5vw, 58px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .confirmation-hero h1 { font: 500 clamp(44px, 6vw, 78px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .confirmation-hero p:last-child { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .transcription-correction-panel h2 { font: 500 34px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-home-section h2 { font: 500 clamp(44px, 5vw, 75px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-dashboard-entry h2 { font: 500 38px/1.05 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-access-state h2 { font: 500 52px/1.03 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-ops-summary strong { font: 500 38px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-panel-heading h2 { font: 500 35px/1.05 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-output-strip span { font: 500 22px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-demo-summary strong { font: 500 42px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-demo-workbench h2 { font: 500 34px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-demo-outputs h2 { font: 500 43px/1.05 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-demo-outputs li > span { font: 500 18px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-demo-measurement h2 { font: 500 43px/1.05 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-math strong { font: 500 37px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-demo-cta h2 { font: 500 38px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-results-panel h2 { font: 500 35px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .disclosure-citation p { font: 12px/1.55 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .trust-workflows-intro h2 { font: 500 clamp(43px, 5.5vw, 72px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .trust-workflow-cards h3 { font: 500 30px/1.05 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .dashboard-workflow-card h2 { font: 500 34px/1.03 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .routing-principle h2 { font: 500 38px/1.02 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .routing-principle li p { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .routing-form h2,
+html[data-tecrid-design="blue-atlas"] .routing-ledger-head h2 { font: 500 36px/1.02 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .routing-form input,
+html[data-tecrid-design="blue-atlas"] .routing-form select { background: #ffffff
+}
+html[data-tecrid-design="blue-atlas"] .routing-controller-card h2 { font: 500 34px/1.04 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .routing-delivered-results strong { font: 500 20px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .controlled-results-gate h2 { font: 500 38px/1.03 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .insight-panel .panel-heading h2 { font: 500 36px/1.02 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .insight-sku-panel h2 { font: 500 38px/1.02 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .verification-input-panel h2 { font: 500 40px/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .verification-file-button span,
+html[data-tecrid-design="blue-atlas"] .certification-file-button span { font: 500 22px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .verification-result h2 { font: 500 37px/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .verification-boundary h2 { font: 500 50px/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-case-builder-copy h2,
+html[data-tecrid-design="blue-atlas"] .certification-channel-builder h2 { font: 500 43px/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .dispute-identifiers a { font: 500 18px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .dispute-missing h2 { font: 500 40px/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .verification-demo-strip strong { font: 500 26px/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .certification-secret-panel h2 { font: 500 35px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .certification-api-card h2 { font: 500 28px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .certification-applicant-form h2,
+html[data-tecrid-design="blue-atlas"] .certification-csv-form h2 { font: 500 38px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .certification-submit-result h2 { font: 500 38px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .explainer-page { background: #f4f8ff
+}
+html[data-tecrid-design="blue-atlas"] .explainer-hero h1 { font: 500 clamp(66px, 9vw, 122px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .explainer-hero aside strong { font: 500 20px/1.15 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .identifier-comparison { border: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .identifier-comparison article { border-right: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .identifier-comparison strong { color: #102f5d; font: 500 20px/1.15 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .identifier-comparison .active { background: #102f5d
+}
+html[data-tecrid-design="blue-atlas"] .explainer-section > div:first-child > h2,
+html[data-tecrid-design="blue-atlas"] .global-transparency h2 { color: #102f5d; font: 500 clamp(43px, 5.5vw, 74px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .explainer-function li { border-bottom: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .explainer-function li strong { color: #102f5d; font: 500 22px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .explainer-audiences { background: #102f5d
+}
+html[data-tecrid-design="blue-atlas"] .explainer-audiences h3 { font: 500 23px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .fraud-columns { border: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .fraud-columns article { border-bottom: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .fraud-columns article:last-child { background: #eff6ff
+}
+html[data-tecrid-design="blue-atlas"] .fraud-columns article > span { color: #102f5d
+}
+html[data-tecrid-design="blue-atlas"] .fraud-columns li { border-top: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .explainer-faq article { border-bottom: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .explainer-faq h3 { color: #102f5d; font: 500 22px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .explainer-cta { background: #102f5d
+}
+html[data-tecrid-design="blue-atlas"] .explainer-cta h2 { font: 500 clamp(45px, 6vw, 78px)/1.12 var(--atlas-font)
+}
+@media (max-width: 680px) {
+ html[data-tecrid-design="blue-atlas"] .identifier-comparison article { border-bottom-color: #d6e4f5
+ }
+}
+html[data-tecrid-design="blue-atlas"] .privacy-page { background: #f4f8ff
+}
+html[data-tecrid-design="blue-atlas"] .privacy-hero { background: #102f5d
+}
+html[data-tecrid-design="blue-atlas"] .privacy-hero h1 { font: 500 clamp(52px, 7vw, 96px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .privacy-hero aside strong { font: 500 18px/1.2 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .privacy-promises { border: 1px solid #d6e4f5; background: #eff6ff
+}
+html[data-tecrid-design="blue-atlas"] .privacy-promises article { border-right: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .privacy-promises strong { color: #102f5d; font: 500 21px/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .privacy-index a { border-bottom: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .privacy-policy > section { border-bottom: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .privacy-policy h2 { color: #102f5d; font: 500 clamp(33px, 4vw, 50px)/1.02 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .policy-grid { border: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .policy-grid article { border-right: 1px solid #d6e4f5; border-bottom: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .policy-grid strong { color: #102f5d; font: 500 20px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .policy-callout strong { color: #102f5d
+}
+html[data-tecrid-design="blue-atlas"] .visibility-table { border: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .visibility-table > div { border-bottom: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .visibility-table strong { color: #102f5d
+}
+html[data-tecrid-design="blue-atlas"] .policy-list { border-top: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .policy-list li { border-bottom: 1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .trend-rules { background: #102f5d
+}
+@media (max-width: 900px) {
+ html[data-tecrid-design="blue-atlas"] .privacy-promises article:nth-child(-n+2) { border-bottom: 1px solid #d6e4f5
+ }
+}
+@media (max-width: 680px) {
+ html[data-tecrid-design="blue-atlas"] .privacy-promises article,
+html[data-tecrid-design="blue-atlas"] .privacy-promises article:nth-child(2) { border-bottom: 1px solid #d6e4f5
+ }
+ html[data-tecrid-design="blue-atlas"] .policy-grid article,
+html[data-tecrid-design="blue-atlas"] .policy-grid article:nth-child(2n),
+html[data-tecrid-design="blue-atlas"] .policy-grid article:nth-last-child(-n+2),
+html[data-tecrid-design="blue-atlas"] .trend-rules article,
+html[data-tecrid-design="blue-atlas"] .trend-rules article:nth-child(2) { border-bottom: 1px solid #d6e4f5
+ }
+}
+html[data-tecrid-design="blue-atlas"] .home-audience-intro h2 { font: 500 clamp(43px, 5.4vw, 72px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .home-audience-grid h3 { font: 500 27px/1.05 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-join-sequence article strong { font: 500 22px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .role-hero h1 { font: 500 clamp(58px, 7.2vw, 104px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .role-hero aside strong { font: 500 26px/1.22 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .role-problem h2,
+html[data-tecrid-design="blue-atlas"] .role-benefits h2,
+html[data-tecrid-design="blue-atlas"] .role-workflow h2,
+html[data-tecrid-design="blue-atlas"] .role-boundaries h2,
+html[data-tecrid-design="blue-atlas"] .pilot-clarity h2,
+html[data-tecrid-design="blue-atlas"] .pilot-gates h2,
+html[data-tecrid-design="blue-atlas"] .pilot-fit h2,
+html[data-tecrid-design="blue-atlas"] .pilot-process h2 { font: 500 clamp(42px, 5.3vw, 72px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .role-benefits h3 { font: 500 25px/1.08 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .role-workflow > div > p:last-child { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .role-workflow li strong { font: 500 24px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .role-workflow li p { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .role-cta h2 { font: 500 clamp(43px, 5.6vw, 76px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .pilot-hero h1 { font: 500 clamp(60px, 7.5vw, 108px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .pilot-inclusions strong { font: 500 24px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .pilot-gates > div > p:last-child { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .pilot-gates strong { font: 500 23px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .pilot-gates li p { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .pilot-fit article > strong { font: 500 28px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .pilot-process li strong { font: 500 23px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-gotime-hero h1 { font: 500 clamp(58px, 7.2vw, 104px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-gotime-hero aside strong { font: 500 30px/1.08 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-gotime-definition h2,
+html[data-tecrid-design="blue-atlas"] .lab-gotime-flow h2,
+html[data-tecrid-design="blue-atlas"] .lab-gotime-sandbox h2,
+html[data-tecrid-design="blue-atlas"] .lab-gotime-vle h2,
+html[data-tecrid-design="blue-atlas"] .lab-gotime-checklist h2 { font: 500 clamp(42px, 5.3vw, 72px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-gotime-warning strong { font: 500 24px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-gotime-flow > div > p:last-child,
+html[data-tecrid-design="blue-atlas"] .lab-gotime-vle > div:first-child > p:last-child { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .lab-gotime-flow li strong { font: 500 23px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-gotime-flow li p { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .lab-gotime-sandbox li strong { font: 500 23px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-gotime-checklist li strong { font: 500 22px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-value-page { background: #eff6ff
+}
+html[data-tecrid-design="blue-atlas"] .lab-value-hero h1 { font: 500 clamp(52px, 6.4vw, 92px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-value-hero aside strong { font: 500 25px/1.05 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-value-problem h2,
+html[data-tecrid-design="blue-atlas"] .lab-value-investment h2,
+html[data-tecrid-design="blue-atlas"] .lab-value-cta h2 { font: 500 clamp(36px, 4.5vw, 60px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-value-shift strong { font: 500 21px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-value-benefits h3 { font: 500 23px/1.1 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-value-investment > div > p:last-child { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .lab-value-investment li strong { font: 500 21px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .lab-value-investment li small { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .integration-hero h1 { font: 500 clamp(60px, 7.6vw, 108px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .integration-steps h2,
+html[data-tecrid-design="blue-atlas"] .integration-agent-contract h2,
+html[data-tecrid-design="blue-atlas"] .integration-roles h2,
+html[data-tecrid-design="blue-atlas"] .integration-human-gates h2,
+html[data-tecrid-design="blue-atlas"] .integration-start h2 { font: 500 clamp(42px, 5.4vw, 74px)/1.12 var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .integration-steps li strong { font: 500 24px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .integration-agent-contract > div:first-child > p:last-child { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .integration-agent-contract article p { color: #b8cbe5
+}
+html[data-tecrid-design="blue-atlas"] .integration-roles h3 { font: 500 26px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .integration-human-gates li strong { font: 500 20px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .issuer-verification-tools h3 { font: 500 28px var(--atlas-font)
+}
+html[data-tecrid-design="blue-atlas"] .issuer-application-form select { background: #ffffff
+}
+html[data-tecrid-design="blue-atlas"] .sample-lab-table {border:1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .sample-lab-table th {background:#edf5ff
+}
+html[data-tecrid-design="blue-atlas"] .sample-lab-table th,
+html[data-tecrid-design="blue-atlas"] .sample-lab-table td {border-top:1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .sample-lab-guide article {border:1px solid #d6e4f5
+}
+html[data-tecrid-design="blue-atlas"] .email-auth-form input {border:1px solid #9fb5d2
+}
+html[data-tecrid-design="blue-atlas"] .email-auth-note {border-top:1px solid #c7d9ee
+}
+@media screen and (max-width: 767px) {
+ html[data-tecrid-design="blue-atlas"] .mobile-tab-bar { background: #f4f8ff
+ }
+}
+html[data-tecrid-design="blue-atlas"] .role-picker { background:#f4f8ff
+}
+html[data-tecrid-design="blue-atlas"] .role-choices button { border:1px solid #c7d9ee
+}
+html[data-tecrid-design="blue-atlas"] .simple-dashboard { background:#f4f8ff
+}
+
+/* Public Atlas pages supply their own responsive navigation. */
+body:has(.atlas #main-content) .mobile-tab-bar{display:none}
+body:has(.atlas #main-content){padding-bottom:env(safe-area-inset-bottom,0px)}
+
+/* PR 53 role homes, approvals, settings, and ICS invites keep their existing structure. */
+html[data-tecrid-design="blue-atlas"] :is(.app-page,.simple-dashboard){background:#f4f8ff;color:#0a2046}
+html[data-tecrid-design="blue-atlas"] :is(.app-heading h1,.simple-dashboard-heading h1,.settings-section h2){font-family:'Manrope',Arial,sans-serif}
+html[data-tecrid-design="blue-atlas"] .workspace-sidebar.simple-sidebar{background:#eff6ff;color:#0a2046;border-color:#dce8fa}
+html[data-tecrid-design="blue-atlas"] .workspace-sidebar.simple-sidebar :is(.workspace-sidebar-brand,footer){border-color:#dce8fa}
+html[data-tecrid-design="blue-atlas"] .workspace-sidebar.simple-sidebar .workspace-sidebar-nav>a.active{background:#dce8fa;color:#0a2046;border-left-color:#245aea}
+html[data-tecrid-design="blue-atlas"] :is(.work-table,.work-table th,.work-table td,.settings-section,.access-form,.queue-empty,.simple-primary-actions>a,.simple-records>a,.simple-records>article){border-color:#dce8fa}
+html[data-tecrid-design="blue-atlas"] :is(.work-table th,.app-note){color:#56708f}
+html[data-tecrid-design="blue-atlas"] :is(.work-filters,.app-toolbar,.access-form) :is(input,textarea,select,button){border-color:#dce8fa}
+html[data-tecrid-design="blue-atlas"] :is(.work-filters,.app-toolbar) button[aria-pressed="true"]{background:#0b234b;border-color:#0b234b;color:#fff}
+html[data-tecrid-design="blue-atlas"] :is(.simple-primary-actions>a:first-child,.app-toolbar .button-dark){background:#245aea;border-color:#245aea;color:#fff}
+html[data-tecrid-design="blue-atlas"] .simple-lab-status{background:#e5f0ff}

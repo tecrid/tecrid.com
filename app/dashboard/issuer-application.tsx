@@ -431,7 +431,7 @@ export function IssuerApplicationPanel({
         </fieldset><fieldset hidden={step !== 3}>
         <details className="signing-key-details" open>
           <summary>Issuer signing key <span>required before approval</span></summary>
-          <p>Submit only an Ed25519 public JWK. Never paste a private key. The registry verifies key control separately.</p>
+          <p>Submit only an Ed25519 public JWK. Never paste a private key. TECRID verifies key control separately.</p>
           <div className="browser-key-generator">
             <strong>Generate an encrypted browser signing key</strong>
             <p>The private key is encrypted locally and downloaded. TECRID receives only the public key.</p>
@@ -442,7 +442,7 @@ export function IssuerApplicationPanel({
           <label>Public JWK<textarea name="publicKeyJwk" value={publicKeyJwk} onChange={(event) => setPublicKeyJwk(event.target.value)} rows={5} placeholder={'{"kty":"OKP","crv":"Ed25519","x":"…"}'} required /></label>
         </details>
         <label className="attestation-check"><input name="attested" type="checkbox" required /><span>I attest that this application is accurate and that payment has no bearing on the review outcome.</span></label>
-        <p className="collection-notice">Application materials are restricted to issuer verification, registry integrity, support, and legal obligations; submitting them does not create a public laboratory profile. Review <a href="/privacy" target="_blank">Privacy &amp; Data Governance ↗</a>.</p>
+        <p className="collection-notice">Application materials are restricted to issuer verification, record integrity, support, and legal obligations; submitting them does not create a public laboratory profile. Review <a href="/privacy" target="_blank">Privacy &amp; Data Governance ↗</a>.</p>
         </fieldset><div className="issuer-step-actions">{step > 0 ? <button type="button" onClick={() => setStep(step - 1)}>Back</button> : null}{step < 3 ? <button className="button-dark" type="button" onClick={(event) => { const fields = event.currentTarget.form!.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>("fieldset:not([hidden]) input, fieldset:not([hidden]) textarea, fieldset:not([hidden]) select"); if ([...fields].every(field => field.reportValidity())) setStep(step + 1); }}>Continue</button> : <button className="button-dark" type="submit" disabled={pending}>{pending ? "Submitting…" : "Submit for ICS review →"}</button>}</div>
         <p className="form-message" role="status">{message}</p>
       </form>

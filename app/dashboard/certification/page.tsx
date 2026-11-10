@@ -6,7 +6,7 @@ import { ProductFooter, ProductNav } from "../../site-nav";
 import { CertificationClient } from "./certification-client";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Certification intake — TEC Registry" };
+export const metadata: Metadata = { title: "Certification intake, TECRID" };
 
 export default async function CertificationPage() {
   const user = await requireChatGPTUser("/dashboard/certification");

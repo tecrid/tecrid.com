@@ -3,7 +3,7 @@ import { ProductFooter, ProductNav } from "../site-nav";
 
 export const metadata: Metadata = {
   alternates: { canonical: "https://tecrid.com/privacy" },
-  title: "TECRID Privacy & Data Governance — TEC Registry",
+  title: "TECRID Privacy & Data Governance",
   description: "How the Institute of Contaminant Standards protects, uses, shares, and governs data in TECRID.",
 };
 
@@ -55,9 +55,9 @@ export default function PrivacyPage() {
 
           <section id="scope">
             <p className="policy-number">01 / Scope and roles</p>
-            <h2>ICS operates the registry; participating organizations control their evidence.</h2>
-            <p>This policy covers tecrid.com, the TEC Registry service, its APIs, organization workspaces, evidence-routing tools, laboratory confirmation workflows, and related support and billing interactions.</p>
-            <p>ICS generally acts as the service operator for confidential evidence submitted by a laboratory, brand, supplier, retailer, certification body, research organization, or government program. The participating organization is responsible for having authority to submit the data and to name its permitted recipients. ICS separately determines how account, security, billing, registry-integrity, and de-identified network analytics data are processed.</p>
+            <h2>ICS operates TECRID; participating organizations control their evidence.</h2>
+            <p>This policy covers tecrid.com, the TECRID service, its APIs, organization workspaces, evidence-routing tools, laboratory confirmation workflows, and related support and billing interactions.</p>
+            <p>ICS generally acts as the service operator for confidential evidence submitted by a laboratory, brand, supplier, retailer, certification body, research organization, or government program. The participating organization is responsible for having authority to submit the data and to name its permitted recipients. ICS separately determines how account, security, billing, record-integrity, and de-identified network analytics data are processed.</p>
             <div className="policy-callout"><strong>Customer agreements still matter.</strong><p>A data-processing agreement, certification agreement, laboratory agreement, or enterprise contract may add protections and instructions. If a contract is more protective than this policy, ICS will follow the contract.</p></div>
           </section>
 
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
 
           <section id="visibility">
             <p className="policy-number">03 / Public and private states</p>
-            <h2>A TECRID is an identifier—not consent to disclose.</h2>
+            <h2>A TECRID is an identifier, not consent to disclose.</h2>
             <div className="visibility-table" role="table" aria-label="TECRID visibility states">
               <div role="row"><strong role="cell">Private intake or draft</strong><span role="cell">Not publicly resolvable. Original PDFs, transcriptions, contacts, and findings stay inside the authorized workflow.</span></div>
               <div role="row"><strong role="cell">Controlled credential</strong><span role="cell">Findings are withheld from the public. A limited identity or status record may resolve when required for verification, while results require a scoped recipient grant.</span></div>
@@ -89,7 +89,7 @@ export default function PrivacyPage() {
 
           <section id="uses">
             <p className="policy-number">04 / How ICS uses data</p>
-            <h2>Every use must fit a stated registry purpose.</h2>
+            <h2>Every use must fit a stated TECRID purpose.</h2>
             <ul className="policy-list">
               <li>Provide organization workspaces, TECRID issuance, resolution, verification, evidence routing, certification intake, and integrations.</li>
               <li>Confirm laboratory identity and authority; validate signatures and fingerprints; preserve version, correction, and audit history.</li>
@@ -99,7 +99,7 @@ export default function PrivacyPage() {
               <li>Comply with law, enforce agreements, protect legal rights, and investigate disputes.</li>
               <li>Create safeguarded internal statistics and global trend analysis as described below.</li>
             </ul>
-            <p>Where data-protection law applies, processing may be necessary to perform a contract, comply with legal obligations, pursue legitimate interests in registry integrity, evidence security, research, and service improvement, or act on consent for optional publication and directory features. ICS does not use confidential evidence for unrelated advertising or commercial data brokerage.</p>
+            <p>Where data-protection law applies, processing may be necessary to perform a contract, comply with legal obligations, pursue legitimate interests in record integrity, evidence security, research, and service improvement, or act on consent for optional publication and directory features. ICS does not use confidential evidence for unrelated advertising or commercial data brokerage.</p>
           </section>
 
           <section id="trends">
@@ -134,7 +134,7 @@ export default function PrivacyPage() {
               <li>disclose only the information legally required and seek confidential treatment where available; and</li>
               <li>record the request and response in a restricted legal-access log.</li>
             </ol>
-            <p>No policy can lawfully guarantee that data will never be disclosed under valid compulsory process. Such a disclosure does not change a private TECRID&apos;s registry visibility, authorize onward public release, or make the underlying record public on tecrid.com.</p>
+            <p>No policy can lawfully guarantee that data will never be disclosed under valid compulsory process. Such a disclosure does not change a private TECRID&apos;s disclosure settings, authorize onward public release, or make the underlying record public on tecrid.com.</p>
           </section>
 
           <section id="security">
@@ -146,8 +146,8 @@ export default function PrivacyPage() {
 
           <section id="retention">
             <p className="policy-number">09 / Retention, correction, and deletion</p>
-            <h2>Evidence integrity requires retention—but not unlimited identified use.</h2>
-            <p>ICS retains account, private evidence, permission, security, billing, and support data only for as long as reasonably necessary for the service, the organization&apos;s instructions and contract, registry integrity, audit and dispute requirements, security, and applicable law. The relevant criteria include whether a credential remains active, whether evidence is part of a certification or dispute record, the risk of fabrication or inconsistent versions, and legal or contractual recordkeeping periods.</p>
+            <h2>Evidence integrity requires retention, but not unlimited identified use.</h2>
+            <p>ICS retains account, private evidence, permission, security, billing, and support data only for as long as reasonably necessary for the service, the organization&apos;s instructions and contract, record integrity, audit and dispute requirements, security, and applicable law. The relevant criteria include whether a credential remains active, whether evidence is part of a certification or dispute record, the risk of fabrication or inconsistent versions, and legal or contractual recordkeeping periods.</p>
             <p>Issued public TECRIDs, their fingerprints, status, and correction history are designed as durable records and may be retained indefinitely. Corrections create a new version rather than silently rewriting history. When deletion of private or personal data is required, ICS may retain a minimal cryptographic tombstone, legal hold, or audit fact that no longer exposes the deleted content. De-identified aggregate statistics may be retained for longitudinal analysis when they cannot reasonably be linked back to a person or participating organization.</p>
           </section>
 
@@ -172,9 +172,9 @@ export default function PrivacyPage() {
 
           <section id="contact">
             <p className="policy-number">12 / Contact, complaints, and policy changes</p>
-            <h2>Privacy questions should reach the registry operator.</h2>
+            <h2>Privacy questions should reach the TECRID operator.</h2>
             <p>Contact ICS at <a href="mailto:privacy@tecrid.com">privacy@tecrid.com</a> for a privacy request, confidentiality concern, legal-process question, or complaint. Include the organization name and enough information to verify authority, but do not email a raw laboratory report or a share code.</p>
-            <p>ICS may update this policy as the registry, law, or data practices change. Material changes will be posted here with a new effective date and, when appropriate, presented in the organization workspace before the new use begins. ICS will not make a private record public through a policy update alone.</p>
+            <p>ICS may update this policy as TECRID, law, or data practices change. Material changes will be posted here with a new effective date and, when appropriate, presented in the organization workspace before the new use begins. ICS will not make a private record public through a policy update alone.</p>
           </section>
         </article>
       </div>

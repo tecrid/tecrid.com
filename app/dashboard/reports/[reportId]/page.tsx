@@ -7,7 +7,7 @@ import { TranscriptionCorrectionForm } from "./transcription-correction-form";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Private report intake — TEC Registry",
+  title: "Private report intake, TECRID",
   robots: { index: false, follow: false },
 };
 
@@ -54,7 +54,7 @@ export default async function LegacyReportPage({ params }: PageProps) {
         <div className="public-results private-results">
           <div className="results-note"><span>Submitted transcription</span><small>Not laboratory-confirmed until signed issuance</small></div>
           <table><thead><tr><th>Analyte</th><th>Exact result</th><th>Unit</th><th>LOQ / LOD</th><th>Method</th></tr></thead>
-            <tbody>{results.map((row) => <tr key={row.id}><td><i className="element-badge">{row.symbol || "—"}</i><strong>{row.analyte}</strong></td><td className="result-value">{row.resultText}</td><td>{row.unit}</td><td>{row.loqText || "—"}</td><td>{row.method || report.method || "—"}</td></tr>)}</tbody>
+            <tbody>{results.map((row) => <tr key={row.id}><td><i className="element-badge">{row.symbol || "Not provided"}</i><strong>{row.analyte}</strong></td><td className="result-value">{row.resultText}</td><td>{row.unit}</td><td>{row.loqText || "Not provided"}</td><td>{row.method || report.method || "Not provided"}</td></tr>)}</tbody>
           </table>
         </div>
         {report.issuedCredentialIdentifier ? <div className="issued-link-panel"><div><span>Issued credential</span><strong>{report.issuedCredentialIdentifier}</strong></div><a className="button-dark" href={`/records/${encodeURIComponent(report.issuedCredentialIdentifier)}`}>Resolve public TECRID →</a></div> : null}

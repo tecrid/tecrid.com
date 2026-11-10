@@ -9,8 +9,8 @@ type PageProps = { params: Promise<{ issuerCode: string }> };
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { issuerCode } = await params;
   const issuer = await getIssuer(decodeURIComponent(issuerCode));
-  if (!issuer) return { title: "Issuer not found — TEC Registry", openGraph: { images: [] }, twitter: { images: [] } };
-  const title = `${issuer.name} — TEC issuer register`;
+  if (!issuer) return { title: "Issuer not found, TECRID", openGraph: { images: [] }, twitter: { images: [] } };
+  const title = `${issuer.name}, TEC issuer register`;
   const description = `Public issuance status and reviewed scope for TEC issuer ${issuer.issuerCode}.`;
   return { title, description, alternates: { canonical: `https://tecrid.com/issuers/${encodeURIComponent(issuer.issuerCode)}` }, openGraph: { title, description, images: [] }, twitter: { title, description, images: [] } };
 }

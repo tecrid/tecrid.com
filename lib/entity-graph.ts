@@ -52,8 +52,8 @@ export const icsOrganization = {
 export const tecridService = {
   "@type": "Service",
   "@id": TECRID_SERVICE_ID,
-  name: "TECRID Registry",
-  alternateName: "Test Evidence Credential Record Identifier Registry",
+  name: "TECRID",
+  alternateName: "Test Evidence Credential Record Identifier",
   serviceType: "Laboratory evidence registration and verification",
   url: TECRID_ORIGIN,
   description:

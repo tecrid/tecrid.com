@@ -32,7 +32,7 @@ export function SharingClient({ organization, codes, redemptions, invitations, p
   const controller = ["brand", "supplier"].includes(organization.type);
   const recipient = ["certification_body", "retailer", "government"].includes(organization.type);
   const profileUrl = `https://tecrid.com/participants/${encodeURIComponent(organization.code)}`;
-  const signatureHtml = `<a href="${profileUrl}" title="View TECRID registry profile" style="text-decoration:none"><img src="https://tecrid.com/brand/tecrid-profile-badge.png" width="224" height="52" alt="View TECRID registry profile" style="display:block;width:224px;height:52px;border:0;outline:none;text-decoration:none"></a>`;
+  const signatureHtml = `<a href="${profileUrl}" title="View TECRID profile" style="text-decoration:none"><img src="https://tecrid.com/brand/tecrid-profile-badge.png" width="224" height="52" alt="View TECRID profile" style="display:block;width:224px;height:52px;border:0;outline:none;text-decoration:none"></a>`;
 
   async function submit(event: React.FormEvent<HTMLFormElement>, endpoint: string) {
     event.preventDefault(); setBusy(true); setMessage("Saving the governed share decision…");
@@ -118,7 +118,7 @@ export function SharingClient({ organization, codes, redemptions, invitations, p
         <p className="section-kicker light">Portable organization profile</p>
         <h2>Put TECRID in your signature.</h2>
         <p>{profile?.isPublic ? "Your public profile is ready to receive visitors from email signatures, proposals, and your website." : "Publish the optional participant profile before using the badge. Private evidence remains private."}</p>
-        <a className="sharing-badge-preview" href={profile?.isPublic ? profileUrl : "/badge"}><img src="/brand/tecrid-profile-badge.svg" width="224" height="52" alt="View TECRID registry profile" /></a>
+        <a className="sharing-badge-preview" href={profile?.isPublic ? profileUrl : "/badge"}><img src="/brand/tecrid-profile-badge.svg" width="224" height="52" alt="View TECRID profile" /></a>
         {profile?.isPublic ? <><code>{profileUrl}</code><button type="button" onClick={() => void copyBadge()}>Copy email-signature HTML →</button><a href={`/badge?code=${encodeURIComponent(organization.code)}`}>Badge downloads and instructions →</a></> : <a href="#directory-profile">Publish your profile above →</a>}
       </div>
       <div className="sharing-invitation-history"><p className="section-kicker light">Prepared lab requests</p><h2>Adoption history</h2>{invitations.length ? invitations.map((invite) => <article key={invite.id}><strong>{invite.laboratoryName}</strong><span>{invite.laboratoryEmail}</span><small>{invite.skus.join(", ") || "No SKU limit"} · {new Date(invite.createdAt).toLocaleDateString()}</small></article>) : <p>No laboratory invitation drafts yet.</p>}</div>

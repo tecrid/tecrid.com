@@ -41,7 +41,7 @@ export function VerificationCheckControl({
   return (
     <article className="verification-check-control">
       <header><div><span>{checkType.replaceAll("_", " ")}</span><strong>{label}</strong></div><i className={`gate-status gate-${status || "pending"}`}>{status || "pending"}</i></header>
-      <textarea value={evidenceNote} onChange={(event) => setEvidenceNote(event.target.value)} rows={4} placeholder="Record the source, registry, document, date, scope, and decision basis." />
+      <textarea value={evidenceNote} onChange={(event) => setEvidenceNote(event.target.value)} rows={4} placeholder="Record the source, TECRID, document, date, scope, and decision basis." />
       {checkType === "accreditation" ? <fieldset><legend>Accreditation body public register lookup</legend><label>Register URL<input type="url" value={registerUrl} onChange={event => setRegisterUrl(event.target.value)}/></label><label>Lookup result<textarea value={registerResult} onChange={event => setRegisterResult(event.target.value)} placeholder="Record certificate match, ISO/IEC 17025 scope and current status."/></label><label>Lookup date<input type="date" value={registerCheckedAt} onChange={event => setRegisterCheckedAt(event.target.value)}/></label></fieldset> : null}
       <div><select value={decision} onChange={(event) => setDecision(event.target.value)}><option value="pending">Pending</option><option value="passed">Passed</option><option value="failed">Failed</option></select><button type="button" disabled={pending || !evidenceNote.trim()} onClick={save}>{pending ? "Saving…" : "Record check"}</button></div>
       <small role="status">{message}</small>

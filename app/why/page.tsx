@@ -4,7 +4,7 @@ import { EvidenceValue } from "../evidence-value";
 
 export const metadata: Metadata = {
   alternates: { canonical: "https://tecrid.com/why" },
-  title: "Why TEC exists — TEC Registry",
+  title: "Why TEC exists, TECRID",
   description:
     "Replace PDF trust with checkable, issuer-signed laboratory evidence. Free core verification, with commercial paths through VLE QUALIFIED and HMTc certification.",
 };
@@ -79,7 +79,7 @@ export default function WhyTec() {
           <blockquote>
             Organizations lack a universal, authoritative way to exchange and verify laboratory evidence after it leaves the issuing laboratory.
           </blockquote>
-          <small>TEC Registry problem statement · v1.0</small>
+          <small>TECRID problem statement · v1.0</small>
         </aside>
       </header>
 
@@ -102,7 +102,7 @@ export default function WhyTec() {
           <p className="section-kicker">The documented need</p>
           <h2 id="evidence-title">This is not a hypothetical problem.</h2>
           <p>
-            Independent institutions have documented fraudulent certificates, incomplete testing, unreliable supplier evidence, and the need for machine-readable analytical records. No single incident proves a global market—but together they establish a serious, verifiable infrastructure failure.
+            Independent institutions have documented fraudulent certificates, incomplete testing, unreliable supplier evidence, and the need for machine-readable analytical records. No single incident proves a global market, but together they establish a serious, verifiable infrastructure failure.
           </p>
         </div>
         <div className="source-list">
@@ -123,7 +123,7 @@ export default function WhyTec() {
       <section className="evidence-boundary" aria-labelledby="boundary-evidence-title">
         <div>
           <p className="section-kicker light">Evidence, with discipline</p>
-          <h2 id="boundary-evidence-title">What is established—and what remains to prove.</h2>
+          <h2 id="boundary-evidence-title">What is established and what remains to prove.</h2>
         </div>
         <div className="claim-matrix">
           <article>
@@ -144,7 +144,7 @@ export default function WhyTec() {
           <article>
             <span className="claim-status open">Open question</span>
             <h3>Will buyers require a shared evidence network?</h3>
-            <p>TEC must earn that answer through real laboratory, brand, and retailer pilots—not assertion.</p>
+            <p>TEC must earn that answer through real laboratory, brand, and retailer pilots, not assertion.</p>
           </article>
         </div>
       </section>
@@ -154,11 +154,11 @@ export default function WhyTec() {
           <p className="section-kicker">A durable architecture</p>
           <h2 id="naming-title">One mark. Four clear meanings.</h2>
           <p>
-            TEC names the evidence credential. TECRID names its permanent record identifier. Registry names the public infrastructure—not a vague membership network.
+            TEC names the evidence credential. TECRID names its permanent record identifier. TECRID provides the public resolver and operating platform.
           </p>
         </div>
         <dl className="name-system">
-          <div><dt>TEC Registry</dt><dd>The public resolver and operating platform</dd></div>
+          <div><dt>TECRID</dt><dd>The public resolver and operating platform</dd></div>
           <div><dt>Test Evidence Credential</dt><dd>The lab-issued digital record</dd></div>
           <div><dt>TECRID</dt><dd>The permanent TEC Record Identifier</dd></div>
           <div><dt>TEC Protocol</dt><dd>The open technical and governance standard</dd></div>
@@ -176,7 +176,7 @@ export default function WhyTec() {
           <li><span>01</span><div><strong>Supplier declares</strong><p>“Lot AO-1842 is 100% avocado oil.” The named supplier signs and timestamps that representation.</p></div></li>
           <li><span>02</span><div><strong>Custody connects</strong><p>Shipment, containers, seals, receiving, sampling, and laboratory receipt point to the same lot.</p></div></li>
           <li><span>03</span><div><strong>The laboratory issues</strong><p>An authenticity TEC records the method, analytical markers, results, uncertainty, issuer proof, and TECRID.</p></div></li>
-          <li><span>04</span><div><strong>A future application compares</strong><p>The resulting state could be consistent, inconsistent, inconclusive, or custody not established—not a marketing badge.</p></div></li>
+          <li><span>04</span><div><strong>A future application compares</strong><p>The resulting state could be consistent, inconsistent, inconclusive, or custody not established, not a marketing badge.</p></div></li>
         </ol>
       </section>
 
@@ -202,7 +202,7 @@ export default function WhyTec() {
           <p className="section-kicker light">The opportunity</p>
           <h2>Make evidence portable before making it powerful.</h2>
         </div>
-        <a href="/join">Join the registry <span aria-hidden="true">↗</span></a>
+        <a href="/join">Join TECRID <span aria-hidden="true">↗</span></a>
       </section>
 
       <ProductFooter />

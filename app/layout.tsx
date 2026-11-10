@@ -9,6 +9,8 @@ import { getOrganizationForUser } from "../lib/tec";
 import { organizationRole, parseRole, ROLE_COOKIE } from "../lib/roles";
 import { RoleProvider } from "./role-context";
 import "./simple.css";
+import "./blue-atlas/continuity.css";
+import "./blue-atlas/atlas.css";
 import { NotificationProvider } from "./notification-center";
 import { MobileNavigation } from "./mobile-navigation";
 import {
@@ -30,12 +32,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const title = "TECRID — Verifiable Laboratory Reports and COA Authentication";
+const title = "TECRID | Verify a lab report";
 export const viewport: Viewport = {
   // Vinext currently serializes width but omits viewportFit. Keep one viewport tag.
   width: "device-width, viewport-fit=cover",
   initialScale: 1,
-  themeColor: "#f4f1e9",
+  themeColor: "#0b234b",
 };
 const description =
   "TECRID is a persistent identifier and verification record for laboratory reports. Authenticate the issuer, structured findings, source fingerprint, status, and version history.";
@@ -48,7 +50,7 @@ const siteIdentity = {
       "@id": TECRID_WEBSITE_ID,
       url: "https://tecrid.com",
       name: "TECRID",
-      alternateName: "TEC Registry",
+      alternateName: "TECRID",
       description,
       publisher: { "@id": ICS_ORGANIZATION_ID },
       about: { "@id": TECRID_SERVICE_ID },
@@ -93,9 +95,9 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       type: "website",
-      siteName: "TECRID · TEC Registry",
+      siteName: "TECRID",
       url: "https://tecrid.com",
-      images: [{ url: image, width: 1734, height: 907, alt: "TEC Registry — the neutral trust layer for laboratory evidence" }],
+      images: [{ url: image, width: 1734, height: 907, alt: "TECRID, the neutral trust layer for laboratory evidence" }],
     },
     twitter: {
       card: "summary_large_image",
@@ -116,7 +118,7 @@ export default async function RootLayout({
   const preference = parseRole((await cookies()).get(ROLE_COOKIE)?.value) ?? "public";
   const role = membership ? organizationRole(membership.organization.organizationType) : preference;
   return (
-    <html lang="en">
+    <html lang="en" data-tecrid-design="blue-atlas">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

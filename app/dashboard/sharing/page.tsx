@@ -7,7 +7,7 @@ import { ProductFooter, ProductNav } from "../../site-nav";
 import { SharingClient } from "./sharing-client";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Evidence sharing — TEC Registry" };
+export const metadata: Metadata = { title: "Evidence sharing, TECRID" };
 
 export default async function SharingPage() {
   const user = await requireChatGPTUser("/dashboard/sharing");

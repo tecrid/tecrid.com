@@ -8,7 +8,7 @@ import { ProductFooter } from "../../../site-nav";
 import { InviteLabForm } from "./invite-form";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Invite a lab | TEC Registry", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Invite a lab | TECRID", robots: { index: false, follow: false } };
 
 export default async function InviteLabPage() {
   const user = await requireChatGPTUser("/admin/issuers/invite");

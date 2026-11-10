@@ -9,7 +9,7 @@ import { DisclosureOperationsClient } from "./disclosure-operations-client";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Disclosure operations — TEC Registry",
+  title: "Disclosure operations, TECRID",
   description: "Validate production-aggregate laboratory data and publish reusable brand disclosures.",
 };
 

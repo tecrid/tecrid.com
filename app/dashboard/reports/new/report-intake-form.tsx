@@ -90,7 +90,7 @@ export function LegacyReportIntakeForm() {
     return (
       <div className="intake-created-card">
         <p className="section-kicker">Private intake created</p>
-        <h2>The report is preserved—not yet verified.</h2>
+        <h2>The report is preserved, not yet verified.</h2>
         <dl>
           <div><dt>Intake ID</dt><dd><code>{created.id}</code></dd></div>
           <div><dt>Source fingerprint</dt><dd><code>sha256:{created.sourceSha256}</code></dd></div>

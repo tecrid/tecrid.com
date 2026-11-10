@@ -33,31 +33,36 @@ test("retired pricing URLs return plain 404 without a redirect", async () => {
   assert.doesNotMatch(await home.text(), /\$2,500|buy\.stripe\.com|Founding Organization/);
 });
 
-test("keeps the thin homepage hero content-sized and omits editor UI for anonymous visitors", async () => {
+test("renders the Blue Atlas homepage and omits editor UI for anonymous visitors", async () => {
   const { JSDOM } = await import("jsdom");
   const response = await render();
   assert.equal(response.status, 200);
   const dom = new JSDOM(await response.text(), { url: "https://tecrid.com/" });
-  const styles = dom.window.document.createElement("style");
-  styles.textContent = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  dom.window.document.head.append(styles);
-  const hero = dom.window.document.querySelector(".hero.sell-hero");
+  const hero = dom.window.document.querySelector(".atlas-hero");
   assert.ok(hero);
-  const computed = dom.window.getComputedStyle(hero);
-  assert.equal(computed.minHeight, "0px", "Homepage content must determine its height");
-  assert.equal(computed.paddingBottom, "56px", "Homepage should use the tighter live bottom spacing");
-  assert.ok(hero.querySelector("h1"));
-  assert.ok(hero.querySelector(".lookup input#tec-lookup"));
-  assert.match(hero.querySelector(".lookup button[type=submit]")?.textContent || "", /View record/);
-  assert.match(hero.querySelector("#lookup-message")?.textContent || "", /Try the sample TECRID/);
-  assert.ok(hero.lastElementChild.matches("form.lookup"), "No empty block should trail the lookup in the hero");
-  assert.deepEqual([...hero.children].map(element => element.tagName), ["DIV", "H1", "P", "FORM"]);
-  assert.equal(hero.querySelectorAll("h1").length, 1);
-  assert.equal(hero.querySelectorAll(".hero-copy").length, 1);
-  assert.doesNotMatch(hero.textContent || "", /persistent identifier|Commercial value through|Issuer signature required/);
-  assert.ok(hero.nextElementSibling.matches(".role-picker"));
-  assert.equal(hero.nextElementSibling.querySelectorAll("button").length, 6);
-  assert.match(dom.window.document.querySelector(".home-evidence-context").textContent || "", /with access governed by the record’s disclosure settings/);
+  const copy = hero.querySelector(".atlas-hero-copy");
+  assert.ok(copy);
+  assert.equal(copy.querySelectorAll("h1").length, 1);
+  assert.equal(copy.querySelector("h1").textContent, "Evidence.With a source.Without guesswork.");
+  assert.ok(copy.querySelector(".atlas-lookup input#lookup-home[required]"));
+  assert.equal(copy.querySelector(".atlas-lookup button[type=submit]")?.getAttribute("aria-label"), "Look up record");
+  assert.equal(copy.querySelector(".atlas-kicker")?.textContent, "AN OPEN AND FREE INITIATIVE OF ICS");
+  assert.doesNotMatch(copy.textContent, /Free\. Run by ICS\./);
+  assert.equal(copy.querySelector(".atlas-lookup").nextElementSibling.className, "atlas-sample-link");
+  assert.ok(dom.window.document.querySelector('a[href="https://contaminantstandards.com"] small'));
+  assert.equal(copy.querySelector(".atlas-sample-link")?.getAttribute("href"), "/records/TECRID%C2%B7DEMO-26-HM0001");
+  assert.equal(hero.querySelectorAll(".atlas-credential-scene").length, 1);
+  assert.match(hero.querySelector(".credential-caption")?.textContent || "", /Illustrative record · fictional data/);
+  assert.equal(dom.window.document.querySelectorAll(".atlas-role-list button").length, 6);
+  assert.match(dom.window.document.querySelector(".atlas-how").textContent || "", /with access governed by the record’s disclosure settings/);
+  assert.equal(dom.window.document.title, "TECRID | Verify a lab report");
+  assert.doesNotMatch(dom.window.document.querySelector('meta[name="robots"]')?.getAttribute("content") || "", /noindex|nofollow/i);
+  assert.equal(dom.window.document.querySelector(".atlas-process li:nth-child(2) h3")?.textContent, "TECRID verifies");
+  assert.equal(dom.window.document.querySelector(".atlas-process li:nth-child(2) p")?.textContent, "TECRID checks the laboratory's signature and preserves the record's version fingerprint.");
+  const publicCopy = dom.window.document.querySelector(".atlas")?.textContent || "";
+  assert.doesNotMatch(publicCopy, /registry|[—–]/i);
+  assert.match(publicCopy, /TECRID does not certify safety/);
+  assert.match(publicCopy, /Reported results are not a certification of product safety/);
   assert.doesNotMatch(dom.window.document.body.textContent || "", /edit site/i);
   for (const element of dom.window.document.querySelectorAll("[aria-label], [title], input[value]")) {
     for (const attribute of ["aria-label", "title", "value"]) {
@@ -67,16 +72,16 @@ test("keeps the thin homepage hero content-sized and omits editor UI for anonymo
   dom.window.close();
 });
 
-test("renders the TEC Registry public product", async () => {
+test("renders the TECRID public product", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /TEC Registry/);
+  assert.match(html, /aria-label="TECRID home"/);
   assert.match(html, /Lab results that/);
-  assert.match(html, /Test Evidence Credential/);
-  assert.match(html, /Who are you/);
+  assert.match(html, /Test evidence/);
+  assert.match(html, /Different roles/);
   assert.match(html, /TECRID/);
-  assert.match(html, /Resolver sample/);
+  assert.match(html, /Illustrative record · fictional data/);
   assert.match(html, /Look up a TECRID/);
   assert.match(html, /name="viewport" content="width=device-width, viewport-fit=cover, initial-scale=1"/);
   assert.match(html, /rel="manifest" href="\/manifest.webmanifest"/);
@@ -84,7 +89,7 @@ test("renders the TEC Registry public product", async () => {
   assert.match(html, /name="apple-mobile-web-app-title" content="TECRID"/);
   assert.match(html, /\/icons\/tecrid-180.png/);
   assert.match(html, /aria-label="Mobile navigation"/);
-  assert.match(html, /Try the sample TECRID/);
+  assert.match(html, /Explore a sample record/);
   assert.match(html, /Institute of Contaminant Standards/);
   assert.match(html, /https:\/\/contaminantstandards\.com\/#organization/);
   assert.match(html, /https:\/\/contaminantstandards\.com\/people\/karen-pendergrass#person/);
@@ -113,12 +118,12 @@ test("publishes focused search-intent pages, the laboratory go-time pack, and ag
     homeResponse.text(), labsResponse.text(), goTimeResponse.text(), valueResponse.text(), pilotResponse.text(), brandsResponse.text(), recipientsResponse.text(), integrateResponse.text(), sitemapResponse.text(),
   ]);
   assert.match(home, /persistent identifier and verification record for laboratory reports/i);
-  assert.match(home, /Certificate of Analysis authentication/i);
-  assert.match(home, /Who are you/);
+  assert.match(home, /checkable, issuer-signed evidence/i);
+  assert.match(home, /Different roles/);
   assert.doesNotMatch(home, /Founding laboratory pilot|Explore VLE QUALIFIED|Apply for HMTc certification|vle\.exchange\/for-suppliers/);
   assert.match(labs, /Stop answering the same report question twice/);
   assert.match(labs, /laboratory report verification/i);
-  assert.match(labs, /PDF or Certificate of Analysis is a document—not a TECRID/);
+  assert.match(labs, /PDF or Certificate of Analysis is a document, not a TECRID/);
   assert.match(goTime, /If your laboratory says GO tomorrow/);
   assert.match(goTime, /PDF\/COA ≠ TECRID/);
   assert.match(goTime, /TECRID_SANDBOX_KEY/);
@@ -199,12 +204,11 @@ test("locks laboratory approval behind evidence, key-control, and conformance ga
 });
 
 test("defines TECRID for people, search engines, and AI answer systems", async () => {
-  const [response, homeResponse, robotsResponse, sitemapResponse, styles] = await Promise.all([
+  const [response, homeResponse, robotsResponse, sitemapResponse] = await Promise.all([
     render("/what-is-a-tecrid"),
     render("/"),
     render("/robots.txt"),
     render("/sitemap.xml"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
   assert.equal(response.status, 200);
   assert.equal(homeResponse.status, 200);
@@ -215,16 +219,18 @@ test("defines TECRID for people, search engines, and AI answer systems", async (
   ]);
   assert.match(html, /<title>What is a TECRID\? Meaning, purpose and how it works<\/title>/);
   assert.match(html, /rel="canonical" href="https:\/\/tecrid\.com\/what-is-a-tecrid"/);
-  assert.match(html, /TECRID stands for Test Evidence Credential Record Identifier/);
-  assert.match(html, /A DOI persistently identifies a research output/);
-  assert.match(html, /reduces opportunities for evidence fraud/i);
-  assert.match(html, /It does not make fraud impossible/i);
-  assert.match(html, /Evidence can cross borders without losing its source/);
-  assert.match(html, /Private, controlled or public/);
-  assert.match(html, /Maintained by the Institute of Contaminant Standards · Reviewed 29 Aug 2026/);
-  assert.match(styles, /\.explainer-definition \{[^}]*font-size: 17px/);
-  assert.match(styles, /\.explainer-hero \.explainer-review \{[^}]*font-size: 8px/);
-  assert.doesNotMatch(styles, /\.explainer-hero > div > p:not\(\.section-kicker\)/);
+  assert.match(html, /Test Evidence Credential Record Identifier/);
+  assert.match(html, /DOI/);
+  assert.match(html, /Research output/);
+  assert.match(html, /fabricated or altered reports/i);
+  assert.match(html, /Authenticity is one part of assessing evidence/i);
+  assert.match(html, /evidence can be checked wherever it travels/);
+  assert.match(html, /A TECRID can point to a private record, evidence shared with named recipients, or a public report/);
+  assert.match(html, /Institute of Contaminant Standards/);
+  const atlasStyles = await readFile(new URL("../app/blue-atlas/atlas.css", import.meta.url), "utf8");
+  assert.match(atlasStyles, /\.atlas-definition/);
+  assert.match(atlasStyles, /@media\(max-width:650px\)/);
+  assert.match(atlasStyles, /:focus-visible/);
   assert.match(home, /href="\/what-is-a-tecrid"/);
 
   const siteIdentity = [...home.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
@@ -235,9 +241,9 @@ test("defines TECRID for people, search engines, and AI answer systems", async (
 
   const structuredData = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
     .map((match) => JSON.parse(match[1]))
-    .find((value) => value["@graph"]?.some((item) => item["@type"] === "DefinedTerm"));
+    .find((value) => value["@type"] === "DefinedTerm");
   assert.ok(structuredData);
-  const term = structuredData["@graph"].find((item) => item["@type"] === "DefinedTerm");
+  const term = structuredData;
   assert.equal(term.name, "TECRID");
   assert.equal(term.alternateName, "Test Evidence Credential Record Identifier");
   assert.match(robots, /Sitemap: https:\/\/tecrid\.com\/sitemap\.xml/);
@@ -260,7 +266,7 @@ test("publishes a portable, minification-safe TECRID identity mark and email-sig
   const html = await response.text();
   assert.match(html, /Put your TECRID profile where trust begins/);
   assert.match(html, /Email signature builder/);
-  assert.match(html, /The badge is a link—not a blanket endorsement/);
+  assert.match(html, /The badge is a link, not a blanket endorsement/);
   assert.match(html, /https:\/\/tecrid\.com\/participants\/PFND/);
   assert.match(nav, /\/icons\/tecrid\.svg/);
   assert.match(sharingClient, /Copy email-signature HTML/);
@@ -291,7 +297,7 @@ test("renders email-first free signup and API documentation", async () => {
   assert.match(join, /Start with your email/);
   assert.match(join, /EmailSignInForm/);
   assert.match(join, /parseRole/);
-  assert.match(developers, /TEC Registry API/);
+  assert.match(developers, /TECRID API/);
   assert.match(developers, /Open the repository/);
   assert.match(developers, /TECRID Connect/);
   assert.match(developers, /POST \/api\/v1\/credentials/);
@@ -320,7 +326,7 @@ test("publishes privacy boundaries that match controlled TECRID workflows", asyn
   assert.match(html, /does not sell confidential evidence/i);
   assert.match(html, /does not use private laboratory reports or controlled findings to train a general-purpose/i);
   assert.match(html, /valid compulsory process/i);
-  assert.match(html, /does not change a private TECRID.*registry visibility/i);
+  assert.match(html, /does not change a private TECRID.*disclosure settings/i);
   assert.match(html, /human review/i);
   assert.doesNotMatch(html, /cannot be compelled|never disclose under any circumstance/i);
   for (const source of [footer, intake, join, issuerApplication, foundingLaunch]) assert.match(source, /href="\/privacy"/);
@@ -368,7 +374,7 @@ test("keeps durable infrastructure, proof enforcement, and production metadata w
   assert.match(service, /signedPayload/);
   assert.match(service, /checkout\.session\.async_payment_succeeded/);
   assert.match(service, /paymentConfirmed/);
-  assert.match(layout, /TEC Registry/);
+  assert.match(layout, /TECRID \| Verify a lab report/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await assert.doesNotReject(access(new URL("../drizzle/0000_narrow_vengeance.sql", import.meta.url)));
   await assert.doesNotReject(access(new URL("../app/api/v1/health/route.ts", import.meta.url)));
@@ -410,16 +416,17 @@ test("resolves a reserved sample TECRID without asserting laboratory authority",
   ]);
   assert.match(demo, /reserved sample namespace/i);
   assert.match(demo, /no production TECRID/i);
-  assert.match(record, /You just resolved a TECRID/);
-  assert.match(record, /Sample · no live authority/);
-  assert.match(record, /This record demonstrates resolution/);
+  assert.match(record, /Results, as issued/);
+  assert.match(record, /Fictional sample · Version/);
+  assert.match(record, /No live laboratory signature or production authority is asserted/);
   assert.match(record, /ATL-COCOA-340/);
   assert.match(record, /DEMO-CP-0826/);
   assert.match(record, /DEMO-SMP-260821-04/);
-  assert.match(record, /August 21, 2026/);
-  assert.match(record, /August 22, 2026/);
-  assert.match(record, /August 23, 2026/);
-  assert.match(record, /Open fictional source COA/);
+  assert.match(record, /Aug(?:ust)? 21, 2026/);
+  assert.match(record, /Aug(?:ust)? 22, 2026/);
+  assert.match(record, /Aug(?:ust)? 23, 2026/);
+  assert.match(record, /Original demonstration report/);
+  assert.match(record, /Open PDF/);
   assert.equal(api.tecrid, "TECRID·DEMO-26-HM0001");
   assert.equal(api.sample, true);
   assert.equal(api.productionAuthority, false);
@@ -701,8 +708,8 @@ test("renders public verification and an honest laboratory dispute demonstration
   assert.equal(verifyResponse.status, 200);
   assert.equal(demoResponse.status, 200);
   const [verify, demo] = await Promise.all([verifyResponse.text(), demoResponse.text()]);
-  assert.match(verify, /Did this report come/);
-  assert.match(verify, /document itself is not uploaded/i);
+  assert.match(verify, /A source you can check/);
+  assert.match(verify, /document is not uploaded/i);
   assert.match(verify, /Identity and integrity/);
   assert.match(client, /crypto\.subtle\.digest/);
   assert.match(client, /documentSha256: fingerprint/);

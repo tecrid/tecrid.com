@@ -8,7 +8,7 @@ import { ProductFooter } from "../../site-nav";
 import { WorkQueue, type QueueRow } from "../work-queue";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Received reports | TEC Registry", robots: { index: false } };
+export const metadata: Metadata = { title: "Received reports | TECRID", robots: { index: false } };
 
 function subjectOf(snapshotJson: string) {
   try {

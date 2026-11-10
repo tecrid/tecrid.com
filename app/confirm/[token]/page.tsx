@@ -7,7 +7,7 @@ import { LegacyConfirmationControls } from "./confirmation-controls";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Laboratory confirmation request — TEC Registry",
+  title: "Laboratory confirmation request | TECRID",
   description: "Private laboratory confirmation gate for a submitted historical report.",
   robots: { index: false, follow: false },
   referrer: "no-referrer",
@@ -30,7 +30,7 @@ export default async function ConfirmLegacyReportPage({ params }: PageProps) {
     <main className="product-page confirmation-page">
       <ProductNav compact />
       <header className="confirmation-hero">
-        <div><p className="section-kicker light">Restricted laboratory gate</p><h1>Confirm the source—not the submitter’s story.</h1><p>{submitter?.name || "A submitting organization"} has asked {report.laboratoryName} to review one exact historical report and its transcription.</p></div>
+        <div><p className="section-kicker light">Restricted laboratory gate</p><h1>Confirm the source. Check the submitter’s story.</h1><p>{submitter?.name || "A submitting organization"} has asked {report.laboratoryName} to review one exact historical report and its transcription.</p></div>
         <span className="workspace-code">State <strong>{report.status.replaceAll("_", " ")}</strong></span>
       </header>
       <section className="confirmation-shell">
@@ -48,7 +48,7 @@ export default async function ConfirmLegacyReportPage({ params }: PageProps) {
         <div className="public-results private-results confirmation-results">
           <div className="results-note"><span>Transcription awaiting laboratory decision</span><small>Compare every qualifier, unit, method, and date with the PDF</small></div>
           <table><thead><tr><th>Analyte</th><th>Exact result</th><th>Unit</th><th>LOQ / LOD</th><th>Method</th></tr></thead>
-            <tbody>{results.map((row) => <tr key={row.id}><td><i className="element-badge">{row.symbol || "—"}</i><strong>{row.analyte}</strong></td><td className="result-value">{row.resultText}</td><td>{row.unit}</td><td>{row.loqText || "—"}</td><td>{row.method || report.method || "—"}</td></tr>)}</tbody>
+            <tbody>{results.map((row) => <tr key={row.id}><td><i className="element-badge">{row.symbol || "Not provided"}</i><strong>{row.analyte}</strong></td><td className="result-value">{row.resultText}</td><td>{row.unit}</td><td>{row.loqText || "Not provided"}</td><td>{row.method || report.method || "Not provided"}</td></tr>)}</tbody>
           </table>
         </div>
         <LegacyConfirmationControls

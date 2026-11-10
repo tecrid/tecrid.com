@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { RolePage } from "../role-page";
 
 export const metadata: Metadata = {
-  title: "TECRID for Certifiers, Retailers and Regulators — Structured Laboratory Evidence",
-  description: "Request and validate laboratory evidence at scale through TECRIDs, scoped sharing, CSV intake, and API integrations—without repeated PDF uploads and OCR.",
+  title: "TECRID for Certifiers, Retailers and Regulators, Structured Laboratory Evidence",
+  description: "Request and validate laboratory evidence at scale through TECRIDs, scoped sharing, CSV intake, and API integrations, without repeated PDF uploads and OCR.",
   alternates: { canonical: "https://tecrid.com/for-certifiers-retailers" },
   keywords: ["certification evidence intake", "supplier compliance documents", "retailer laboratory data", "COA validation API", "laboratory evidence management"],
 };
@@ -12,8 +12,8 @@ export default function ForCertifiersRetailersPage() {
   return <RolePage
     kicker="For certifiers, retailers and government programs"
     eyebrow="Request · validate · freeze · monitor"
-    title="Receive laboratory evidence as data—not an attachment queue."
-    intro="TECRID lets evidence recipients request a defined SKU and result scope, validate laboratory authority automatically, and preserve the exact record versions relied upon—while the brand or supplier controls each grant."
+    title="Receive laboratory evidence as data, not an attachment queue."
+    intro="TECRID lets evidence recipients request a defined SKU and result scope, validate laboratory authority automatically, and preserve the exact record versions relied upon, while the brand or supplier controls each grant."
     primaryHref="/join?role=certification_body"
     primaryLabel="Create a free recipient workspace"
     secondaryHref="/sandbox"
@@ -32,7 +32,7 @@ export default function ForCertifiersRetailersPage() {
       { title: "The recipient requests", copy: "A certifier, retailer, or government program names the product, SKU, evidence scope, purpose, and delivery mode." },
       { title: "The controller approves", copy: "The brand or supplier grants the recipient equal or narrower access and may revoke future delivery." },
       { title: "The laboratory issues", copy: "A verified laboratory signs the result and uses the controller’s one-laboratory routing authorization." },
-      { title: "TECRID delivers", copy: "The registry creates a recipient-specific package and immutable receipt containing only the authorized evidence." },
+      { title: "TECRID delivers", copy: "TECRID creates a recipient-specific package and immutable receipt containing only the authorized evidence." },
     ]}
     boundaryTitle="A validated evidence package is not an approval decision."
     boundaries={["TECRID verifies the evidence envelope and authority; the recipient still applies its own technical, legal, procurement, or certification standard.", "Recipient access cannot exceed the scope granted by the brand or supplier.", "Revocation prevents future delivery but does not erase evidence already received and relied upon.", "The same TECRID can support different recipients without exposing one recipient’s private workflow to another."]}

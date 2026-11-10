@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ProductFooter, ProductNav } from "../site-nav";
 
 export const metadata: Metadata = {
-  title: "Laboratory Go-Time Pack — Test TECRID Today",
+  title: "Laboratory Go-Time Pack, Test TECRID Today",
   description: "A same-day TECRID sandbox, API, issuance, evidence-lifecycle, and VLE handoff checklist for analytical laboratories.",
   alternates: { canonical: "https://tecrid.com/laboratory-go-time" },
 };
@@ -12,7 +12,7 @@ const mintFlow = [
   ["Render", "Print the TECRID and resolver URL on the laboratory-controlled report template."],
   ["Fingerprint", "Bind the exact final document to structured results, methods, dates, sample identifiers, lot or SKU context, and the source-document hash."],
   ["Sign", "Sign the exact canonical UTF-8 payload with the verified laboratory Ed25519 key."],
-  ["Finalize", "Finalize the signed registry record so it can resolve, route, and later carry a correction or revocation without erasing history."],
+  ["Finalize", "Finalize the signed TECRID record so it can resolve, route, and later carry a correction or revocation without erasing history."],
 ];
 
 const checklist = [
@@ -58,8 +58,8 @@ export default function LaboratoryGoTimePage() {
       </section>
 
       <section className="lab-gotime-definition">
-        <div><p className="section-kicker">The object</p><h2>A TECRID is the record—not a label pasted onto a file.</h2></div>
-        <div><p>A TECRID is a persistent identifier for a laboratory-issued, structured, signed, and versioned report record. It binds issuer identity, findings, sample context, document fingerprint, status, and lifecycle history to a resolvable registry entry.</p><div className="lab-gotime-warning"><strong>PDF/COA ≠ TECRID</strong><span>A PDF or Certificate of Analysis does not become a TECRID merely because an identifier or badge appears on it. The authenticated laboratory must finalize the canonical registry record.</span></div></div>
+        <div><p className="section-kicker">The object</p><h2>A TECRID is the record, not a label pasted onto a file.</h2></div>
+        <div><p>A TECRID is a persistent identifier for a laboratory-issued, structured, signed, and versioned report record. It binds issuer identity, findings, sample context, document fingerprint, status, and lifecycle history to a resolvable TECRID record.</p><div className="lab-gotime-warning"><strong>PDF/COA ≠ TECRID</strong><span>A PDF or Certificate of Analysis does not become a TECRID merely because an identifier or badge appears on it. The authenticated laboratory must finalize the canonical TECRID record.</span></div></div>
       </section>
 
       <section className="lab-gotime-flow">

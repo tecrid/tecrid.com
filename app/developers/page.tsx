@@ -139,7 +139,7 @@ export default function DevelopersPage() {
       <ProductNav compact />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(developersJsonLd).replaceAll("<", "\\u003c") }} />
       <section className="product-hero api-hero">
-        <p className="section-kicker light">TEC Registry API · v1</p>
+        <p className="section-kicker light">TECRID API · v1</p>
         <h1>Canonicalize. Sign.<br />Issue. Resolve.</h1>
         <p>The documented routes below are implemented. Public issuance is rejected unless the payload verifies against the ICS-reviewed Ed25519 key for that laboratory.</p>
         <div className="api-status"><i /> Live service check <a href="/api/v1/health">Open health JSON ↗</a></div>
@@ -175,7 +175,7 @@ export default function DevelopersPage() {
           <section id="authentication">
             <p className="doc-index">01 / AUTHENTICATION</p>
             <h2>Bearer keys, scoped to one organization.</h2>
-            <p>Create a key inside your authenticated dashboard, store it in a secret manager, and pass it in the Authorization header. The registry displays each secret once and stores only its SHA-256 hash.</p>
+            <p>Create a key inside your authenticated dashboard, store it in a secret manager, and pass it in the Authorization header. TECRID displays each secret once and stores only its SHA-256 hash.</p>
             <pre><code>Authorization: Bearer tec_live_••••••••••••</code></pre>
           </section>
           <section id="issuer-onboarding">
@@ -213,7 +213,7 @@ Content-Type: application/json
             <p>A laboratory cannot add an identifier after hashing the final PDF. Reserve the TECRID first, place the returned human-readable identifier and resolver URL or QR data into the report template, then hash and sign that finished PDF during finalization.</p>
             <h3>POST /api/v1/report-reservations</h3>
             <pre><code>{reserveReportExample}</code></pre>
-            <p>The response includes <code>reportMark.templateFields.tecrid_identifier</code>, <code>tecrid_resolver_url</code>, and <code>qrData</code>. Before finalization, the resolver shows an explicit reserved—not issued—state.</p>
+            <p>The response includes <code>reportMark.templateFields.tecrid_identifier</code>, <code>tecrid_resolver_url</code>, and <code>qrData</code>. Before finalization, the resolver shows an explicit reserved state that has not been issued.</p>
             <h3>POST /api/v1/report-reservations/:id/finalize</h3>
             <pre><code>{finalizeReportExample}</code></pre>
             <p>Successful finalization issues the preprinted TECRID, preserves the final PDF fingerprint in the signed payload, creates the brand or supplier&apos;s full controller receipt, and fans out narrower packages to any active certifier, retailer, or government grants.</p>
@@ -228,7 +228,7 @@ Content-Type: application/json
           <section id="resolve">
             <p className="doc-index">05 / RESOLVE</p>
             <h2>GET /api/v1/credentials/:identifier</h2>
-            <p>Public, no API key required. A public credential returns its results and complete proof bundle. A controlled credential returns only its resolver envelope—issuer, status, fingerprint, and version metadata—while results, canonical payloads, and signed payload remain withheld.</p>
+            <p>Public, no API key required. A public credential returns its results and complete proof bundle. A controlled credential returns only its resolver envelope, including issuer, status, fingerprint, and version metadata, while results, canonical payloads, and signed payload remain withheld.</p>
             <pre><code>curl https://tecrid.com/api/v1/credentials/TECRID%C2%B7YOUR-LAB-26-XXXXXXXX</code></pre>
           </section>
           <section id="versions">
@@ -249,7 +249,7 @@ Content-Type: application/json
             <p className="doc-index">07 / CONTROLLED ROUTING</p>
             <h2>Issue once. Deliver only to active grants.</h2>
             <p>A certifier, retailer, or government workspace requests a SKU and result scope. The brand or ingredient supplier may approve a narrower grant, then creates a show-once <code>tec_route_…</code> token for one verified laboratory. TECRID stores only its SHA-256 hash.</p>
-            <p>The laboratory can attach the token to controlled issuance. The registry verifies the laboratory signature, finds the active recipient grants for that SKU, and freezes a separate fingerprinted view for each recipient.</p>
+            <p>The laboratory can attach the token to controlled issuance. TECRID verifies the laboratory signature, finds the active recipient grants for that SKU, and freezes a separate fingerprinted view for each recipient.</p>
             <pre><code>{controlledRoutingExample}</code></pre>
             <h3>POST /api/v1/routing/deliveries · retry without reissuing</h3>
             <pre><code>{`curl https://tecrid.com/api/v1/routing/deliveries \\

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { RolePage } from "../role-page";
 
 export const metadata: Metadata = {
-  title: "TECRID for Brands and Ingredient Suppliers — Verifiable COA Portfolios",
+  title: "TECRID for Brands and Ingredient Suppliers, Verifiable COA Portfolios",
   description: "Organize laboratory reports by SKU and lot, verify supplier evidence, control disclosure, and replace repeated PDF uploads with persistent TECRIDs.",
   alternates: { canonical: "https://tecrid.com/for-brands" },
   keywords: ["COA management", "supplier lab report verification", "ingredient testing records", "contaminant test portfolio", "laboratory report sharing"],
@@ -34,7 +34,7 @@ export default function ForBrandsPage() {
       { title: "The brand authorizes", copy: "The brand selects the recipient, SKU scope, analyte scope, access level, and expiration." },
       { title: "The recipient resolves", copy: "The exact permitted record version arrives with a package fingerprint and immutable receipt." },
     ]}
-    boundaryTitle="Control belongs to the evidence owner—not the requester."
+    boundaryTitle="Control belongs to the evidence owner, not the requester."
     boundaries={["A laboratory-issued record is not rewritten by the brand.", "A private TECRID does not become public because a retailer, certifier, or regulator requests it.", "Trend summaries must preserve links back to the exact underlying TECRIDs.", "TECRID provenance does not turn a passing result into a universal safety or regulatory claim."]}
     ctaTitle="Begin with one product line and its existing reports."
     ctaCopy="Create a free workspace, privately intake historical PDFs, and ask the named laboratory to claim and confirm the reports before any production TECRID is represented as laboratory-issued."

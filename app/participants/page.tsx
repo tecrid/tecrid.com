@@ -5,7 +5,7 @@ import { ProductFooter, ProductNav } from "../site-nav";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   alternates: { canonical: "https://tecrid.com/participants" },
-  title: "TECRID participants — TEC Registry",
+  title: "TECRID participants",
   description: "Organizations that have chosen to make their TECRID participation discoverable.",
 };
 
@@ -36,7 +36,7 @@ export default async function ParticipantsPage() {
             <div><span>{TYPE_LABELS[organization.organizationType] ?? organization.organizationType.replaceAll("_", " ")}</span><code>{organization.issuerCode}</code></div>
             <h2>{profile.displayName}</h2>
             <p>{profile.summary}</p>
-            <dl><div><dt>Network status</dt><dd>{profile.participationStatus.replaceAll("_", " ")}</dd></div><div><dt>Registry identity</dt><dd>{profile.registryVerified ? "Operator verified" : profile.participationStatus === "test_pending_approval" ? "Unclaimed test profile" : "Account supplied"}</dd></div><div><dt>Evidence visibility</dt><dd>Private unless separately granted</dd></div></dl>
+            <dl><div><dt>Network status</dt><dd>{profile.participationStatus.replaceAll("_", " ")}</dd></div><div><dt>TECRID identity</dt><dd>{profile.registryVerified ? "Operator verified" : profile.participationStatus === "test_pending_approval" ? "Unclaimed test profile" : "Account supplied"}</dd></div><div><dt>Evidence visibility</dt><dd>Private unless separately granted</dd></div></dl>
             <div className="participant-card-actions"><a href={`/participants/${encodeURIComponent(organization.issuerCode)}`}>View TECRID profile →</a>{profile.website ? <a href={profile.website} target="_blank" rel="noreferrer">Website ↗</a> : null}</div>
           </article>)}
         </div>

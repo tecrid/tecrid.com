@@ -4,7 +4,7 @@ import { ProductFooter, ProductNav } from "../site-nav";
 import { PrintButton } from "./print-button";
 
 export const metadata: Metadata = {
-  title: "Why Laboratories Join TECRID — Laboratory Business Case",
+  title: "Why Laboratories Join TECRID, Laboratory Business Case",
   description: "A concise laboratory one-pager explaining how TECRID protects report provenance, reduces verification work, improves delivery, and creates measurable customer value.",
   alternates: { canonical: "https://tecrid.com/laboratory-value" },
   keywords: ["laboratory business case", "laboratory report authentication", "reduce COA verification calls", "LIMS report delivery", "verifiable laboratory reports"],
@@ -39,9 +39,9 @@ export default function LaboratoryValuePage() {
           <ol><li><span>01</span><strong>Verify the issuer</strong><small>Identity · competence evidence · scope · key control · conformance</small></li><li><span>02</span><strong>Connect final release</strong><small>Reserve · render · fingerprint · sign · finalize</small></li><li><span>03</span><strong>Measure the result</strong><small>Delivery minutes · verification contacts · corrections · exceptions</small></li></ol>
         </section>
 
-        <section className="lab-value-proof-boundary"><div><span>What TECRID proves</span><p>Which reviewed laboratory signed the record, what it contained, the final-document fingerprint, its current status, and its visible version history.</p></div><div><span>What it does not prove</span><p>TECRID does not replace accreditation, representative sampling, analytical competence, regulatory judgment, or interpretation—and it makes no product-safety or certification claim.</p></div></section>
+        <section className="lab-value-proof-boundary"><div><span>What TECRID proves</span><p>Which reviewed laboratory signed the record, what it contained, the final-document fingerprint, its current status, and its visible version history.</p></div><div><span>What it does not prove</span><p>TECRID does not replace accreditation, representative sampling, analytical competence, regulatory judgment, or interpretation, and it makes no product-safety or certification claim.</p></div></section>
 
-        <footer className="lab-value-cta"><div><p className="section-kicker">Free founding laboratory pilot</p><h2>Make authentic laboratory evidence easier to verify—and harder to impersonate.</h2></div><div><a href="/laboratory-pilot">Review the pilot →</a><a href="/join?role=laboratory">Create a laboratory workspace →</a><a href="/integrate">See one-word integration →</a></div></footer>
+        <footer className="lab-value-cta"><div><p className="section-kicker">Free founding laboratory pilot</p><h2>Make authentic laboratory evidence easier to verify and harder to impersonate.</h2></div><div><a href="/laboratory-pilot">Review the pilot →</a><a href="/join?role=laboratory">Create a laboratory workspace →</a><a href="/integrate">See one-word integration →</a></div></footer>
       </article>
       <ProductFooter />
     </main>

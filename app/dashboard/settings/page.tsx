@@ -9,7 +9,7 @@ import { ApiKeyPanel } from "../dashboard-client";
 import { ProfileSettingsForm } from "./profile-settings-form";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Settings | TEC Registry", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Settings | TECRID", robots: { index: false, follow: false } };
 
 const roleNames: Record<string, string> = {
   laboratory: "Testing laboratory", brand: "Brand or manufacturer", supplier: "Ingredient supplier",
