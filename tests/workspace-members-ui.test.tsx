@@ -19,7 +19,7 @@ it('shows outside-domain advice and still allows sending the invite',async()=>{
  const fetch=vi.fn(async (_url: string, _init?: RequestInit)=>Response.json({result:{}}));vi.stubGlobal('fetch',fetch);
  render(<MembersPanel {...props}/>);fireEvent.change(screen.getByLabelText('Email'),{target:{value:'guest@gmail.com'}});
  expect(screen.getByRole('note').textContent).toContain('You can still invite');fireEvent.click(screen.getByRole('button',{name:'Send invite'}));
- expect(await screen.findByText(/A TECRID sign-in email is on its way/)).toBeTruthy();expect(fetch).toHaveBeenCalledOnce();
+ expect(await screen.findByText('We emailed guest@gmail.com a sign-in link. When they sign in, they join this workspace.')).toBeTruthy();expect(fetch).toHaveBeenCalledOnce();
 });
 it('requires confirmation for removal and can cancel',async()=>{
  const fetch=vi.fn(async (_url: string, _init?: RequestInit)=>Response.json({ok:true}));vi.stubGlobal('fetch',fetch);
