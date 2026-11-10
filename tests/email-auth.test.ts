@@ -3,7 +3,7 @@ import {confirmMagicLink} from "../lib/magic-link-confirm";
 import ConfirmPage from "../app/sign-in/confirm/page";
 import {it} from "vitest";
 import {env} from "./support/cloudflare-env";
-import {getEmailUser} from "../lib/email-auth";
+import {getEmailUser,emailAuthReady} from "../lib/email-auth";
 import {onboardOrganization,submitIssuerApplication} from "../lib/tec";
 import {upsertParticipantProfile} from "../lib/sharing";
 import {reserveReportTecrid} from "../lib/report-issuance";
@@ -72,7 +72,33 @@ r=await call('sign-in/magic-link',{email:'redirect@company.test',callbackURL:'ht
 for(let i=0;i<4;i++){ip=100;r=await call('sign-in/magic-link',{email:'limited@company.test',callbackURL:'/'});}assert.equal(r.status,429);
 const failing=createEmailAuth(drizzle(db,{schema}),schema,{secret:'local-test-only-'.repeat(4),baseURL:'https://tecrid.test',relaySecret:'test',issuanceSecret:'synthetic-issuance-'.repeat(4),relayURL:'https://relay.test/email'},async()=>new Response('',{status:503}));
 r=await failing.handler(new Request('https://tecrid.test/api/auth/sign-in/magic-link',{method:'POST',headers:{origin:'https://tecrid.test','content-type':'application/json','cf-connecting-ip':'192.0.2.200'},body:JSON.stringify({email:'failure@company.test'})}));assert(r.status>=400);
-console.log('PASS: D1 email auth, verified identity, hashed one-use token, expiry, secure cookie, CSRF, sign-out revocation, redirect validation, persisted rate limit, delivery failure.');
+// A configured direct sender takes precedence even when the relay is configured.
+const directConfig={secret:'local-test-only-'.repeat(4),baseURL:'https://tecrid.test',resendAPIKey:'synthetic-resend-key',emailFrom:'TECRID <sign-in@mail.tecrid.test>',relaySecret:'test-key',issuanceSecret:'synthetic-issuance-'.repeat(4),relayURL:'https://relay.test/email'};
+let directCalls=0,directLink='';
+const direct=createEmailAuth(drizzle(db,{schema}),schema,directConfig,async(url,options)=>{
+ directCalls++;assert.equal(url,'https://api.resend.com/emails');assert.equal(options.method,'POST');
+ const headers=new Headers(options.headers);assert.equal(headers.get('authorization'),'Bearer synthetic-resend-key');assert.equal(headers.get('content-type'),'application/json');assert.equal(headers.has('x-tecrid-mail-issuance'),false);
+ const body=JSON.parse(String(options.body));assert.equal(body.from,directConfig.emailFrom);assert.deepEqual(body.to,['direct@company.test']);assert.equal(body.subject,'Sign in to TECRID');assert(!/VLE/i.test(body.text));
+ directLink=body.text.split('\n').find(line=>line.startsWith('https://'));assert.equal(new URL(directLink).pathname,'/sign-in/confirm');assert(new URL(directLink).searchParams.get('token'));
+ return Response.json({id:'synthetic-message'});
+});
+const directRequest=(email,ip)=>new Request('https://tecrid.test/api/auth/sign-in/magic-link',{method:'POST',headers:{origin:'https://tecrid.test','content-type':'application/json','cf-connecting-ip':ip},body:JSON.stringify({email,callbackURL:'/dashboard'})});
+assert.equal((await direct.handler(directRequest('direct@company.test','192.0.2.220'))).status,200);assert.equal(directCalls,1);
+const directToken=new URL(directLink).searchParams.get('token');
+await ConfirmPage({searchParams:Promise.resolve(Object.fromEntries(new URL(directLink).searchParams))});
+assert.equal(await direct.api.getSession({headers:new Headers()}),null);
+const directConfirmation=await confirmMagicLink(new Request('https://tecrid.test/api/auth/magic-link/confirm',{method:'POST',headers:{origin:'https://tecrid.test','content-type':'application/json'},body:JSON.stringify({token:directToken,callbackURL:'/dashboard'})}),direct);
+assert.equal(directConfirmation.status,200);assert(directConfirmation.headers.getSetCookie().some(v=>v.includes('session_token')));
+let failureCalls=0;
+const directFailure=createEmailAuth(drizzle(db,{schema}),schema,directConfig,async(url)=>{failureCalls++;assert.equal(url,'https://api.resend.com/emails');return new Response('',{status:503});});
+assert((await directFailure.handler(directRequest('direct-failure@company.test','192.0.2.221'))).status>=400);assert.equal(failureCalls,1,'Resend errors must not fall back to the relay');
+const directOnly=createEmailAuth(drizzle(db,{schema}),schema,{secret:directConfig.secret,baseURL:directConfig.baseURL,resendAPIKey:directConfig.resendAPIKey,emailFrom:directConfig.emailFrom},async(url)=>{assert.equal(url,'https://api.resend.com/emails');return Response.json({id:'synthetic-direct-only'});});
+assert.equal((await directOnly.handler(directRequest('direct-only@company.test','192.0.2.222'))).status,200);
+env.RESEND_API_KEY='synthetic-resend-key';env.TECRID_EMAIL_FROM=directConfig.emailFrom;
+const relaySecret=env.TECRID_EMAIL_RELAY_SECRET;delete env.TECRID_EMAIL_RELAY_SECRET;
+assert.equal(emailAuthReady(),true);delete env.TECRID_EMAIL_FROM;assert.equal(emailAuthReady(),false);
+delete env.RESEND_API_KEY;env.TECRID_EMAIL_RELAY_SECRET=relaySecret;assert.equal(emailAuthReady(),true);
+console.log('PASS: D1 email auth, direct Resend delivery, relay fallback, confirm button, one-use tokens and security checks.');
 }finally{await mf.dispose();}
 
 },60000);
