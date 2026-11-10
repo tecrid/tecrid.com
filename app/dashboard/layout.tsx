@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
 import { getChatGPTUser, chatGPTSignOutPath } from "../chatgpt-auth";
 import { getDashboardData } from "../../lib/tec";
+import { claimInvitedLaboratory } from "../../lib/lab-invite";
 import { WorkspaceSidebar } from "./workspace-sidebar";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const user = await getChatGPTUser();
+  if (user) await claimInvitedLaboratory(user);
   const data = user ? await getDashboardData(user.userId) : null;
 
   if (!user || !data) return children;

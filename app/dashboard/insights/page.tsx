@@ -12,9 +12,10 @@ export default async function InsightsPage() {
   return (
     <main className="product-page insights-page">
       <ProductNav compact />
-      <header className="dashboard-header insights-hero">
-        <div><p className="section-kicker light">Evidence intelligence</p><h1>See the portfolio.<br />Keep every source intact.</h1><p>Deterministic summaries across TECRIDs your organization issued or was authorized to receive. No OCR merge and no silent pass/fail assumptions.</p></div>
-        <span className="workspace-code">Workspace <strong>{membership.organization.name}</strong></span>
+      <header className="app-heading">
+        <p className="section-kicker">{membership.organization.name}</p>
+        <h1>Reports</h1>
+        <p>Every source remains resolvable. These summaries do not decide whether a result is safe.</p>
       </header>
       <div className="insights-shell">
         <section className="dashboard-summary" aria-label="Evidence summary">

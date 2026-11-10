@@ -22,13 +22,10 @@ export default async function DisclosureOperationsPage() {
   return (
     <main className="product-page disclosure-ops-page">
       <ProductNav compact />
-      <header className="dashboard-header disclosure-ops-hero">
-        <div>
-          <p className="section-kicker light">Disclosure operations</p>
-          <h1>One source file.<br />Every required surface.</h1>
-          <p>Validate production aggregates before they become brand pages, QR destinations, retained evidence, or machine-readable data.</p>
-        </div>
-        <span className="workspace-code">Signed in as <strong>{user.displayName}</strong></span>
+      <header className="app-heading">
+        <p className="section-kicker">Disclosures</p>
+        <h1>Disclosures</h1>
+        <p>One source file. Validate it before anything is published. Publication is not a safety decision.</p>
       </header>
       {!membership ? (
         <section className="disclosure-access-state">

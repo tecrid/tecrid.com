@@ -11,6 +11,14 @@ type ApplicationSummary = {
   keyId: string | null;
   publicKeyJwk: string | null;
   contactEmail?: string;
+  legalName?: string;
+  laboratoryAddress?: string;
+  laboratoryWebsite?: string | null;
+  accreditationBody?: string | null;
+  accreditationNumber?: string | null;
+  accreditationExpiresOn?: string | null;
+  scopeSummary?: string;
+  contactName?: string;
 } | null;
 
 type EvidenceSummary = {
@@ -283,6 +291,46 @@ export function IssuerApplicationPanel({
           <span className="verified-pill"><i /> Active</span>
         </div>
         <p className="panel-copy">Public issuance remains limited to the reviewed laboratory scope and requires a valid signature from the registered issuer key.</p>
+      </section>
+    );
+  }
+
+  async function confirmInvite() {
+    setPending(true);
+    setMessage("Confirming.");
+    try {
+      const response = await fetch("/api/issuer-application/confirm", { method: "POST" });
+      const body = await response.json() as { error?: string };
+      if (!response.ok) {
+        setMessage(body.error ?? "Confirmation failed.");
+        setPending(false);
+        return;
+      }
+      setMessage("Confirmed. Reloading.");
+      window.location.reload();
+    } catch {
+      setPending(false);
+      setMessage("Confirmation failed. Try again.");
+    }
+  }
+
+  if (application?.status === "invited") {
+    return (
+      <section className="dashboard-panel issuer-application-panel" id="laboratory-verification">
+        <div className="panel-heading"><div><p className="section-kicker">Prepared by ICS</p><h2>Confirm these details</h2></div><span className="record-status record-pending">Needs confirmation</span></div>
+        <dl className="invite-facts">
+          <div><dt>Laboratory</dt><dd>{application.legalName}</dd></div>
+          <div><dt>Address</dt><dd>{application.laboratoryAddress}</dd></div>
+          <div><dt>Website</dt><dd>{application.laboratoryWebsite}</dd></div>
+          <div><dt>Accreditation body</dt><dd>{application.accreditationBody}</dd></div>
+          <div><dt>Certificate number</dt><dd>{application.accreditationNumber}</dd></div>
+          <div><dt>Expiry</dt><dd>{application.accreditationExpiresOn}</dd></div>
+          <div><dt>Scope</dt><dd>{application.scopeSummary}</dd></div>
+          <div><dt>Owner</dt><dd>{application.contactName} · {application.contactEmail}</dd></div>
+        </dl>
+        <p>Confirming sends this application to ICS review. It does not verify the laboratory. Two different ICS admins still have to approve it.</p>
+        <button className="button-dark" type="button" disabled={pending} onClick={() => void confirmInvite()}>{pending ? "Confirming…" : "Confirm"}</button>
+        <p className="form-message" role="status">{message}</p>
       </section>
     );
   }

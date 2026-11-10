@@ -30,7 +30,7 @@ export function roleNavigation(role: Role, signedIn = false) {
     { href: "/dashboard/issuance", label: "Issue" },
     { href: "/dashboard/evidence-routing", label: "Approvals" }, settings];
   return [home, { href: "/dashboard/evidence-routing", label: "Requests" },
-    { href: "/dashboard/sharing", label: "Received" }, settings];
+    { href: "/dashboard/received", label: "Received" }, settings];
 }
 export function isCurrentDestination(pathname: string, href: string) {
   return href === "/dashboard" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);

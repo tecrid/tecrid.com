@@ -19,9 +19,10 @@ export default async function NewLegacyReportPage() {
   return (
     <main className="product-page">
       <ProductNav compact />
-      <header className="form-page-header intake-form-header">
-        <div><p className="section-kicker light">Private legacy-report intake</p><h1>Submit the evidence you actually received.</h1><p>The source document stays private. Nothing becomes a TECRID until the named laboratory claims, confirms, and signs it.</p></div>
-        <span className="workspace-code">Workspace <strong>{membership.organization.name}</strong></span>
+      <header className="app-heading">
+        <p className="section-kicker">{membership.organization.name}</p>
+        <h1>Add a report</h1>
+        <p>Upload a private laboratory report and name the lab. Nothing is issued until that lab claims and signs it.</p>
       </header>
       <section className="legacy-intake-shell">
         <LegacyReportIntakeForm />
