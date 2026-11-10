@@ -1,3 +1,4 @@
+import {TECRID_DEFINITION} from "../lib/tecrid-definition";
 import { PublicPage, PageHero } from "./blue-atlas/public-page";
 
 
@@ -27,7 +28,7 @@ export function RolePage(props: RolePageProps) {
     <PublicPage className="atlas-role-page">
 
       <PageHero className="atlas-role-hero">
-        <div><p className="atlas-kicker">{props.kicker}</p><h1>{props.title}</h1><p>{props.intro}</p><div className="atlas-role-hero-actions"><a className="atlas-button" href={props.primaryHref}>{props.primaryLabel} →</a><a href={props.secondaryHref}>{props.secondaryLabel} →</a></div></div>
+        <div><p className="atlas-kicker">{props.kicker}</p><h1>{props.title}</h1><p>{TECRID_DEFINITION}</p><p>{props.intro}</p><div className="atlas-role-hero-actions"><a className="atlas-button" href={props.primaryHref}>{props.primaryLabel} →</a><a href={props.secondaryHref}>{props.secondaryLabel} →</a></div></div>
         <aside><span>{props.eyebrow}</span><strong>The neutral trust layer between laboratories, suppliers, brands, retailers, certifiers, regulators, and the public.</strong></aside>
       </PageHero>
 

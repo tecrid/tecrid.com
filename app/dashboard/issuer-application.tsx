@@ -302,7 +302,7 @@ export function IssuerApplicationPanel({
           <div><p className="section-kicker">Issuance authority</p><h2>ICS verified issuer</h2></div>
           <span className="verified-pill"><i /> Active</span>
         </div>
-        <p className="panel-copy">Public issuance remains limited to the reviewed laboratory scope and requires a valid signature from the registered issuer key.</p>
+        <p className="panel-copy">Public issuance remains limited to the reviewed laboratory scope and requires a valid signature from the verified laboratory key.</p>
       </section>
     );
   }

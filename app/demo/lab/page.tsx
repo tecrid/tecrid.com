@@ -17,7 +17,7 @@ export default function DemoLaboratoryPage() {
 
       <PageHero className="atlas-record-page-hero atlas-issuer-record-hero">
         <div><p className="atlas-kicker">Fictional laboratory demonstration</p><h1>{demoLaboratory.name}</h1><p>Demo code {demoLaboratory.code}</p></div>
-        <span className="atlas-public-unverified"><i /> Not a registered issuer</span>
+        <span className="atlas-public-unverified"><i /> Not a verified laboratory</span>
       </PageHero>
       <section className="atlas-demo-lab-shell">
         <div className="atlas-demo-warning"><strong>No issuance authority</strong><p>This organization does not exist. It has no accreditation, reviewed scope, signing key, TECRID account, or ability to issue a public Test Evidence Credential.</p></div>

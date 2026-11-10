@@ -149,7 +149,7 @@ test("renders the TECRID public product", async () => {
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /aria-label="TECRID home"/);
-  assert.match(html, /Lab results that/);
+  assert.match(html, /A TECRID is a free digital receipt for a lab test result/);
   assert.match(html, /Test evidence/);
   assert.match(html, /Different roles/);
   assert.match(html, /TECRID/);
@@ -190,7 +190,7 @@ test("publishes focused search-intent pages, the laboratory go-time pack, and ag
     homeResponse.text(), labsResponse.text(), goTimeResponse.text(), valueResponse.text(), pilotResponse.text(), brandsResponse.text(), recipientsResponse.text(), integrateResponse.text(), sitemapResponse.text(),
   ]);
   assert.match(home, /persistent identifier and verification record for laboratory reports/i);
-  assert.match(home, /checkable, issuer-signed evidence/i);
+  assert.match(home, /A TECRID is a free digital receipt for a lab test result/i);
   assert.match(home, /Different roles/);
   assert.doesNotMatch(home, /Founding laboratory pilot|Explore VLE QUALIFIED|Apply for HMTc certification|vle\.exchange\/for-suppliers/);
   assert.match(labs, /Stop answering the same report question twice/);
@@ -289,15 +289,28 @@ test("defines TECRID for people, search engines, and AI answer systems", async (
   const [html, home, robots, sitemap] = await Promise.all([
     response.text(), homeResponse.text(), robotsResponse.text(), sitemapResponse.text(),
   ]);
-  assert.match(html, /<title>What is a TECRID\? Meaning, purpose and how it works<\/title>/);
+  const { JSDOM } = await import("jsdom");
+  const dom = new JSDOM(html);
+  const document = dom.window.document;
+  const definition = "A TECRID is a tamper-proof receipt for a lab test result.";
+  assert.equal(document.querySelector("main h1")?.textContent, definition);
+  assert.equal(document.querySelector("main section .atlas-container")?.firstElementChild?.tagName, "H1");
+  assert.equal(document.title, definition);
+  assert.match(document.querySelector('meta[name="description"]')?.content || "", /A TECRID is a free digital receipt for a lab test result/);
+  assert.equal(document.querySelector('meta[property="og:title"]')?.content, definition);
+  assert.match(document.querySelector('.atlas-example-tag')?.textContent || "", /Example · fictional data/);
+  assert.match(document.querySelector('.atlas-example-tag')?.textContent || "", /TECRID·DEMO-26-HM0001/);
+  assert.match(document.querySelector('.atlas-example-tag')?.textContent || "", /No verified laboratory signature is claimed/);
+  assert.deepEqual([...document.querySelectorAll('.atlas-tag-proofs h2')].map(el => el.textContent), ["Real", "Unaltered", "Current"]);
+  assert.equal(document.querySelectorAll('.atlas-definition-how li').length, 3);
+  assert.equal(document.querySelectorAll('.atlas-definition-audiences a').length, 4);
+  assert.match(document.querySelector('.atlas-definition-limits')?.textContent || "", /sampling.*safety.*compliance/s);
+  assert.match(document.querySelector('.atlas-faq')?.textContent || "", /Is it free\?.*Yes.*Is my data public\?.*No/s);
+  assert.doesNotMatch(document.querySelector('main')?.textContent || "", /Test Evidence Credential Record Identifier|DOI|ORCID|Five connections|registered issuer|registry/i);
+  dom.window.close();
   assert.match(html, /rel="canonical" href="https:\/\/tecrid\.com\/what-is-a-tecrid"/);
-  assert.match(html, /Test Evidence Credential Record Identifier/);
-  assert.match(html, /DOI/);
-  assert.match(html, /Research output/);
   assert.match(html, /fabricated or altered reports/i);
   assert.match(html, /Authenticity is one part of assessing evidence/i);
-  assert.match(html, /evidence can be checked wherever it travels/);
-  assert.match(html, /A TECRID can point to a private record, evidence shared with named recipients, or a public report/);
   assert.match(html, /Institute of Contaminant Standards/);
   const atlasStyles = await readFile(new URL("../app/blue-atlas/atlas.css", import.meta.url), "utf8");
   assert.match(atlasStyles, /\.atlas-definition/);
@@ -317,7 +330,7 @@ test("defines TECRID for people, search engines, and AI answer systems", async (
   assert.ok(structuredData);
   const term = structuredData;
   assert.equal(term.name, "TECRID");
-  assert.equal(term.alternateName, "Test Evidence Credential Record Identifier");
+  assert.match(term.description, /^A TECRID is a free digital receipt for a lab test result/);
   assert.match(robots, /Sitemap: https:\/\/tecrid\.com\/sitemap\.xml/);
   assert.match(robots, /Disallow: \/dashboard\//);
   assert.match(sitemap, /https:\/\/tecrid\.com\/what-is-a-tecrid/);
@@ -537,7 +550,7 @@ test("renders an isolated fictional lab and two complete dummy findings", async 
     labResponse.text(), metalsResponse.text(), avocadoResponse.text(),
   ]);
   assert.match(lab, /Northstar Laboratory Demonstration/);
-  assert.match(lab, /Not a registered issuer/);
+  assert.match(lab, /Not a verified laboratory/);
   for (const analyte of ["Lead", "Mercury", "Arsenic", "Cadmium", "Nickel", "Aluminum", "Chromium[(]VI[)]", "Tin"]) {
     assert.match(metals, new RegExp(analyte));
   }
@@ -1055,5 +1068,83 @@ test('brands render one access row per organization with scopes and Member-safe 
     assert.equal(denied.status,403);
   } finally {
     for(const key of Object.keys(bindings)) delete bindings[key];Object.assign(bindings,previous);await fixture.mf.dispose();
+  }
+});
+
+test("every requested first screen explains a TECRID in plain words", async () => {
+  const { JSDOM } = await import("jsdom");
+  for (const path of ["/", "/for-brands", "/for-laboratories", "/for-certifiers-retailers", "/verify", "/join", "/join?role=laboratory", "/faq"]) {
+    const response = await render(path);
+    assert.equal(response.status, 200, path);
+    const dom = new JSDOM(await response.text());
+    const hero = dom.window.document.querySelector("main .atlas-hero, main .atlas-page-hero, main .atlas-about-hero, main .atlas-email-auth-shell");
+    assert.match(hero?.textContent || "", /A TECRID is a free digital receipt for a lab test result, proving it came from the lab that signed it, has not been changed, and is the current version\./, path);
+    dom.window.close();
+  }
+});
+
+test("internal links from rendered pages and navigation never lead to a 404", async (t) => {
+  const { JSDOM } = await import("jsdom");
+  const { Miniflare } = await import("miniflare");
+  const mf = new Miniflare({ modules: true, script: "export default {fetch(){return new Response('test')}}", compatibilityDate: "2026-05-22", d1Databases: ["DB"] });
+  const bindings = globalThis.__TECRID_WORKER_TEST_BINDINGS__ ||= {};
+  const previousDb = bindings.DB;
+  try {
+    bindings.DB = await mf.getD1Database("DB");
+    const migrations = new URL("../drizzle/", import.meta.url);
+    for (const file of (await readdir(migrations)).filter(file => file.endsWith(".sql")).sort()) {
+      for (const sql of (await readFile(new URL(file, migrations), "utf8")).split("--> statement-breakpoint").filter(sql => sql.trim())) await bindings.DB.prepare(sql).run();
+    }
+    const sources = await publicSources();
+    const queue = new Set(sources.filter(file => file.pathname.endsWith("/page.tsx") && !file.pathname.includes("[")).map(file => "/" + file.pathname.split("/app/")[1].replace(/\/?page\.tsx$/, "")));
+    // Include literal destinations in client-only menus and authenticated navigation,
+    // which the anonymous server render cannot expand. Never submit forms or mutate data.
+    async function navigationSources(directory) {
+      const result = [];
+      for (const entry of await readdir(directory, { withFileTypes: true })) {
+        const file = new URL(entry.name + (entry.isDirectory() ? "/" : ""), directory);
+        if (entry.isDirectory() && entry.name !== "api") result.push(...await navigationSources(file));
+        else if (entry.name.endsWith(".tsx")) result.push(file);
+      }
+      return result;
+    }
+    for (const file of await navigationSources(new URL("../app/", import.meta.url))) {
+      const source = await readFile(file, "utf8");
+      for (const match of source.matchAll(/href=["'](\/[^"']*)["']/g)) queue.add(match[1].replaceAll("&amp;", "&"));
+    }
+    const checked = new Set();
+    const failures = [];
+    const origin = "http://localhost";
+    for (const path of queue) {
+      const url = new URL(path, origin);
+      const target = url.pathname + url.search;
+      if (checked.has(target)) continue;
+      checked.add(target);
+      // The worker's ASSETS binding is stubbed in these tests. Verify actual files
+      // directly, including downloads and PDFs, instead of accepting the stub's 404.
+      const publicFile = new URL("../public/" + decodeURIComponent(url.pathname.slice(1)), import.meta.url);
+      if (url.pathname !== "/" && /\.[a-z0-9]+$/i.test(url.pathname)) {
+        try { await access(publicFile); continue; } catch { /* Also allow real route handlers. */ }
+      }
+      const response = await render(target);
+      if (response.status === 404 || response.status >= 500) failures.push(`${target}: ${response.status}`);
+      if ([301, 302, 303, 307, 308].includes(response.status)) {
+        const location = new URL(response.headers.get("location"), url);
+        if (location.origin === origin) queue.add(location.pathname + location.search);
+        continue;
+      }
+      if (!(response.headers.get("content-type") || "").includes("text/html")) continue;
+      const dom = new JSDOM(await response.text(), { url: url.href });
+      for (const anchor of dom.window.document.querySelectorAll("a[href]")) {
+        const href = new URL(anchor.getAttribute("href"), url);
+        if (href.origin === origin || href.origin === "https://tecrid.com" || href.origin === "https://www.tecrid.com") queue.add(href.pathname + href.search);
+      }
+      dom.window.close();
+    }
+    t.diagnostic(`Checked ${checked.size} internal destinations across rendered pages and navigation.`);
+    assert.deepEqual(failures, []);
+  } finally {
+    bindings.DB = previousDb;
+    await mf.dispose();
   }
 });

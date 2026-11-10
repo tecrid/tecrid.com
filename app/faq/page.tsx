@@ -1,3 +1,4 @@
+import {TECRID_DEFINITION} from "../../lib/tecrid-definition";
 import { PublicPage, PageHero } from "../blue-atlas/public-page";
 import type { Metadata } from "next";
 import { ICS_ORGANIZATION_ID, TECRID_WEBSITE_ID } from "../../lib/entity-graph";
@@ -74,7 +75,7 @@ export default function FaqPage() {
         <div>
           <p className="atlas-kicker">TECRID FAQ</p>
           <h1>Short answers.<br />Hard boundaries.</h1>
-          <p className="atlas-explainer-definition"><strong>TECRID authenticates laboratory evidence.</strong> It does not turn a detached document into an issued record, sell credibility, or certify that a product is safe.</p>
+          <p className="atlas-explainer-definition">{TECRID_DEFINITION}</p><p><strong>TECRID authenticates laboratory evidence.</strong> It does not turn a detached document into an issued record, sell credibility, or certify that a product is safe.</p>
           <div className="atlas-explainer-actions"><a className="atlas-button" href="/laboratory-go-time">Laboratory go-time →</a><a className="atlas-explainer-text-link" href="/join">Join the free core →</a></div>
         </div>
         <aside aria-label="TECRID trust boundaries">
