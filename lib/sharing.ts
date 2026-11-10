@@ -182,6 +182,11 @@ export async function revokeEvidenceShareCode(user: ChatGPTUser, idValue: unknow
   const revokedAt = new Date().toISOString();
   await db.batch([
     db.update(evidenceShareCodes).set({ status: "revoked", revokedAt, revokedByUserId: user.userId }).where(eq(evidenceShareCodes.id, record.id)),
+    db.insert(organizationNotifications).values({
+      id: crypto.randomUUID(), organizationId: record.recipientOrganizationId, eventType: "evidence_share.revoked",
+      title: "Evidence access revoked", body: `${membership.organization.name} revoked an evidence-sharing permission. Copies already delivered stay with the recipient.`,
+      actionPath: "/dashboard/received", entityType: "evidence_share_code", entityId: record.id, createdAt: revokedAt,
+    }),
     db.insert(auditEvents).values({
       id: crypto.randomUUID(), organizationId: membership.organization.id, actorUserId: user.userId,
       eventType: "evidence_share.revoked", entityType: "evidence_share_code", entityId: record.id,

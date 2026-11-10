@@ -1024,3 +1024,36 @@ test('workspace Members page and sidebar render inside the Blue Atlas Shell with
     await fixture.mf.dispose();
   }
 });
+
+test('brands render one access row per organization with scopes and Member-safe controls',async()=>{
+  const {workspaceFixture}=await import('./support/workspace-fixture.mjs');
+  const {seedAccessFixture}=await import('./support/workspace-access-fixture.mjs');
+  const {JSDOM}=await import('jsdom');
+  const fixture=await workspaceFixture();
+  const bindings=globalThis.__TECRID_WORKER_TEST_BINDINGS__ ||= {};
+  const previous={...bindings};Object.assign(bindings,fixture.bindings);
+  try {
+    await seedAccessFixture(fixture.bindings.DB);
+    const {default:worker}=await import(new URL('../dist/server/index.js?access-render',import.meta.url).href);
+    const renderAccess=()=>worker.fetch(new Request('http://localhost/dashboard/access',{headers:fixture.headers}),fixture.bindings,{waitUntil(){},passThroughOnException(){}});
+    let response=await renderAccess();assert.equal(response.status,200);
+    let dom=new JSDOM(await response.text());let document=dom.window.document;
+    assert.equal(document.querySelector('h1').textContent,'Who can see my results');
+    assert.equal(document.querySelectorAll('.access-table>tbody>tr').length,2);
+    assert.equal(document.querySelectorAll('.access-table>tbody>tr:first-child button[aria-label^="Revoke all"]').length,1);
+    assert.match(document.body.textContent,/Selected analytes, Full record/);
+    assert.match(document.body.textContent,/Revoking stops all future access\. Copies already delivered stay with the recipient\./);
+    assert.ok(document.querySelector('nav[aria-label="Workspace navigation"] a[href="/dashboard/access"]'));
+    assert.equal(document.querySelectorAll('main').length,1);dom.window.close();
+    await fixture.bindings.DB.prepare("INSERT INTO auth_user (id,name,email,email_verified,created_at,updated_at) VALUES ('fixture-member','Sam Taylor','sam@atlas.example',1,0,0)").run();
+    await fixture.bindings.DB.prepare("UPDATE organization_members SET user_id='email:fixture-member' WHERE user_id='fixture-member'").run();
+    await fixture.bindings.DB.prepare("UPDATE auth_session SET user_id='fixture-member'").run();
+    response=await renderAccess();assert.equal(response.status,200);dom=new JSDOM(await response.text());document=dom.window.document;
+    assert.equal(document.querySelectorAll('button[aria-label^="Revoke"]').length,0);
+    assert.match(document.body.textContent,/Only Owners and Admins can revoke/);dom.window.close();
+    const denied=await worker.fetch(new Request('http://localhost/api/workspace/access',{method:'POST',headers:{...fixture.headers,'content-type':'application/json',origin:'http://localhost'},body:JSON.stringify({recipientId:'fixture-recipient',confirm:true})}),fixture.bindings,{waitUntil(){},passThroughOnException(){}});
+    assert.equal(denied.status,403);
+  } finally {
+    for(const key of Object.keys(bindings)) delete bindings[key];Object.assign(bindings,previous);await fixture.mf.dispose();
+  }
+});
