@@ -5,6 +5,7 @@ import { RolePicker } from "../app/role-picker";
 import { ProductNav, ProductFooter } from "../app/site-nav";
 import { IssuerApplicationPanel } from "../app/dashboard/issuer-application";
 import { EmailSignInForm } from "../app/sign-in/sign-in-form";
+import { Header, Footer } from "../app/blue-atlas/shared";
 const route = vi.hoisted(() => ({ pathname: "/" }));
 vi.mock("next/navigation", () => ({ usePathname: () => route.pathname }));
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); document.cookie = "tecrid_role_v1=; Max-Age=0; Path=/"; route.pathname = "/"; });
@@ -49,4 +50,13 @@ it("shows four small lab steps, validates each one and preserves entered fields 
   fireEvent.click(screen.getByRole("button",{name:"Back"}));
   expect((screen.getByLabelText("Laboratory legal name") as HTMLInputElement).value).toBe("Fixture laboratory");
   expect(screen.queryByRole("button",{name:/Submit for ICS/})).toBeNull();
+});
+
+it("sends a signed-in header brand to the workspace and keeps the ICS credit in the footer", () => {
+  render(<RoleProvider initialRole="certification_body" signedIn hasWorkspace><Header /><Footer /></RoleProvider>);
+  const header = document.querySelector(".atlas-header .atlas-brand")!;
+  expect(header.querySelector('a[href="https://contaminantstandards.com"]')).toBeNull();
+  expect([...header.querySelectorAll("a")].map(link => link.getAttribute("href"))).toEqual(["/dashboard", "/dashboard"]);
+  expect(header.querySelector("small")?.textContent).toBe("Institute of Contaminant Standards");
+  expect(document.querySelector('.atlas-footer a[href="https://contaminantstandards.com"]')?.textContent).toContain("Institute of Contaminant Standards");
 });

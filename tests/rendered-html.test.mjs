@@ -121,7 +121,10 @@ test("renders the Blue Atlas homepage and omits editor UI for anonymous visitors
   assert.equal(copy.querySelector(".atlas-kicker")?.textContent, "AN OPEN AND FREE INITIATIVE OF ICS");
   assert.doesNotMatch(copy.textContent, /Free\. Run by ICS\./);
   assert.equal(copy.querySelector(".atlas-lookup").nextElementSibling.className, "atlas-sample-link");
-  assert.ok(dom.window.document.querySelector('a[href="https://contaminantstandards.com"] small'));
+  assert.equal(dom.window.document.querySelector('.atlas-header .atlas-brand a[href="https://contaminantstandards.com"]'), null);
+  assert.ok(dom.window.document.querySelector('.atlas-header .atlas-brand small'));
+  assert.ok(dom.window.document.querySelector('.atlas-footer a[href="https://contaminantstandards.com"]'));
+  assert.match(dom.window.document.querySelector('.atlas-header .atlas-brand a')?.getAttribute("href") || "", /^\/$/);
   assert.equal(copy.querySelector(".atlas-sample-link")?.getAttribute("href"), "/records/TECRID%C2%B7DEMO-26-HM0001");
   assert.equal(hero.querySelectorAll(".atlas-credential-scene").length, 1);
   assert.match(hero.querySelector(".credential-caption")?.textContent || "", /Illustrative record · fictional data/);

@@ -9,7 +9,7 @@ vi.mock("../app/chatgpt-auth", () => ({
   requireChatGPTUser: vi.fn(async () => ({ userId: "user-1", email: "lab@example.com", displayName: "Lab User" })),
   chatGPTSignOutPath: vi.fn(() => "/signout"),
 }));
-vi.mock("../lib/tec", () => ({ getDashboardData: vi.fn() }));
+vi.mock("../lib/tec", () => ({ getDashboardData: vi.fn(), isIcsAdmin: () => false, icsAdminHome: () => null }));
 vi.mock("../lib/legacy-reports", () => ({ listLegacyReportsForUser: vi.fn(async () => []) }));
 vi.mock("../app/site-nav", () => ({ ProductNav: () => null, ProductFooter: () => null }));
 vi.mock("../app/dashboard/dashboard-client", () => ({ ApiKeyPanel: () => null, OrganizationOnboarding: () => null }));

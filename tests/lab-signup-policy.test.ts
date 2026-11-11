@@ -18,10 +18,10 @@ let input: Record<string, unknown>, privateKey:CryptoKey;
 const lookup={registerUrl:"https://accreditation.test/register/FAKE-1",registerResult:"SYNTHETIC current ISO/IEC 17025 certificate and requested scope match",registerCheckedAt:"2026-01-01"};
 beforeAll(async()=>{
  mf=new Miniflare({modules:true,script:"export default {fetch(){return new Response('test')}}",compatibilityDate:"2026-05-22",d1Databases:["DB"],r2Buckets:["DOCUMENTS"]});
- env.DB=await mf.getD1Database("DB");env.DOCUMENTS=await mf.getR2Bucket("DOCUMENTS");env.ICS_ADMIN_EMAILS=`${first.email},${second.email},${lab.email}`;
+ env.DB=await mf.getD1Database("DB");env.DOCUMENTS=await mf.getR2Bucket("DOCUMENTS");env.ICS_ADMIN_EMAILS=`${first.email},${second.email}`;
  for(const f of readdirSync("drizzle").filter(f=>f.endsWith(".sql")).sort())for(const sql of readFileSync(`drizzle/${f}`,"utf8").split("--> statement-breakpoint"))if(sql.trim())await env.DB.prepare(sql).run();
  await env.DB.prepare("INSERT INTO auth_user(id,name,email,email_verified,created_at,updated_at) VALUES(?,?,?,1,0,0)").bind(lab.userId.slice(6),"Synthetic",lab.email).run();
- await onboardOrganization(lab,{role:"laboratory"});
+ await onboardOrganization(lab,{role:"laboratory"});env.ICS_ADMIN_EMAILS=`${first.email},${second.email},${lab.email}`;
  const pair=await crypto.subtle.generateKey("Ed25519",true,["sign","verify"]);privateKey=pair.privateKey;
  input={legalName:"Synthetic Laboratory",laboratoryAddress:"Synthetic address",laboratoryWebsite:"https://synthetic-lab.test",authorityRole:"Quality director",accreditationStatus:"accredited",accreditationBody:"SYNTHETIC body",accreditationNumber:"FAKE-1",accreditationExpiresOn:"2027-12-31",accreditationUrl:lookup.registerUrl,scopeSummary:"Synthetic scope",methodFamilies:"Synthetic methods",contactName:"Synthetic",contactEmail:lab.email,keyId:"synthetic-key",publicKeyJwk:JSON.stringify(await crypto.subtle.exportKey("jwk",pair.publicKey)),attested:true};
 },60000);

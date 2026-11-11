@@ -1,5 +1,6 @@
+import { redirect } from "next/navigation";
 import { requireChatGPTUser } from "../chatgpt-auth";
-import { getDashboardData } from "../../lib/tec";
+import { getDashboardData, isIcsAdmin } from "../../lib/tec";
 import { listLegacyReportsForUser } from "../../lib/legacy-reports";
 import { listEvidenceRoutingForUser } from "../../lib/evidence-routing";
 import { organizationRole } from "../../lib/roles";
@@ -24,7 +25,11 @@ function subjectOf(snapshotJson: string) {
 export default async function DashboardPage() {
   const user = await requireChatGPTUser("/dashboard");
   const data = await getDashboardData(user.userId);
-  if (!data) return <div className="product-page"><RolePicker onboarding /></div>;
+  const admin = isIcsAdmin(user);
+  if (!data) {
+    if (admin) redirect("/admin/issuers");
+    return <div className="product-page"><RolePicker onboarding /></div>;
+  }
   const role = organizationRole(data.organization.organizationType);
   const lab = role === "laboratory";
   const controller = role === "brand" || role === "supplier";
@@ -125,6 +130,7 @@ export default async function DashboardPage() {
       <section className="workspace-summary" aria-label="Workspace summary"><article><strong>{rows.length}</strong><span>Reports and requests</span></article><article><strong>{rows.filter(row => row.needsAction).length}</strong><span>Need action</span></article><article><strong>{rows.filter(row => row.status === "received" || row.status === "issued" || row.status === "active").length}</strong><span>Ready to use</span></article></section>
       {lab && !verified ? <p className="simple-lab-status" role="status">{labNext.copy} <a href="/dashboard/laboratory">{labNext.label}</a></p> : null}
       <section className="simple-primary-actions" aria-label="Your next steps">
+        {admin ? <a href="/admin/issuers"><h2>ICS administration</h2><p>Review issuer applications, invite laboratories, and open security settings.</p></a> : null}
         <a href={action.href}><h2>{action.label}</h2><p>{action.copy}</p></a>
       </section>
       {role !== "public" ? <WorkQueue rows={rows} empty={recipient ? "No reports yet." : lab ? "Your laboratory records will appear here." : "New reports will appear here."} /> : null}

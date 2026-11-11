@@ -3,7 +3,7 @@ import { it, expect } from "vitest";
 import { Miniflare } from "miniflare";
 import { readFileSync, readdirSync } from "node:fs";
 import { env } from "./support/cloudflare-env";
-import { onboardOrganization, completeWorkspaceDetails, getOrganizationForUser } from "../lib/tec";
+import { onboardOrganization, completeWorkspaceDetails, getOrganizationForUser, TecAuthorizationError } from "../lib/tec";
 import { reserveReportTecrid } from "../lib/report-issuance";
 import { roles } from "../lib/roles";
 it("saves all six roles without identity fields, defers real details, and never approves a lab", async () => {
@@ -34,6 +34,12 @@ it("saves all six roles without identity fields, defers real details, and never 
     const user = { userId: "invalid-role", email: "invalid@example.test", displayName: "Fixture", fullName: null };
     await expect(onboardOrganization(user, { role: "admin" })).rejects.toThrow("Choose who you are");
     expect(await getOrganizationForUser(user.userId)).toBeNull();
+    const ics = { userId: "email:ics-admin", email: "ics-admin@example.test", displayName: "ICS Admin", fullName: null };
+    env.ICS_ADMIN_EMAILS = ics.email;
+    await expect(onboardOrganization(ics, { role: "certification_body" })).rejects.toThrow(TecAuthorizationError);
+    await expect(onboardOrganization(ics, { role: "certification_body" })).rejects.toThrow("ICS administrators use the admin workspace");
+    expect(await getOrganizationForUser(ics.userId)).toBeNull();
+    env.ICS_ADMIN_EMAILS = "";
     expect((await db.prepare("SELECT count(*) AS total FROM audit_events WHERE event_type='organization.details_completed'").first<{total:number}>())!.total).toBe(6);
     expect((await db.prepare("SELECT count(*) AS total FROM credentials").first<{total:number}>())!.total).toBe(0);
   } finally { await mf.dispose(); }
