@@ -143,6 +143,10 @@ export function isIcsAdmin(user: ChatGPTUser) {
   return configured.includes(user.email.toLowerCase());
 }
 
+export function icsAdminHome(user: ChatGPTUser) {
+  return isIcsAdmin(user) ? "/admin/issuers" : null;
+}
+
 function now() {
   return new Date().toISOString();
 }
@@ -630,6 +634,9 @@ export async function onboardOrganization(
 ) {
   const existing = await getOrganizationForUser(user.userId);
   if (existing) return existing;
+  if (isIcsAdmin(user)) {
+    throw new TecAuthorizationError("ICS administrators use the admin workspace. A role workspace is not created for this account.");
+  }
 
   const selectedRole = parseRole(input.role);
   if (input.role !== undefined && !selectedRole) throw new TecInputError("Choose who you are.");

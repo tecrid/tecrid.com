@@ -1,7 +1,7 @@
 import { Shell } from "../blue-atlas/shared";
 import type { ReactNode } from "react";
 import { getChatGPTUser, chatGPTSignOutPath } from "../chatgpt-auth";
-import { getDashboardData } from "../../lib/tec";
+import { getDashboardData, isIcsAdmin } from "../../lib/tec";
 import { claimInvitedLaboratory } from "../../lib/lab-invite";
 import { WorkspaceSidebar } from "./workspace-sidebar";
 
@@ -30,6 +30,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           hasCredential: data.records.length > 0,
         }}
         user={{ displayName: user.displayName, email: user.email }}
+        icsAdmin={isIcsAdmin(user)}
         signOutHref={chatGPTSignOutPath("/")}
       />
       <div className="dashboard-workspace-main">{children}</div>

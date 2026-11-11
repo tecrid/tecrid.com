@@ -1,6 +1,7 @@
 import { env } from 'cloudflare:workers';
 import type { ChatGPTUser } from '../app/chatgpt-auth';
 import { privateFetch } from './private-fetch';
+import { signedServiceInit } from './service-assertion.js';
 
 export type InboxItem = { id: string; source: 'tecrid' | 'vle'; kind: string; title: string; body: string; href: string; createdAt: string; read: boolean };
 export const inboxHeaders = { 'Cache-Control': 'private, no-store, max-age=0', Vary: 'Cookie, Authorization', 'X-Content-Type-Options': 'nosniff' };
@@ -28,13 +29,10 @@ export async function ownNotifications(db: D1Database, user: Pick<ChatGPTUser, '
   return rows.map(row => ({ id: `tecrid:${row.id}`, source: 'tecrid' as const, kind: row.event_type, title: row.title, body: row.body, href: safeInboxHref(row.action_path, 'tecrid'), createdAt: row.created_at, read: !!row.read_at }));
 }
 export async function vleNotifications(user: Pick<ChatGPTUser, 'userId' | 'email'>, readId?: string, transport: typeof fetch = privateFetch, readAll = false): Promise<InboxItem[]> {
-  const secret = (env as any).TECRID_EMAIL_RELAY_SECRET;
-  if (!secret) throw new Error('VLE connection unavailable');
-  const response = await transport('https://vle.exchange/api/tecrid-report-permissions', {
-    method: 'POST', redirect: 'error', signal: AbortSignal.timeout(8000),
-    headers: { authorization: `Bearer ${secret}`, 'content-type': 'application/json' },
-    body: JSON.stringify({ action: readId ? 'notification-read' : 'notifications', id: readId, actor: { userId: user.userId, email: user.email, emailVerified: true } }),
-  });
+  const url = 'https://vle.exchange/api/tecrid-report-permissions';
+  const payload = { action: readId ? 'notification-read' : 'notifications', id: readId, actor: { userId: user.userId, email: user.email, emailVerified: true } };
+  const init = await signedServiceInit(url, payload, env, 'notifications-to-vle');
+  const response = await transport(url, { ...init, redirect: 'error', signal: AbortSignal.timeout(8000) });
   if (!response.ok) throw new Error('VLE connection unavailable');
   const body = await response.json() as { items?: InboxItem[] };
   if (!Array.isArray(body.items)) throw new Error('VLE connection unavailable');

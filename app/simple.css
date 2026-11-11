@@ -71,7 +71,7 @@
 .workspace-sidebar.simple-sidebar > footer { color:#31445c; border-top:1px solid #e4e0d8; }
 .workspace-sidebar.simple-sidebar > footer a { color:#1743e3; }
 @media(max-width:767px) {
-  .role-desktop-links,.simple-sidebar,.workspace-mobile-nav { display:none !important; }
+  .role-desktop-links { display:none !important; }
   .simple-nav { min-height:72px; }
   .role-tab-bar { display:flex; }
   .role-tab-bar>a { flex:1; min-width:0; font-size:11px; padding:8px 3px; text-align:center; line-height:1.25; min-height:60px; justify-content:center; }

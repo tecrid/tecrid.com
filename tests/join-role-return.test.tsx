@@ -3,7 +3,7 @@ import JoinPage from "../app/join/page";
 import { getOrganizationForUser } from "../lib/tec";
 vi.mock("next/navigation", () => ({ usePathname: () => "/join", redirect: (path: string) => { throw new Error(`redirect:${path}`); } }));
 vi.mock("../app/chatgpt-auth", () => ({ getChatGPTUser: async () => ({ userId: "fixture-user", email: "fixture@example.test" }) }));
-vi.mock("../lib/tec", () => ({ getOrganizationForUser: vi.fn(async () => null) }));
+vi.mock("../lib/tec", () => ({ getOrganizationForUser: vi.fn(async () => null), icsAdminHome: () => null }));
 vi.mock("../lib/email-auth", () => ({ emailAuthReady: () => false }));
 afterEach(() => { vi.mocked(getOrganizationForUser).mockResolvedValue(null as never); });
 it("preserves a laboratory choice for someone already signed in without a workspace", async () => {

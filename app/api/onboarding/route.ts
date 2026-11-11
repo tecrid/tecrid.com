@@ -1,5 +1,5 @@
 import { getChatGPTUser } from "../../chatgpt-auth";
-import { onboardOrganization, TecInputError } from "../../../lib/tec";
+import { onboardOrganization, TecAuthorizationError, TecInputError } from "../../../lib/tec";
 import { rejectCrossOriginWrite } from "../../../lib/request-security";
 
 export async function POST(request: Request) {
@@ -13,8 +13,8 @@ export async function POST(request: Request) {
     const membership = await onboardOrganization(user, payload);
     return Response.json({ organization: membership?.organization }, { status: 201 });
   } catch (error) {
-    const status = error instanceof TecInputError ? error.status : 500;
-    const message = error instanceof TecInputError ? error.message : "Unable to create organization.";
+    const status = error instanceof TecInputError || error instanceof TecAuthorizationError ? error.status : 500;
+    const message = error instanceof TecInputError || error instanceof TecAuthorizationError ? error.message : "Unable to create organization.";
     return Response.json({ error: message }, { status });
   }
 }

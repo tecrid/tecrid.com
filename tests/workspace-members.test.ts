@@ -9,6 +9,7 @@ import { recordIssuerPublicKey } from '../lib/lab-invite';
 import { onboardOrganization, getOrganizationForUser } from '../lib/tec';
 import JoinPage from '../app/join/page';
 import Welcome from '../app/welcome/page';
+import DashboardPage from '../app/dashboard/page';
 const request = vi.hoisted(() => ({ headers: new Headers() }));
 vi.mock('next/headers', () => ({ headers: async () => request.headers }));
 vi.mock('next/navigation', () => ({ redirect: (path: string) => { throw new Error(`redirect:${path}`); } }));
@@ -174,5 +175,22 @@ it('claims pending invites before the join and welcome role pickers for new and 
       await expect(page==='join' ? JoinPage({searchParams:Promise.resolve({})}) : Welcome({searchParams:Promise.resolve({})})).rejects.toThrow('redirect:/dashboard');
       expect(await getOrganizationForUser(user.userId)).toMatchObject({role:'admin',organization:{id:'atlas'}});
     }
+  }
+});
+
+it('sends ICS administrators to the admin workspace and never shows a role picker',async()=>{
+  const previous=env.ICS_ADMIN_EMAILS;
+  const user={userId:'email:ics-owner',email:'ics-owner@ics.test',displayName:'ICS Owner',fullName:null};
+  env.ICS_ADMIN_EMAILS=user.email;
+  env.TECRID_PLATFORM_IDENTITY_SECRET='local-test-platform-secret';
+  request.headers=new Headers({'x-tecrid-platform-identity':env.TECRID_PLATFORM_IDENTITY_SECRET,'oai-authenticated-user-id':user.userId,'oai-authenticated-user-email':user.email});
+  try {
+    await expect(Welcome({searchParams:Promise.resolve({})})).rejects.toThrow('redirect:/admin/issuers');
+    await expect(Welcome({searchParams:Promise.resolve({return_to:'/dashboard'})})).rejects.toThrow('redirect:/admin/issuers');
+    await expect(JoinPage({searchParams:Promise.resolve({})})).rejects.toThrow('redirect:/admin/issuers');
+    await expect(DashboardPage()).rejects.toThrow('redirect:/admin/issuers');
+    expect(await getOrganizationForUser(user.userId)).toBeNull();
+  } finally {
+    env.ICS_ADMIN_EMAILS=previous;
   }
 });
